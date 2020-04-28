@@ -67,44 +67,46 @@ struct Some {
   using value_type = T;
 
   /// a `Some<T>` can only be constructed with an r-value of type `T`
-  explicit Some(T&& value) : value_{std::forward<T>(value)} {}
+  explicit constexpr Some(T&& value) : value_{std::forward<T>(value)} {}
 
-  Some(Some const&) = default;
-  Some(Some&& rhs) = default;
-  Some& operator=(Some const&) = default;
-  Some& operator=(Some&& rhs) = default;
-  ~Some() = default;
+  constexpr Some(Some const&) = default;
+  constexpr Some(Some&& rhs) = default;
+  constexpr Some& operator=(Some const&) = default;
+  constexpr Some& operator=(Some&& rhs) = default;
+  constexpr ~Some() = default;
 
   /// get an immutable reference to the wrapped value
-  T const& value() const { return value_; }
+  constexpr T const& value() const { return value_; }
 
   /// get mutable reference to the wrapped value
-  T& value() { return value_; }
+  constexpr T& value() { return value_; }
 
-  bool operator==(Some const& cmp) const requires EqualityComparable<T> {
+  constexpr bool operator==(Some const& cmp) const
+      requires EqualityComparable<T> {
     return value() == cmp.value();
   }
 
-  bool operator==(Some<MutRef<T>> const& cmp) const
+  constexpr bool operator==(Some<MutRef<T>> const& cmp) const
       requires EqualityComparable<T> {
     return value() == cmp.value().get();
   }
 
-  bool operator==(Some<ConstRef<T>> const& cmp) const
+  constexpr bool operator==(Some<ConstRef<T>> const& cmp) const
       requires EqualityComparable<T> {
     return value() == cmp.value().get();
   }
 
-  bool operator==(Some<T*> const& cmp) const requires EqualityComparable<T> {
-    return value() == *cmp.value();
-  }
-
-  bool operator==(Some<T const*> const& cmp) const
+  constexpr bool operator==(Some<T*> const& cmp) const
       requires EqualityComparable<T> {
     return value() == *cmp.value();
   }
 
-  bool operator==(NoneType const&) const { return false; }
+  constexpr bool operator==(Some<T const*> const& cmp) const
+      requires EqualityComparable<T> {
+    return value() == *cmp.value();
+  }
+
+  constexpr bool operator==(NoneType const&) const { return false; }
 
  private:
   T value_;
@@ -121,45 +123,47 @@ struct Ok {
   using value_type = T;
 
   ///  an `Ok<T>` can only be constructed with an r-value of type `T`
-  explicit Ok(T&& value) : value_{std::forward<T>(value)} {}
+  explicit constexpr Ok(T&& value) : value_{std::forward<T>(value)} {}
 
-  Ok(Ok const&) = delete;
-  Ok(Ok&& rhs) : value_{std::forward<T>(rhs.value_)} {}
-  Ok& operator=(Ok const&) = delete;
-  Ok& operator=(Ok&& rhs) {
+  constexpr Ok(Ok const&) = delete;
+  constexpr Ok(Ok&& rhs) : value_{std::forward<T>(rhs.value_)} {}
+  constexpr Ok& operator=(Ok const&) = delete;
+  constexpr Ok& operator=(Ok&& rhs) {
     std::swap(value_, rhs.value_);
     return *this;
   }
-  ~Ok() = default;
+  constexpr ~Ok() = default;
 
-  bool operator==(Ok const& cmp) const requires EqualityComparable<T> {
+  constexpr bool operator==(Ok const& cmp) const
+      requires EqualityComparable<T> {
     return value() == cmp.value();
   }
 
-  bool operator==(Ok<ConstRef<T>> const& cmp) const
+  constexpr bool operator==(Ok<ConstRef<T>> const& cmp) const
       requires EqualityComparable<T> {
     return value() == cmp.value().get();
   }
 
-  bool operator==(Ok<MutRef<T>> const& cmp) const
+  constexpr bool operator==(Ok<MutRef<T>> const& cmp) const
       requires EqualityComparable<T> {
     return value() == cmp.value().get();
   }
 
-  bool operator==(Ok<T*> const& cmp) const requires EqualityComparable<T> {
+  constexpr bool operator==(Ok<T*> const& cmp) const
+      requires EqualityComparable<T> {
     return value() == *cmp.value();
   }
 
-  bool operator==(Ok<const T*> const& cmp) const
+  constexpr bool operator==(Ok<const T*> const& cmp) const
       requires EqualityComparable<T> {
     return value() == *cmp.value();
   }
 
   /// get an immutable reference to the wrapped value
-  T const& value() const { return value_; }
+  constexpr T const& value() const { return value_; }
 
   /// get a mutable reference to the wrapped value
-  T& value() { return value_; }
+  constexpr T& value() { return value_; }
 
  private:
   T value_;
@@ -176,45 +180,47 @@ struct Err {
   using value_type = E;
 
   // an `Err<E>` can only be constructed with an r-value of type `E`
-  explicit Err(E&& value) : value_{std::forward<E>(value)} {}
+  explicit constexpr Err(E&& value) : value_{std::forward<E>(value)} {}
 
-  Err(Err const&) = delete;
-  Err(Err&& rhs) : value_{std::forward<E>(rhs.value_)} {}
-  Err& operator=(Err const&) = delete;
-  Err& operator=(Err&& rhs) {
+  constexpr Err(Err const&) = delete;
+  constexpr Err(Err&& rhs) : value_{std::forward<E>(rhs.value_)} {}
+  constexpr Err& operator=(Err const&) = delete;
+  constexpr Err& operator=(Err&& rhs) {
     std::swap(value_, rhs.value_);
     return *this;
   }
-  ~Err() = default;
+  constexpr ~Err() = default;
 
-  bool operator==(Err const& cmp) const requires EqualityComparable<E> {
+  constexpr bool operator==(Err const& cmp) const
+      requires EqualityComparable<E> {
     return value() == cmp.value();
   }
 
-  bool operator==(Err<ConstRef<E>> const& cmp) const
+  constexpr bool operator==(Err<ConstRef<E>> const& cmp) const
       requires EqualityComparable<E> {
     return value() == cmp.value().get();
   }
 
-  bool operator==(Err<MutRef<E>> const& cmp) const
+  constexpr bool operator==(Err<MutRef<E>> const& cmp) const
       requires EqualityComparable<E> {
     return value() == cmp.value().get();
   }
 
-  bool operator==(Err<E*> const& cmp) const requires EqualityComparable<E> {
+  constexpr bool operator==(Err<E*> const& cmp) const
+      requires EqualityComparable<E> {
     return value() == *cmp.value();
   }
 
-  bool operator==(Err<E const*> const& cmp) const
+  constexpr bool operator==(Err<E const*> const& cmp) const
       requires EqualityComparable<E> {
     return value() == *cmp.value();
   }
 
   /// get an immutable reference to the wrapped value
-  E const& value() const { return value_; }
+  constexpr E const& value() const { return value_; }
 
   /// get a mutable reference to the wrapped value
-  E& value() { return value_; }
+  constexpr E& value() { return value_; }
 
  private:
   E value_;
@@ -267,7 +273,6 @@ class Result;
 template <Swappable T>
 class Option {
   using value_type = T;
-  using storage_type = option_variant_storage<Some<T>>;
 
   static_assert(!same_as<T, NoneType>,
                 "Cannot use NoneType for T of Option<T>, as "
@@ -276,21 +281,19 @@ class Option {
  public:
   Option() = delete;
 
-  Option(Some<T>&& some) {  // NOLINT
-    construct_some_(std::forward<Some<T>>(some));
-    is_none_ = false;
-  }
+  Option(Some<T>&& some)
+      : is_none_{false}, storage_{std::move(some.value_)} {}
 
-  Option(NoneType const&) {  // NOLINT
-    is_none_ = true;
-  }
+  Option(NoneType const&) : is_none_{true}, storage_{.none = None} {}  // NOLINT
 
   Option(Option const&) = delete;
   Option& operator=(Option const&) = delete;
 
-  Option(Option&& rhs) {
+  // constexpr?
+  // placement-new!!
+  Option(Option&& rhs) : storage_{.none = None}, is_none_{true} {
     if (rhs.is_some()) {
-      construct_some_(std::move(rhs.value_wrap_ref_()));
+      new (&storage_.value) T{std::move(rhs.value_ref_())};
     }
     is_none_ = std::move(rhs.is_none_);
   }
@@ -298,7 +301,7 @@ class Option {
   Option& operator=(Option&& rhs) {
     // contained object is destroyed as appropriate after the end
     // of this scope
-    std::swap(value_wrap_ref_(), rhs.value_wrap_ref_());
+    std::swap(rhs.value_ref_(), rhs.value_ref_());
     std::swap(is_none_, rhs.is_none_);
 
     return *this;
@@ -361,7 +364,7 @@ class Option {
 
   ~Option() noexcept {
     if (is_some()) {
-      value_wrap_ref_().~Some<T>();
+      value_ref_().~T();
     }
   }
 
@@ -1178,11 +1181,12 @@ class Option {
   /// ASSERT_EQ(old_y, None);
   /// ```
   auto replace(T&& replacement) & -> Option<T> {
+    // not constexpr
     if (is_some()) {
       std::swap(replacement, value_ref_());
       return Some<T>(std::move(replacement));
     } else {
-      construct_some_(Some<T>(std::forward<T>(replacement)));
+      new (&storage_.value) T{std::forward<T>(replacement)};
       is_none_ = false;
       return None;
     }
@@ -1472,33 +1476,15 @@ class Option {
   }
 
  private:
-  storage_type storage_;
+  union {
+    T value;
+    NoneType none;
+  } storage_;
   bool is_none_;
 
-  // returns a copy of the contained value
-  void construct_some_(Some<T>&& value) {
-    //
-    // object is created here with a placement
-    // we always call std::move or the destructor so the object is moved and
-    // destructors can be called through the moved object and thus leave this
-    // buffer representation in an unspecified state
-    auto buffer_ptr = &storage_.get_ref();
-    new (buffer_ptr) Some<T>{std::forward<Some<T>>(value)};
-  }
+  T& value_ref_() { return storage_.value; }
 
-  Some<T> const& value_wrap_cref_() const {
-    auto buffer = reinterpret_cast<Some<T> const*>(storage_.get());
-    return *std::launder(buffer);
-  }
-
-  Some<T>& value_wrap_ref_() {
-    auto buffer = reinterpret_cast<Some<T>*>(storage_.get());
-    return *std::launder(buffer);
-  }
-
-  T& value_ref_() { return value_wrap_ref_().value_; }
-
-  T const& value_cref_() const { return value_wrap_cref_().value_; }
+  T const& value_cref_() const { return storage_.value; }
 };
 
 //! [section="Result"]
