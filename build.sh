@@ -1,0 +1,8 @@
+ 2007  clang++-10 -Og -g -Wall -Wextra -Wpedantic -std=c++2a option_test.cc option.cc panic_test.cc panic.cc result_test.cc result.cc -o tests_address_sanitized.bin -lgtest -lpthread -fsanitize=address
+ 2008  clang++-10 -Og -g -Wall -Wextra -Wpedantic -std=c++2a option_test.cc option.cc panic_test.cc panic.cc result_test.cc result.cc -o tests_undefined_sanitized.bin -lgtest -lpthread -fsanitize=undefined
+ 2009  clang++-10 -Og -g -Wall -Wextra -Wpedantic -std=c++2a option_test.cc option.cc panic_test.cc panic.cc result_test.cc result.cc -o tests_alignment_sanitized.bin -lgtest -lpthread -fsanitize=alignment
+ 2010  clang++-10 -Og -g -Wall -Wextra -Wpedantic -std=c++2a option_test.cc option.cc panic_test.cc panic.cc result_test.cc result.cc -o tests_leak_sanitized.bin -lgtest -lpthread -fsanitize=leak
+ 2011  clang++-10 -O3 -Wall -Wextra -Wpedantic -std=c++2a option_test.cc option.cc panic_test.cc panic.cc result_test.cc result.cc -o tests_address_sanitized.bin -lgtest -lpthread -fsanitize=address
+ 2012  clang++-10 -O3 -Wall -Wextra -Wpedantic -std=c++2a option_test.cc option.cc panic_test.cc panic.cc result_test.cc result.cc -o tests_undefined_sanitized.bin -lgtest -lpthread -fsanitize=undefined
+ 2013  clang++-10 -O3 -Wall -Wextra -Wpedantic -std=c++2a option_test.cc option.cc panic_test.cc panic.cc result_test.cc result.cc -o tests_alignment_sanitized.bin -lgtest -lpthread -fsanitize=alignment
+ 2014  clang++-10 -O3 -Wall -Wextra -Wpedantic -std=c++2a option_test.cc option.cc panic_test.cc panic.cc result_test.cc result.cc -o tests_leak_sanitized.bin -lgtest -lpthread -fsanitize=leak
