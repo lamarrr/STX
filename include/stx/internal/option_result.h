@@ -285,9 +285,9 @@ class Option {
   // constexpr?
   // placement-new!!
   // we can't make this constexpr
-  Option(Option&& rhs) : is_none_{true} {
+  Option(Option&& rhs) {
     if (rhs.is_some()) {
-      new (&storage_value_) T{std::move(rhs.storage_value_)};
+      storage_value_ = std::move(rhs.storage_value_);
     }
     is_none_ = rhs.is_none_;
   }
@@ -1561,23 +1561,21 @@ class Result {
   Result() = delete;
 
   constexpr Result(Ok<T>&& result)
-      : is_ok_{true}, storage_value_{std::move(result.value_)} {}
+      : is_ok_{true}, storage_value_{std::forward<T>(result.value_)} {}
 
   constexpr Result(Err<E>&& err)
-      : is_ok_{false}, storage_err_{std::move(err.value_)} {}
+      : is_ok_{false}, storage_err_{std::forward<E>(err.value_)} {}
 
   Result(Result const& rhs) = delete;
   Result& operator=(Result const& rhs) = delete;
 
   // ?
-  Result(Result&& rhs) {
+  constexpr Result(Result&& rhs) : is_ok_{rhs.is_ok_} {
     // not correct
     if (rhs.is_ok()) {
-      storage_value_ = T{std::move(rhs.storage_value_)};
-      is_ok_ = true;
+      new (&storage_value_) T{std::move(rhs.storage_value_)};
     } else {
-      storage_err_ = E{std::move(rhs.storage_err_)};
-      is_ok_ = false;
+      new (&storage_err_) E{std::move(rhs.storage_err_)};
     }
   }
 
@@ -1591,7 +1589,7 @@ class Result {
       is_ok_ = false;
     } else if (is_err() && rhs.is_ok()) {
       storage_err_.~E();
-      new (&storage_value_) E{std::move(rhs.storage_value_)};
+      new (&storage_value_) T{std::move(rhs.storage_value_)};
       is_ok_ = true;
     } else {
       // both are errs
@@ -3100,6 +3098,9 @@ constexpr auto v =
     Option(Some(6)).map([](int a) { return a + 6; }).map([](int a) {
       return a * 10;
     });
+
+constexpr Result<int, int> g = Result<int, int>(Ok(9));
+static_assert(g.is_ok());
 
 };  // namespace stx
 

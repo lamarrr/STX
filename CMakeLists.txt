@@ -9,6 +9,7 @@ project(
 set(CMAKE_CXX_STANDARD_REQUIRED 20)
 
 option(STX_BUILD_TESTS "Build tests" OFF)
+option(STX_BUILD_DOCS "Build Documentation" OFF)
 option(STX_BUILD_BENCHMARKS "Build benchmarks" OFF)
 option(STX_SANITIZE_TESTS "Build sanitized tests" OFF)
 option(STX_OVERRIDE_PANIC_HANDLER
