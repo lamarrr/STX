@@ -86,6 +86,12 @@ TEST(OptionTest, ObjectConstructionTest) {
   EXPECT_NO_THROW(fn_a());
   auto fn_b = []() -> Option<MoveOnly<1>> { return None; };
   EXPECT_NO_THROW(fn_b());
+
+
+  auto d = fn_a();
+  d = Some(make_mv<0>());
+  d = None;
+  d = Some(make_mv<0>());
 }
 
 TEST(OptionTest, ObjectForwardingTest) {
@@ -97,6 +103,24 @@ TEST(OptionTest, ObjectForwardingTest) {
     return Some(make_unique<int[]>(1024));
   };
   EXPECT_NO_THROW(fn_b().unwrap());
+
+  Option g = Some(vector{1, 2, 3, 4, 5});
+
+  g = Some(vector{5, 6, 7, 8, 9});
+
+  ASSERT_EQ(g, Some(vector{5, 6, 7, 8, 9}));
+
+  g = None;
+
+  ASSERT_EQ(g, None);
+
+  g = Some(vector{1, 2, 3, 4, 5});
+
+  ASSERT_EQ(g, Some(vector{1, 2, 3, 4, 5}));
+
+  g = None;
+
+  ASSERT_EQ(g, None);
 }
 
 TEST(OptionTest, Equality) {
