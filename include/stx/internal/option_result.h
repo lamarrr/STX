@@ -289,12 +289,14 @@ class Option {
   }
 
   Option& operator=(Option&& rhs) {
-    // contained object is destroyed as appropriate after the end
-    // of this scope
-    if (rhs.is_some()) {
+    if (is_some() && rhs.is_some()) {
       std::swap(value_wrap_ref_(), rhs.value_wrap_ref_());
-      std::swap(is_none_, rhs.is_none_);
+    } else if (is_none() && rhs.is_some()) {
+      construct_some_(std::move(rhs.value_wrap_ref_()));
+    } else if (is_some() && rhs.is_none()) {
+      Ok<T> tmp = std::move(value_wrap_ref_());
     }
+    std::swap(is_none_, rhs.is_none_);
     return *this;
   }
 
