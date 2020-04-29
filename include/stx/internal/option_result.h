@@ -60,9 +60,6 @@ struct Some {
   static_assert(!std::is_reference_v<T>,
                 "Cannot use T& for type, To prevent subtleties use "
                 "reference_wrapper<T> instead");
-  static_assert(!same_as<T, NoneType>,
-                "Cannot use NoneType for T of Some<T>, as "
-                "Option<T>(=Option<NoneType>) will have ambigous overloads");
 
   using value_type = T;
 
@@ -268,10 +265,6 @@ template <Swappable T>
 class Option {
   using value_type = T;
   using storage_type = option_variant_storage<Some<T>>;
-
-  static_assert(!same_as<T, NoneType>,
-                "Cannot use NoneType for T of Option<T>, as "
-                "Option<NoneType> will have ambigous overloads");
 
  public:
   Option() = delete;
@@ -1587,7 +1580,7 @@ class Result {
     } else {
       construct_err_(std::move(rhs.err_wrap_ref_()));
     }
-    is_ok_ = std::move(rhs.is_ok_);
+    is_ok_ = rhs.is_ok_;
   }
 
   Result& operator=(Result&& rhs) {
