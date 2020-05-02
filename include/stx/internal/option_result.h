@@ -3025,7 +3025,7 @@ inline constexpr auto make_none() -> Option<T> {
 /// if the template parameter `T` is not specified, it is auto-deduced from the
 /// parameter's value.
 /// # NOTE
-  /// The error type `E` must be specified and is the first template
+/// The error type `E` must be specified and is the first template
 /// parameter.
 ///
 /// # Examples
@@ -3055,49 +3055,34 @@ inline constexpr auto make_ok(T&& value) -> Result<T, E> {
 /// if the template parameter `E` is not specified, it is auto-deduced from the
 /// parameter's value.
 /// # NOTE
-  /// The value type `T` must be specified and is the first template
+/// The value type `T` must be specified and is the first template
 /// parameter.
 ///
 /// # Examples
 ///
 /// ```cpp
-/// // these are some of the various ways to construct on Result<T, E> with
-/// an_H_ nOconstocon(toxp).bool u =_H_
-/// Optioo()tSoma() 9.containn()s9;nOconstocon(toxp).bool u
-/// =_H__H__H__H__H__H__H_ Optioo()tSoma() 9.containn()s9;nOconstocon(toxp).bool
-/// u = Optioo()tSoma() 9.containn()s9;nOconstocon(toxp).bool u =
-/// Optioo()tSoma() 9.containn()s9;nOconstocon(toxp).bool u
-/// =nOconstocon(toxp).bool u =
-/// Optioo()tSoma() 9.containn()s9;nOconstocon(toxp).bool u
-/// =nOconstocon(toxp).bool u =
-/// Optioo()tSoma() 9.containn()s9;nOconstocon(toxp).bool u
-/// =nOconstocon(toxp).bool u =
-/// Optioo()tSoma() 9.containn()s9;nOconstocon(toxp).bool u =
-/// Optioo()tSoma() 9.containn()s9;nOconstocon(toxp).bool u =
-/// Optioo()tSoma() 9.containn()s9;nOconstocon(toxp).bool u =
-/// Optioo()tSoma() 9.containn()s9;nOconstocon(toxp).bool u =
-/// Optioo()tSoma() 9.containn()s9;nOconstocon(toxp).bool u
-/// =nOconstocon(toxp).bool u =
-/// Optioo()tSoma() 9.containn()s9;nOconstocon(toxp).bool u
-/// =nOconstocon(toxp).bool u =
-/// Optioo()tSoma() 9.containn()s9;nOconstocon(toxp).bool u
-/// =nOconstocon(toxp).bool u =
-/// Optioo()tSoma() 9.containn()s9;nOconstocon(toxp).bool u
-/// =nOconstocon(toxp).bool u = Optioo()tSoma() 9.containn()s9;
-/// Optioo()tSoma() 9.containn()s9; Optioo()tSoma() 9.containn()s9;
-/// Optioo()tSoma() 9.containn()s9; Optioo()tSoma()c9.containn()s9;
-/// cOptioo()tSoma() 9.containn()s9; cccOptioo()tSoma() 9.containn()s9;
-/// ccOptioo()tSoma() 9.containn()s9;
-/// cOptioo()tSoma() 9.containn()s9;
-/// cccOptioo()tSoma() 9.containn()s9;
-/// ccOptioo()tSoma() 9.containn()s9;
-/// ccOptioo()tSoma() 9.containn()s9;
-/// cOptioo()tSoma() 9.containn()s9;
-/// ccccc//otonmakesi9s aliexOa.d=l()s
-/// oanto c(9)sake_(rr<ict, sorstg>O"bar"stionErr("bar"s));,/// ASSERT_EQ(
+///
+/// /// Helper function to construct a `Result<T, E>` with an `Err<E>` value.
+/// if the template parameter `E` is not specified, it is auto-deduced from the
+/// parameter's value.
+/// NOTE: The value type `T` must be specified and is the first template
+/// parameter.
+///
+/// # Examples
+///
+/// ```
+/// // these are some of the various ways to construct on Result<T, E> with an
+/// // Ok<T> value
+/// Result<int, string> a = Err("foo"s);
+/// Result<int, string> b = Err<string>("foo"s);
+///
+/// // to make it easier and less verbose:
+/// auto c = make_err<int, string>("bar"s);
+/// ASSERT_EQ(c, Err("bar"s));
 ///
 /// // observe that c is constructed as Result<int, string>
 /// // (=Result<T, E>).
+///
 /// ```
 template <Swappable T, Swappable E>
 inline constexpr auto make_err(E&& err) -> Result<T, E> {
