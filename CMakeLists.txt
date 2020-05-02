@@ -14,6 +14,7 @@ option(STX_BUILD_BENCHMARKS "Build benchmarks" OFF)
 option(STX_SANITIZE_TESTS "Build sanitized tests" OFF)
 option(STX_OVERRIDE_PANIC_HANDLER
        "Override the default panic behaviour (See: )" OFF)
+option(STX_BUILD_DOCS "Build Documentation" OFF)
 
 list(APPEND STX_COMPILER_DEFS)
 if(STX_OVERRIDE_PANIC_HANDLER)
@@ -124,5 +125,25 @@ if(STX_BUILD_BENCHMARKS)
 
   add_benchmark(one_op one_op.cc)
   add_benchmark(two_op two_op.cc)
+
+endif()
+
+if(STX_BUILD_DOCS)
+  find_package(Doxygen REQUIRED)
+  set(DOXYGEN_IN ${CMAKE_CURRENT_LIST_DIR}/Doxyfile.in)
+  set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/docs/Doxyfile)
+
+  # request to configure the file
+  configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
+  message("Doxygen build started")
+
+  # note the option ALL which allows to build the docs together with the
+  # application
+  add_custom_target(
+    docs ALL
+    COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+    COMMENT "Generating API documentation with Doxygen"
+    VERBATIM)
 
 endif()

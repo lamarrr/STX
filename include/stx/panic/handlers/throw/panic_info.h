@@ -18,6 +18,10 @@
 
 namespace stx {
 
+/// `PanicInfo` is an error-reporting mechanism for panics.
+///
+/// `PanicInfo` exceptions thrown via `panic_throw` are not meant to be caught!
+/// They serve as a termination point for the program
 class PanicInfo : public std::exception {
  public:
   // `message` must be a stack-allocated or long-lived string

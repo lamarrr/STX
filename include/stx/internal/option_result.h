@@ -16,14 +16,14 @@
 
 #include "stx/common.h"
 #include "stx/internal/panic_helpers.h"
-#include "stx/internal/storage.h"
 
-/// why so long? Option and Result both depend on each other. I don't know of a
-/// way to break the cyclic dependency, majorly because they are templated
+// why so long? Option and Result both depend on each other. I don't know of a
+// way to break the cyclic dependency, majorly because they are templated
 
-/// [tests_prelude]
 /// to run tests, use:
-/// ```
+///
+/// ```cpp
+///
 /// #include <iostream>
 /// #include <string>
 /// #include <string_view>
@@ -35,6 +35,7 @@
 /// using namespace std::string_literals; // makes `"Hello"s` give std::string
 ///                                       // directly and not `const char []`
 /// using namespace std::string_view_literals;
+///
 /// ```
 namespace stx {
 
@@ -228,7 +229,6 @@ struct Err {
 template <Swappable T, Swappable E>
 class Result;
 
-//! [section="Option"]
 //! Optional values.
 //!
 //! Type `Option` represents an optional value: every `Option`
@@ -247,8 +247,8 @@ class Result;
 //! * Nullable pointers
 //! * Swapping things out of difficult situations
 //!
-//! ```Option`s are commonly paired with pattern matching to query the
-//! presence of a value and take action, always accounting for the ```None```
+//! `Option`'s are commonly paired with pattern matching to query the
+//! presence of a value and take action, always accounting for the `None`s
 //! case.
 //!
 //! ```
@@ -285,25 +285,27 @@ class Option {
   // constexpr?
   // placement-new!!
   // we can't make this constexpr
-  Option(Option&& rhs) {
+  Option(Option&& rhs) : is_none_{rhs.is_none_} {
     if (rhs.is_some()) {
-      storage_value_ = std::move(rhs.storage_value_);
+      new (&storage_value_) T{std::move(rhs.storage_value_)};
     }
-    is_none_ = rhs.is_none_;
   }
 
   Option& operator=(Option&& rhs) {
     // contained object is destroyed as appropriate after the end
     // of this scope
     if (is_some() && rhs.is_some()) {
-      std::swap(value_ref_(), rhs.value_ref_());
+      std::swap(storage_value_, rhs.storage_value_);
     } else if (is_some() && rhs.is_none()) {
+      new (&rhs.storage_value_) T{std::move(storage_value_)};
       storage_value_.~T();
       is_none_ = true;
+      rhs.is_none_ = false;
     } else if (is_none() && rhs.is_some()) {
       new (&storage_value_) T{std::move(rhs.storage_value_)};
+      rhs.storage_value_.~T();
+      rhs.is_none_ = true;
       is_none_ = false;
-    } else {
     }
 
     return *this;
@@ -377,7 +379,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// Option x = Some(2);
   /// ASSERT_TRUE(x.is_some());
   ///
@@ -391,7 +393,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// Option x = Some(2);
   /// ASSERT_FALSE(x.is_none());
   ///
@@ -405,7 +407,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// Option x = Some(2);
   /// ASSERT_TRUE(x.contains(2));
   ///
@@ -427,7 +429,8 @@ class Option {
   /// Converts from `Option<T> const&` or `Option<T> &` to
   /// `Option<ConstRef<T>>`.
   ///
-  /// NOTE: `ConstRef<T>` is an alias for `std::reference_wrapper<T const>` and
+  /// # NOTE
+  /// `ConstRef<T>` is an alias for `std::reference_wrapper<T const>` and
   /// guides against reference-collapsing
   constexpr auto as_const_ref() const& -> Option<ConstRef<T>> {
     if (is_some()) {
@@ -454,7 +457,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto mutate = [](Option<int>& r) {
   ///  r.as_mut_ref().match([](MutRef<int> ref) { ref.get() = 42; },
   ///                       []() { });
@@ -499,14 +502,14 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// Option x = Some("value"s);
   /// ASSERT_EQ(move(x).expect("the world is ending"), "value");
   ///
   /// Option<string> y = None;
   /// ASSERT_ANY_THROW(move(y).expect("the world is ending")); // panics with
-  ///                                                          // `the world is
-  ///                                                          // ending`
+  ///                                                          // the world is
+  ///                                                          // ending
   /// ```
   constexpr auto expect(std::string_view msg) && -> T {
     if (is_some()) {
@@ -529,7 +532,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// Option x = Some("air"s);
   /// ASSERT_EQ(move(x).unwrap(), "air");
   ///
@@ -553,7 +556,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// ASSERT_EQ(Option(Some("car"s)).unwrap_or("bike"), "car");
   /// ASSERT_EQ(make_none<string>().unwrap_or("bike"), "bike");
   /// ```
@@ -569,7 +572,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// int k = 10;
   /// auto alt = [&k]() { return 2 * k; };
   ///
@@ -590,7 +593,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// int k = 10;
   /// auto alt = [&k]() { return 2 * k; };
   ///
@@ -670,7 +673,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// Option x = Some("foo"s);
   /// auto alt_fn = [](auto s) { return s.size(); };
   /// ASSERT_EQ(move(x).map_or(alt_fn, 42UL), 3UL);
@@ -692,7 +695,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// Option x = Some("foo"s);
   /// auto alt_fn = [](auto s) { return s.size(); };
   /// ASSERT_EQ(move(x).map_or(alt_fn, 42UL), 3UL);
@@ -714,7 +717,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// size_t k = 21;
   /// auto map_fn = [] (auto s) { return s.size(); };
   /// auto alt_fn = [&k] () { return 2UL * k; };
@@ -741,7 +744,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// size_t k = 21;
   /// auto map_fn = [] (auto s) { return s.size(); };
   /// auto alt_fn = [&k] () { return 2UL * k; };
@@ -768,7 +771,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// size_t k = 21;
   /// auto map_fn = [] (auto s) { return s.size(); };
   /// auto alt_fn = [&k] () { return 2UL * k; };
@@ -795,7 +798,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// size_t k = 21;
   /// auto map_fn = [] (auto s) { return s.size(); };
   /// auto alt_fn = [&k] () { return 2UL * k; };
@@ -826,7 +829,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// Option x = Some("foo"s);
   /// ASSERT_EQ(move(x).ok_or(0), Ok("foo"s));
   ///
@@ -847,7 +850,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto else_fn = [] () { return 0; };
   ///
   /// Option x = Some("foo"s);
@@ -871,7 +874,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto else_fn = [] () { return 0; };
   ///
   /// Option x = Some("foo"s);
@@ -894,7 +897,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// Option a = Some(2);
   /// Option<string> b = None;
   /// ASSERT_EQ(move(a).AND(move(b)), None);
@@ -927,7 +930,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto sq = [] (auto x) -> Option<int> { return Some(x * x); };
   /// auto nope = [] (auto) -> Option<int> { return None; };
   ///
@@ -954,7 +957,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto sq = [] (auto x) -> Option<int> { return Some(x * x); };
   /// auto nope = [] (auto) -> Option<int> { return None; };
   ///
@@ -984,7 +987,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto is_even = [](int n) -> bool { return n % 2 == 0; };
   ///
   /// ASSERT_EQ(make_none<int>().filter(is_even), None);
@@ -1012,7 +1015,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto is_even = [](int n) -> bool { return n % 2 == 0; };
   ///
   /// ASSERT_EQ(make_none<int>().filter(is_even), None);
@@ -1038,7 +1041,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// Option a = Some(2);
   /// Option<int> b = None;
   /// ASSERT_EQ(move(a).OR(move(b)), Some(2));
@@ -1068,7 +1071,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto nobody = []() -> Option<string> { return None; };
   /// auto vikings = []() -> Option<string> { return Some("vikings"s); };
   ///
@@ -1092,7 +1095,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto nobody = []() -> Option<string> { return None; };
   /// auto vikings = []() -> Option<string> { return Some("vikings"s); };
   ///
@@ -1117,7 +1120,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// Option a = Some(2);
   /// Option<int> b = None;
   /// ASSERT_EQ(move(a).XOR(move(b)), Some(2));
@@ -1149,7 +1152,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// Option a = Some(2);
   /// auto b = a.take();
   /// ASSERT_EQ(a, None);
@@ -1176,7 +1179,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// Option x = Some(2);
   /// auto old_x = x.replace(5);
   /// ASSERT_EQ(x, Some(5));
@@ -1192,7 +1195,7 @@ class Option {
       std::swap(replacement, value_ref_());
       return Some<T>(std::move(replacement));
     } else {
-      storage_value_ = std::move(replacement);
+      new (&storage_value_) T{std::move(replacement)};
       is_none_ = false;
       return None;
     }
@@ -1216,7 +1219,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto divide = [](double num, double denom) -> Option<double> {
   /// if (denom == 0.0) return None;
   ///  return Some(num / denom);
@@ -1242,7 +1245,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto divide = [](double num, double denom) -> Option<double> {
   /// if (denom == 0.0) return None;
   ///  return Some(num / denom);
@@ -1268,7 +1271,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// Option x = Some("Ten"s);
   /// Option<string> y = None;
   ///
@@ -1291,7 +1294,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto str = "Hello"s;
   /// Option x = Some(&str);
   /// ASSERT_EQ(x.as_const_deref().unwrap().get(), "Hello"s);
@@ -1327,7 +1330,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto str = "Hello"s;
   /// Option x = Some(&str);
   /// x.as_mut_deref().unwrap().get() = "World"s;
@@ -1371,7 +1374,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto j = make_some("James"s).match([](string name) { return name; },
   ///                                    []() { return "<unidentified>"s; });
   /// ASSERT_EQ(j, "James"s);
@@ -1401,7 +1404,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto j = make_some("James"s).match([](string name) { return name; },
   ///                                    []() { return "<unidentified>"s; });
   /// ASSERT_EQ(j, "James"s);
@@ -1432,7 +1435,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto j = make_some("James"s).match([](string name) { return name; },
   ///                                    []() { return "<unidentified>"s; });
   /// ASSERT_EQ(j, "James"s);
@@ -1463,7 +1466,7 @@ class Option {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto j = make_some("James"s).match([](string name) { return name; },
   ///                                    []() { return "<unidentified>"s; });
   /// ASSERT_EQ(j, "James"s);
@@ -1494,7 +1497,6 @@ class Option {
   constexpr T const& value_cref_() const { return storage_value_; }
 };
 
-//! [section="Result"]
 //! Error handling with the `Result` type.
 //!
 //! `Result<T, E>` is a type used for returning and propagating
@@ -1509,7 +1511,7 @@ class Option {
 //! A simple function returning `Result` might be
 //! defined and used like so:
 //!
-//! ```
+//! ```cpp
 //! enum class Version { Version1 = 1, Version2 = 2 };
 //!
 //! auto parse_version =
@@ -1536,7 +1538,7 @@ class Option {
 //! `Result` comes with some convenience methods that make working with it more
 //! succinct.
 //!
-//! ```
+//! ```cpp
 //! Result<int, int> good_result = Ok(10);
 //! Result<int, int> bad_result = Err(10);
 //!
@@ -1569,8 +1571,8 @@ class Result {
   Result(Result const& rhs) = delete;
   Result& operator=(Result const& rhs) = delete;
 
-  // ?
-  constexpr Result(Result&& rhs) : is_ok_{rhs.is_ok_} {
+  // ???????????????????????
+  Result(Result&& rhs) : is_ok_{rhs.is_ok_} {
     // not correct
     if (rhs.is_ok()) {
       new (&storage_value_) T{std::move(rhs.storage_value_)};
@@ -1712,7 +1714,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// Result<int, string_view> x = Ok(-3);
   /// ASSERT_TRUE(x.is_ok());
   ///
@@ -1725,7 +1727,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// Result<int, string_view> x = Ok(-3);
   /// ASSERT_FALSE(x.is_err());
   ///
@@ -1739,7 +1741,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   ///
   /// Result<int, string> x = Ok(2);
   /// ASSERT_TRUE(x.contains(2));
@@ -1764,7 +1766,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   ///
   /// Result<int, string> x = Ok(2);
   /// ASSERT_FALSE(x.contains_err("Some error message"s));
@@ -1791,7 +1793,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// Result<int, string> x = Ok(2);
   /// ASSERT_EQ(move(x).ok(), Some(2));
   ///
@@ -1814,7 +1816,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// Result<int, string> x = Ok(2);
   /// ASSERT_EQ(move(x).err(), None);
   ///
@@ -1837,7 +1839,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// Result<int, string> x = Ok(2);
   /// ASSERT_EQ(x.as_const_ref().unwrap().get(), 2);
   ///
@@ -1869,7 +1871,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto mutate = [](Result<int, int>& r) {
   ///  r.as_mut_ref().match([](auto ok) { ok.get() = 42; },
   ///                       [](auto err) { err.get() = 0; });
@@ -1913,7 +1915,7 @@ class Result {
   ///
   /// Extract the content-type from an http header
   ///
-  /// ```
+  /// ```cpp
   /// enum class Error { InvalidHeader };
   /// auto header = "Content-Type: multipart/form-data"sv;
   ///
@@ -1946,7 +1948,7 @@ class Result {
   ///
   /// Extract the content-type from an http header
   ///
-  /// ```
+  /// ```cpp
   /// enum class Error { InvalidHeader };
   /// auto header = "Content-Type: multipart/form-data"sv;
   ///
@@ -1974,7 +1976,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// Result<string, int> x = Ok("foo"s);
   /// auto map_fn = [](auto s) { return s.size(); };
   /// ASSERT_EQ(move(x).map_or(map_fn, 42UL), 3UL);
@@ -1997,7 +1999,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// Result<string, int> x = Ok("foo"s);
   /// auto map_fn = [](auto s) { return s.size(); };
   /// ASSERT_EQ(move(x).map_or(map_fn, 42UL), 3UL);
@@ -2024,7 +2026,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// size_t const k = 21;
   ///
   /// Result<string_view, size_t> x = Ok("foo"sv);
@@ -2054,7 +2056,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// size_t const k = 21;
   ///
   /// Result<string_view, size_t> x = Ok("foo"sv);
@@ -2084,7 +2086,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// size_t const k = 21;
   ///
   /// Result<string_view, size_t> x = Ok("foo"sv);
@@ -2114,7 +2116,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// size_t const k = 21;
   ///
   /// Result<string_view, size_t> x = Ok("foo"sv);
@@ -2144,7 +2146,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto stringify = [](auto x) { return "error code: " + std::to_string(x);
   /// };
   ///
@@ -2172,7 +2174,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto stringify = [](auto x) { return "error code: " + std::to_string(x);
   /// };
   ///
@@ -2197,7 +2199,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// Result<int, string_view> a = Ok(2);
   /// Result<string_view, string_view> b = Err("late error"sv);
   /// ASSERT_EQ(move(a).AND(move(b)), Err("late error"sv));
@@ -2230,7 +2232,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto sq = [](int x) { return x * x; };
   ///
   /// auto make_ok = [](int x) -> Result<int, int> { return Ok(move(x)); };
@@ -2256,7 +2258,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto sq = [](int x) { return x * x; };
   ///
   /// auto make_ok = [](int x) -> Result<int, int> { return Ok(move(x)); };
@@ -2284,7 +2286,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// Result<int, string_view> a = Ok(2);
   /// Result<int, string_view> b = Err("late error"sv);
   /// ASSERT_EQ(move(a).OR(move(b)), Ok(2));
@@ -2317,7 +2319,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto make_ok = [](int x) -> Result<int, int> { return Ok(move(x)); };
   /// auto make_err = [](int x) -> Result<int, int> { return Err(move(x)); };
   /// auto sq = [](int err) -> Result<int, int> { return Ok(err * err); };
@@ -2346,7 +2348,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto make_ok = [](int x) -> Result<int, int> { return Ok(move(x)); };
   /// auto make_err = [](int x) -> Result<int, int> { return Err(move(x)); };
   /// auto sq = [](int err) -> Result<int, int> { return Ok(err * err); };
@@ -2377,7 +2379,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// int alt = 2;
   /// Result<int, string_view> x = Ok(9);
   /// ASSERT_EQ(move(x).unwrap_or(move(alt)), 9);
@@ -2400,7 +2402,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto count = [] (string_view err)  { return err.size(); };
   ///
   /// ASSERT_EQ(make_ok<size_t,string_view>(2UL).unwrap_or_else(count), 2);
@@ -2423,7 +2425,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto count = [] (string_view err)  { return err.size(); };
   ///
   /// ASSERT_EQ(make_ok<size_t,string_view>(2UL).unwrap_or_else(count), 2);
@@ -2449,7 +2451,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// ASSERT_EQ(make_ok<int, string_view>(2).unwrap(), 2);
   /// Result<int, string_view> x = Err("emergency failure"sv);
   /// ASSERT_ANY_THROW(move(x).unwrap());
@@ -2470,7 +2472,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// Result<int, string_view> x = Err("emergency failure"sv);
   /// ASSERT_ANY_THROW(move(x).expect("Testing expect"));
   /// ```
@@ -2491,7 +2493,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// Result<int, string_view> x = Ok(2);
   /// ASSERT_ANY_THROW(move(x).unwrap_err()); // panics
   ///
@@ -2514,7 +2516,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// Result<int, string_view> x = Ok(10);
   /// ASSERT_ANY_THROW(move(x).expect_err("Testing expect_err")); // panics with
   ///                                                             // `Testing
@@ -2536,7 +2538,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// Result<string, int> good_year = Ok("1909"s);
   /// Result<string, int> bad_year = Err(-1);
   ///
@@ -2563,16 +2565,18 @@ class Result {
   /// pointer-type `T`
   ///
   ///
-  /// NOTE: `ConstRef<U>` is an alias for `std::reference_wrapper<U const>`, but
+  /// # NOTE
+  /// `ConstRef<U>` is an alias for `std::reference_wrapper<U const>`, but
   /// that's too long :)
-  /// NOTE: If `T` is an owning pointer/iterator/object, This result
+  /// # NOTE
+  /// If `T` is an owning pointer/iterator/object, This result
   /// should live just as long as the dereference result obtained by calling
   /// this method.
   ///
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// int v = 98;
   ///
   /// Result<int*, string_view> x = Ok(&v);
@@ -2620,16 +2624,18 @@ class Result {
   /// pointer-type `E`
   ///
   ///
-  /// NOTE: `ConstRef<F>` is an alias for `std::reference_wrapper<F const>`, but
+  /// # NOTE
+  /// `ConstRef<F>` is an alias for `std::reference_wrapper<F const>`, but
   /// that's too long :)
-  /// NOTE: If `E` is an owning pointer/iterator/object, This result
+  /// # NOTE
+  /// If `E` is an owning pointer/iterator/object, This result
   /// should live just as long as the dereference result obtained by calling
   /// this method.
   ///
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// Result<int, string_view*> x = Ok(2);
   /// ConstRef<int> x_value_ref = x.as_const_deref_err().unwrap();
   /// ASSERT_EQ(x_value_ref.get(), 2);  // check their values
@@ -2676,16 +2682,18 @@ class Result {
   /// pointer-type `T`
   ///
   ///
-  /// NOTE: `MutRef<U>` is an alias for std::reference_wrapper<U>, but
+  /// # NOTE
+  /// `MutRef<U>` is an alias for std::reference_wrapper<U>, but
   /// that's too long :)
-  /// NOTE: If `T` is an owning pointer/iterator/object, This result
+  /// # NOTE
+  /// If `T` is an owning pointer/iterator/object, This result
   /// should live just as long as the dereference result obtained by calling
   /// this method.
   ///
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// int v = 98;
   ///
   /// Result<int*, string_view> x = Ok(&v);
@@ -2743,16 +2751,18 @@ class Result {
   /// pointer-type `T`
   ///
   ///
-  /// NOTE: `MutRef<F>` is an alias for std::reference_wrapper<F>, but
+  /// # NOTE
+  /// `MutRef<F>` is an alias for std::reference_wrapper<F>, but
   /// that's too long :)
-  /// NOTE: If `E` is an owning pointer/iterator/object, This result
+  /// # NOTE
+  /// If `E` is an owning pointer/iterator/object, This result
   /// should live just as long as the dereference result obtained by calling
   /// this method.
   ///
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// int e = 98;
   ///
   /// Result<string_view, int*> x = Err(&e);
@@ -2810,7 +2820,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto i = make_ok<int, string_view>(99);
   ///
   /// auto j = move(i).match([](int value) { return value; },
@@ -2843,7 +2853,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto i = make_ok<int, string_view>(99);
   ///
   /// auto j = move(i).match([](int value) { return value; },
@@ -2875,7 +2885,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto i = make_ok<int, string_view>(99);
   ///
   /// auto j = move(i).match([](int value) { return value; },
@@ -2907,7 +2917,7 @@ class Result {
   ///
   /// # Examples
   ///
-  /// ```
+  /// ```cpp
   /// auto i = make_ok<int, string_view>(99);
   ///
   /// auto j = move(i).match([](int value) { return value; },
@@ -2961,7 +2971,7 @@ class Result {
 ///
 /// # Examples
 ///
-/// ```
+/// ```cpp
 /// // these are some of the various ways to construct on Option<T> with a
 /// // Some<T> value
 /// Option g = Some(9);
@@ -2992,7 +3002,7 @@ inline constexpr auto make_some(T&& value) -> Option<T> {
 ///
 /// # Examples
 ///
-/// ```
+/// ```cpp
 /// // these are some of the various ways to construct on Option<T> with
 /// // a None value
 /// Option<int> h = None;
@@ -3014,12 +3024,13 @@ inline constexpr auto make_none() -> Option<T> {
 /// Helper function to construct a `Result<T, E>` with an `Ok<T>` value.
 /// if the template parameter `T` is not specified, it is auto-deduced from the
 /// parameter's value.
-/// NOTE: The error type `E` must be specified and is the first template
+/// # NOTE
+  /// The error type `E` must be specified and is the first template
 /// parameter.
 ///
 /// # Examples
 ///
-/// ```
+/// ```cpp
 /// // these are some of the various ways to construct on Result<T, E> with an
 /// // Ok<T> value
 /// Result<int, string> a = Ok(8);
@@ -3043,12 +3054,13 @@ inline constexpr auto make_ok(T&& value) -> Result<T, E> {
 /// Helper function to construct a `Result<T, E>` with an `Err<E>` value.
 /// if the template parameter `E` is not specified, it is auto-deduced from the
 /// parameter's value.
-/// NOTE: The value type `T` must be specified and is the first template
+/// # NOTE
+  /// The value type `T` must be specified and is the first template
 /// parameter.
 ///
 /// # Examples
 ///
-/// ```
+/// ```cpp
 /// // these are some of the various ways to construct on Result<T, E> with
 /// an_H_ nOconstocon(toxp).bool u =_H_
 /// Optioo()tSoma() 9.containn()s9;nOconstocon(toxp).bool u
@@ -3082,7 +3094,6 @@ inline constexpr auto make_ok(T&& value) -> Result<T, E> {
 /// ccOptioo()tSoma() 9.containn()s9;
 /// cOptioo()tSoma() 9.containn()s9;
 /// ccccc//otonmakesi9s aliexOa.d=l()s
-
 /// oanto c(9)sake_(rr<ict, sorstg>O"bar"stionErr("bar"s));,/// ASSERT_EQ(
 ///
 /// // observe that c is constructed as Result<int, string>
@@ -3092,15 +3103,6 @@ template <Swappable T, Swappable E>
 inline constexpr auto make_err(E&& err) -> Result<T, E> {
   return Result<T, E>(Err<E>(std::forward<E>(err)));
 }
-
-constexpr Option u = Some(9);
-constexpr auto v =
-    Option(Some(6)).map([](int a) { return a + 6; }).map([](int a) {
-      return a * 10;
-    });
-
-constexpr Result<int, int> g = Result<int, int>(Ok(9));
-static_assert(g.is_ok());
 
 };  // namespace stx
 
