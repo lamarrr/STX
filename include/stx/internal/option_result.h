@@ -1527,7 +1527,7 @@ class Option {
 //!   }
 //! };
 //!
-//! parse_version({0x01u, 0x02u, 0x03u, 0x04u, 0x05u})
+//! parse_version({1u, 2u, 3u, 4u, 5u})
 //!     .match(
 //!         [](auto value) { fmt::print("Working with version: {}\n", value);
 //!         },
