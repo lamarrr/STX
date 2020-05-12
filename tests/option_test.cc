@@ -52,7 +52,7 @@ MoveOnly<id> make_mv() {
 }
 
 static_assert(Swappable<MoveOnly<0>>);
-static_assert(EqualityComparable<MoveOnly<0>>);
+static_assert(equality_comparable<MoveOnly<0>>);
 
 struct FnMut {
   int call_times;
@@ -83,10 +83,9 @@ TEST(OptionTest, ObjectConstructionTest) {
   auto fn_a = []() -> Option<MoveOnly<0>> {
     return Some(make_mv<0>());  // NOLINT
   };
-  EXPECT_NO_THROW(fn_a());
+  EXPECT_NO_THROW(auto a_ = fn_a());
   auto fn_b = []() -> Option<MoveOnly<1>> { return None; };
-  EXPECT_NO_THROW(fn_b());
-
+  EXPECT_NO_THROW(auto b_ = fn_b());
 
   auto d = fn_a();
   d = Some(make_mv<0>());
@@ -200,7 +199,7 @@ TEST(OptionLifeTimeTest, AsMutRef) {
   EXPECT_NO_THROW(a.as_mut_ref().unwrap().get().done());
 
   auto b = Option<MoveOnly<1>>(None);
-  EXPECT_NO_THROW(b.as_mut_ref());
+  EXPECT_NO_THROW(auto b_ = b.as_mut_ref());
 }
 
 TEST(OptionTest, Unwrap) {
@@ -301,18 +300,18 @@ TEST(OptionLifetimeTest, Map) {
 
 TEST(OptionTest, FnMutMap) {
   auto fnmut_a = FnMut();
-  Option(Some(90)).map(fnmut_a);
-  Option(Some(90)).map(fnmut_a);
+  auto a1_ = Option(Some(90)).map(fnmut_a);
+  auto a2_ = Option(Some(90)).map(fnmut_a);
 
   EXPECT_EQ(fnmut_a.call_times, 2);
 
   auto const fnmut_b = FnMut();
-  Option(Some(90)).map(fnmut_b);
-  Option(Some(90)).map(fnmut_b);
+  auto b1_ = Option(Some(90)).map(fnmut_b);
+  auto b2_ = Option(Some(90)).map(fnmut_b);
   EXPECT_EQ(fnmut_b.call_times, 0);
 
   auto fnconst = FnConst();
-  Option(Some(90)).map(fnconst);
+  auto c = Option(Some(90)).map(fnconst);
 }
 
 TEST(OptionTest, MapOrElse) {

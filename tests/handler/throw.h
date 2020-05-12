@@ -11,7 +11,7 @@
 
 #ifndef PANIC_HANDLERS_THROW_THROW_H_
 #define PANIC_HANDLERS_THROW_THROW_H_
-#include "stx/panic/handlers/throw/panic_info.h"
+#include "handler/panic_info.h"
 
 namespace stx {
 /// Causes an exception of type `PanicInfo` to be thrown.

@@ -14,22 +14,25 @@
 #include <iostream>
 
 #include "gtest/gtest.h"
-#include "stx/panic/handlers/throw/throw.h"
+#include "handler/throw.h"
 
 using namespace stx;
-
-#define LOG(detail, x)                                                    \
-  std::cout << "[" << __FILE__ << ":" << std::to_string(__LINE__) << "] " \
-            << detail << ": " << x << std::endl
 
 TEST(PanicTest, PanicThrow)
 try {
   panic_throw("Panic test message");
 } catch (PanicInfo const& panic) {
-  EXPECT_EQ(panic.location().line(), __LINE__ - 2UL);
-  EXPECT_EQ(panic.location().file_name(), __FILE__);
-  EXPECT_EQ(panic.info(), "Panic test message");
-  LOG("Panic Column", panic.location().column());
-  LOG("Panic Function Name", panic.location().function_name());
-  EXPECT_EQ(panic.location().function_name(), "TestBody");
+  auto line = panic.location().line();
+  auto column = panic.location().column();
+  auto file = panic.location().file_name();
+  auto function_name = panic.location().function_name();
+  auto info = panic.info();
+
+  EXPECT_TRUE((line == 0) || (line == __LINE__ - 8UL));
+  EXPECT_TRUE((column == 0) || (column > 2 && column < 38));
+  EXPECT_TRUE((file == nullptr) ||
+              (std::string(file) == std::string(__FILE__)));
+  EXPECT_TRUE((function_name == nullptr) ||
+              (function_name == std::string("TestBody")));
+  EXPECT_EQ(info, std::string("Panic test message"));
 }

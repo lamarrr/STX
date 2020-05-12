@@ -8,8 +8,7 @@
  * @copyright Copyright (c) 2020
  *
  */
-#ifndef STX_PANIC_HANDLERS_ABORT_ABORT_H_
-#define STX_PANIC_HANDLERS_ABORT_ABORT_H_
+#pragma once
 
 #include <cstdlib>
 

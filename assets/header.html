@@ -1,56 +1,117 @@
 <!-- HTML header for doxygen 1.8.13-->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=9"/>
-<meta name="generator" content="Doxygen $doxygenversion"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<!--BEGIN PROJECT_NAME--><title>$projectname: $title</title><!--END PROJECT_NAME-->
-<!--BEGIN !PROJECT_NAME--><title>$title</title><!--END !PROJECT_NAME-->
-<link href="$relpath^tabs.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="$relpath^jquery.js"></script>
-<script type="text/javascript" src="$relpath^dynsections.js"></script>
-$treeview
-$search
-$mathjax
-<link href="$relpath^$stylesheet" rel="stylesheet" type="text/css" />
-$extrastylesheet
-</head>
-<body>
-<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
 
-<!--BEGIN TITLEAREA-->
-<div id="titlearea">
-<table cellspacing="0" cellpadding="0">
- <tbody>
- <tr style="height: 56px;">
-  <!--BEGIN PROJECT_LOGO-->
-  <td id="projectlogo"><img alt="Logo" src="$relpath^$projectlogo"/></td>
-  <!--END PROJECT_LOGO-->
-  <!--BEGIN PROJECT_NAME-->
-  <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname"> $projectname
-   <!--BEGIN PROJECT_NUMBER-->&#160;<span id="projectnumber">$projectnumber</span><!--END PROJECT_NUMBER-->
-   </div>
-   <!--BEGIN PROJECT_BRIEF--><div id="projectbrief">$projectbrief</div><!--END PROJECT_BRIEF-->
-  </td>
-  <!--END PROJECT_NAME-->
-  <!--BEGIN !PROJECT_NAME-->
-   <!--BEGIN PROJECT_BRIEF-->
-    <td style="padding-left: 0.5em;">
-    <div id="projectbrief">$projectbrief</div>
-    </td>
-   <!--END PROJECT_BRIEF-->
-  <!--END !PROJECT_NAME-->
-  <!--BEGIN DISABLE_INDEX-->
-   <!--BEGIN SEARCHENGINE-->
-   <td>$searchbox</td>
-   <!--END SEARCHENGINE-->
-  <!--END DISABLE_INDEX-->
- </tr>
- </tbody>
-</table>
-</div>
-<!--END TITLEAREA-->
-<!-- end header part -->
+<head>
+    <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    <meta name="generator" content="Doxygen $doxygenversion" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--BEGIN PROJECT_NAME-->
+    <title>$projectname: $title</title>
+    <!--END PROJECT_NAME-->
+    <!--BEGIN !PROJECT_NAME-->
+    <title>$title</title>
+    <!--END !PROJECT_NAME-->
+    <link href="$relpath^tabs.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="$relpath^jquery.js"></script>
+    <script type="text/javascript" src="$relpath^dynsections.js"></script>
+    $treeview
+    $search
+    $mathjax
+    <link href="$relpath^$stylesheet" rel="stylesheet" type="text/css" />
+    $extrastylesheet
+</head>
+
+
+<body>
+
+    <script>
+        /*
+                // light mode, dark mode
+                color: ["#333", "#DDD"],
+                backgroundColor: ["#FFFFFF", "#353535"],
+                cardBackgroundColor: ["#F5F5F5", "#2A2A2A"],
+                linkColor: ["#3D578C", "#D2991D"],
+                headerBackgroundColor: ["#F1F1F1", "#505050"],
+                headerHoverBackgroundColor: ["#F5F5F5", "#444"],
+        
+                // memtitle, memproto, memitemleft, memitemright 
+                docprotoBackgroundColor: ["#FAFAFA", "2A2A2A"]
+        */
+
+        function switchTheme() {
+            let theme = localStorage.getItem("theme");
+            if (theme == "light" || theme == null) {
+                document.body.className = "dark-theme";
+                localStorage.setItem("theme", "dark");
+            } else {
+                document.body.className = "";
+                localStorage.setItem("theme", "light");
+            }
+        }
+
+        (function loadTheme() {
+
+            let theme = localStorage.getItem("theme");
+            console.log("theme:" + theme);
+            if (theme == "light" || theme == null) {
+                document.body.className = "";
+            } else {
+                document.body.className = "dark-theme";
+            }
+
+        })();
+
+    </script>
+
+    <div class="theme-switch dimming-wrap" onclick="switchTheme()">
+        <div>
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 48 48">
+                <path
+                    d="M42 6H6c-2.21 0-4 1.79-4 4v28c0 2.21 1.79 4 4 4h36c2.21 0 4-1.79 4-4V10c0-2.21-1.79-4-4-4zm0 32.03H6V9.97h36v28.06zM16 32h5l3 3 3-3h5v-5l3-3-3-3v-5h-5l-3-3-3 3h-5v5l-3 3 3 3v5zm8-14c3.31 0 6 2.69 6 6s-2.69 6-6 6V18z" />
+            </svg></div>
+    </div>
+
+    <div id="top">
+        <!-- do not remove this div, it is closed by doxygen! -->
+        <!--BEGIN TITLEAREA-->
+        <div id="titlearea">
+            <table cellspacing="0" cellpadding="0">
+                <tbody>
+                    <tr style="height: 56px;">
+                        <!--BEGIN PROJECT_LOGO-->
+                        <td id="projectlogo" style="filter: grayscale(55%);"><img alt="Logo"
+                                src="$relpath^$projectlogo" /></td>
+                        <!--END PROJECT_LOGO-->
+                        <!--BEGIN PROJECT_NAME-->
+                        <td id="projectalign" style="padding-left: 0.5em;">
+                            <div id="projectname"> $projectname
+                                <!--BEGIN PROJECT_NUMBER-->&#160;<span id="projectnumber">$projectnumber</span>
+                                <!--END PROJECT_NUMBER-->
+                            </div>
+
+                            <!--BEGIN PROJECT_BRIEF-->
+                            <div id="projectbrief">$projectbrief</div>
+                            <!--END PROJECT_BRIEF-->
+                        </td>
+                        <!--END PROJECT_NAME-->
+                        <!--BEGIN !PROJECT_NAME-->
+                        <!--BEGIN PROJECT_BRIEF-->
+                        <td style="padding-left: 0.5em;">
+                            <div id="projectbrief">$projectbrief</div>
+                        </td>
+                        <!--END PROJECT_BRIEF-->
+                        <!--END !PROJECT_NAME-->
+                        <!--BEGIN DISABLE_INDEX-->
+                        <!--BEGIN SEARCHENGINE-->
+                        <td>$searchbox</td>
+                        <!--END SEARCHENGINE-->
+                        <!--END DISABLE_INDEX-->
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--END TITLEAREA-->
+        <!-- end header part -->

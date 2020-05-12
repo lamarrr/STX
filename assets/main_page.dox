@@ -1,0 +1,86 @@
+/// 
+/// @mainpage
+/// 
+/// 
+/// # What is STX?
+///
+/// STX is a collection of libraries or utilities designed to make working with C++ easier.
+/// This includes but is not limited to adopted paradigms, data-structures, and designs from other programming languages.
+/// 
+/// All of the facilities do not make assumptions about the platform they run on,
+/// perform memory allocation, nor use virtual inheritance.
+/// 
+/// All STX libraries are ```no_std```.
+/// 
+/// # Primary Goals
+/// - Non-bloated abstractions
+/// - Deterministic and Convenient Error Handling
+/// - Clean APIs & libraries that avoids quarks and complexities
+/// - No exceptions
+/// - Portability
+/// - Suitability for embedded systems
+/// - Zero memory allocation (nostd)
+/// - Zero-cost
+///
+///
+/// # Error-Handling Facilities
+///
+/// ## Panic Library
+/// 
+/// - See guide on @ref Panicking
+///
+///
+/// This provides:
+///
+/// - panicking:
+///
+///     - `stx::panic`: signals an abnormal flow in the program.
+///
+/// - panic handlers:
+///
+///     - `stx::panic_default`: The default panic handler that prints the error message and panic location data, and afterwards aborts the program.
+///     - `stx::panic_halt`: A panic handler that causes the current calling thread, to halt by entering an infinite loop.
+///     - `stx::panic_abort`: A panic handler that causes the abort instruction to be executed.
+/// 
+/// ## Error Handling Library
+/// 
+/// The extensions not only make error handling easer but also make the paths more obvious to the compiler for optimizations. 
+/// Their Monadic nature make it easy to operate on them as pipelines. 
+///
+///
+/// - `stx::Result<T, E>`: Monadic type for relaying the result of a function that can fail or succeed.
+/// - `stx::Option<T>`: Monadic type for **safe** optional values.
+/// 
+/// 
+/// # Similar Implementations/Attempts in C++
+/// 
+/// This is also partially in response to the various implementations I have seen duplicated across the community,
+/// Most of the facilities for which this library provides.
+///
+///
+/// - The awesome Simon Brand's `tl::optional`
+/// - Abseil's Raw Logger
+/// - [Tensorflow Lite Micro's Error Reporter](http://)
+/// - Tensorflow's Status
+/// - Mozilla's Result
+/// - Google Pigweed's Result<T, Status>
+/// - Tensorflow's ENSURE_OK, CHECK_OK, DCHECK_OK and other error handling macros
+/// - Simdjson's Result_error
+/// 
+///
+///
+///
+/// # Future Goals
+/// - Backwards compatibility with C++17?
+///
+///
+///
+/// 
+/// - Error Paths should be just as fast as success paths without incurring excessive overheads as exceptions.
+/// span.preprocessor {
+///   color: #c19e56;
+///}
+/// fragment:  #2A2A2A;
+/// .line color: #ddd;
+///
+///

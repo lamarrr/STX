@@ -10,6 +10,7 @@
 
 #include "fmt/format.h"
 #include "stx/option.h"
+#include "stx/result.h"
 
 using std::move, std::array, std::for_each, std::cout, std::accumulate,
     std::optional, std::unique_ptr, std::string_view;
@@ -83,8 +84,6 @@ int main() {
 
   move(arr).match([](auto value) { fmt::print("{}\n", value[0]); },
                   []() { fmt::print("has no value\n"); });
-
-  Option<std::string>(None).unwrap_or("None");
 
   if (arr == Some(&gg)) {
     fmt::print("Same\n");

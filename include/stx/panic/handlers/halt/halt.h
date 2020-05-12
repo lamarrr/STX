@@ -8,8 +8,7 @@
  * @copyright Copyright (c) 2020
  *
  */
-#ifndef STX_PANIC_HANDLERS_HALT_HALT_H_
-#define STX_PANIC_HANDLERS_HALT_HALT_H_
+#pragma once
 
 #include <atomic>
 
@@ -21,7 +20,7 @@ namespace stx {
 /// loop.
 [[noreturn]] inline void panic_halt(
     std::string_view info,
-    SourceLocation location = SourceLocation::current()) {
+    SourceLocation location = SourceLocation::current()) noexcept {
   (void)info;
   (void)location;
 

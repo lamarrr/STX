@@ -9,9 +9,8 @@
  *
  */
 
-#ifndef STX_RESULT_H_
-#define STX_RESULT_H_
+#pragma once
 
 #include "stx/internal/option_result.h"
 
-#endif  // STX_RESULT_H_
+namespace stx {};  // namespace stx

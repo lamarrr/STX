@@ -9,7 +9,7 @@
  *
  */
 
-#include "stx/panic/handlers/throw/panic_info.h"
+#include "handler/panic_info.h"
 
 #include <thread>  // NOLINT
 
