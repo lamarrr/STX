@@ -29,6 +29,9 @@ template <typename T>
 using remove_ref = std::remove_reference_t<T>;
 
 template <typename T>
+using remove_const = std::remove_const_t<T>;
+
+template <typename T>
 concept Const = std::is_const_v<T>;
 
 template <typename T>
@@ -157,5 +160,8 @@ using ConstDeref = std::reference_wrapper<internal::DerefValue__<T> const>;
 
 template <MutDerefable T>
 using MutDeref = Deref<T>;
+
+template <typename T>
+concept rvalue_reference = std::is_rvalue_reference_v<T>;
 
 };  // namespace stx

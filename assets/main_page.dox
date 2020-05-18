@@ -77,10 +77,5 @@
 ///
 /// 
 /// - Error Paths should be just as fast as success paths without incurring excessive overheads as exceptions.
-/// span.preprocessor {
-///   color: #c19e56;
-///}
-/// fragment:  #2A2A2A;
-/// .line color: #ddd;
 ///
 ///

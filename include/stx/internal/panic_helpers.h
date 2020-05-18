@@ -15,29 +15,34 @@
 namespace stx {
 namespace internal {
 
+// Forced inline functions basically function like macros.
+
 namespace option {
+using namespace std::string_view_literals;
+
 /// panic helper for `Option<T>::expect()` when no value is present
-[[noreturn]] inline void expect_value_failed(
-    std::string_view msg, SourceLocation location = SourceLocation::current()) {
-  stx::panic(std::move(msg), std::move(location));
+[[noreturn]] STX_FORCE_INLINE void expect_value_failed(
+    std::string_view&& msg,
+    SourceLocation location = SourceLocation::current()) {
+  stx::panic(std::forward<std::string_view&&>(msg), std::move(location));
 }
 
 /// panic helper for `Option<T>::expect_none()` when a value is present
-[[noreturn]] inline void expect_none_failed(
-    std::string_view msg, auto const& value,
+[[noreturn]] STX_FORCE_INLINE void expect_none_failed(
+    std::string_view&& msg, auto const& value,
     SourceLocation location = SourceLocation::current()) {
-  stx::panic(std::move(msg), value, std::move(location));
+  stx::panic(std::forward<std::string_view&&>(msg), value, std::move(location));
 }
 
 /// panic helper for `Option<T>::unwrap()` when no value is present
-[[noreturn]] inline void no_value(
+[[noreturn]] STX_FORCE_INLINE void no_value(
     SourceLocation location = SourceLocation::current()) {
   stx::panic("called `Option::unwrap()` on a `None` value",
              std::move(location));
 }
 
 /// panic helper for `Option<T>::unwrap_none()` when a value is present
-[[noreturn]] inline void no_none(
+[[noreturn]] STX_FORCE_INLINE void no_none(
     auto const& value, SourceLocation location = SourceLocation::current()) {
   stx::panic("called `Option::unwrap_none()` on a `Some` value", value,
              std::move(location));
@@ -46,32 +51,33 @@ namespace option {
 };  // namespace option
 
 namespace result {
+using namespace std::string_view_literals;
 
 /// panic helper for `Result<T, E>::expect()` when no value is present
-[[noreturn]] inline void expect_value_failed(
-    std::string_view msg, auto const& err,
+[[noreturn]] STX_FORCE_INLINE void expect_value_failed(
+    std::string_view&& msg, auto const& err,
     SourceLocation location = SourceLocation::current()) {
-  stx::panic(std::move(msg), err, std::move(location));
+  stx::panic(std::forward<std::string_view&&>(msg), err, std::move(location));
 }
 
 /// panic helper for `Result<T, E>::expect_err()` when a value is present
-[[noreturn]] inline void expect_err_failed(
-    std::string_view msg, auto const& value,
+[[noreturn]] STX_FORCE_INLINE void expect_err_failed(
+    std::string_view&& msg, auto const& value,
     SourceLocation location = SourceLocation::current()) {
-  stx::panic(std::move(msg), value, std::move(location));
+  stx::panic(std::forward<std::string_view&&>(msg), value, std::move(location));
 }
 
 /// panic helper for `Result<T, E>::unwrap()` when no value is present
-[[noreturn]] inline void no_value(
+[[noreturn]] STX_FORCE_INLINE void no_value(
     auto const& err, SourceLocation location = SourceLocation::current()) {
-  stx::panic("called `Result::unwrap()` on an `Err` value", err,
+  stx::panic("called `Result::unwrap()` on an `Err` value"sv, err,
              std::move(location));
 }
 
 /// panic helper for `Result<T, E>::unwrap_err()` when a value is present
-[[noreturn]] inline void no_error(
+[[noreturn]] STX_FORCE_INLINE void no_error(
     auto const& value, SourceLocation location = SourceLocation::current()) {
-  stx::panic("called `Result::unwrap_err()` on an `Ok` value", value,
+  stx::panic("called `Result::unwrap_err()` on an `Ok` value"sv, value,
              std::move(location));
 }
 

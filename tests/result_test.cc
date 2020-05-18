@@ -210,59 +210,59 @@ TEST(ResultTest, Err) {
 
 TEST(ResultTest, AsConstRef) {
   auto const a = MakeOk<int, int>(68);
-  EXPECT_EQ(a.as_const_ref().unwrap().get(), 68);
+  EXPECT_EQ(a.as_cref().unwrap().get(), 68);
   auto const b = MakeErr<int, int>(-68);
-  EXPECT_ANY_THROW(b.as_const_ref().unwrap());
+  EXPECT_ANY_THROW(b.as_cref().unwrap());
 
   auto const c = MakeOk<vector<int>, int>(vector{1, 2, 3, 4});
-  EXPECT_EQ(c.as_const_ref().unwrap().get(), (vector{1, 2, 3, 4}));
+  EXPECT_EQ(c.as_cref().unwrap().get(), (vector{1, 2, 3, 4}));
   auto const d = MakeErr<vector<int>, int>(-24);
-  EXPECT_ANY_THROW(d.as_const_ref().unwrap());
+  EXPECT_ANY_THROW(d.as_cref().unwrap());
 
   auto const e = MakeOk<int, vector<int>>(-24);
-  EXPECT_EQ(e.as_const_ref().unwrap().get(), -24);
+  EXPECT_EQ(e.as_cref().unwrap().get(), -24);
   auto const f = MakeErr<int, vector<int>>(vector{-1, -2, -3, -4});
-  EXPECT_ANY_THROW(f.as_const_ref().unwrap().get());
+  EXPECT_ANY_THROW(f.as_cref().unwrap().get());
 
   auto const g = MakeOk<vector<int>, vector<int>>(vector{1, 2, 3, 4});
-  EXPECT_EQ(g.as_const_ref().unwrap().get(), (vector{1, 2, 3, 4}));
+  EXPECT_EQ(g.as_cref().unwrap().get(), (vector{1, 2, 3, 4}));
   auto const h = MakeErr<vector<int>, vector<int>>(vector{-1, -2, -3, -4});
-  EXPECT_ANY_THROW(h.as_const_ref().unwrap().get());
+  EXPECT_ANY_THROW(h.as_cref().unwrap().get());
 }
 
 TEST(ResultTest, AsMutRef) {
   auto a = MakeOk<int, int>(68);
-  a.as_mut_ref().unwrap().get() = 89;
-  EXPECT_EQ(a.as_mut_ref().unwrap().get(), 89);
+  a.as_ref().unwrap().get() = 89;
+  EXPECT_EQ(a.as_ref().unwrap().get(), 89);
 
   auto b = MakeErr<int, int>(-68);
-  EXPECT_ANY_THROW(b.as_mut_ref().unwrap().get());
-  EXPECT_EQ(b.as_mut_ref().unwrap_err().get(), -68);
+  EXPECT_ANY_THROW(b.as_ref().unwrap().get());
+  EXPECT_EQ(b.as_ref().unwrap_err().get(), -68);
 
   auto c = MakeOk<vector<int>, int>(vector{1, 2, 3, 4});
-  c.as_mut_ref().unwrap().get() = vector{-1, -2, -3, -4};
-  EXPECT_EQ(c.as_mut_ref().unwrap().get(), (vector{-1, -2, -3, -4}));
+  c.as_ref().unwrap().get() = vector{-1, -2, -3, -4};
+  EXPECT_EQ(c.as_ref().unwrap().get(), (vector{-1, -2, -3, -4}));
 
   auto d = MakeErr<vector<int>, int>(-24);
-  EXPECT_ANY_THROW(d.as_mut_ref().unwrap().get());
-  EXPECT_EQ(d.as_mut_ref().unwrap_err(), -24);
+  EXPECT_ANY_THROW(d.as_ref().unwrap().get());
+  EXPECT_EQ(d.as_ref().unwrap_err(), -24);
 
   auto e = MakeOk<int, vector<int>>(-24);
-  e.as_mut_ref().unwrap().get() = 87;
-  EXPECT_EQ(e.as_mut_ref().unwrap().get(), 87);
+  e.as_ref().unwrap().get() = 87;
+  EXPECT_EQ(e.as_ref().unwrap().get(), 87);
 
   auto f = MakeErr<int, vector<int>>(vector{-1, -2, -3, -4});
-  EXPECT_ANY_THROW(f.as_mut_ref().unwrap().get());
-  EXPECT_EQ(f.as_mut_ref().unwrap_err().get(), (vector{-1, -2, -3, -4}));
+  EXPECT_ANY_THROW(f.as_ref().unwrap().get());
+  EXPECT_EQ(f.as_ref().unwrap_err().get(), (vector{-1, -2, -3, -4}));
 
   auto g = MakeOk<vector<int>, vector<int>>(vector{1, 2, 3, 4});
-  EXPECT_EQ(g.as_mut_ref().unwrap().get(), (vector{1, 2, 3, 4}));
-  EXPECT_ANY_THROW(g.as_mut_ref().unwrap_err().get());
+  EXPECT_EQ(g.as_ref().unwrap().get(), (vector{1, 2, 3, 4}));
+  EXPECT_ANY_THROW(g.as_ref().unwrap_err().get());
 
   auto h = MakeErr<vector<int>, vector<int>>(vector{-1, -2, -3, -4});
-  EXPECT_ANY_THROW(h.as_mut_ref().unwrap().get());
-  h.as_mut_ref().unwrap_err().get() = vector{-5, -6, -7, -8, -9};
-  EXPECT_EQ(h.as_mut_ref().unwrap_err().get(), (vector{-5, -6, -7, -8, -9}));
+  EXPECT_ANY_THROW(h.as_ref().unwrap().get());
+  h.as_ref().unwrap_err().get() = vector{-5, -6, -7, -8, -9};
+  EXPECT_EQ(h.as_ref().unwrap_err().get(), (vector{-5, -6, -7, -8, -9}));
 }
 
 TEST(ResultTest, Map) {
@@ -671,18 +671,16 @@ TEST(ResultTest, Clone) {
   auto const a = MakeOk<int, int>(89);
   auto b = a.clone();
   EXPECT_EQ(b, Ok(89));
-  b.as_mut_ref().unwrap().get() = 124;
+  b.as_ref().unwrap().get() = 124;
   EXPECT_EQ(b, Ok(124));
   EXPECT_EQ(a, Ok(89));
 
   auto const c = MakeOk<vector<int>, int>({89, 89, 120});
   auto d = c.clone();
   EXPECT_EQ(c, Ok(vector<int>{89, 89, 120}));
-  d.as_mut_ref().unwrap().get() = vector<int>{124, 125, 126};
+  d.as_ref().unwrap().get() = vector<int>{124, 125, 126};
   EXPECT_EQ(d, Ok(vector<int>{124, 125, 126}));
   EXPECT_EQ(c, Ok(vector<int>{89, 89, 120}));
 }
 
-TEST(ResultTest, Docs) {
-  
-}
+TEST(ResultTest, Docs) {}

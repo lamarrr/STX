@@ -82,6 +82,7 @@ class [[nodiscard]] Report {
 // second argument to panic_handler
 // this holds a reference to the report's data and is used accross
 // ABI-boundaries as Report can vary accross configurations
+// more or less like std::span!
 class [[nodiscard]] ReportPayload {
  public:
   [[nodiscard]] explicit constexpr ReportPayload(Report const& report) noexcept

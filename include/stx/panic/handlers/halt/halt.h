@@ -30,5 +30,3 @@ namespace stx {
   }
 }
 };  // namespace stx
-
-#endif  // STX_PANIC_HANDLERS_HALT_HALT_H_

@@ -19,11 +19,11 @@
 // also used for hiding static variables and hookable functions that should not
 // be touched but should reside in the ABI
 // GNUC doesn't mean GCC!, it is also present in clang
-#if defined(__GNUC__) || defined(__clang__)
-#define STX_FORCE_INLINE inline __attribute__((always_inline))
+#if __has_cpp_attribute(gnu::always_inline)
+#define STX_FORCE_INLINE [[gnu::always_inline]] inline
 #else
 #ifdef _MSC_VER
-#define STX_FORCE_INLINE _forceinline
+#define STX_FORCE_INLINE __forceinline
 #else
 #if defined(__NVCC__)
 #define STX_FORCE_INLINE __forcinline__
@@ -43,4 +43,14 @@
 
 #if !__has_cpp_attribute(noreturn)
 #error C++ attribute `deprecated` is not available on this compiler. Please upgrade to a newer version.
+#endif
+
+#if defined(_WIN32)
+#define STX_WINDOWS
+#else
+#define STX_NOT_WINDOWS
+#endif
+
+#if __has_include(<pthreads.h>)
+#define HAS_POSIX_THREADS
 #endif

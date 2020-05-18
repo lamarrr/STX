@@ -166,40 +166,40 @@ TEST(OptionLifetimeTest, Contains) {
 
 TEST(OptionTest, AsConstRef) {
   Option const a = Some(68);
-  EXPECT_EQ(a.as_const_ref().unwrap().get(), 68);
+  EXPECT_EQ(a.as_cref().unwrap().get(), 68);
 
   Option<int> const b = None;
-  EXPECT_ANY_THROW(b.as_const_ref().unwrap());
+  EXPECT_ANY_THROW(b.as_cref().unwrap());
 
   Option const c = Some(vector{1, 2, 3, 4});
-  EXPECT_EQ(c.as_const_ref().unwrap().get(), (vector{1, 2, 3, 4}));
+  EXPECT_EQ(c.as_cref().unwrap().get(), (vector{1, 2, 3, 4}));
 
   Option<vector<int>> const d = None;
-  EXPECT_ANY_THROW(d.as_const_ref().unwrap());
+  EXPECT_ANY_THROW(d.as_cref().unwrap());
 }
 
-TEST(OptionTest, AsMutRef) {
+TEST(OptionTest, AsRef) {
   Option a = Some(68);
-  a.as_mut_ref().unwrap().get() = 99;
+  a.as_ref().unwrap().get() = 99;
   EXPECT_EQ(a, Some(99));
 
   Option<int> b = None;
-  EXPECT_ANY_THROW(b.as_mut_ref().unwrap());
+  EXPECT_ANY_THROW(b.as_ref().unwrap());
 
   auto c = Option(Some(vector{1, 2, 3, 4}));
-  c.as_mut_ref().unwrap().get() = vector{5, 6, 7, 8, 9, 10};
+  c.as_ref().unwrap().get() = vector{5, 6, 7, 8, 9, 10};
   EXPECT_EQ(c, Some(vector{5, 6, 7, 8, 9, 10}));
 
   auto d = Option<vector<int>>(None);
-  EXPECT_ANY_THROW(d.as_mut_ref().unwrap());
+  EXPECT_ANY_THROW(d.as_ref().unwrap());
 }
 
-TEST(OptionLifeTimeTest, AsMutRef) {
+TEST(OptionLifeTimeTest, AsRef) {
   auto a = Option(Some(make_mv<0>()));
-  EXPECT_NO_THROW(a.as_mut_ref().unwrap().get().done());
+  EXPECT_NO_THROW(a.as_ref().unwrap().get().done());
 
   auto b = Option<MoveOnly<1>>(None);
-  EXPECT_NO_THROW(auto b_ = b.as_mut_ref());
+  EXPECT_NO_THROW(auto b_ = b.as_ref());
 }
 
 TEST(OptionTest, Unwrap) {
@@ -507,7 +507,8 @@ TEST(OptionTest, Take) {
   EXPECT_EQ(b, None);
 
   auto c = Option(Some(vector{-1, -2, -4, -8, -16}));
-  EXPECT_EQ(c.take().unwrap(), (vector{-1, -2, -4, -8, -16}));
+  auto ca = c.take();
+  EXPECT_EQ(ca, Some(vector{-1, -2, -4, -8, -16}));
   EXPECT_EQ(c, None);
 
   auto d = Option<vector<int>>(None);
@@ -680,4 +681,26 @@ TEST(DocTests, Main) {
   using std::move, std::string;
   using stx::Option, stx::Some, stx::None;
   using namespace std::string_literals;
+
+  Option x = make_some(89);
+
+  Option const xc = make_some(89);
+  int y = 98;
+  int z = 40;
+  auto fn = [&](auto) -> int& { return y; };
+  auto mem = [](int i) { return std::make_unique<int[]>(i); };
+  auto g = std::make_unique<int[]>(89);
+  int const h = 99;
+  make_some(76).ok_or(h);
+
+  auto const b = [](int x) { return x % 2 == 0; };
+
+  int cd = 87;
+  int const dd = 90;
+
+  Option op = make_some(9.0);
+  make_some(9.0).AND(make_some(8));
+  struct H {};
+
+  // make_err<int, int>(9).contains(H{});
 }

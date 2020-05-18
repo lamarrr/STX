@@ -9,8 +9,15 @@
  *
  */
 #include "gtest/gtest.h"
-#include "stx/panic.h"
 #include "handler/throw.h"
+#include "stx/panic.h"
+
+/*******************************
+
+Don't just test with simple integral/POD types, also test with complex objects
+involving memory allocation.
+
+*******************************/
 
 int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);
@@ -18,10 +25,10 @@ int main(int argc, char** argv) {
   return RUN_ALL_TESTS();
 }
 
-  
-[[noreturn]] void stx::panic_handler(std::string_view info, ReportPayload const& report,
-                                SourceLocation location) {
-                                  (void)report;
+[[noreturn]] void stx::panic_handler(std::string_view info,
+                                     ReportPayload const& report,
+                                     SourceLocation location) {
+  (void)report;
   panic_throw(std::move(info), std::move(location));
 
 }  // namespace stx

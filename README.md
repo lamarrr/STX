@@ -2,10 +2,23 @@
 
 C++ 20 Error Handling and Monadic extensions to the C++ standard library
 
-[READ BLOG POST](http://lamarrr.github.io/blog/error-handling)
-
+[***READ THE DOCUMENTATION***](http://lamarrr.github.io/blog/error-handling)
 
 ## Overview
+
+## Important Note
+
+- Some methods like .match, .map, .unwrap ***consume*** the stored value
+and thus the Result or Option has to be destroyed immediately. Example:
+
+```cpp
+
+auto get_socket()->Result<int, int>
+
+
+```
+
+- The object is not to be used after a std::move! (though in a valid state)
 
 ## Features
 

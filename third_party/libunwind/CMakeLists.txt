@@ -1,5 +1,6 @@
 # ==============================================================================
-# = Setup Project
+# =
+# Setup Project
 # ==============================================================================
 # =
 
@@ -14,15 +15,134 @@ set(CMAKE_MODULE_PATH
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules" ${CMAKE_MODULE_PATH})
 
-project(libunwind)
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR
+   OR LIBUNWIND_STANDALONE_BUILD)
+  project(libunwind)
 
-set(PACKAGE_NAME libunwind)
-set(PACKAGE_VERSION 10.0.0)
-set(PACKAGE_STRING "${PACKAGE_NAME} ${PACKAGE_VERSION}")
-set(PACKAGE_BUGREPORT "llvm-bugs@lists.llvm.org")
+  # Rely on llvm-config.
+  set(CONFIG_OUTPUT)
+  if(NOT LLVM_CONFIG_PATH)
+    find_program(LLVM_CONFIG_PATH "llvm-config")
+  endif()
+  if(DEFINED LLVM_PATH)
+    set(LLVM_INCLUDE_DIR
+        ${LLVM_INCLUDE_DIR}
+        CACHE PATH "Path to llvm/include")
+    set(LLVM_PATH
+        ${LLVM_PATH}
+        CACHE PATH "Path to LLVM source tree")
+    set(LLVM_MAIN_SRC_DIR ${LLVM_PATH})
+    set(LLVM_CMAKE_PATH "${LLVM_PATH}/cmake/modules")
+  elseif(LLVM_CONFIG_PATH)
+    message(STATUS "Found LLVM_CONFIG_PATH as ${LLVM_CONFIG_PATH}")
+    set(CONFIG_COMMAND ${LLVM_CONFIG_PATH} "--includedir" "--prefix"
+                       "--src-root")
+    execute_process(
+      COMMAND ${CONFIG_COMMAND}
+      RESULT_VARIABLE HAD_ERROR
+      OUTPUT_VARIABLE CONFIG_OUTPUT)
+    if(NOT HAD_ERROR)
+      string(REGEX REPLACE "[ \t]*[\r\n]+[ \t]*" ";" CONFIG_OUTPUT
+                           ${CONFIG_OUTPUT})
+    else()
+      string(REPLACE ";" " " CONFIG_COMMAND_STR "${CONFIG_COMMAND}")
+      message(STATUS "${CONFIG_COMMAND_STR}")
+      message(FATAL_ERROR "llvm-config failed with status ${HAD_ERROR}")
+    endif()
+
+    list(GET CONFIG_OUTPUT 0 INCLUDE_DIR)
+    list(GET CONFIG_OUTPUT 1 LLVM_OBJ_ROOT)
+    list(GET CONFIG_OUTPUT 2 MAIN_SRC_DIR)
+
+    set(LLVM_INCLUDE_DIR
+        ${INCLUDE_DIR}
+        CACHE PATH "Path to llvm/include")
+    set(LLVM_BINARY_DIR
+        ${LLVM_OBJ_ROOT}
+        CACHE PATH "Path to LLVM build tree")
+    set(LLVM_MAIN_SRC_DIR
+        ${MAIN_SRC_DIR}
+        CACHE PATH "Path to LLVM source tree")
+    set(LLVM_LIT_PATH "${LLVM_PATH}/utils/lit/lit.py")
+
+    # --cmakedir is supported since llvm r291218 (4.0 release)
+    execute_process(
+      COMMAND ${LLVM_CONFIG_PATH} --cmakedir
+      RESULT_VARIABLE HAD_ERROR
+      OUTPUT_VARIABLE CONFIG_OUTPUT
+      ERROR_QUIET)
+    if(NOT HAD_ERROR)
+      string(STRIP "${CONFIG_OUTPUT}" LLVM_CMAKE_PATH_FROM_LLVM_CONFIG)
+      file(TO_CMAKE_PATH "${LLVM_CMAKE_PATH_FROM_LLVM_CONFIG}" LLVM_CMAKE_PATH)
+    else()
+      file(TO_CMAKE_PATH "${LLVM_BINARY_DIR}" LLVM_BINARY_DIR_CMAKE_STYLE)
+      set(LLVM_CMAKE_PATH
+          "${LLVM_BINARY_DIR_CMAKE_STYLE}/lib${LLVM_LIBDIR_SUFFIX}/cmake/llvm")
+    endif()
+  else()
+    # message(WARNING "UNSUPPORTED LIBUNWIND CONFIGURATION DETECTED: " "llvm-
+    # config not found and LLVM_MAIN_SRC_DIR not defined. " "Reconfigure with
+    # -DLLVM_CONFIG=path/to/llvm-config " "or -DLLVM_PATH=path/to/llvm-source-
+    # root.")
+  endif()
+
+  if(EXISTS ${LLVM_CMAKE_PATH})
+    # Enable warnings, otherwise -w gets added to the cflags by
+    # HandleLLVMOptions.
+    set(LLVM_ENABLE_WARNINGS ON)
+    list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_PATH}")
+    include("${LLVM_CMAKE_PATH}/AddLLVM.cmake")
+    include("${LLVM_CMAKE_PATH}/HandleLLVMOptions.cmake")
+  else()
+    # message(WARNING "Not found: ${LLVM_CMAKE_PATH}")
+  endif()
+
+  set(PACKAGE_NAME libunwind)
+  set(PACKAGE_VERSION 10.0.0)
+  set(PACKAGE_STRING "${PACKAGE_NAME} ${PACKAGE_VERSION}")
+  set(PACKAGE_BUGREPORT "llvm-bugs@lists.llvm.org")
+
+  if(EXISTS ${LLVM_MAIN_SRC_DIR}/utils/lit/lit.py)
+    set(LLVM_LIT ${LLVM_MAIN_SRC_DIR}/utils/lit/lit.py)
+  else()
+    # Seek installed Lit.
+    find_program(LLVM_LIT "lit.py" ${LLVM_MAIN_SRC_DIR}/utils/lit
+                 DOC "Path to lit.py")
+  endif()
+
+  if(LLVM_LIT)
+    # Define the default arguments to use with 'lit', and an option for the user
+    # to override.
+    set(LIT_ARGS_DEFAULT "-sv")
+    if(MSVC OR XCODE)
+      set(LIT_ARGS_DEFAULT "${LIT_ARGS_DEFAULT} --no-progress-bar")
+    endif()
+    set(LLVM_LIT_ARGS
+        "${LIT_ARGS_DEFAULT}"
+        CACHE STRING "Default options for lit")
+
+    # On Win32 hosts, provide an option to specify the path to the GnuWin32
+    # tools.
+    if(WIN32 AND NOT CYGWIN)
+      set(LLVM_LIT_TOOLS_DIR
+          ""
+          CACHE PATH "Path to GnuWin32 tools")
+    endif()
+  else()
+    set(LLVM_INCLUDE_TESTS OFF)
+  endif()
+
+  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY
+      ${CMAKE_BINARY_DIR}/lib${LLVM_LIBDIR_SUFFIX})
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY
+      ${CMAKE_BINARY_DIR}/lib${LLVM_LIBDIR_SUFFIX})
+else()
+  set(LLVM_LIT "${CMAKE_SOURCE_DIR}/utils/lit/lit.py")
+endif()
 
 # ==============================================================================
-# = Setup CMake Options
+# =
+# Setup CMake Options
 # ==============================================================================
 # =
 include(CMakeDependentOption)
@@ -50,7 +170,13 @@ option(LIBUNWIND_INCLUDE_DOCS "Build the libunwind documentation."
 set(LIBUNWIND_LIBDIR_SUFFIX
     "${LLVM_LIBDIR_SUFFIX}"
     CACHE STRING "Define suffix of library directory name (32/64)")
-
+option(LIBUNWIND_INSTALL_LIBRARY "Install the libunwind library." ON)
+cmake_dependent_option(
+  LIBUNWIND_INSTALL_STATIC_LIBRARY "Install the static libunwind library." ON
+  "LIBUNWIND_ENABLE_STATIC;LIBUNWIND_INSTALL_LIBRARY" OFF)
+cmake_dependent_option(
+  LIBUNWIND_INSTALL_SHARED_LIBRARY "Install the shared libunwind library." ON
+  "LIBUNWIND_ENABLE_SHARED;LIBUNWIND_INSTALL_LIBRARY" OFF)
 set(LIBUNWIND_TARGET_TRIPLE
     ""
     CACHE STRING "Target triple for cross compiling.")
@@ -87,7 +213,8 @@ option(LIBUNWIND_HERMETIC_STATIC_LIBRARY
        "Do not export any symbols from the static library." OFF)
 
 # ==============================================================================
-# = Configure System
+# =
+# Configure System
 # ==============================================================================
 # =
 
@@ -98,6 +225,33 @@ set(LIBUNWIND_COMPILER ${CMAKE_CXX_COMPILER})
 set(LIBUNWIND_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(LIBUNWIND_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
+string(REGEX MATCH "[0-9]+\\.[0-9]+(\\.[0-9]+)?" CLANG_VERSION "10.0.0")
+
+if(LLVM_ENABLE_PER_TARGET_RUNTIME_DIR AND NOT APPLE)
+  set(LIBUNWIND_LIBRARY_DIR
+      ${LLVM_LIBRARY_OUTPUT_INTDIR}/${LLVM_DEFAULT_TARGET_TRIPLE}/c++)
+  set(LIBUNWIND_INSTALL_LIBRARY_DIR
+      lib${LLVM_LIBDIR_SUFFIX}/${LLVM_DEFAULT_TARGET_TRIPLE}/c++)
+  if(LIBCXX_LIBDIR_SUBDIR)
+    string(APPEND LIBUNWIND_LIBRARY_DIR /${LIBUNWIND_LIBDIR_SUBDIR})
+    string(APPEND LIBUNWIND_INSTALL_LIBRARY_DIR /${LIBUNWIND_LIBDIR_SUBDIR})
+  endif()
+elseif(LLVM_LIBRARY_OUTPUT_INTDIR)
+  set(LIBUNWIND_LIBRARY_DIR ${LLVM_LIBRARY_OUTPUT_INTDIR})
+  set(LIBUNWIND_INSTALL_LIBRARY_DIR lib${LIBUNWIND_LIBDIR_SUFFIX})
+else()
+  set(LIBUNWIND_LIBRARY_DIR ${CMAKE_BINARY_DIR}/lib${LIBUNWIND_LIBDIR_SUFFIX})
+  set(LIBUNWIND_INSTALL_LIBRARY_DIR lib${LIBUNWIND_LIBDIR_SUFFIX})
+endif()
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${LIBUNWIND_LIBRARY_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${LIBUNWIND_LIBRARY_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${LIBUNWIND_LIBRARY_DIR})
+
+set(LIBUNWIND_INSTALL_PREFIX
+    ""
+    CACHE STRING "Define libunwind destination prefix.")
+
 set(LIBUNWIND_C_FLAGS "")
 set(LIBUNWIND_CXX_FLAGS "")
 set(LIBUNWIND_COMPILE_FLAGS "")
@@ -107,7 +261,8 @@ set(LIBUNWIND_LINK_FLAGS "")
 include(HandleLibunwindFlags)
 
 # ==============================================================================
-# = Setup Compiler Flags
+# =
+# Setup Compiler Flags
 # ==============================================================================
 # =
 
@@ -274,7 +429,8 @@ if(LIBUNWIND_HAS_COMMENT_LIB_PRAGMA)
 endif()
 
 # ==============================================================================
-# = Setup Source Code
+# =
+# Setup Source Code
 # ==============================================================================
 # =
 
