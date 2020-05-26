@@ -10,8 +10,7 @@
  */
 
 #include <numeric>
-//
-#include "fmt/format.h"
+
 #include "gtest/gtest.h"
 #include "stx/result.h"
 
@@ -23,6 +22,7 @@ template <typename T, typename E>
 inline Result<T, E> MakeOk(T&& t) {
   return Result<T, E>(Ok<T>(forward<T>(t)));
 }
+
 template <typename T, typename E>
 inline Result<T, E> MakeErr(E&& e) {
   return Result<T, E>(Err<E>(forward<E>(e)));
