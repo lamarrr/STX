@@ -4,34 +4,34 @@
 
 @font-face {
 	font-family: 'RobotoMono';
-	src: url('RobotoMono.ttf') format('truetype')
+	src: url('assets/fonts/RobotoMono.ttf') format('truetype')
 }
 
 @font-face {
 	font-family: 'RobotoMono';
-	src: url('RobotoMono-Bold.ttf') format('truetype');
+	src: url('assets/fonts/RobotoMono-Bold.ttf') format('truetype');
 	font-weight: bold;
 }
 
 @font-face {
 	font-family: 'JetBrainsMono';
-	src: url('JetBrainsMono.ttf') format('truetype')
+	src: url('assets/fonts/JetBrainsMono.ttf') format('truetype')
 }
 
 @font-face {
 	font-family: 'JetBrainsMono';
-	src: url('JetBrainsMono-Bold.ttf') format('truetype');
+	src: url('assets/fonts/JetBrainsMono-Bold.ttf') format('truetype');
 	font-weight: bold;
 }
 
 @font-face {
 	font-family: 'Roboto';
-	src: url('Roboto.ttf') format('truetype')
+	src: url('assets/fonts/Roboto.ttf') format('truetype')
 }
 
 @font-face {
 	font-family: 'Roboto';
-	src: url('Roboto-Bold.ttf') format('truetype');
+	src: url('assets/fonts/Roboto-Bold.ttf') format('truetype');
 	font-weight: bold;
 }
 

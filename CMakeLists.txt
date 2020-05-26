@@ -275,13 +275,14 @@ endif()
 # ===============================================
 
 list(
-  APPEND STX_TEST_SRCS
-         tests/tests.cc
-         tests/panic_test.cc
-         tests/result_test.cc
-         tests/common_test.cc
-         tests/option_test.cc
-         tests/report_test.cc)
+  APPEND
+  STX_TEST_SRCS
+  tests/tests.cc
+  tests/panic_test.cc
+  tests/result_test.cc
+  tests/common_test.cc
+  tests/option_test.cc
+  tests/report_test.cc)
 
 if(NOT STX_DISABLE_BACKTRACE)
   list(APPEND STX_TEST_SRCS tests/backtrace_test.cc)
@@ -295,8 +296,8 @@ if(STX_BUILD_TESTS)
   target_compile_options(stx_tests PRIVATE ${STX_WARNING_FLAGS}
                                            ${STX_TEST_WARNING_FLAGS})
   target_compile_definitions(stx_tests PRIVATE STX_OVERRIDE_PANIC_HANDLER)
-  set_target_properties(stx_tests
-                        PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON)
+  set_target_properties(stx_tests PROPERTIES CXX_STANDARD 20
+                                             CXX_STANDARD_REQUIRED ON)
   add_custom_target(
     run_tests
     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/stx_tests
@@ -377,14 +378,17 @@ if(STX_BUILD_DOCS)
     COMMENT "Generating API documentation with Doxygen"
     VERBATIM)
 
+  file(COPY assets/fonts assets/images
+       DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/docs/html/assets)
+
 endif()
 
 add_executable(example_divide examples/divide.cc)
 target_link_libraries(example_divide stx)
-set_target_properties(example_divide
-                      PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON)
+set_target_properties(example_divide PROPERTIES CXX_STANDARD 20
+                                                CXX_STANDARD_REQUIRED ON)
 
 add_executable(example_parse examples/parse_version.cc)
 target_link_libraries(example_parse stx)
-set_target_properties(example_parse
-                      PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON)
+set_target_properties(example_parse PROPERTIES CXX_STANDARD 20
+                                               CXX_STANDARD_REQUIRED ON)
