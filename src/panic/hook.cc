@@ -16,12 +16,11 @@ STX_LOCAL size_t step_panic_count(size_t step) noexcept {
 }  // namespace
 }  // namespace this_thread
 
-namespace {
 STX_LOCAL AtomicPanicHook& panic_hook_ref() noexcept {
   static AtomicPanicHook hook{nullptr};
   return hook;
 }
-}  // namespace
+
 }  // namespace stx
 
 STX_EXPORT bool stx::has_panic_hook() noexcept { return kHasPanicHook; }
