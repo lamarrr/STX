@@ -1,32 +1,92 @@
-# STX
+<div align="center"><img src="assets/stx.png"/> </div>
 
 C++ 20 Error Handling and Monadic extensions to the C++ standard library
 
-[***READ THE DOCUMENTATION***](http://lamarrr.github.io/blog/error-handling)
-
+<div align="center"> <h3>
+<a href="http://lamarrr.github.io/blog/error-handling">READ THE DOCUMENTATION</a></h3> 
+</div>
 ## Overview
 
-## Important Note
 
-- Some methods like .match, .map, .unwrap ***consume*** the stored value
-and thus the Result or Option has to be destroyed immediately. Example:
+
+## Features
+
+- Efficient `Result<T, E>` (error-handling) and `Option<T>` (optional-value) implementation
+- Panicking via `panic`
+- Runtime panic hooks
+- Panic backtraces
+- Signal backtraces i.e. `SIGSEGV`, `SIGILL`, `SIGFPE`
+- Backtrace library
+- Suitable and easily adoptable for embedded systems
+- Easy debugging
+- Easy to use, Hard-to-misuse
+- Exception-free, RTTI-free, and malloc-free (`no-std`)
+
+## Guidelines
+
+- Some methods like `match`, `map`, `unwrap` and most of the `Result`, and `Option` methods **consume** the stored value and thus the `Result` or `Option` has to be destroyed as its lifetime has ended. For example:
+
+	Say we define a function named `safe_divide` with the following prototype:
+
+```cpp
+auto safe_divide(float n, float d) -> Option<float>;
+```
+
+And we call:
+
+
+
+```cpp
+float result = safe_divide(n, d).unwrap(); // compiles, because safe_divide returns a temporary
+```
+
+```cpp
+Option option = safe_divide(n, d); 
+float result = option.unwrap();  // will not compile, because unwrap consumes the value and is only usable with temporaries (as above) or r-value references (as below)
+```
+
+Alternatively, suppose the `Option` or `Result` is no longer needed, we can obtain an r-value reference:
 
 ```cpp
 
-auto get_socket()->Result<int, int>
+Option option = safe_divide(n, d);
+float result  = std::move(option).unwrap(); // will compile, the value is moved out of `option`, `option` should not be used any more
+
+```
+
+
+<span style="color:red">**NOTE**</span>: Just as any moved-from object, `Option` and `Result` are not to be used after a std::move! (as the objects will be left in an unspecified state).
+
+
+- `Option` and `Result` do not perform any implicit copies of the contained object as they are designed as purely forwarding types, this is especially due to their primary purpose as return channels in which we do not want duplication or implicit copies of the returned values. 
+
+To make explicit copies:
+
+```cpp
+
+Option option = safe_divide(n, d);
+float result = option.clone().unwrap(); // note that `clone()` explicitly makes a copy of the `Option`
+
+```
+
+
+We can also obtain an l-value reference to copy the value:
+
+```cpp
+
+Option option = safe_divide(n, d);
+float result = option.value(); // note that `value()` returns an l-value reference and `result` is copied from `option`'s value in the process
+
+```
+
+```cpp
+
+float result = safe_divide(n, d).value(); // this won't compile as `value` always returns an l-value reference, use `unwrap()` instead
 
 
 ```
 
-- The object is not to be used after a std::move! (though in a valid state)
 
-## Features
-
-- Provides a `Result<T, E>` and `Option<T>` monad implementation
-- A unified error handling and reporting
-- detachable panicking or error handling mechanisms
-- Suitable and easily adaptable for embedded systems
-- easy debugging
 
 ## Design Goals (Features)
 
@@ -113,99 +173,18 @@ int main() {
 
 ```
 
+## Build Requirements
+
+- CMake
+- Doxygen
+- Make or Ninja Build
+- Clang-10
+- Libstdc++-9 (GCC 9)
+
 ## Configuration Options
-
-## Usage Notes
-
-- The panic behavior should only be defined once per executable.
-- The panic behavior should only be overriden in an executable project and not a library.
-- Overriding panicking behavior:
-  - In your project's CMake lists file set the `STX_OVERRIDE_PANIC_BEHAVIOUR` option to `ON`
-  - In a source file add the following with your desired panic behaviour:
-
-```cpp
-
-  #include <cstddef>
-  #include <string_view>
-
-  #include "stx/panic.h"
-
-  namespace stx {
-  [[noreturn]] void panic_handler(std::string_view info,
-                                  stx::SourceLocation source_location) {
-    // do whatever you want here
-
-    // the program must not continue
-    std::abort();
-  }
-  };  // namespace stx
-
-```
 
 - Must specify C++20!!! source loc and concepts
 
-### `Option<T>` methods
-
-- `is_some`
-- `is_none`
-- `contains`
-- `as_const_ref`
-- `as_mut_ref`
-- `expect`
-- `unwrap`
-- `unwrap_or`
-- `unwrap_or_else`
-- `map`
-- `map_or`
-- `map_or_else`
-- `ok_or`
-- `ok_or_else`
-- `AND`
-- `and_then`
-- `filter`
-- `OR`
-- `or_else`
-- `XOR`
-- `take`
-- `replace`
-- `clone`
-- `expect_none`
-- `unwrap_none`
-- `unwrap_or_default`
-- `as_const_deref`
-- `as_mut_deref`
-- `match`
-
-## `Result<T>` methods
-
-- `is_ok`
-- `is_err`
-- `contains`
-- `contains_err`
-- `ok`
-- `err`
-- `as_const_ref`
-- `as_mut_ref`
-- `map`
-- `map_or`
-- `map_or_else`
-- `map_err`
-- `AND`
-- `and_then`
-- `OR`
-- `or_else`
-- `unwrap_or`
-- `unwrap_or_else`
-- `unwrap`
-- `expect`
-- `unwrap_err`
-- `expect_err`
-- `unwrap_or_default`
-- `as_const_deref`
-- `as_const_deref_err`
-- `as_mut_deref`
-- `as_mut_deref_err`
-- `match`
 
 ## FAQ
 
