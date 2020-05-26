@@ -21,7 +21,5 @@ Result<Version, string_view> parse_version(array<uint8_t, 6> const& header) {
 }
 
 int main() {
-  auto version =
-      parse_version({2, 3, 4, 5, 6, 7}).unwrap_or(Version::Unknown);
-
+  auto version = parse_version({2, 3, 4, 5, 6, 7}).unwrap_or(Version::Unknown);
 }

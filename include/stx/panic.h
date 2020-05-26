@@ -9,20 +9,15 @@
  *
  */
 
-#ifndef STX_PANIC_H_
-#define STX_PANIC_H_
+#pragma once
 
-#include <string_view>
+#include "stx/report.h"
 
 #ifdef STX_STABLE_SOURCE_LOCATION
 #include <source_location>
 #else
-// it is already checked in the build file to see if source_location or
-// experimental/source_location is present
 #include <experimental/source_location>
 #endif
-
-// TODO(lamarrr): Add halting, aborting, and other widely used panic behaviors
 
 namespace stx {
 
@@ -33,10 +28,18 @@ using SourceLocation = std::experimental::source_location;
 #endif
 
 // here, we can avoid any form of memory allocation that might be needed,
-// therefore deferring the info string to the callee and can also use a stack
-// allocated string in cases where dynamic memory allocation is undesired
-// the debugging breakpoint should be attached here
-[[noreturn]] void panic_handler(std::string_view info, SourceLocation location);
+// therefore deferring the info string and report payload to the callee and can
+// also use a stack allocated string especially in cases where dynamic memory
+// allocation is undesired
+STX_LOCAL void panic_handler(std::string_view info,
+                             ReportPayload const& payload,
+                             SourceLocation location) noexcept;
+
+/// Handles and dispatches the panic handler. The debugging breakpoint should be
+/// attached to this function to investigate panics.
+[[noreturn]] STX_LOCAL void begin_panic(std::string_view info,
+                                        ReportPayload const& payload,
+                                        SourceLocation location) noexcept;
 
 /// This allows a program to terminate immediately and provide feedback to the
 /// caller of the program. `panic` should be used when a program reaches an
@@ -44,11 +47,24 @@ using SourceLocation = std::experimental::source_location;
 /// in example code and in tests. `panic` is closely tied with the `unwrap` and
 /// `expect` method of both `Option` and `Result`. Both implementations call
 /// `panic` when they are set to `None` or `Err` variants.
-[[noreturn]] inline void panic(
-    std::string_view info = "explicit panic",
-    SourceLocation location = SourceLocation::current()) {
-  panic_handler(std::move(info), std::move(location));
+[[noreturn]] STX_FORCE_INLINE void panic(
+    std::string_view info,
+    SourceLocation location = SourceLocation::current()) noexcept {
+  begin_panic(std::move(info), ReportPayload(Report("")), std::move(location));
 }
-};  // namespace stx
 
-#endif  // STX_PANIC_H_
+[[noreturn]] STX_FORCE_INLINE void panic(
+    std::string_view info, Reportable auto const& value,
+    SourceLocation location = SourceLocation::current()) noexcept {
+  begin_panic(std::move(info), ReportPayload(internal::report::query >> value),
+              std::move(location));
+}
+
+[[noreturn]] STX_FORCE_INLINE void panic(
+    std::string_view info, auto const& value,
+    SourceLocation location = SourceLocation::current()) noexcept {
+  (void)value;
+  begin_panic(std::move(info), ReportPayload(Report("")), std::move(location));
+}
+
+};  // namespace stx

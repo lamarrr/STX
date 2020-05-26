@@ -17,6 +17,9 @@
 using namespace std;  // NOLINT
 using namespace stx;  // NOLINT
 
+template <typename T, typename Cmp>
+concept Same = std::is_same_v<T, Cmp>;
+
 static_assert(Derefable<int*> && MutDerefable<int*>);
 static_assert(Derefable<int* const> && MutDerefable<int* const> &&
               ConstDerefable<int* const>);
@@ -112,8 +115,8 @@ static_assert(!Swappable<Immovable const>);
 static_assert(Swappable<Movable>);
 static_assert(!Swappable<Movable const>);
 
-static_assert(!DefaultConstructible<Immovable>);
-static_assert(DefaultConstructible<Movable>);
+static_assert(!default_constructible<Immovable>);
+static_assert(default_constructible<Movable>);
 
 static_assert(Same<MutDeref<int*>, reference_wrapper<int>>);
 static_assert(Same<ConstDeref<int*>, reference_wrapper<int const>>);
@@ -135,28 +138,28 @@ struct NotWithRv {
   NotWithRv(int& vv) : v{vv} {}
 };
 
-static_assert(ImplicitlyConstructibleWith<int, int const>);
-static_assert(ImplicitlyConstructibleWith<int, int const>);
-static_assert(ImplicitlyConstructibleWith<int, int const>);
+static_assert(convertible_to<int const, int>);
+static_assert(convertible_to<int const, int>);
+static_assert(convertible_to<int const, int>);
 
-static_assert(ImplicitlyConstructibleWith<WithRv, int>);
-static_assert(!ImplicitlyConstructibleWith<WithRv, int const>);
-static_assert(!ImplicitlyConstructibleWith<WithRv, int&>);
+static_assert(convertible_to<int, WithRv>);
+static_assert(!convertible_to<int const, WithRv>);
+static_assert(!convertible_to<int&, WithRv>);
 
-static_assert(!ImplicitlyConstructibleWith<NotWithRv, int const>);
-static_assert(!ImplicitlyConstructibleWith<NotWithRv, int const>);
-static_assert(ImplicitlyConstructibleWith<NotWithRv, int&>);
+static_assert(!convertible_to<int const, NotWithRv>);
+static_assert(!convertible_to<int const, NotWithRv>);
+static_assert(convertible_to<int&, NotWithRv>);
 
-// is the usage of ImplicitlyConstructibleWith right?
+// is the usage of convertible right?
 
-static_assert(!CopyConstructible<unique_ptr<int>>);
-static_assert(CopyConstructible<int>);
-static_assert(CopyConstructible<int const>);
-static_assert(CopyConstructible<vector<int>>);
-static_assert(CopyConstructible<vector<int> const>);
+static_assert(!copy_constructible<unique_ptr<int>>);
+static_assert(copy_constructible<int>);
+static_assert(copy_constructible<int const>);
+static_assert(copy_constructible<vector<int>>);
+static_assert(copy_constructible<vector<int> const>);
 
-static_assert(OneArgInvocable<int (*&)(int&&), int>);
-static_assert(!OneArgInvocable<int (*&)(int&&), int&>);
-static_assert(OneArgInvocable<int (*&)(int&&), int&&>);
+static_assert(invocable<int (*&)(int&&), int>);
+static_assert(!invocable<int (*&)(int&&), int&>);
+static_assert(invocable<int (*&)(int&&), int&&>);
 
 static_assert(Same<void, std::invoke_result_t<void (*)(int), int>>);

@@ -8,10 +8,8 @@
  * @copyright Copyright (c) 2020
  *
  */
-#ifndef STX_PANIC_HANDLERS_HALT_HALT_H_
-#define STX_PANIC_HANDLERS_HALT_HALT_H_
 
-#include <atomic>
+#pragma once
 
 #include "stx/panic.h"
 
@@ -19,17 +17,17 @@ namespace stx {
 
 /// Causes the program, or the current thread, to halt by entering an infinite
 /// loop.
-[[noreturn]] inline void panic_halt(
-    std::string_view info,
-    SourceLocation location = SourceLocation::current()) {
+/// You can force the program to continue via a debugger by setting the
+/// `proceed` value to true.
+inline void panic_halt(
+    std::string_view info, ReportPayload const& payload,
+    SourceLocation location = SourceLocation::current()) noexcept {
   (void)info;
+  (void)payload;
   (void)location;
 
-  // TODO(lamarrr): Solve potential UB here
-  while (true) {
-    std::atomic_signal_fence(std::memory_order_seq_cst);
+  volatile bool const halt = true;
+  while (halt) {
   }
 }
 };  // namespace stx
-
-#endif  // STX_PANIC_HANDLERS_HALT_HALT_H_

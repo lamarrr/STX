@@ -8,8 +8,8 @@
  * @copyright Copyright (c) 2020
  *
  */
-#ifndef STX_PANIC_HANDLERS_ABORT_ABORT_H_
-#define STX_PANIC_HANDLERS_ABORT_ABORT_H_
+
+#pragma once
 
 #include <cstdlib>
 
@@ -19,14 +19,13 @@ namespace stx {
 
 /// Causes the abort instruction to be executed.
 [[noreturn]] inline void panic_abort(
-    std::string_view info,
+    std::string_view info, ReportPayload const& payload,
     SourceLocation location = SourceLocation::current()) {
   (void)info;
+  (void)payload;
   (void)location;
 
   std::abort();
 }
 
 };  // namespace stx
-
-#endif  // STX_PANIC_HANDLERS_ABORT_ABORT_H_
