@@ -8,35 +8,31 @@
  * @copyright Copyright (c) 2020
  *
  */
+
 #pragma once
 
-#include <utility>
-
-#include "stx/common.h"
 #include "stx/internal/panic_helpers.h"
 
-// why so long? Option and Result both depend on each other. I don't know of a
-// way to break the cyclic dependency, majorly because they are templated
+// Why so long? Option and Result depend on each other. I don't know of a
+// way to break the cyclic dependency, primarily because they are templated
+//
 // Lifetime notes:
 // - Every change of state must be followed by a destruction (and construction
 // if it has a non-null variant)
 // - The object must be destroyed immediately after the contained value is moved
-// from it
+// from it.
 //
 // Implementation Notes:
 // - Result and Option are perfect-forwarding types. It is unique to an
 // interaction. It functions like a unique_ptr, as it doesn't allow copying its
 // data content. Unless explicitly stated via the .clone() method.
+// - We also strive to make lifetime paths as visible and predictable as
+// possible.
+//
 //
 
-/*****************************************
-
-TODOS:
-  - Change Swappable to Movable, being swappable doesn't mean that it is
-Movable!
-
-******************************************/
-
+/// @file
+///
 /// to run tests, use:
 ///
 /// ```cpp
@@ -54,6 +50,7 @@ Movable!
 /// using namespace std::string_view_literals;
 ///
 /// ```
+
 namespace stx {
 
 /// state-variant Type for `Option<T>` representing no-value
@@ -71,10 +68,10 @@ class [[nodiscard]] NoneType {
   }
 };
 
-// value for `Option<T>` representing no-value
+// value-variant for `Option<T>` representing no-value
 constexpr const NoneType None = NoneType{};
 
-/// value variant for `Option<T>` wrapping the contained value
+/// value-variant for `Option<T>` wrapping the contained value
 template <Swappable T>
 struct [[nodiscard]] Some {
   static_assert(!std::is_reference_v<T>,
@@ -86,7 +83,7 @@ struct [[nodiscard]] Some {
 
   /// a `Some<T>` can only be constructed with an r-value of type `T`
   [[nodiscard]] explicit constexpr Some(T && value)
-      : value_(std::forward<T>(value)) {}
+      : value_(std::forward<T&&>(value)) {}
 
   [[nodiscard]] constexpr Some(Some && rhs) = default;
   constexpr Some& operator=(Some&& rhs) = default;
@@ -96,11 +93,10 @@ struct [[nodiscard]] Some {
 
   constexpr ~Some() = default;
 
-  /// get an immutable reference to the wrapped value
-  [[nodiscard]] constexpr T const& value() const { return value_; }
-
-  /// get mutable reference to the wrapped value
-  [[nodiscard]] constexpr T& value() { return value_; }
+  [[nodiscard]] constexpr T const& value() const& noexcept { return value_; }
+  [[nodiscard]] constexpr T& value()& noexcept { return value_; }
+  [[nodiscard]] constexpr T const value() const&& { return std::move(value_); }
+  [[nodiscard]] constexpr T value()&& { return std::move(value_); }
 
   [[nodiscard]] constexpr bool operator==(Some const& cmp)
       const requires equality_comparable<T> {
@@ -133,14 +129,15 @@ struct [[nodiscard]] Some {
 
  private:
   T value_;
-  template <typename Tp>
+
+  template <Swappable Tp>
   friend class Option;
 };
 
 template <Swappable E>
 struct Err;
 
-/// value variant for `Result<T, E>` wrapping the contained value
+/// value-variant for `Result<T, E>` wrapping the contained value
 template <Swappable T>
 struct [[nodiscard]] Ok {
   static_assert(!std::is_reference_v<T>,
@@ -149,9 +146,9 @@ struct [[nodiscard]] Ok {
                 "`stx::ConstRef` or `stx::MutRef` specialized aliases instead");
   using value_type = T;
 
-  ///  an `Ok<T>` can only be constructed with an r-value of type `T`
+  /// an `Ok<T>` can only be constructed with an r-value of type `T`
   [[nodiscard]] explicit constexpr Ok(T && value)
-      : value_(std::forward<T>(value)) {}
+      : value_(std::forward<T&&>(value)) {}
 
   [[nodiscard]] constexpr Ok(Ok && rhs) = default;
   constexpr Ok& operator=(Ok&& rhs) = default;
@@ -191,15 +188,15 @@ struct [[nodiscard]] Ok {
     return false;
   }
 
-  /// get an immutable reference to the wrapped value
-  [[nodiscard]] constexpr T const& value() const noexcept { return value_; }
-
-  /// get a mutable reference to the wrapped value
-  [[nodiscard]] constexpr T& value() noexcept { return value_; }
+  [[nodiscard]] constexpr T const& value() const& noexcept { return value_; }
+  [[nodiscard]] constexpr T& value()& noexcept { return value_; }
+  [[nodiscard]] constexpr T const value() const&& { return std::move(value_); }
+  [[nodiscard]] constexpr T value()&& { return std::move(value_); }
 
  private:
   T value_;
-  template <typename Tp, typename Err>
+
+  template <Swappable Tp, Swappable Err>
   friend class Result;
 };
 
@@ -214,7 +211,7 @@ struct [[nodiscard]] Err {
 
   // an `Err<E>` can only be constructed with an r-value of type `E`
   [[nodiscard]] explicit constexpr Err(E && value)
-      : value_(std::forward<E>(value)) {}
+      : value_(std::forward<E&&>(value)) {}
 
   [[nodiscard]] constexpr Err(Err && rhs) = default;
   constexpr Err& operator=(Err&& rhs) = default;
@@ -249,19 +246,19 @@ struct [[nodiscard]] Err {
     return value() == *cmp.value();
   }
 
-  /// get an immutable reference to the wrapped value
-  [[nodiscard]] constexpr E const& value() const noexcept { return value_; }
-
-  /// get a mutable reference to the wrapped value
-  [[nodiscard]] constexpr E& value() noexcept { return value_; }
+  [[nodiscard]] constexpr E const& value() const& noexcept { return value_; }
+  [[nodiscard]] constexpr E& value()& noexcept { return value_; }
+  [[nodiscard]] constexpr E const value() const&& { return std::move(value_); }
+  [[nodiscard]] constexpr E value()&& { return std::move(value_); }
 
  private:
   E value_;
-  template <typename Tp, typename Err>
+
+  template <Swappable Tp, Swappable Err>
   friend class Result;
 };
 
-template <typename T, typename E>
+template <Swappable T, Swappable E>
 class [[nodiscard]] Result;
 
 //! Optional values.
@@ -302,10 +299,10 @@ class [[nodiscard]] Result;
 //! ```
 //!
 //!
-template <typename T>
+template <Swappable T>
 class [[nodiscard]] Option {
   using value_type = T;
-  static_assert(Swappable<T>);
+
   static_assert(!std::is_reference_v<T>,
                 "Cannot use T& nor T&& for type, To prevent subtleties use "
                 "type wrappers like std::reference_wrapper or any of the "
@@ -328,8 +325,7 @@ class [[nodiscard]] Option {
   }
 
   Option& operator=(Option&& rhs) {
-    // contained object is destroyed as appropriate after the end
-    // of this scope
+    // contained object is destroyed as appropriate in the parent scope
     if (is_some() && rhs.is_some()) {
       std::swap(storage_value_, rhs.storage_value_);
     } else if (is_some() && rhs.is_none()) {
@@ -337,7 +333,7 @@ class [[nodiscard]] Option {
       storage_value_.~T();
       is_none_ = true;
       rhs.is_none_ = false;
-      // we let the ref'd object destroy the value instead
+      // we let the ref'd object destroy the object instead
     } else if (is_none() && rhs.is_some()) {
       new (&storage_value_) T(std::move(rhs.storage_value_));
       rhs.storage_value_.~T();
@@ -422,6 +418,8 @@ class [[nodiscard]] Option {
   ///
   /// # Examples
   ///
+  /// Basic usage:
+  ///
   /// ```cpp
   /// Option x = Some(2);
   /// ASSERT_TRUE(x.is_some());
@@ -436,6 +434,8 @@ class [[nodiscard]] Option {
   ///
   /// # Examples
   ///
+  /// Basic usage:
+  ///
   /// ```cpp
   /// Option x = Some(2);
   /// ASSERT_FALSE(x.is_none());
@@ -449,6 +449,8 @@ class [[nodiscard]] Option {
   /// value.
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// ```cpp
   /// Option x = Some(2);
@@ -470,6 +472,23 @@ class [[nodiscard]] Option {
     }
   }
 
+  /// returns an l-value reference to the contained value.
+  [[nodiscard]] T& value()& noexcept {
+    if (is_none_) internal::option::no_lref();
+    return value_ref_();
+  }
+
+  /// returns an l-value reference to the contained value
+  [[nodiscard]] T const& value() const& noexcept {
+    if (is_none_) internal::option::no_lref();
+    return value_cref_();
+  }
+
+  /// Use `unwrap()` instead
+  [[deprecated("Use `unwrap()` instead")]] T value()&& = delete;
+  /// Use `unwrap()` instead
+  [[deprecated("Use `unwrap()` instead")]] T const value() const&& = delete;
+
   /// Converts from `Option<T> const&` or `Option<T> &` to
   /// `Option<ConstRef<T>>`.
   ///
@@ -488,17 +507,13 @@ class [[nodiscard]] Option {
       "calling Option::as_cref() on an r-value, and therefore binding a "
       "reference to an object that is marked to be moved")]]  //
   [[nodiscard]] constexpr auto
-  as_cref() const&& noexcept->Option<ConstRef<T>> {
-    if (is_some()) {
-      return Some<ConstRef<T>>(ConstRef<T>(value_cref_()));
-    } else {
-      return None;
-    }
-  }
+  as_cref() const&& noexcept->Option<ConstRef<T>> = delete;
 
   /// Converts from `Option<T>` to `Option<MutRef<T>>`.
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// ```cpp
   /// auto mutate = [](Option<int>& r) {
@@ -526,13 +541,7 @@ class [[nodiscard]] Option {
       "calling Option::as_ref() on an r-value, and therefore binding a "
       "reference to an object that is marked to be moved")]]  //
   [[nodiscard]] constexpr auto
-  as_ref()&& noexcept->Option<MutRef<T>> {
-    if (is_some()) {
-      return Some<MutRef<T>>(MutRef<T>(value_ref_()));
-    } else {
-      return None;
-    }
-  }
+  as_ref()&& noexcept->Option<MutRef<T>> = delete;
 
   /// Unwraps an option, yielding the content of a `Some`.
   ///
@@ -543,6 +552,8 @@ class [[nodiscard]] Option {
   ///
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// ```cpp
   /// Option x = Some("value"s);
@@ -574,6 +585,8 @@ class [[nodiscard]] Option {
   ///
   /// # Examples
   ///
+  /// Basic usage:
+  ///
   /// ```cpp
   /// Option x = Some("air"s);
   /// ASSERT_EQ(move(x).unwrap(), "air");
@@ -598,6 +611,8 @@ class [[nodiscard]] Option {
   ///
   /// # Examples
   ///
+  /// Basic usage:
+  ///
   /// ```cpp
   /// ASSERT_EQ(Option(Some("car"s)).unwrap_or("bike"), "car");
   /// ASSERT_EQ(make_none<string>().unwrap_or("bike"), "bike");
@@ -613,6 +628,8 @@ class [[nodiscard]] Option {
   /// Returns the contained value or computes it from a closure.
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// ```cpp
   /// int k = 10;
@@ -635,6 +652,8 @@ class [[nodiscard]] Option {
   /// value and therefore, consuming/moving the contained value.
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// Converts an `Option<string>` into an `Option<size_t>`,
   /// consuming the original:
@@ -668,6 +687,8 @@ class [[nodiscard]] Option {
   ///
   /// # Examples
   ///
+  /// Basic usage:
+  ///
   /// ```cpp
   /// Option x = Some("foo"s);
   /// auto alt_fn = [](auto s) { return s.size(); };
@@ -691,6 +712,8 @@ class [[nodiscard]] Option {
   /// or computes a default (if not).
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// ```cpp
   /// size_t k = 21;
@@ -723,6 +746,8 @@ class [[nodiscard]] Option {
   ///
   /// # Examples
   ///
+  /// Basic usage:
+  ///
   /// ```cpp
   /// Option x = Some("foo"s);
   /// ASSERT_EQ(move(x).ok_or(0), Ok("foo"s));
@@ -745,6 +770,8 @@ class [[nodiscard]] Option {
   /// `Ok<T>` and `None` to `Err(op())`.
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// ```cpp
   /// auto else_fn = [] () { return 0; };
@@ -770,6 +797,8 @@ class [[nodiscard]] Option {
   /// Returns `None` if the option is `None`, otherwise returns `cmp`.
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// ```cpp
   /// Option a = Some(2);
@@ -807,6 +836,8 @@ class [[nodiscard]] Option {
   ///
   /// # Examples
   ///
+  /// Basic usage:
+  ///
   /// ```cpp
   /// auto sq = [] (auto x) -> Option<int> { return Some(x * x); };
   /// auto nope = [] (auto) -> Option<int> { return None; };
@@ -837,6 +868,8 @@ class [[nodiscard]] Option {
   ///
   /// # Examples
   ///
+  /// Basic usage:
+  ///
   /// ```cpp
   /// auto is_even = [](int n) -> bool { return n % 2 == 0; };
   ///
@@ -865,6 +898,8 @@ class [[nodiscard]] Option {
   ///
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// ```cpp
   /// Option a = Some(2);
@@ -896,6 +931,8 @@ class [[nodiscard]] Option {
   ///
   /// # Examples
   ///
+  /// Basic usage:
+  ///
   /// ```cpp
   /// auto nobody = []() -> Option<string> { return None; };
   /// auto vikings = []() -> Option<string> { return Some("vikings"s); };
@@ -920,6 +957,8 @@ class [[nodiscard]] Option {
   ///
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// ```cpp
   /// Option a = Some(2);
@@ -953,6 +992,8 @@ class [[nodiscard]] Option {
   ///
   /// # Examples
   ///
+  /// Basic usage:
+  ///
   /// ```cpp
   /// Option a = Some(2);
   /// auto b = a.take();
@@ -981,6 +1022,8 @@ class [[nodiscard]] Option {
   ///
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// ```cpp
   /// Option x = Some(2);
@@ -1011,6 +1054,8 @@ class [[nodiscard]] Option {
   ///
   /// # Examples
   ///
+  /// Basic usage:
+  ///
   /// ```cpp
   /// Option x = Some(2);
   /// auto old_x = x.replace(5);
@@ -1034,7 +1079,7 @@ class [[nodiscard]] Option {
     }
   }
 
-  /// TODO(lamarrr): add docs
+  // TODO(lamarrr): add docs
   [[nodiscard]] constexpr auto clone()
       const->Option requires copy_constructible<T> {
     if (is_some()) {
@@ -1054,13 +1099,15 @@ class [[nodiscard]] Option {
   ///
   /// # Examples
   ///
+  /// Basic usage:
+  ///
   /// ```cpp
   /// auto divide = [](double num, double denom) -> Option<double> {
   /// if (denom == 0.0) return None;
   ///  return Some(num / denom);
   /// };
   ///
-  /// EXPECT_ANY_THROW(divide(0.0, 1.0).unwrap_none());
+  /// EXPECT_DEATH(divide(0.0, 1.0).unwrap_none());
   /// EXPECT_NO_THROW(divide(1.0, 0.0).unwrap_none());
   /// ```
   void expect_none(std::string_view msg)&& {
@@ -1079,13 +1126,15 @@ class [[nodiscard]] Option {
   ///
   /// # Examples
   ///
+  /// Basic usage:
+  ///
   /// ```cpp
   /// auto divide = [](double num, double denom) -> Option<double> {
   /// if (denom == 0.0) return None;
   ///  return Some(num / denom);
   /// };
   ///
-  /// EXPECT_ANY_THROW(divide(0.0, 1.0).expect_none("zero dividend"));
+  /// EXPECT_DEATH(divide(0.0, 1.0).expect_none("zero dividend"));
   /// EXPECT_NO_THROW(divide(1.0, 0.0).expect_none("zero dividend"));
   /// ```
   void unwrap_none()&& {
@@ -1102,6 +1151,8 @@ class [[nodiscard]] Option {
   ///
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// ```cpp
   /// Option x = Some("Ten"s);
@@ -1127,6 +1178,8 @@ class [[nodiscard]] Option {
   ///
   /// # Examples
   ///
+  /// Basic usage:
+  ///
   /// ```cpp
   /// auto str = "Hello"s;
   /// Option x = Some(&str);
@@ -1149,14 +1202,7 @@ class [[nodiscard]] Option {
       "calling Result::as_const_deref() on an r-value, therefore binding a "
       "reference to an object that is marked to be moved")]]  //
   [[nodiscard]] constexpr auto
-  as_const_deref() const&& requires ConstDerefable<T> {
-    if (is_some()) {
-      return Option<ConstDeref<T>>(
-          Some<ConstDeref<T>>(ConstDeref<T>(*value_cref_())));
-    } else {
-      return Option<ConstDeref<T>>(None);
-    }
-  }
+  as_const_deref() const&& requires ConstDerefable<T> = delete;
 
   /// Dereferences the pointer or iterator, therefore returning a mutable
   /// reference to the pointed-to value (`Option<MutRef<V>>`).
@@ -1165,6 +1211,8 @@ class [[nodiscard]] Option {
   /// mutable reference to the inner pointer's dereference value type.
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// ```cpp
   /// auto str = "Hello"s;
@@ -1191,13 +1239,7 @@ class [[nodiscard]] Option {
       "reference to an object that is marked to be moved")]]  //
       [[nodiscard]] constexpr auto
       as_mut_deref() &&
-      requires MutDerefable<T> {
-    if (is_some()) {
-      return Option<MutDeref<T>>(Some<MutDeref<T>>(MutDeref<T>(*value_ref_())));
-    } else {
-      return Option<MutDeref<T>>(None);
-    }
-  }
+      requires MutDerefable<T> = delete;
 
   /// Calls the parameter `some_fn` with the value if this `Option` is a
   /// `Some<T>` variant, else calls `none_fn`. This `Option` is consumed
@@ -1208,6 +1250,8 @@ class [[nodiscard]] Option {
   ///
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// ```cpp
   /// auto j = make_some("James"s).match([](string name) { return name; },
@@ -1243,7 +1287,7 @@ class [[nodiscard]] Option {
   }
 };
 
-//! Error handling with the `Result` type.
+//! ### Error handling with the `Result` type.
 //!
 //! `Result<T, E>` is a type used for returning and propagating
 //! errors. It is a class with the variants: `Ok<T>`, representing
@@ -1297,11 +1341,9 @@ class [[nodiscard]] Option {
 //!
 //! Result is either in the Ok or Err state at any point in time
 //!
-template <typename T, typename E>
+template <Swappable T, Swappable E>
 class [[nodiscard]] Result {
  public:
-  static_assert(Swappable<T>);
-  static_assert(Swappable<E>);
   static_assert(!std::is_reference_v<T>,
                 "Cannot use T& nor T&& for type, To prevent subtleties use "
                 "type wrappers like std::reference_wrapper or any of the "
@@ -1471,6 +1513,8 @@ class [[nodiscard]] Result {
   ///
   /// # Examples
   ///
+  /// Basic usage:
+  ///
   /// ```cpp
   /// Result<int, string_view> x = Ok(-3);
   /// ASSERT_TRUE(x.is_ok());
@@ -1483,6 +1527,8 @@ class [[nodiscard]] Result {
   /// Returns `true` if the result is `Err<T>`.
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// ```cpp
   /// Result<int, string_view> x = Ok(-3);
@@ -1497,6 +1543,8 @@ class [[nodiscard]] Result {
   /// value.
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// ```cpp
   ///
@@ -1524,6 +1572,8 @@ class [[nodiscard]] Result {
   ///
   /// # Examples
   ///
+  /// Basic usage:
+  ///
   /// ```cpp
   ///
   /// Result<int, string> x = Ok(2);
@@ -1545,12 +1595,49 @@ class [[nodiscard]] Result {
     }
   }
 
+  /// returns an l-value reference to the contained value.
+  [[nodiscard]] T& value()& noexcept {
+    if (is_err()) internal::result::no_lref(err_cref_());
+    return value_ref_();
+  }
+
+  /// returns an l-value reference to the contained value
+  [[nodiscard]] T const& value() const& noexcept {
+    if (is_err()) internal::result::no_lref(err_cref_());
+    return value_cref_();
+  }
+
+  /// Use `unwrap()` instead
+  [[deprecated("Use `unwrap()` instead")]] T value()&& = delete;
+  /// Use `unwrap()` instead
+  [[deprecated("Use `unwrap()` instead")]] T const value() const&& = delete;
+
+  /// returns an l-value reference to the error value
+  [[nodiscard]] E& err_value()& noexcept {
+    if (is_ok_) internal::result::no_err_lref(value_cref_());
+    return err_ref_();
+  }
+
+  /// returns an l-value reference to the error value
+  [[nodiscard]] E const& err_value() const& noexcept {
+    if (is_ok_) internal::result::no_err_lref(value_cref_());
+    return err_cref_();
+  }
+
+  /// Use `unwrap_err()` instead
+  [[deprecated("Use `unwrap_err()` instead")]] E err_value()&& = delete;
+  /// Use `unwrap_err()` instead
+  [[deprecated("Use `unwrap_err()` instead")]] E const err_value() const&& =
+      delete;
+
   /// Converts from `Result<T, E>` to `Option<T>`.
   ///
   /// Converts this result into an `Option<T>`, consuming itself,
   /// and discarding the error, if any.
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// ```cpp
   /// Result<int, string> x = Ok(2);
@@ -1574,6 +1661,8 @@ class [[nodiscard]] Result {
   ///
   /// # Examples
   ///
+  /// Basic usage:
+  ///
   /// ```cpp
   /// Result<int, string> x = Ok(2);
   /// ASSERT_EQ(move(x).err(), None);
@@ -1596,6 +1685,8 @@ class [[nodiscard]] Result {
   ///
   /// # Examples
   ///
+  /// Basic usage:
+  ///
   /// ```cpp
   /// Result<int, string> x = Ok(2);
   /// ASSERT_EQ(x.as_cref().unwrap().get(), 2);
@@ -1617,17 +1708,13 @@ class [[nodiscard]] Result {
       "therefore binding an l-value reference to an object that is marked to "
       "be moved")]]  //
   [[nodiscard]] constexpr auto
-  as_cref() const&& noexcept->Result<ConstRef<T>, ConstRef<E>> {
-    if (is_ok()) {
-      return Ok<ConstRef<T>>(ConstRef<T>(value_cref_()));
-    } else {
-      return Err<ConstRef<E>>(ConstRef<E>(err_cref_()));
-    }
-  }
+  as_cref() const&& noexcept->Result<ConstRef<T>, ConstRef<E>> = delete;
 
   /// Converts from `Result<T, E> &` to `Result<MutRef<T>, MutRef<E>>`.
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// ```cpp
   /// auto mutate = [](Result<int, int>& r) {
@@ -1656,13 +1743,7 @@ class [[nodiscard]] Result {
       "calling Result::as_ref() on an r-value, and therefore binding a "
       "reference to an object that is marked to be moved")]]  //
   [[nodiscard]] constexpr auto
-  as_ref()&& noexcept->Result<MutRef<T>, MutRef<E>> {
-    if (is_ok()) {
-      return Ok<MutRef<T>>(MutRef<T>(value_ref_()));
-    } else {
-      return Err<MutRef<E>>(MutRef<E>(err_ref_()));
-    }
-  }
+  as_ref()&& noexcept->Result<MutRef<T>, MutRef<E>> = delete;
 
   /// Maps a `Result<T, E>` to `Result<U, E>` by applying the function `op` to
   /// the contained `Ok<T>` value, leaving an `Err<E>` value untouched.
@@ -1670,6 +1751,8 @@ class [[nodiscard]] Result {
   /// This function can be used to compose the results of two functions.
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// Extract the content-type from an http header
   ///
@@ -1704,6 +1787,8 @@ class [[nodiscard]] Result {
   ///
   /// # Examples
   ///
+  /// Basic usage:
+  ///
   /// ```cpp
   /// Result<string, int> x = Ok("foo"s);
   /// auto map_fn = [](auto s) { return s.size(); };
@@ -1730,6 +1815,8 @@ class [[nodiscard]] Result {
   /// while handling an error.
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// ```cpp
   /// size_t const k = 21;
@@ -1762,6 +1849,8 @@ class [[nodiscard]] Result {
   ///
   /// # Examples
   ///
+  /// Basic usage:
+  ///
   /// ```cpp
   /// auto stringify = [](auto x) { return "error code: " + std::to_string(x);
   /// };
@@ -1788,6 +1877,8 @@ class [[nodiscard]] Result {
   /// of itself.
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// ```cpp
   /// Result<int, string_view> a = Ok(2);
@@ -1824,6 +1915,8 @@ class [[nodiscard]] Result {
   ///
   /// # Examples
   ///
+  /// Basic usage:
+  ///
   /// ```cpp
   /// auto sq = [](int x) { return x * x; };
   ///
@@ -1853,6 +1946,8 @@ class [[nodiscard]] Result {
   /// lazily evaluated.
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// ```cpp
   /// Result<int, string_view> a = Ok(2);
@@ -1889,6 +1984,8 @@ class [[nodiscard]] Result {
   ///
   /// # Examples
   ///
+  /// Basic usage:
+  ///
   /// ```cpp
   /// auto make_ok = [](int x) -> Result<int, int> { return Ok(move(x)); };
   /// auto make_err = [](int x) -> Result<int, int> { return Err(move(x)); };
@@ -1920,6 +2017,8 @@ class [[nodiscard]] Result {
   ///
   /// # Examples
   ///
+  /// Basic usage:
+  ///
   /// ```cpp
   /// int alt = 2;
   /// Result<int, string_view> x = Ok(9);
@@ -1942,6 +2041,8 @@ class [[nodiscard]] Result {
   ///
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// ```cpp
   /// auto count = [] (string_view err)  { return err.size(); };
@@ -1969,6 +2070,8 @@ class [[nodiscard]] Result {
   ///
   /// # Examples
   ///
+  /// Basic usage:
+  ///
   /// ```cpp
   /// ASSERT_EQ(make_ok<int, string_view>(2).unwrap(), 2);
   /// Result<int, string_view> x = Err("emergency failure"sv);
@@ -1989,6 +2092,8 @@ class [[nodiscard]] Result {
   /// passed message, and the content of the `Err`.
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// ```cpp
   /// Result<int, string_view> x = Err("emergency failure"sv);
@@ -2011,6 +2116,8 @@ class [[nodiscard]] Result {
   ///
   /// # Examples
   ///
+  /// Basic usage:
+  ///
   /// ```cpp
   /// Result<int, string_view> x = Ok(2);
   /// ASSERT_ANY_THROW(move(x).unwrap_err()); // panics
@@ -2020,7 +2127,7 @@ class [[nodiscard]] Result {
   /// ```
   [[nodiscard]] auto unwrap_err()&&->E {
     if (is_ok()) {
-      internal::result::no_error(value_cref_());
+      internal::result::no_err(value_cref_());
     }
     return std::move(err_ref_());
   }
@@ -2033,6 +2140,8 @@ class [[nodiscard]] Result {
   /// passed message, and the content of the `Ok`.
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// ```cpp
   /// Result<int, string_view> x = Ok(10);
@@ -2055,6 +2164,8 @@ class [[nodiscard]] Result {
   /// type.
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// ```cpp
   /// Result<string, int> good_year = Ok("1909"s);
@@ -2095,6 +2206,8 @@ class [[nodiscard]] Result {
   ///
   /// # Examples
   ///
+  /// Basic usage:
+  ///
   /// ```cpp
   /// int v = 98;
   ///
@@ -2124,15 +2237,7 @@ class [[nodiscard]] Result {
       "calling Result::as_const_deref() on an r-value, and therefore binding a "
       "reference to an object that is marked to be moved")]]  //
   [[nodiscard]] constexpr auto
-  as_const_deref() const&& requires ConstDerefable<T> {
-    using result_t = Result<ConstDeref<T>, ConstRef<E>>;
-
-    if (is_ok()) {
-      return result_t(Ok<ConstDeref<T>>(ConstDeref<T>(*value_cref_())));
-    } else {
-      return result_t(Err<ConstRef<E>>(ConstRef<E>(err_cref_())));
-    }
-  }
+  as_const_deref() const&& requires ConstDerefable<T> = delete;
 
   /// Performs a constant dereference on `E`. if `E` is a pointer, C++-style
   /// iterator or smart-pointer. i.e. Converts `Result<T, E>` to
@@ -2153,6 +2258,8 @@ class [[nodiscard]] Result {
   ///
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// ```cpp
   /// Result<int, string_view*> x = Ok(2);
@@ -2183,15 +2290,7 @@ class [[nodiscard]] Result {
       "binding an l-value reference to an object that is marked to be "
       "moved")]]  //
   [[nodiscard]] constexpr auto
-  as_const_deref_err() const&& requires ConstDerefable<E> {
-    using result_t = Result<ConstRef<T>, ConstDeref<E>>;
-
-    if (is_ok()) {
-      return result_t(Ok<ConstRef<T>>(ConstRef<T>(value_cref_())));
-    } else {
-      return result_t(Err<ConstDeref<E>>(ConstDeref<E>(*err_cref_())));
-    }
-  }
+  as_const_deref_err() const&& requires ConstDerefable<E> = delete;
 
   /// Performs a mutable dereference on `T`, if `T` is a pointer, C++-style
   /// iterator or smart-pointer. i.e. Converts `Result<T, E>` to
@@ -2212,6 +2311,8 @@ class [[nodiscard]] Result {
   ///
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// ```cpp
   /// int v = 98;
@@ -2252,14 +2353,7 @@ class [[nodiscard]] Result {
       "reference to an object that is marked to be moved")]]  //
       [[nodiscard]] constexpr auto
       as_mut_deref() &&
-      requires MutDerefable<T> {
-    using result_t = Result<MutDeref<T>, MutRef<E>>;
-    if (is_ok()) {
-      return result_t(Ok<MutDeref<T>>(MutDeref<T>(*value_ref_())));
-    } else {
-      return result_t(Err<MutRef<E>>(MutRef<E>(err_ref_())));
-    }
-  }
+      requires MutDerefable<T> = delete;
 
   /// Performs a mutable dereference on `E`, if `E` is a pointer, C++-style
   /// iterator or smart-pointer. i.e. Converts `Result<T, E>` to
@@ -2280,6 +2374,8 @@ class [[nodiscard]] Result {
   ///
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// ```cpp
   /// int e = 98;
@@ -2320,14 +2416,7 @@ class [[nodiscard]] Result {
       "an l-value reference to an object that is marked to be moved")]]  //
       [[nodiscard]] constexpr auto
       as_mut_deref_err() &&
-      requires MutDerefable<E> {
-    using result_t = Result<MutRef<T>, MutDeref<E>>;
-    if (is_ok()) {
-      return result_t(Ok<MutRef<T>>(MutRef<T>(value_ref_())));
-    } else {
-      return result_t(Err<MutDeref<E>>(MutDeref<E>(*err_ref_())));
-    }
-  }
+      requires MutDerefable<E> = delete;
 
   /// Calls the parameter `ok_fn` with the value if this result is an `Ok<T>`,
   /// else calls `err_fn` with the error. This result is consumed afterward.
@@ -2337,6 +2426,8 @@ class [[nodiscard]] Result {
   ///
   ///
   /// # Examples
+  ///
+  /// Basic usage:
   ///
   /// ```cpp
   /// auto i = make_ok<int, string_view>(99);
@@ -2397,6 +2488,9 @@ class [[nodiscard]] Result {
 ///
 /// # Examples
 ///
+/// Basic usage:
+///
+///
 /// ```cpp
 /// // these are some of the various ways to construct on Option<T> with a
 /// // Some<T> value
@@ -2428,6 +2522,9 @@ template <typename T>
 ///
 /// # Examples
 ///
+/// Basic usage:
+///
+///
 /// ```cpp
 /// // these are some of the various ways to construct on Option<T> with
 /// // a None value
@@ -2455,6 +2552,9 @@ template <typename T>
 /// parameter.
 ///
 /// # Examples
+///
+/// Basic usage:
+///
 ///
 /// ```cpp
 /// // these are some of the various ways to construct on Result<T, E> with an
@@ -2487,6 +2587,9 @@ template <typename T, typename E>
 ///
 /// # Examples
 ///
+/// Basic usage:
+///
+///
 /// ```cpp
 ///
 /// // these are some of the various ways to construct on Result<T, E> with an
@@ -2508,5 +2611,3 @@ template <typename T, typename E>
 }
 
 };  // namespace stx
-
-#undef FWD

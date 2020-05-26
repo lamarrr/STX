@@ -22,3 +22,5 @@ system/ulib/intel-hda/include/intel-hda/utils/status_or.h StatusOr
 
 
 Every change of state must be followed by a destruction (and construction if it has a non-null variant)
+
+delete panic throw

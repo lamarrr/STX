@@ -113,6 +113,8 @@ int main() {
 
 ```
 
+## Configuration Options
+
 ## Usage Notes
 
 - The panic behavior should only be defined once per executable.

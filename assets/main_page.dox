@@ -4,78 +4,108 @@
 /// 
 /// # What is STX?
 ///
-/// STX is a collection of libraries or utilities designed to make working with C++ easier.
-/// This includes but is not limited to adopted paradigms, data-structures, and designs from other programming languages.
+/// STX is a collection of simple libraries and utilities designed to make working with C++ easier.
+/// This includes but is not limited to well-proven and widely adopted paradigms, data-structures, and designs from 
+/// other prominent projects and programming languages accross the software development community.
 /// 
-/// All of the facilities do not make assumptions about the platform they run on,
-/// perform memory allocation, nor use virtual inheritance.
 /// 
-/// All STX libraries are ```no_std```.
+/// At the core, all STX libraries are ```no_std```.
 /// 
 /// # Primary Goals
-/// - Non-bloated abstractions
-/// - Deterministic and Convenient Error Handling
-/// - Clean APIs & libraries that avoids quarks and complexities
-/// - No exceptions
+///
+/// - Unifying community efforts, and reducing code duplication
+/// - Providing deterministic and convenient error-handling facilities
+/// - Providing clean libraries that avoids quarks and complexities
+/// - No exceptions, runtime polymorphism, nor memory allocation
 /// - Portability
-/// - Suitability for embedded systems
-/// - Zero memory allocation (nostd)
-/// - Zero-cost
+/// - Suitability for real-time systems, operating systems, embedded systems, 
+/// and safety-critical systems
+/// - Efficiency
 ///
 ///
 /// # Error-Handling Facilities
 ///
 /// ## Panic Library
 /// 
-/// - See guide on @ref Panicking
+/// See guide on @ref Panicking
 ///
 ///
-/// This provides:
+/// The panic library provides:
 ///
 /// - panicking:
 ///
-///     - `stx::panic`: signals an abnormal flow in the program.
+///     - `stx::panic`: signals an abnormal flow/error in the program.
 ///
+/// - runtime panic hooks
+/// - optional panic backtraces
+/// - error reporting
 /// - panic handlers:
 ///
-///     - `stx::panic_default`: The default panic handler that prints the error message and panic location data, and afterwards aborts the program.
-///     - `stx::panic_halt`: A panic handler that causes the current calling thread, to halt by entering an infinite loop.
+///     - `stx::panic_default`: The default panic handler that prints the error message and 
+///        panic location data, and afterwards aborts the program.
+///     - `stx::panic_halt`: A panic handler that causes the current calling thread, to halt 
+///        by entering an infinite loop.
 ///     - `stx::panic_abort`: A panic handler that causes the abort instruction to be executed.
 /// 
 /// ## Error Handling Library
 /// 
-/// The extensions not only make error handling easer but also make the paths more obvious to the compiler for optimizations. 
-/// Their Monadic nature make it easy to operate on them as pipelines. 
+/// These extensions not only make error handling easer but also make the paths more 
+/// obvious to the compiler for optimizations. 
+/// Their Monadic nature makes it easy to operate on them as pipelines and in the process eliminate redundant
+/// error-handling logic code. 
 ///
 ///
-/// - `stx::Result<T, E>`: Monadic type for relaying the result of a function that can fail or succeed.
-/// - `stx::Option<T>`: Monadic type for **safe** optional values.
-/// 
-/// 
-/// # Similar Implementations/Attempts in C++
-/// 
-/// This is also partially in response to the various implementations I have seen duplicated across the community,
-/// Most of the facilities for which this library provides.
-///
-///
-/// - The awesome Simon Brand's `tl::optional`
-/// - Abseil's Raw Logger
-/// - [Tensorflow Lite Micro's Error Reporter](http://)
-/// - Tensorflow's Status
-/// - Mozilla's Result
-/// - Google Pigweed's Result<T, Status>
-/// - Tensorflow's ENSURE_OK, CHECK_OK, DCHECK_OK and other error handling macros
-/// - Simdjson's Result_error
+/// - `stx::Result<T, E>`: Type for relaying the result of a function that can fail or succeed.
+/// Our `Result` implementation has some monadic extensions.
+/// - `stx::Option<T>`:  Type for **safe** optional values. Our `Option` implementation has some monadic extensions.
 /// 
 ///
+/// ## Backtracing Library
+/// 
+/// The backtracing library is useful for manually querying/viewing information of active stack frames. 
+/// It makes debugging easier by making it easier to get stackframe information programmartically or 
+/// automatically (panics) without having to inspect core dumps or step into a debugger in which errors 
+/// might not be reproducible (especially for embedded systems).
+/// 
+/// - Fatal signal backtraces. i.e. SIGSEGV, SIGFPE, SIGILL.
+/// - Manual stack backtraces.
 ///
 ///
-/// # Future Goals
-/// - Backwards compatibility with C++17?
+/// 
+///
+/// # Why STX?
+/// 
+/// STX is partially an effort to bring a more convenient and usable error-handling model to the C++ ecosystem.
+/// Whilst also sampling ideas from various error-handling model implementations duplicated across the community,
+/// Most of the basic facilities for which these libraries provide.
+///
+/// Here is a list of C++ projects with a similar error-handling model:
+/// - Simon Brand's [tl::optional](https://github.com/TartanLlama/optional)
+/// - Abseil's Raw Logger?
+/// - Tensorflow Lite Micro's [Error Reporter](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/lite/core/api/error_reporter.h)
+/// - Tensorflow's [Status, ENSURE_OK, CHECK_OK, DCHECK_OK, and other error handling macros](http://)
+/// - Mozilla's [Result<T, E>](https://hg.mozilla.org/mozilla-central/file/tip/mfbt/Result.h)
+/// - Google Pigweed's [Result<T, Status>](http://), [Status](http://)
+/// - Simdjson's [Result_error](http://)
+/// - MBED OS' [Error](https://github.com/ARMmbed/mbed-os/blob/master/platform/source/mbed_error.c)
+/// - LLVM's [Error, Expected](https://github.com/llvm/llvm-project/blob/master/llvm/include/llvm/Support/Error.h), [ErrorOr](https://github.com/llvm/llvm-project/blob/master/llvm/include/llvm/Support/ErrorOr.h), [ErrorHandling](https://github.com/llvm/llvm-project/blob/master/llvm/lib/Support/ErrorHandling.cpp)
+/// - Fuchsia OS - Zircon Common Library' s [Result, and Status](https://fuchsia.googlesource.com/fuchsia/+/refs/heads/master/zircon/system/ulib/zxc/)
+///
+///
 ///
 ///
 ///
 /// 
 /// - Error Paths should be just as fast as success paths without incurring excessive overheads as exceptions.
+///
+///
+///
+///
+/// # FAQs
+///
+///
+///
+///
+///
 ///
 ///

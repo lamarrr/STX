@@ -14,13 +14,12 @@
 #include <functional>
 #include <iterator>
 #include <type_traits>
-#include <utility>
 
 #include "stx/config.h"
 
 namespace stx {
-/// NOTE: these implementations will be replaced by standard versions in future
-/// release, most toolchains don't implement these yet
+// NOTE: these implementations will be replaced by standard versions in future
+// release, most toolchains don't implement these yet
 
 template <typename Fn, typename... Args>
 using invoke_result = typename std::invoke_result<Fn, Args...>::type;
@@ -37,7 +36,7 @@ concept Const = std::is_const_v<T>;
 template <typename T>
 concept NonConst = !Const<T>;
 
-// TODO(lamarrr): we actually need a movable
+// TODO(lamarrr): we actually need a movable, and not swappable
 template <typename T>
 concept Swappable = std::is_swappable_v<T>;
 
@@ -53,12 +52,12 @@ concept same_as = std::is_same_v<T, Cmp>;
 template <typename Src, typename Dest>
 concept convertible_to = std::is_convertible_v<Src, Dest>;
 
-/// helps to guide against implicit conversions, especially against character
+/// helps to guide against implicit conversions, especially amongst character
 /// pointers, string, and string_view.
-/// Pointers are dangerous!
+/// Pointers are dangerous and can mean a lot of things!
 /// a string or string_view does not always
 /// mean a char *, nor char const *, but they have implicit conversions. It is
-/// not sensible to allow implicit conversions here.
+/// not sensible to allow implicit conversions in that scenario.
 template <typename T, typename Cmp>
 concept exact = std::is_same_v<T, Cmp>;
 
@@ -160,8 +159,5 @@ using ConstDeref = std::reference_wrapper<internal::DerefValue__<T> const>;
 
 template <MutDerefable T>
 using MutDeref = Deref<T>;
-
-template <typename T>
-concept rvalue_reference = std::is_rvalue_reference_v<T>;
 
 };  // namespace stx

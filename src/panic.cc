@@ -15,9 +15,9 @@
 
 #ifndef STX_OVERRIDE_PANIC_HANDLER
 
-[[noreturn]] void stx::panic_handler(std::string_view info,
-                                     ReportPayload const& payload,
-                                     SourceLocation location) {
+STX_LOCAL void stx::panic_handler(std::string_view info,
+                                  ReportPayload const& payload,
+                                  SourceLocation location) noexcept {
   panic_default(std::move(info), payload, std::move(location));
 }
 

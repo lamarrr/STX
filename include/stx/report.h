@@ -1,3 +1,14 @@
+/**
+ * @file report.h
+ * @author Basit Ayantunde <rlamarrr@gmail.com>
+ * @brief
+ * @version  0.1
+ * @date 2020-05-22
+ *
+ * @copyright Copyright (c) 2020
+ *
+ */
+
 #pragma once
 
 #include <array>
@@ -26,12 +37,9 @@ static_assert(kMaxReportSize > sizeof(kReportTruncationMessage),
 struct ReportQuery {};
 
 /// stack-allocated, fixed-length report denoting the cause of the error from
-/// the error type of a `Result<T, E>`
-/// the type contains a string interpretation/description of the error type
-/// it should be initialized with ASCII-encoded characters, especially due to
-/// cross-platform portability.
-/// TODO: remove the null terminator
-/// kMaxReportSize doesn't need it????
+/// the error type of a `Result<T, E>`.
+/// `Report` contains a string description of the error type.
+/// it should be initialized with ASCII characters.
 class [[nodiscard]] Report {
  public:
   using storage_type = std::array<char, kMaxReportSize>;
@@ -78,11 +86,13 @@ class [[nodiscard]] Report {
   size_t used_size_;
 };
 
-// move definitions
-// second argument to panic_handler
-// this holds a reference to the report's data and is used accross
-// ABI-boundaries as Report can vary accross configurations
-// more or less like std::span!
+/// `ReportPayload` holds a reference to the report's data and is used accross
+/// ABI-boundaries as `Report` can vary accross configurations.
+/// `ReportPayload` is essentially a type-erased view of `Report` (as in
+/// `std::span`).
+///
+/// `ReportPayload` is the type of the second argument to
+/// `panic_handler`.
 class [[nodiscard]] ReportPayload {
  public:
   [[nodiscard]] explicit constexpr ReportPayload(Report const& report) noexcept
@@ -190,4 +200,4 @@ constexpr auto query = ReportQuery{};
   return Report(v);
 }
 
-};
+};  // namespace stx

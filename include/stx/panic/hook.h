@@ -8,58 +8,83 @@
  * @copyright Copyright (c) 2020
  *
  */
+
 #pragma once
 
-#ifdef STX_ENABLE_BACK_TRACE
-#ifdef STX_OVERRIDE_PANIC_HANDLER
-#error "Panic Handler overriden, STX can thus not provide a panic backtrace"
-#else
-#include <cxxabi.h>
-#include <unwind.h>
-#endif
-#endif
-
 #include <atomic>
-#include <cstdlib>
 
 #include "stx/panic.h"  // separate
 #include "stx/report.h"
 
-// turned off by default
-// this should be hidden from the library user
-
-#define STX_ENABLE_PANIC_HOOK
+//! @file
+//!
+//! Hooks are useful for writing device drivers where you load the drivers at
+//! runtime as a DLL. As the default behaviour is to log to stderr and abort, In
+//! drivers and safety-critical software, You often don't want a driver failure
+//! to cause the whole program to immediately cause the whole program to abort
+//! due to a panic from the drivers. Hooks allow you to control the panic
+//! behaviour at runtime.
+//!
+//!
+//! # NOTE
+//!
+//! You might have to do some extra demangling as it is not exposed via a
+//! C ABI for consistency and internal reasons.
+//!
+//! Process:
+//! - Check if hooks are available for attaching: `has_panic_hook()`
+//! - If hooks are available, attach a panic hook:
+//! `attach_panic_hook(my_handler)` or reset the exisiting panic hook back to
+//! the default: `take_panic_hook()`
+//!
+//!
 
 namespace stx {
 
-using panic_handler_t = decltype(panic_handler)*;
-
-#ifdef STX_ENABLE_PANIC_HOOK
+#if defined(STX_VISIBLE_PANIC_HOOK)
 constexpr bool kHasPanicHook = true;
 #else
 constexpr bool kHasPanicHook = false;
 #endif
 
 // multiple threads can try to modify/read the hook at once.
-using PanicHook = panic_handler_t;
+using PanicHook = decltype(panic_handler)*;
 using AtomicPanicHook = std::atomic<PanicHook>;
 
 namespace this_thread {
-bool is_panicking() noexcept;
+
+/// # THREAD-SAFETY
+/// thread-safe.
+STX_EXPORT bool is_panicking() noexcept;
 };  // namespace this_thread
 
-// ABI
-/// Check if panic hooks are enabled.
-/// This should be called before calling any of attach_panic_hook or
-/// reset_panic_hook
-bool has_panic_hook() noexcept;
+/// Checks if panic hooks are enabled and visible.
+/// This should be called before calling any of `attach_panic_hook` or
+/// `take_panic_hook`.
+///
+/// # THREAD-SAFETY
+///
+/// thread-safe.
+STX_EXPORT bool has_panic_hook() noexcept;
 
-#ifdef STX_ENABLE_PANIC_HOOK
-void attach_panic_hook(PanicHook hook) noexcept;
-PanicHook take_panic_hook() noexcept;
+#if defined(STX_VISIBLE_PANIC_HOOK)
+
+/// Attaches a new panic hook, the attached panic hook is called in place of the
+/// default panic hook.
+///
+/// # THREAD-SAFETY
+///
+/// thread-safe.
+STX_EXPORT bool attach_panic_hook(PanicHook hook) noexcept;
+
+/// Removes the registered panic hook (if any) and let's it resort to the
+/// default.
+///
+/// # THREAD-SAFETY
+///
+/// thread-safe.
+STX_EXPORT bool take_panic_hook(PanicHook* hook) noexcept;
+
 #endif
-
-void default_panic_hook(std::string_view, ReportPayload const&,
-                        SourceLocation) noexcept;
 
 };  // namespace stx

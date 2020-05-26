@@ -76,7 +76,7 @@ TEST(OptionTest, Misc) {
 TEST(OptionTest, ObjectConstructionTest) {
   Option<int> a = None;
   Option b = Some(89);
-  EXPECT_ANY_THROW(move(a).unwrap());
+  EXPECT_DEATH(move(a).unwrap(), ".*");
   EXPECT_NO_THROW(move(b).unwrap());
   EXPECT_EQ(Option(Some(89)).unwrap(), 89);
 
@@ -169,13 +169,13 @@ TEST(OptionTest, AsConstRef) {
   EXPECT_EQ(a.as_cref().unwrap().get(), 68);
 
   Option<int> const b = None;
-  EXPECT_ANY_THROW(b.as_cref().unwrap());
+  EXPECT_DEATH(b.as_cref().unwrap(), ".*");
 
   Option const c = Some(vector{1, 2, 3, 4});
   EXPECT_EQ(c.as_cref().unwrap().get(), (vector{1, 2, 3, 4}));
 
   Option<vector<int>> const d = None;
-  EXPECT_ANY_THROW(d.as_cref().unwrap());
+  EXPECT_DEATH(d.as_cref().unwrap(), ".*");
 }
 
 TEST(OptionTest, AsRef) {
@@ -184,14 +184,14 @@ TEST(OptionTest, AsRef) {
   EXPECT_EQ(a, Some(99));
 
   Option<int> b = None;
-  EXPECT_ANY_THROW(b.as_ref().unwrap());
+  EXPECT_DEATH(b.as_ref().unwrap(), ".*");
 
   auto c = Option(Some(vector{1, 2, 3, 4}));
   c.as_ref().unwrap().get() = vector{5, 6, 7, 8, 9, 10};
   EXPECT_EQ(c, Some(vector{5, 6, 7, 8, 9, 10}));
 
   auto d = Option<vector<int>>(None);
-  EXPECT_ANY_THROW(d.as_ref().unwrap());
+  EXPECT_DEATH(d.as_ref().unwrap(), ".*");
 }
 
 TEST(OptionLifeTimeTest, AsRef) {
@@ -204,11 +204,11 @@ TEST(OptionLifeTimeTest, AsRef) {
 
 TEST(OptionTest, Unwrap) {
   EXPECT_EQ(Option(Some(0)).unwrap(), 0);
-  EXPECT_ANY_THROW(Option<int>(None).unwrap());
+  EXPECT_DEATH(Option<int>(None).unwrap(), ".*");
 
   EXPECT_EQ(Option(Some(vector{1, 2, 3, 4, 5})).unwrap(),
             (vector{1, 2, 3, 4, 5}));
-  EXPECT_ANY_THROW(Option<vector<int>>(None).unwrap());
+  EXPECT_DEATH(Option<vector<int>>(None).unwrap(), ".*");
 }
 
 TEST(OptionLifetimeTest, Unwrap) {
@@ -219,7 +219,7 @@ TEST(OptionLifetimeTest, Unwrap) {
 TEST(OptionTest, Expect) {
   EXPECT_NO_THROW(Option(Some(0)).expect("No Value Received"));
   // how does it behave with unique_ptr?
-  EXPECT_ANY_THROW(Option<unique_ptr<int>>(None).expect("No Value Received"));
+  EXPECT_DEATH(Option<unique_ptr<int>>(None).expect("No Value Received"), ".*");
 }
 
 TEST(OptionLifetimeTest, Expect) {
@@ -278,7 +278,7 @@ TEST(OptionTest, Map) {
   EXPECT_EQ(a, Some(180));
 
   auto&& b = Option<int>(None).map([](int&& x) { return x + 90; });
-  EXPECT_ANY_THROW(move(b).unwrap());
+  EXPECT_DEATH(move(b).unwrap(), ".*");
 
   auto&& c = Option(Some(vector{1, 2, 3, 4, 5})).map([](vector<int>&& vec) {
     vec.push_back(6);
@@ -290,7 +290,7 @@ TEST(OptionTest, Map) {
     vec.push_back(6);
     return move(vec);
   });
-  EXPECT_ANY_THROW(move(d).unwrap());
+  EXPECT_DEATH(move(d).unwrap(), ".*");
 }
 
 TEST(OptionLifetimeTest, Map) {
@@ -395,7 +395,7 @@ TEST(OptionTest, And) {
   EXPECT_FLOAT_EQ(move(a).unwrap(), 90.0f);
 
   auto&& b = make_none<int>().AND(Option(Some(90.0f)));
-  EXPECT_ANY_THROW(move(b).unwrap());
+  EXPECT_DEATH(move(b).unwrap(), ".*");
 
   auto c = []() {
     return Option(Some(90)).AND(Option(Some(vector{90.0f, 180.0f, 3.141f})));
@@ -404,7 +404,7 @@ TEST(OptionTest, And) {
   EXPECT_EQ(c().unwrap(), (vector{90.0f, 180.0f, 3.141f}));
 
   auto&& d = make_none<int>().AND(Option(Some(vector{90.0f, 180.0f, 3.141f})));
-  EXPECT_ANY_THROW(move(d).unwrap());
+  EXPECT_DEATH(move(d).unwrap(), ".*");
 }
 
 TEST(OptionLifetimeTest, And) {
@@ -412,8 +412,8 @@ TEST(OptionLifetimeTest, And) {
                       .AND(Option(Some(make_mv<1>())))
                       .unwrap()
                       .done());
-  EXPECT_ANY_THROW(
-      make_none<int>().AND(Option(Some(make_mv<2>()))).unwrap().done());
+  EXPECT_DEATH(make_none<int>().AND(Option(Some(make_mv<2>()))).unwrap().done(),
+               ".*");
 }
 
 TEST(OptionTest, AndThen) {
@@ -424,7 +424,7 @@ TEST(OptionTest, AndThen) {
 
   auto&& b = make_none<int>().and_then(
       [](int&& x) { return Option(Some(static_cast<float>(x) + 90.0f)); });
-  EXPECT_ANY_THROW(move(b).unwrap());
+  EXPECT_DEATH(move(b).unwrap(), ".*");
 
   //
 }
@@ -436,20 +436,21 @@ TEST(OptionTest, Filter) {
   EXPECT_EQ(Option(Some(90)).filter(is_even).unwrap(), 90);
   EXPECT_EQ(Option(Some(99)).filter(is_odd).unwrap(), 99);
 
-  EXPECT_ANY_THROW(make_none<int>().filter(is_even).unwrap());
-  EXPECT_ANY_THROW(make_none<int>().filter(is_even).unwrap());
+  EXPECT_DEATH(make_none<int>().filter(is_even).unwrap(), ".*");
+  EXPECT_DEATH(make_none<int>().filter(is_even).unwrap(), ".*");
 
   auto all_odd = [&](vector<int> const& vec) {
     return all_of(vec.begin(), vec.end(), is_odd);
   };
 
-  EXPECT_ANY_THROW(
-      Option(Some(vector{1, 3, 5, 7, 2, 4, 6, 8})).filter(all_odd).unwrap());
+  EXPECT_DEATH(
+      Option(Some(vector{1, 3, 5, 7, 2, 4, 6, 8})).filter(all_odd).unwrap(),
+      ".*");
   EXPECT_EQ(Option(Some(vector{1, 3, 5, 7})).filter(all_odd).unwrap(),
             (vector{1, 3, 5, 7}));
 
-  EXPECT_ANY_THROW(Option<vector<int>>(None).filter(all_odd).unwrap());
-  EXPECT_ANY_THROW(Option<vector<int>>(None).filter(all_odd).unwrap());
+  EXPECT_DEATH(Option<vector<int>>(None).filter(all_odd).unwrap(), ".*");
+  EXPECT_DEATH(Option<vector<int>>(None).filter(all_odd).unwrap(), ".*");
 }
 
 TEST(OptionTest, Or) {
@@ -460,7 +461,7 @@ TEST(OptionTest, Or) {
   EXPECT_EQ(move(b).unwrap(), 89);
 
   auto&& c = make_none<int>().OR(make_none<int>());
-  EXPECT_ANY_THROW(move(c).unwrap());
+  EXPECT_DEATH(move(c).unwrap(), ".*");
   //
   //
   auto&& d = Option(Some(vector{1, 2, 3, 4, 5}))
@@ -471,30 +472,30 @@ TEST(OptionTest, Or) {
   EXPECT_EQ(move(e).unwrap(), (vector{6, 7, 8, 9, 10}));
 
   auto&& f = Option<vector<int>>(None).OR(Option<vector<int>>(None));
-  EXPECT_ANY_THROW(move(f).unwrap());
+  EXPECT_DEATH(move(f).unwrap(), ".*");
 }
 
 TEST(OptionTest, Xor) {
   auto&& a = Option(Some(90)).XOR(Option(Some(89)));
-  EXPECT_ANY_THROW(move(a).unwrap());
+  EXPECT_DEATH(move(a).unwrap(), ".*");
 
   auto&& b = make_none<int>().XOR(Option(Some(89)));
   EXPECT_EQ(move(b).unwrap(), 89);
 
   auto&& c = make_none<int>().XOR(make_none<int>());
-  EXPECT_ANY_THROW(move(c).unwrap());
+  EXPECT_DEATH(move(c).unwrap(), ".*");
   //
   //
   auto&& d = Option(Some(vector{1, 2, 3, 4, 5}))
                  .XOR(Option(Some(vector{6, 7, 8, 9, 10})));
-  EXPECT_ANY_THROW(move(d).unwrap());
+  EXPECT_DEATH(move(d).unwrap(), ".*");
 
   auto&& e =
       Option<vector<int>>(None).XOR(Option(Some(vector{6, 7, 8, 9, 10})));
   EXPECT_EQ(move(e).unwrap(), (vector{6, 7, 8, 9, 10}));
 
   auto&& f = Option<vector<int>>(None).XOR(Option<vector<int>>(None));
-  EXPECT_ANY_THROW(move(f).unwrap());
+  EXPECT_DEATH(move(f).unwrap(), ".*");
 }
 
 TEST(OptionTest, Take) {
@@ -503,7 +504,7 @@ TEST(OptionTest, Take) {
   EXPECT_EQ(a, None);
 
   auto b = Option<int>(None);
-  EXPECT_ANY_THROW(b.take().unwrap());
+  EXPECT_DEATH(b.take().unwrap(), ".*");
   EXPECT_EQ(b, None);
 
   auto c = Option(Some(vector{-1, -2, -4, -8, -16}));
@@ -512,7 +513,7 @@ TEST(OptionTest, Take) {
   EXPECT_EQ(c, None);
 
   auto d = Option<vector<int>>(None);
-  EXPECT_ANY_THROW(d.take().unwrap());
+  EXPECT_DEATH(d.take().unwrap(), ".*");
   EXPECT_EQ(d, None);
 }
 
@@ -556,7 +557,7 @@ TEST(OptionTest, OrElse) {
   EXPECT_FLOAT_EQ(move(b).unwrap(), 0.5f);
 
   auto&& c = Option<float>(None).or_else([]() { return Option<float>(None); });
-  EXPECT_ANY_THROW(move(c).unwrap());
+  EXPECT_DEATH(move(c).unwrap(), ".*");
   //
   //
   auto&& d = Option(Some(vector{1, 2, 3, 4, 5})).or_else([]() {
@@ -571,23 +572,23 @@ TEST(OptionTest, OrElse) {
 
   auto&& f = Option<vector<int>>(None).or_else(
       []() { return Option<vector<int>>(None); });
-  EXPECT_ANY_THROW(move(f).unwrap());
+  EXPECT_DEATH(move(f).unwrap(), ".*");
 }
 
 TEST(OptionTest, ExpectNone) {
-  EXPECT_ANY_THROW(Option(Some(56)).expect_none("===TEST==="));
+  EXPECT_DEATH(Option(Some(56)).expect_none("===TEST==="), ".*");
   EXPECT_NO_THROW(Option<int>(None).expect_none("===TEST==="));
 
-  EXPECT_ANY_THROW(
-      Option(Some(vector{1, 2, 3, 4, 5})).expect_none("===TEST==="));
+  EXPECT_DEATH(Option(Some(vector{1, 2, 3, 4, 5})).expect_none("===TEST==="),
+               ".*");
   EXPECT_NO_THROW(Option<vector<int>>(None).expect_none("===TEST==="));
 }
 
 TEST(OptionTest, UnwrapNone) {
-  EXPECT_ANY_THROW(Option(Some(56)).unwrap_none());
+  EXPECT_DEATH(Option(Some(56)).unwrap_none(), ".*");
   EXPECT_NO_THROW(Option<int>(None).unwrap_none());
 
-  EXPECT_ANY_THROW(Option(Some(vector{1, 2, 3, 4, 5})).unwrap_none());
+  EXPECT_DEATH(Option(Some(vector{1, 2, 3, 4, 5})).unwrap_none(), ".*");
   EXPECT_NO_THROW(Option<vector<int>>(None).unwrap_none());
 }
 
@@ -607,7 +608,7 @@ TEST(OptionTest, AsConstDeref) {
   EXPECT_EQ(&a.as_const_deref().unwrap().get(), &x);
 
   auto const b = Option<int*>(None);
-  EXPECT_ANY_THROW(b.as_const_deref().unwrap().get());
+  EXPECT_DEATH(b.as_const_deref().unwrap().get(), ".*");
 
   auto const y = vector{1, 2, 3, 4, 5};
   auto const c = Option(Some(&y));
@@ -615,7 +616,7 @@ TEST(OptionTest, AsConstDeref) {
   EXPECT_EQ(&c.as_const_deref().unwrap().get(), &y);
 
   auto const d = Option<vector<int>*>(None);
-  EXPECT_ANY_THROW(d.as_const_deref().unwrap().get());
+  EXPECT_DEATH(d.as_const_deref().unwrap().get(), ".*");
 
   // works with standard vector iterators
   auto const z = vector{1, 2, 3, 4, 5};
@@ -631,7 +632,7 @@ TEST(OptionTest, AsMutDeref) {
   EXPECT_EQ(a.as_mut_deref().unwrap().get(), 77);
 
   auto b = Option<int*>(None);
-  EXPECT_ANY_THROW(b.as_mut_deref().unwrap().get());
+  EXPECT_DEATH(b.as_mut_deref().unwrap().get(), ".*");
 
   auto vec = vector{1, 2, 3, 4, 5};
   auto c = Option(Some(&vec));
@@ -639,7 +640,7 @@ TEST(OptionTest, AsMutDeref) {
   EXPECT_EQ(c.as_mut_deref().unwrap().get(), (vector{6, 7, 8, 9, 10}));
 
   auto d = Option<vector<int>*>(None);
-  EXPECT_ANY_THROW(d.as_mut_deref().unwrap().get());
+  EXPECT_DEATH(d.as_mut_deref().unwrap().get(), ".*");
 
   auto vec_b = vector{1, 2, 3, 4, 5};
   auto e = Option(Some(vec_b.begin()));

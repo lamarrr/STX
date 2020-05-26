@@ -20,10 +20,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # === Configuration Options
 #
 # ===============================================
-# TODO(lamarrr): enforce relationship of these
-# options!=========================================>>>>>>>>>>>>>>>>>>>>>>>>>
-
-option(STX_USE_LIB_CPP "Use Clang's libc++" OFF)
 
 option(STX_BUILD_SHARED "Build STX as a shared library" OFF)
 
@@ -46,40 +42,33 @@ option(
        # to print the panic report and abort the program. The handler is re-
        # entrant and thread-safe.
 
-option(STX_VISIBLE_PANIC_HOOKS "Make panic hooks visible" ${STX_BUILD_SHARED}
-)# the default panic hook calls the
+option(STX_VISIBLE_PANIC_HOOK "Make runtime panic hook visible"
+       ${STX_BUILD_SHARED}) # the default panic hook calls the
 # provided panic handler. the behaviour can be overriden at runtime especially
 # when built as a shared library, which enables you to control the behaviour of
 # the dynamically loaded library that depends on STX, i.e. for device drivers
 # you might not want them to cause the whole program to fail on a panic.
 
-cmake_dependent_option(
-  STX_DISABLE_BACKTRACE "Disables the backtrace feature" ON "STX_BUILD_SHARED"
-  OFF) # disables the backtrace library, we unfortunately
-# won't allow it to work when built as a shared library for now until we find a
-# reason to, If you find a use case please drop a PR!.
+option(STX_DISABLE_BACKTRACE "Disables the backtrace feature" ON) # disables the
+                                                                  # backtrace
+                                                                  # library, we
+# won't allow it to work by default when built as a shared library for now until
+# we find a reason to, If you find it inconvenient please drop a PR!.
 
 cmake_dependent_option(
-  STX_DISABLE_PANIC_BACKTRACE "Disables the panic backtrace feature" ON
-  "STX_DISABLE_BACKTRACE" OFF) # disables the printing backtraces on panic. This
-                               # requires that panic backtraces are enabled.
+  STX_DISABLE_PANIC_BACKTRACE "Disables the panic backtrace feature" OFF
+  "NOT STX_DISABLE_BACKTRACE;NOT STX_OVERRIDE_PANIC_HANDLER" ON) # disables
+# printing backtraces on panic by the default panic handler. This requires that
+# panic backtraces are enabled and that the panic handler is not overriden.
 
-cmake_dependent_option(
-  STX_DISABLE_BACKTRACE_DEMANGLER
-  "Disables the demangler backend for backtraces" ON "STX_DISABLE_BACKTRACE; "
-  OFF) # this feature depends on the backtrace feature and can't be enabled if
-       # it is not.
-
-# set(STX_PANIC_REPORT_SIZE 1024) # size for the panic description, any size
-# longer than this will be truncated
+option(STX_USE_LIB_CPP "Use Clang's libc++" OFF)
 
 # ===============================================
 #
-# === Log Options
+# === Configuration Options Logging
 #
 # ===============================================
 
-message(STATUS "[STX] Use clang's libc++: " ${STX_USE_LIB_CPP})
 message(STATUS "[STX] Build as a shared library: " ${STX_BUILD_SHARED})
 message(STATUS "[STX] Build tests: " ${STX_BUILD_TESTS})
 message(STATUS "[STX] Enable debug mode assertions: "
@@ -88,19 +77,18 @@ message(STATUS "[STX] Build documentation: " ${STX_BUILD_DOCS})
 message(STATUS "[STX] Build benchmarks: " ${STX_BUILD_BENCHMARKS})
 message(STATUS "[STX] Build sanitized tests: " ${STX_SANITIZE_TESTS})
 message(STATUS "[STX] Override panic handler: " ${STX_OVERRIDE_PANIC_HANDLER})
-message(STATUS "[STX] Make panic hooks visible: " ${STX_VISIBLE_PANIC_HOOKS})
+message(STATUS "[STX] Make runtime panic hook visible: "
+               ${STX_VISIBLE_PANIC_HOOK})
 message(STATUS "[STX] Disable backtrace: " ${STX_DISABLE_BACKTRACE})
-message(STATUS "[STX] Disable backtrace demangler: "
-               ${STX_DISABLE_BACKTRACE_DEMANGLER})
 message(STATUS "[STX] Disable panic backtrace: " ${STX_DISABLE_PANIC_BACKTRACE})
-# message(STATUS "[STX] Panic info's report size: " ${STX_PANIC_REPORT_SIZE})
+message(STATUS "[STX] Use clang's libc++: " ${STX_USE_LIB_CPP})
 
 # ===============================================
 #
-# === Flags
+# === Flags and Global Definitions
 #
 # ===============================================
-list(APPEND STX_FLAGS) # change to STX
+list(APPEND STX_FLAGS)
 list(APPEND STX_COMPILER_DEFS)
 list(APPEND STX_WARNING_FLAGS)
 list(APPEND STX_CHECK_FLAGS)
@@ -139,23 +127,25 @@ append_flags_if_supported(
 # === Configuration Definitions and Platform Support
 #
 # ===============================================
+
+if(STX_ENABLE_DEBUG_ASSERTIONS)
+  list(APPEND STX_COMPILER_DEFS "STX_ENABLE_DEBUG_ASSERTIONS")
+endif()
+
 if(STX_OVERRIDE_PANIC_HANDLER)
   list(APPEND STX_COMPILER_DEFS "STX_OVERRIDE_PANIC_HANDLER")
 endif()
 
-if(NOT STX_DISABLE_BACKTRACE)
-  check_include_file_cxx(
-    "${CMAKE_CURRENT_LIST_DIR}/third_party/libunwind/include/__libunwind_config.h"
-    STX_UNWIND_SUPPORTED)
-  if(STX_UNWIND_SUPPORTED)
-    message(STATUS "[STX] Unwind Supported")
-  else()
-    message(
-      WARNING
-        "[STX] Backtrace not supported on this platform/architecture. They will be replaced with stubs."
-    )
-  endif()
+if(STX_VISIBLE_PANIC_HOOK)
+  list(APPEND STX_COMPILER_DEFS "STX_VISIBLE_PANIC_HOOK")
+endif()
 
+if(STX_DISABLE_PANIC_BACKTRACE)
+  list(APPEND STX_COMPILER_DEFS "STX_DISABLE_PANIC_BACKTRACE")
+endif()
+
+if(NOT STX_DISABLE_BACKTRACE)
+  # check platform support
 endif()
 
 # ===============================================
@@ -164,22 +154,16 @@ endif()
 #
 # ===============================================
 
-if(STX_UNWIND_SUPPORTED AND NOT STX_DISABLE_BACKTRACE)
-  set(LIBUNWIND_STANDALONE_BUILD
-      ON
-      CACHE BOOL "" FORCE)
-  set(LIBUNWIND_ENABLE_SHARED
-      OFF
-      CACHE BOOL "" FORCE)
-  set(LIBUNWIND_ENABLE_STATIC
-      ON
-      CACHE BOOL "" FORCE)
-  # set(LIBUNWIND_ENABLE_CROSS_UNWINDING ON CACHE BOOL "" FORCE)
-  add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/third_party/libunwind)
+if(NOT STX_DISABLE_BACKTRACE)
+  if(NOT EXISTS third_party/abseil)
+    execute_process(COMMAND git submodule update --init --recursive
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+  endif()
+  add_subdirectory(third_party/abseil)
 endif()
 
-if(STX_UNWIND_SUPPORTED AND NOT STX_DISABLE_BACKTRACE_DEMANGLER)
-  add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/third_party/Demangle)
+if(ANDROID)
+  add_link_flags_if_supported(-latomic)
 endif()
 
 # ===============================================
@@ -187,11 +171,13 @@ endif()
 # === Source Files
 #
 # ===============================================
-list(APPEND STX_SRCS src/hook.cc src/panic.cc src/report.cc src/stx.cc)
 
 if(NOT STX_DISABLE_BACKTRACE)
   list(APPEND STX_SRCS src/backtrace.cc)
 endif()
+
+list(APPEND STX_SRCS src/panic/hook.cc src/panic.cc)
+
 # ===============================================
 #
 # === Library Setup
@@ -204,66 +190,102 @@ else()
   add_library(stx STATIC ${STX_SRCS})
 endif()
 
-if(STX_UNWIND_SUPPORTED AND NOT STX_DISABLE_BACKTRACE)
-  target_link_libraries(stx unwind_static LLVMDemangle)
-endif()
-
-# make compilation flags public! Most are ABI
-target_include_directories(stx PUBLIC include third_party/libunwind/include)
+target_include_directories(stx PUBLIC include)
 set_target_properties(stx PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON)
 target_compile_options(stx PRIVATE ${STX_WARNING_FLAGS})
 target_compile_definitions(stx PUBLIC ${STX_COMPILER_DEFS})
 
+if(NOT STX_DISABLE_BACKTRACE)
+  target_link_libraries(stx absl::stacktrace absl::symbolize)
+endif()
+
 # ===============================================
 #
-# === Test and Benchmark Dependencies, Tests, Benchmarks, Docs
+# === Test Dependencies
 #
 # ===============================================
 
-if(STX_BUILD_TESTS OR STX_BUILD_BENCHMARKS)
+if(STX_BUILD_TESTS OR STX_BUILD_BENCHMARKS) # benchmark also uses it
+
+  if(NOT EXISTS third_party/fmt)
+    execute_process(COMMAND git submodule update --init --recursive
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+  endif()
+
   set(FMT_TEST
       OFF
       CACHE BOOL "Build FMT tests" FORCE)
-  add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/third_party/fmt)
+  add_subdirectory(third_party/fmt)
 endif()
 
 if(STX_BUILD_TESTS)
+
+  if(NOT EXISTS third_party/googletest)
+    execute_process(COMMAND git submodule update --init --recursive
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+  endif()
+
   set(BUILD_GMOCK
       OFF
       CACHE BOOL "Build GMOCK" FORCE)
   set(INSTALL_GTEST
       OFF
       CACHE BOOL "Install GTest" FORCE)
-  add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/third_party/googletest)
+  add_subdirectory(third_party/googletest)
 endif()
 
+# ===============================================
+#
+# === Benchmark Dependencies
+#
+# ===============================================
+
 if(STX_BUILD_BENCHMARKS)
+
+  if(NOT EXISTS third_party/benchmark)
+    execute_process(COMMAND git submodule update --init --recursive
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+  endif()
+
   set(BENCHMARK_ENABLE_TESTING OFF)
-  add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/third_party/benchmark)
+  add_subdirectory(third_party/benchmark)
 endif()
+
+# ===============================================
+#
+# === Documentation Dependencies
+#
+# ===============================================
 
 if(STX_BUILD_DOCS)
   find_package(Doxygen) # sub-packages?
   if(NOT Doxygen_FOUND)
     message(
       WARNING "Doxygen can not be found, Documentation will not be built.")
-    set(STX_BUILD_DOCS OFF)
+    set(STX_BUILD_DOCS
+        OFF
+        CACHE BOOL "Build documentation" FORCE)
   endif()
 endif()
 
-# ##############################################################################
-# ##############################################################################
-# ##############################################################################
+# ===============================================
+#
+# === Tests Setup
+#
+# ===============================================
+
 list(
   APPEND STX_TEST_SRCS
          tests/tests.cc
-         tests/panic_info.cc
-         tests/backtrace_test.cc
          tests/panic_test.cc
          tests/result_test.cc
          tests/common_test.cc
          tests/option_test.cc
          tests/report_test.cc)
+
+if(NOT STX_DISABLE_BACKTRACE)
+  list(APPEND STX_TEST_SRCS tests/backtrace_test.cc)
+endif()
 
 if(STX_BUILD_TESTS)
 
@@ -277,7 +299,7 @@ if(STX_BUILD_TESTS)
                         PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON)
   add_custom_target(
     run_tests
-    ${CMAKE_CURRENT_BINARY_DIR}/stx_tests
+    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/stx_tests
     DEPENDS stx_tests)
 
   macro(add_sanitized_test sanitize_mode)
@@ -309,6 +331,12 @@ if(STX_BUILD_TESTS)
 
 endif()
 
+# ===============================================
+#
+# === Benchmark Setup
+#
+# ===============================================
+
 if(STX_BUILD_BENCHMARKS)
 
   macro(add_benchmark benchmark_name file)
@@ -326,13 +354,19 @@ if(STX_BUILD_BENCHMARKS)
 
 endif()
 
+# ===============================================
+#
+# === Documentation Setup
+#
+# ===============================================
+
 if(STX_BUILD_DOCS)
   set(STX_DOXYGEN_IN ${CMAKE_CURRENT_LIST_DIR}/Doxyfile.in)
   set(STX_DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/docs/Doxyfile)
 
   # request to configure the file
   configure_file(${STX_DOXYGEN_IN} ${STX_DOXYGEN_OUT} @ONLY)
-  message(STATUS "Doxygen Build Started")
+  message(STATUS "Doxygen build started")
 
   # note the option ALL which allows to build the docs together with the
   # application

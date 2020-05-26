@@ -31,7 +31,7 @@
 /// #include "stx/panic.h"
 ///
 /// int main() {
-///    panic("crash and burn!");
+///    stx::panic("crash and burn!");
 /// }
 /// ```
 ///
@@ -39,9 +39,9 @@
 ///
 /// ```sh
 /// $ ./main.bin
-///  thread with hash: '16012771763016081715' panicked with: 'crash and burn!' at function: 'main' [src/main.cc:5:1] 
-/// 
-///  Aborted (core dumped)
+///
+/// thread with hash: '15729502191765196471' panicked with: 'crash and burn!' at function: 'main' [src/main.cc:5:1]
+/// Aborted (core dumped)
 /// ```
 ///
 ///
@@ -57,6 +57,7 @@
 /// message will be someone else’s code where the `panic` function is called, not the line of our code
 /// that eventually led to the `panic` call. We can use the backtrace of the functions the `panic` call came from to 
 /// figure out the part of our code that is causing the problem.
+/// Backtraces can be enabled via your application CMakeLists.txt file by setting `STX_DISABLE_BACKTRACE` to `OFF`.
 ///
 ///
 /// # When to panic() ?
@@ -75,7 +76,6 @@
 ///
 ///
 ///
-///
 /// # An Example
 /// 
 /// Here is an example of using a panic with a malloc.
@@ -89,7 +89,7 @@
 ///
 /// void * make_memory(size_t n) {
 ///    auto memory = malloc(n);
-///    if(memory == nullptr) panic("Memory Allocation Failure");
+///    if(memory == nullptr) stx::panic("Memory Allocation Failure");
 ///    return memory;
 /// }
 ///
@@ -104,15 +104,16 @@
 ///
 ///
 /// # Available Panic Handlers:
-/// Given that systems range from user facing to safety critical (cannot crash) there's no one size 
+/// Given that systems range from user-facing to safety-critical (cannot crash) there's no one size 
 /// fits all panicking behavior but there are plenty of commonly used behaviors.
 /// 
 /// 
 /// To define your panic handlers, we have provided a few behaviours for your use:
 ///
 /// - `stx::panic_default`: The default panic handler that prints the error message and panic 
-/// location data, and afterwards aborts the program without freeing the resources. In addition, 
-/// this panic handler is thread-safe when reporting to `stderr` (unlike exceptions).
+/// location data, and afterwards aborts the program without freeing the resources. 
+/// If the backtrace feature is enabled, the panic function will also print a stack backtrace. In addition, 
+/// this panic handler is thread-safe when reporting to `stderr`.
 /// - `stx::panic_halt`: A panic handler that causes the program, or the current thread, 
 /// to halt by entering an infinite loop, Andrew Koenig generally advises halting on heap memory exhaustion.
 /// - `stx::panic_abort`: A panic handler that causes the abort instruction to be executed.
@@ -138,7 +139,8 @@
 /// 
 /// project(MyProject)
 ///
-/// set(STX_OVERRIDE_PANIC_HANDLER ON)
+/// set(STX_OVERRIDE_PANIC_HANDLER ON 
+///     CACHE BOOL "" FORCE)
 /// add_subdirectory(stx)
 ///
 /// add_executable(my_exe.bin main.cc)
@@ -162,16 +164,16 @@
 /// }
 ///
 /// // logs the error to a file then abort
-/// void stx::panic_handler(std::string_view info, stx::SourceLocation location) {
+/// void stx::panic_handler(std::string_view info, stx::ReportPayload const& payload, stx::SourceLocation location) {
 ///   static constexpr std::string_view log_prefix = "PANIC: ";
 ///   std::FILE* log_file = std::fopen("./errors.log", "a");
 ///   if(log_file == nullptr) std::abort();
 ///   std::fwrite(log_prefix.data(), 1, log_prefix.size(), log_file);
 ///   std::fwrite(info.data(), 1, info.size(), log_file);
+///   for(char c: payload.data()) fputc(c, log_file);
 ///   std::fputc('\n', log_file);
 ///   std::fflush(log_file);
 ///   std::fclose(log_file);
-///   std::abort();
 /// }
 ///
 /// ```
@@ -184,7 +186,7 @@
 /// # Debugging Notes
 ///
 /// - For all calls to `stx::panic` within a program, the panic handler will be called to handle the panic.
-/// You can set your debugging breakpoint to `stx::panic_handler` function to investigate all panics that 
+/// You can set your debugging breakpoint to the `stx::begin_panic` function to investigate all panics that 
 /// occur within the program and also view a detailed backtrace.
 ///
 ///
@@ -192,11 +194,12 @@
 /// # Implementation and Portability Notes
 ///
 /// - For printing/logging to `stderr`, the default panic handler only uses `fputs`, 
-/// `fputc`, and `snprintf` which are non-memory allocating and portable.
+/// `fputc`, and `snprintf`.
 /// - To use `panic` with the default panic handler on embedded systems you need to have `fputs`,
 /// `fputc`, and `snprintf` implemented.
-/// If you are using a POSIX-compliant operating system like nano OS in GNU newlib nano, you have to implement the `write` 
-/// syscall to forward to `UART` or whatever hardware peripheral you want `stderr`'s log bytes to be forwarded to.
+/// If you are using a POSIX-compliant operating system like nano OS in GNU newlib nano 
+/// which already fills them with stubs, you have to implement the `write` 
+/// syscall to forward to `UART` or whatever hardware peripheral you want `stderr`'s characters to be forwarded to.
 /// 
 ///
 /// 
