@@ -13,9 +13,10 @@
 
 #include <version>
 
-/*********** BASE MINIMUM FEATURES AND LIBRARIES ************/
+/************ FEATURE AND LIBRARY REQUIREMENTS ************/
+
 #if __has_include(<source_location>)
-#define STX_STABLE_SOURCE_LOCATION
+#define STX_STABLE_LIB_SOURCE_LOCATION
 #else
 #if __has_include(<experimental/source_location>)
 // ok
@@ -28,11 +29,11 @@
 #error 2019/07 version of concepts is not supported on this compiler.  Please upgrade to a newer version.
 #endif
 
-/*********************** COMPILERS ***********************/
+/*********************** UTILITY MACROS ***********************/
 
 // also used for hiding static variables and hookable functions that should not
-// be touched but should reside in the ABI
-// GNUC doesn't mean GCC!, it is also present in clang
+// be touched but should reside in the binary
+// GNUC doesn't mean GCC!, it's also present in clang
 #if __has_cpp_attribute(gnu::always_inline)
 #define STX_FORCE_INLINE [[gnu::always_inline]] inline
 #else
@@ -77,32 +78,38 @@
 #endif
 #endif
 
-/*********************** OPERATING SYSTEM ***********************/
-#if defined(_WIN32)
-#define STX_OS_WINDOWS
+/*********************** OPERATING SYSTEMS ***********************/
+
+#if defined(_WIN32)  // Windows
+#define STX_OS_WIN32
 #endif
 
-#if defined(__linux__)  // and variants like Android
+#if defined(__linux__)  // Linux and variants like Android
 #define STX_OS_LINUX
 #endif
 
-#if defined(__ANDROID__)
+#if defined(__ANDROID__)  // Android, Also infers STX_OS_LINUX
 #define STX_OS_ANDROID
 #endif
 
-#if defined(__APPLE__)  //  (macOS and iOS)
+#if defined(__APPLE__)  // macOS and iOS
 #define STX_OS_APPLE
 #endif
 
-#if defined(__wasm__)  // WebAssembly
-#define STX_OS_WASM
+#if defined(__wasi__)  // WebAssembly System Interface
+#define STX_OS_WASI
 #endif
 
 #if defined(__Fuchsia__)  // Fuchsia
 #define STX_OS_FUCHSIA
 #endif
 
-/*********************** ARCHITECTURE ***********************/
+#if defined(__NetBSD__)  // NetBSD
+#define STX_OS_NETBSD
+#endif
+
+/*********************** ARCHITECTURES ***********************/
+
 #if defined(__x86_64__) || defined(__x86_64) || defined(_M_X64) || \
     defined(_M_AMD64) || defined(__amd64) || defined(__amd64__)
 #define STX_ARCH_X86_64

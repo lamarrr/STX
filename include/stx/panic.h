@@ -13,7 +13,7 @@
 
 #include "stx/report.h"
 
-#ifdef STX_STABLE_SOURCE_LOCATION
+#ifdef STX_STABLE_LIB_SOURCE_LOCATION
 #include <source_location>
 #else
 #include <experimental/source_location>
