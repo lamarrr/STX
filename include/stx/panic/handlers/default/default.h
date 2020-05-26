@@ -11,12 +11,8 @@
 
 #pragma once
 
-#include <cstdio>      // i/o
-#include <functional>  // hash
-#include <mutex>       // mutex NOLINT
-#include <thread>      // thread::id NOLINT
-
-#include "stx/panic.h"
+#include <mutex>   // mutex NOLINT
+#include <thread>  // thread::id NOLINT
 
 #if !defined(STX_DISABLE_PANIC_BACKTRACE)
 #include "stx/backtrace.h"

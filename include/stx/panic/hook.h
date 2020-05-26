@@ -13,8 +13,7 @@
 
 #include <atomic>
 
-#include "stx/panic.h"  // separate
-#include "stx/report.h"
+#include "stx/panic.h"
 
 //! @file
 //!
