@@ -80,13 +80,14 @@
 /// Most of the basic facilities for which these libraries provide.
 ///
 /// Here is a list of C++ projects with a similar error-handling model:
+/// - Boost's [`expected`](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4109.pdf), and [`outcome`](https://www.boost.org/doc/libs/1_70_0/libs/outcome/doc/html/index.html)
 /// - Simon Brand's [tl::optional](https://github.com/TartanLlama/optional)
-/// - Abseil's Raw Logger?
+/// - Abseil's [Status, StatusCode](https://github.com/abseil/abseil-cpp/tree/master/absl/status), and RawLogger
 /// - Tensorflow Lite Micro's [Error Reporter](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/lite/core/api/error_reporter.h)
-/// - Tensorflow's [Status, ENSURE_OK, CHECK_OK, DCHECK_OK, and other error handling macros](http://)
-/// - Mozilla's [Result<T, E>](https://hg.mozilla.org/mozilla-central/file/tip/mfbt/Result.h)
-/// - Google Pigweed's [Result<T, Status>](http://), [Status](http://)
-/// - Simdjson's [Result_error](http://)
+/// - Tensorflow's [Status](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/platform/status.h), [ENSURE_OK, CHECK_OK, DCHECK_OK, and other error handling macros](http://)
+/// - Mozilla's [Result<T, E>](https://searchfox.org/mozilla-central/source/mfbt/Result.h), [Maybe<T>](https://searchfox.org/mozilla-central/source/mfbt/Maybe.h), [MaybeOneOf<A, B>](https://searchfox.org/mozilla-central/source/mfbt/MaybeOneOf.h), [NotNull<T*>](https://searchfox.org/mozilla-central/source/mfbt/NotNull.h)
+/// - Google Pigweed's [Result<T, Status>](https://pigweed.googlesource.com/pigweed/pigweed/+/refs/heads/master/pw_result/), [Status](https://pigweed.googlesource.com/pigweed/pigweed/+/refs/heads/master/pw_status/)
+/// - Simdjson's [error_code, result](https://github.com/simdjson/simdjson/blob/master/include/simdjson/error.h)
 /// - MBED OS' [Error](https://github.com/ARMmbed/mbed-os/blob/master/platform/source/mbed_error.c)
 /// - LLVM's [Error, Expected](https://github.com/llvm/llvm-project/blob/master/llvm/include/llvm/Support/Error.h), [ErrorOr](https://github.com/llvm/llvm-project/blob/master/llvm/include/llvm/Support/ErrorOr.h), [ErrorHandling](https://github.com/llvm/llvm-project/blob/master/llvm/lib/Support/ErrorHandling.cpp)
 /// - Fuchsia OS - Zircon Common Library' s [Result, and Status](https://fuchsia.googlesource.com/fuchsia/+/refs/heads/master/zircon/system/ulib/zxc/)
@@ -105,6 +106,14 @@
 ///
 ///
 ///
+/// ## Similar Implementations / Attempts
+/// - Fuchsia `Status` and `Result`
+/// - Mozilla `Result<T, E>`
+/// - Tensorflow's CHECK_OK, ENSURE_OK
+/// - xpc_error_code
+/// - `std::optional` and `std::variant`
+/// - `tl::optional`
+/// - [simd-json's simdjson_result and error_codes](https://github.com/simdjson/simdjson/blob/master/include/simdjson/inline/error.h)
 ///
 ///
 ///
