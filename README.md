@@ -7,16 +7,16 @@
 
 STX...
 
-<div align="center"> <h3>
-<a href="http://lamarrr.github.io/blog/error-handling">READ THE DOCUMENTATION</a></h3> 
+<div align="center">
+<h3><a href="http://lamarrr.github.io/blog/error-handling">READ THE DOCUMENTATION</a></h3>
 </div>
 
-* Panicking
-* Result
-* Option
-* Manual Backtracing
+## Modules
 
-- 
+* Panicking
+* `Result<T, E>` 
+* `Option<T>` 
+* Backtracing
 
 ## Features
 
@@ -28,11 +28,13 @@ STX...
 * Backtrace library
 * Suitable and easily adoptable for embedded systems
 * Easy debugging
-* Easy to use, Hard to misuse
-* Exception-free, RTTI-free, and malloc-free ( `no-std` )
+* Easy to use and hard to misuse API
+* Exception-free, RTTI-free, and memory allocation free ( `no-std` )
 * SFINAE-free
 * Deterministic value lifetimes
 * Eliminates repitive code and abstractable error-handling logic code via monadic extensions
+* Fast success and error return paths
+* Modern and clean API
 
 ## Basic Examples
 
@@ -152,14 +154,26 @@ float result = safe_divide(n, d).value(); // this won't compile as `value` alway
 
 ```
 
+## Benchmarks
+
+### Debug Mode ( `-O0`  `-g` )
+
+| Target | Real Time (ns) | CPU Time (ns) | Iterations |
+|--------|----------------|---------------|------------|
+
+### Release Mode ( `-O3` )
+
+| Target | Real Time (ns) | CPU Time (ns) | Iterations |
+|--------|----------------|---------------|------------|
+
 ## Build Requirements
 
 * CMake
-* Doxygen and Graphviz
 * Make or Ninja Build
 * C++ 20 Compiler
+* Doxygen and Graphviz (only for documentation)
 
-## Tested On
+## Tested-on Compiler & Toolchains
 
 * Clang-10 + libstdc++-9
 * Clang-11 + libstdc++-9
@@ -175,9 +189,7 @@ float result = safe_divide(n, d).value(); // this won't compile as `value` alway
 * `STX_DISABLE_BACKTRACE` - Disable the backtrace backend
 * `STX_DISABLE_PANIC_BACKTRACE` - Disables panic backtraces. It depends on the backtrace backend.
 
-## FAQ
-
-* libstdc++, Concepts
+## FAQs
 
 ## License
 
