@@ -15,8 +15,8 @@
 
 /*********************** COMPILERS ***********************/
 
-#if defined( \
-    __GNUC__)  ///  any compiler that implements the GNU compiler extensions
+#if defined(__GNUC__)  ///  any compiler that implements the GNU compiler
+                       ///  extensions
 #define STX_COMPILER_GNUC
 #endif
 
@@ -57,11 +57,16 @@
 #define STX_OS_WINDOWS
 #endif
 
-#if defined(__unix__)
+#if defined(__unix__) || defined(unix)
 #define STX_OS_UNIX
 #endif
 
-#if defined(__linux__)  /// Linux and variants like Android
+#if __has_include(<unistd.h>)
+#define STX_OS_POSIX  /// Posix-compliant operating system
+#endif
+
+#if defined(__linux__) || defined(__linux) || \
+    defined(linux)  /// Linux and variants like Android
 #define STX_OS_LINUX
 #endif
 
@@ -75,13 +80,17 @@
 
 #if defined(__APPLE__)  /// All apple OSs
 #define STX_OS_APPLE
+
+#include <Availability.h>
+#include <TargetConditionals.h>
+
 #endif
 
 #if defined(__APPLE__) && defined(__MACH__)  /// Mac OS X
 #define STX_OS_APPLE
 #endif
 
-// TODO: add Apple targets from TargetConditional.h
+// TODO(lamarrr): add Apple targets from TargetConditional.h
 
 #if defined(__wasi__)  /// WebAssembly System Interface
 #define STX_OS_WASI
@@ -194,4 +203,21 @@
 #endif
 #endif
 
-// TODO(lamarrr): Add binary formats, ELF, WASM, PE
+/*********************** BINARY FORMATS ***********************/
+
+#if defined(__wasm__)
+#define STX_BINARY_WASW
+#endif
+
+#if defined(__ELF__)
+#define STX_BINARY_ELF
+#endif
+
+#if defined(STX_OS_WINDOWS)
+#define STX_BINARY_PORTABLE_EXE  // portable executable
+
+/*********************** TOOLCHAINS ***********************/
+
+#if defined(__llvm__)
+#define STX_TOOLCHAIN_LLVM
+#endif
