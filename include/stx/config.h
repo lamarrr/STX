@@ -215,6 +215,7 @@
 
 #if defined(STX_OS_WINDOWS)
 #define STX_BINARY_PORTABLE_EXE  // portable executable
+#endif
 
 /*********************** TOOLCHAINS ***********************/
 
