@@ -87,7 +87,7 @@
 #endif
 
 #if defined(__APPLE__) && defined(__MACH__)  /// Mac OS X
-#define STX_OS_APPLE
+#define STX_OS_MACOS
 #endif
 
 // TODO(lamarrr): add Apple targets from TargetConditional.h
