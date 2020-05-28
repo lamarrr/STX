@@ -383,12 +383,12 @@ if(STX_BUILD_DOCS)
 
 endif()
 
-add_executable(example_divide examples/divide.cc)
-target_link_libraries(example_divide stx)
-set_target_properties(example_divide PROPERTIES CXX_STANDARD 20
-                                                CXX_STANDARD_REQUIRED ON)
+#add_executable(example_divide examples/divide.cc)
+#target_link_libraries(example_divide stx)
+#set_target_properties(example_divide PROPERTIES CXX_STANDARD 20
+#                                                CXX_STANDARD_REQUIRED ON)
 
-add_executable(example_parse examples/parse_version.cc)
-target_link_libraries(example_parse stx)
-set_target_properties(example_parse PROPERTIES CXX_STANDARD 20
-                                               CXX_STANDARD_REQUIRED ON)
+#add_executable(example_parse examples/parse_version.cc)
+#target_link_libraries(example_parse stx)
+#set_target_properties(example_parse PROPERTIES CXX_STANDARD 20
+#                                               CXX_STANDARD_REQUIRED ON)
