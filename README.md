@@ -164,7 +164,7 @@ float result = safe_divide(n, d).value(); // this won't compile as `value` alway
 * Clang-10 + libstdc++-9
 * Clang-11 + libstdc++-9
 
-## Configuration Options (CMAKE)
+## CMake Configuration Options
 
 * `STX_BUILD_SHARED` - Build STX as a shared library
 * `STX_BUILD_TESTS` - Build test suite
