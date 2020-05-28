@@ -35,7 +35,7 @@
 ///
 /// to run tests, use:
 ///
-/// ```cpp
+/// ``` cpp
 ///
 /// #include <iostream>
 /// #include <string>
@@ -420,7 +420,7 @@ class [[nodiscard]] Option {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// Option x = Some(2);
   /// ASSERT_TRUE(x.is_some());
   ///
@@ -436,7 +436,7 @@ class [[nodiscard]] Option {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// Option x = Some(2);
   /// ASSERT_FALSE(x.is_none());
   ///
@@ -452,7 +452,7 @@ class [[nodiscard]] Option {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// Option x = Some(2);
   /// ASSERT_TRUE(x.contains(2));
   ///
@@ -515,7 +515,7 @@ class [[nodiscard]] Option {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// auto mutate = [](Option<int>& r) {
   ///  r.as_ref().match([](MutRef<int> ref) { ref.get() = 42; },
   ///                       []() { });
@@ -555,7 +555,7 @@ class [[nodiscard]] Option {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// Option x = Some("value"s);
   /// ASSERT_EQ(move(x).expect("the world is ending"), "value");
   ///
@@ -587,7 +587,7 @@ class [[nodiscard]] Option {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// Option x = Some("air"s);
   /// ASSERT_EQ(move(x).unwrap(), "air");
   ///
@@ -613,7 +613,7 @@ class [[nodiscard]] Option {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// ASSERT_EQ(Option(Some("car"s)).unwrap_or("bike"), "car");
   /// ASSERT_EQ(make_none<string>().unwrap_or("bike"), "bike");
   /// ```
@@ -631,7 +631,7 @@ class [[nodiscard]] Option {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// int k = 10;
   /// auto alt = [&k]() { return 2 * k; };
   ///
@@ -689,7 +689,7 @@ class [[nodiscard]] Option {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// Option x = Some("foo"s);
   /// auto alt_fn = [](auto s) { return s.size(); };
   /// ASSERT_EQ(move(x).map_or(alt_fn, 42UL), 3UL);
@@ -715,7 +715,7 @@ class [[nodiscard]] Option {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// size_t k = 21;
   /// auto map_fn = [] (auto s) { return s.size(); };
   /// auto alt_fn = [&k] () { return 2UL * k; };
@@ -748,7 +748,7 @@ class [[nodiscard]] Option {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// Option x = Some("foo"s);
   /// ASSERT_EQ(move(x).ok_or(0), Ok("foo"s));
   ///
@@ -773,7 +773,7 @@ class [[nodiscard]] Option {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// auto else_fn = [] () { return 0; };
   ///
   /// Option x = Some("foo"s);
@@ -800,7 +800,7 @@ class [[nodiscard]] Option {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// Option a = Some(2);
   /// Option<string> b = None;
   /// ASSERT_EQ(move(a).AND(move(b)), None);
@@ -838,7 +838,7 @@ class [[nodiscard]] Option {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// auto sq = [] (auto x) -> Option<int> { return Some(x * x); };
   /// auto nope = [] (auto) -> Option<int> { return None; };
   ///
@@ -870,7 +870,7 @@ class [[nodiscard]] Option {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// auto is_even = [](int n) -> bool { return n % 2 == 0; };
   ///
   /// ASSERT_EQ(make_none<int>().filter(is_even), None);
@@ -901,7 +901,7 @@ class [[nodiscard]] Option {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// Option a = Some(2);
   /// Option<int> b = None;
   /// ASSERT_EQ(move(a).OR(move(b)), Some(2));
@@ -933,7 +933,7 @@ class [[nodiscard]] Option {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// auto nobody = []() -> Option<string> { return None; };
   /// auto vikings = []() -> Option<string> { return Some("vikings"s); };
   ///
@@ -960,7 +960,7 @@ class [[nodiscard]] Option {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// Option a = Some(2);
   /// Option<int> b = None;
   /// ASSERT_EQ(move(a).XOR(move(b)), Some(2));
@@ -994,7 +994,7 @@ class [[nodiscard]] Option {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// Option a = Some(2);
   /// auto b = a.take();
   /// ASSERT_EQ(a, None);
@@ -1025,7 +1025,7 @@ class [[nodiscard]] Option {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// Option x = Some(2);
   /// auto old_x = x.replace(5);
   /// ASSERT_EQ(x, Some(5));
@@ -1056,7 +1056,7 @@ class [[nodiscard]] Option {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// Option x = Some(2);
   /// auto old_x = x.replace(5);
   /// ASSERT_EQ(x, Some(5));
@@ -1101,7 +1101,7 @@ class [[nodiscard]] Option {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// auto divide = [](double num, double denom) -> Option<double> {
   /// if (denom == 0.0) return None;
   ///  return Some(num / denom);
@@ -1128,7 +1128,7 @@ class [[nodiscard]] Option {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// auto divide = [](double num, double denom) -> Option<double> {
   /// if (denom == 0.0) return None;
   ///  return Some(num / denom);
@@ -1154,7 +1154,7 @@ class [[nodiscard]] Option {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// Option x = Some("Ten"s);
   /// Option<string> y = None;
   ///
@@ -1180,7 +1180,7 @@ class [[nodiscard]] Option {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// auto str = "Hello"s;
   /// Option x = Some(&str);
   /// ASSERT_EQ(x.as_const_deref().unwrap().get(), "Hello"s);
@@ -1214,7 +1214,7 @@ class [[nodiscard]] Option {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// auto str = "Hello"s;
   /// Option x = Some(&str);
   /// x.as_mut_deref().unwrap().get() = "World"s;
@@ -1253,7 +1253,7 @@ class [[nodiscard]] Option {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// auto j = make_some("James"s).match([](string name) { return name; },
   ///                                    []() { return "<unidentified>"s; });
   /// ASSERT_EQ(j, "James"s);
@@ -1301,7 +1301,7 @@ class [[nodiscard]] Option {
 //! A simple function returning `Result` might be
 //! defined and used like so:
 //!
-//! ```cpp
+//! ``` cpp
 //! enum class Version { Version1 = 1, Version2 = 2 };
 //!
 //! auto parse_version =
@@ -1328,7 +1328,7 @@ class [[nodiscard]] Option {
 //! `Result` comes with some convenience methods that make working with it more
 //! succinct.
 //!
-//! ```cpp
+//! ``` cpp
 //! Result<int, int> good_result = Ok(10);
 //! Result<int, int> bad_result = Err(10);
 //!
@@ -1515,7 +1515,7 @@ class [[nodiscard]] Result {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// Result<int, string_view> x = Ok(-3);
   /// ASSERT_TRUE(x.is_ok());
   ///
@@ -1530,7 +1530,7 @@ class [[nodiscard]] Result {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// Result<int, string_view> x = Ok(-3);
   /// ASSERT_FALSE(x.is_err());
   ///
@@ -1546,7 +1546,7 @@ class [[nodiscard]] Result {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   ///
   /// Result<int, string> x = Ok(2);
   /// ASSERT_TRUE(x.contains(2));
@@ -1574,7 +1574,7 @@ class [[nodiscard]] Result {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   ///
   /// Result<int, string> x = Ok(2);
   /// ASSERT_FALSE(x.contains_err("Some error message"s));
@@ -1639,7 +1639,7 @@ class [[nodiscard]] Result {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// Result<int, string> x = Ok(2);
   /// ASSERT_EQ(move(x).ok(), Some(2));
   ///
@@ -1663,7 +1663,7 @@ class [[nodiscard]] Result {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// Result<int, string> x = Ok(2);
   /// ASSERT_EQ(move(x).err(), None);
   ///
@@ -1687,7 +1687,7 @@ class [[nodiscard]] Result {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// Result<int, string> x = Ok(2);
   /// ASSERT_EQ(x.as_cref().unwrap().get(), 2);
   ///
@@ -1716,7 +1716,7 @@ class [[nodiscard]] Result {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// auto mutate = [](Result<int, int>& r) {
   ///  r.as_ref().match([](auto ok) { ok.get() = 42; },
   ///                       [](auto err) { err.get() = 0; });
@@ -1756,7 +1756,7 @@ class [[nodiscard]] Result {
   ///
   /// Extract the content-type from an http header
   ///
-  /// ```cpp
+  /// ``` cpp
   /// enum class Error { InvalidHeader };
   /// auto header = "Content-Type: multipart/form-data"sv;
   ///
@@ -1789,7 +1789,7 @@ class [[nodiscard]] Result {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// Result<string, int> x = Ok("foo"s);
   /// auto map_fn = [](auto s) { return s.size(); };
   /// ASSERT_EQ(move(x).map_or(map_fn, 42UL), 3UL);
@@ -1818,7 +1818,7 @@ class [[nodiscard]] Result {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// size_t const k = 21;
   ///
   /// Result<string_view, size_t> x = Ok("foo"sv);
@@ -1851,7 +1851,7 @@ class [[nodiscard]] Result {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// auto stringify = [](auto x) { return "error code: " + std::to_string(x);
   /// };
   ///
@@ -1880,7 +1880,7 @@ class [[nodiscard]] Result {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// Result<int, string_view> a = Ok(2);
   /// Result<string_view, string_view> b = Err("late error"sv);
   /// ASSERT_EQ(move(a).AND(move(b)), Err("late error"sv));
@@ -1917,7 +1917,7 @@ class [[nodiscard]] Result {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// auto sq = [](int x) { return x * x; };
   ///
   /// auto make_ok = [](int x) -> Result<int, int> { return Ok(move(x)); };
@@ -1949,7 +1949,7 @@ class [[nodiscard]] Result {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// Result<int, string_view> a = Ok(2);
   /// Result<int, string_view> b = Err("late error"sv);
   /// ASSERT_EQ(move(a).OR(move(b)), Ok(2));
@@ -1986,7 +1986,7 @@ class [[nodiscard]] Result {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// auto make_ok = [](int x) -> Result<int, int> { return Ok(move(x)); };
   /// auto make_err = [](int x) -> Result<int, int> { return Err(move(x)); };
   /// auto sq = [](int err) -> Result<int, int> { return Ok(err * err); };
@@ -2019,7 +2019,7 @@ class [[nodiscard]] Result {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// int alt = 2;
   /// Result<int, string_view> x = Ok(9);
   /// ASSERT_EQ(move(x).unwrap_or(move(alt)), 9);
@@ -2044,7 +2044,7 @@ class [[nodiscard]] Result {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// auto count = [] (string_view err)  { return err.size(); };
   ///
   /// ASSERT_EQ(make_ok<size_t,string_view>(2UL).unwrap_or_else(count), 2);
@@ -2072,7 +2072,7 @@ class [[nodiscard]] Result {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// ASSERT_EQ(make_ok<int, string_view>(2).unwrap(), 2);
   /// Result<int, string_view> x = Err("emergency failure"sv);
   /// ASSERT_ANY_THROW(move(x).unwrap());
@@ -2095,7 +2095,7 @@ class [[nodiscard]] Result {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// Result<int, string_view> x = Err("emergency failure"sv);
   /// ASSERT_ANY_THROW(move(x).expect("Testing expect"));
   /// ```
@@ -2118,7 +2118,7 @@ class [[nodiscard]] Result {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// Result<int, string_view> x = Ok(2);
   /// ASSERT_ANY_THROW(move(x).unwrap_err()); // panics
   ///
@@ -2143,7 +2143,7 @@ class [[nodiscard]] Result {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// Result<int, string_view> x = Ok(10);
   /// ASSERT_ANY_THROW(move(x).expect_err("Testing expect_err")); // panics with
   ///                                                             // "Testing
@@ -2167,7 +2167,7 @@ class [[nodiscard]] Result {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// Result<string, int> good_year = Ok("1909"s);
   /// Result<string, int> bad_year = Err(-1);
   ///
@@ -2208,7 +2208,7 @@ class [[nodiscard]] Result {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// int v = 98;
   ///
   /// Result<int*, string_view> x = Ok(&v);
@@ -2261,7 +2261,7 @@ class [[nodiscard]] Result {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// Result<int, string_view*> x = Ok(2);
   /// ConstRef<int> x_value_ref = x.as_const_deref_err().unwrap();
   /// ASSERT_EQ(x_value_ref.get(), 2);  // check their values
@@ -2314,7 +2314,7 @@ class [[nodiscard]] Result {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// int v = 98;
   ///
   /// Result<int*, string_view> x = Ok(&v);
@@ -2377,7 +2377,7 @@ class [[nodiscard]] Result {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// int e = 98;
   ///
   /// Result<string_view, int*> x = Err(&e);
@@ -2429,7 +2429,7 @@ class [[nodiscard]] Result {
   ///
   /// Basic usage:
   ///
-  /// ```cpp
+  /// ``` cpp
   /// auto i = make_ok<int, string_view>(99);
   ///
   /// auto j = move(i).match([](int value) { return value; },
@@ -2491,7 +2491,7 @@ class [[nodiscard]] Result {
 /// Basic usage:
 ///
 ///
-/// ```cpp
+/// ``` cpp
 /// // these are some of the various ways to construct on Option<T> with a
 /// // Some<T> value
 /// Option g = Some(9);
@@ -2525,7 +2525,7 @@ template <typename T>
 /// Basic usage:
 ///
 ///
-/// ```cpp
+/// ``` cpp
 /// // these are some of the various ways to construct on Option<T> with
 /// // a None value
 /// Option<int> h = None;
@@ -2556,7 +2556,7 @@ template <typename T>
 /// Basic usage:
 ///
 ///
-/// ```cpp
+/// ``` cpp
 /// // these are some of the various ways to construct on Result<T, E> with an
 /// // Ok<T> value
 /// Result<int, string> a = Ok(8);
@@ -2590,7 +2590,7 @@ template <typename T, typename E>
 /// Basic usage:
 ///
 ///
-/// ```cpp
+/// ``` cpp
 ///
 /// // these are some of the various ways to construct on Result<T, E> with an
 /// // Ok<T> value
