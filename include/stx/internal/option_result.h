@@ -599,7 +599,7 @@ class [[nodiscard]] Option {
   ///                                                          // the world is
   ///                                                          // ending
   /// ```
-  [[nodiscard]] constexpr auto expect(std::string_view msg) && -> T {
+  [[nodiscard]] auto expect(std::string_view msg) && -> T {
     if (is_some()) {
       return std::move(value_ref_());
     } else {
@@ -629,7 +629,7 @@ class [[nodiscard]] Option {
   /// Option<string> y = None;
   /// ASSERT_ANY_THROW(move(y).unwrap());
   /// ```
-  [[nodiscard]] constexpr auto unwrap() && -> T {
+  [[nodiscard]] auto unwrap() && -> T {
     if (is_some()) {
       return std::move(value_ref_());
     } else {
@@ -1412,7 +1412,7 @@ class [[nodiscard]] Result {
   // 1 - we need to check which variant is present
   // 2 - the union will be default-constructed (empty) and we thus need to call
   // placement-new in the constructor block
-  [[nodiscard]] Result(Result&& rhs) : is_ok_{rhs.is_ok_} {
+  [[nodiscard]] Result(Result&& rhs) : is_ok_(rhs.is_ok_) {
     // not correct
     if (rhs.is_ok()) {
       new (&storage_value_) T(std::move(rhs.storage_value_));
@@ -1435,7 +1435,7 @@ class [[nodiscard]] Result {
       is_ok_ = true;
     } else {
       // both are errs
-      std::swap(err_ref_(), rhs.err_ref_());
+      std::swap(err_ref_(), rhs.err_ref_());  // NOLINT
     }
     return *this;
   }
