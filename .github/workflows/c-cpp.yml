@@ -20,7 +20,7 @@ jobs:
     - name: add-llvm-apt-sources
       run: sudo add-apt-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main" # &&  sudo add-apt-repository "deb-src http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main"
     - name: second-apt-update
-      run: sudo apt update –allow-unauthenticated
+      run: sudo apt --allow-unauthenticated update
     - name: install-build-tools
       run: sudo apt install ninja-build clang-format clang-tidy clang-tools clang clangd libc++-dev libc++1 libc++abi-dev libc++abi1 libclang-dev libclang1 liblldb-dev libllvm-ocaml-dev libomp-dev libomp5 lld lldb llvm-dev llvm-runtime llvm python-clang
     - name: configure-toolchain
