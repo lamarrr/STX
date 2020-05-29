@@ -16,6 +16,6 @@ jobs:
     - name: configure
       run: mkdir build && cd build
     - name: cmake
-      run:  cmake .. -DSTX_BUILD_TESTS=ON
+      run:  cmake . -DSTX_BUILD_TESTS=ON
     - name: run_tests
       run: make run_tests
