@@ -13,16 +13,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    
     - name: add-llvm-apt-source
     - run: deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main && deb-src http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main
     - name: update-apt
       run: apt update
     - name: install-clang
-      run: apt-get install clang-format clang-tidy clang-tools clang clangd libc++-dev libc++1 libc++abi-dev libc++abi1 libclang-dev libclang1 liblldb-dev libllvm-ocaml-dev libomp-dev libomp5 lld lldb llvm-dev llvm-runtime llvm python-clang 
-    - name: configure-env
+      run: apt install clang-format clang-tidy clang-tools clang clangd libc++-dev libc++1 libc++abi-dev libc++abi1 libclang-dev libclang1 liblldb-dev libllvm-ocaml-dev libomp-dev libomp5 lld lldb llvm-dev llvm-runtime llvm python-clang 
+    - name: configure-toolchain
       run: export CC=clang CXX=clang++
-    - name: configure
+    - name: configure-build-dir
       run: mkdir build && cd build
     - name: cmake
       run:  cmake . -DSTX_BUILD_TESTS=ON
