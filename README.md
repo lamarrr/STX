@@ -11,7 +11,7 @@ STX...
 <h3><a href="http://lamarrr.github.io/blog/error-handling">READ THE DOCUMENTATION</a></h3>
 </div>
 
-## Modules
+## Libraries
 
 * Panicking
 * `Result<T, E>` 
@@ -76,7 +76,7 @@ using namespace std::literals;
 
 enum class Version { Version1 = 1, Version2 = 2 };
 
-Result<Version, string_view> parse_version(array<uint8_t, 6> const& header) {
+auto parse_version(array<uint8_t, 6> const& header) -> Result<Version, string_view> {
   switch (header.at(0)) {
     case 1:
       return Ok(Version::Version1);
@@ -100,7 +100,7 @@ int main() {
 
 * Some methods like `match` , `map` , `unwrap` and most of the `Result` , and `Option` methods **consume** the stored value and thus the `Result` or `Option` has to be destroyed as its lifetime has ended. For example:
 
-	Say we define a function named `safe_divide` as in the example above, with the following prototype:
+  Say we define a function named `safe_divide` as in the example above, with the following prototype:
 
 ``` cpp
 auto safe_divide(float n, float d) -> Option<float>;
@@ -113,7 +113,7 @@ float result = safe_divide(n, d).unwrap(); // compiles, because safe_divide retu
 ```
 
 ``` cpp
-Option option = safe_divide(n, d); 
+Option option = safe_divide(n, d);
 float result = option.unwrap();  // will not compile, because unwrap consumes the value and is only usable with temporaries (as above) or r-value references (as below)
 ```
 
@@ -156,15 +156,18 @@ float result = safe_divide(n, d).value(); // this won't compile as `value` alway
 
 ## Benchmarks
 
-### Debug Mode ( `-O0`  `-g` )
-
-| Target | Real Time (ns) | CPU Time (ns) | Iterations |
-|--------|----------------|---------------|------------|
-
 ### Release Mode ( `-O3` )
 
 | Target | Real Time (ns) | CPU Time (ns) | Iterations |
 |--------|----------------|---------------|------------|
+Variant/SuccessPath   |     0.392 ns  |      0.392 ns |  1000000000
+Exception/SuccessPath |     0.386 ns  |      0.386 ns |  1000000000
+Result/SuccessPath    |     0.381 ns  |      0.381 ns |  1000000000
+C-Style/SuccessPath   |     0.387 ns  |      0.386 ns |  1000000000
+Variant/FailurePath   |     0.408 ns  |      0.408 ns |  1000000000
+Exception/FailurePath |      2129 ns  |       2129 ns |      317810
+Result/FailurePath    |     0.384 ns  |      0.384 ns |  1000000000
+C-Style/FailurePath   |     0.384 ns  |      0.383 ns |  1000000000
 
 ## Build Requirements
 
