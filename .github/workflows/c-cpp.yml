@@ -18,7 +18,7 @@ jobs:
     - name: install-add-apt-repo
       run: sudo apt --allow-unauthenticated install software-properties-common
     - name: add-llvm-apt-sources
-      run: sudo add-apt-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main" &&  sudo add-apt-repository "deb-src http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main"
+      run: sudo add-apt-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main" # &&  sudo add-apt-repository "deb-src http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main"
     - name: second-apt-update
       run: sudo apt update –allow-unauthenticated
     - name: install-build-tools
