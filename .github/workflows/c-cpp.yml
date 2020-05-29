@@ -25,11 +25,9 @@ jobs:
       run: sudo apt list clang*
     - name: install-build-tools
       run: sudo apt install ninja-build clang-format-10 clang-tidy-10 clang-tools-10 clang-10 clangd-10 libc++-10-dev libc++1-10 libc++abi-10-dev libc++abi1-10 libclang-10-dev libclang1-10 liblldb-10-dev lld-10 lldb-10 llvm-10-dev llvm-runtime llvm-10
-    - name: configure-toolchain
-      run: export CC=clang-10 CXX=clang++-10
     - name: configure-build-directory
       run: mkdir build
     - name: cmake
-      run: cd build && cmake .. -DSTX_BUILD_TESTS=ON -GNinja
+      run: cd build && export CC=clang-10 CXX=clang++-10 && cmake .. -DSTX_BUILD_TESTS=ON -GNinja
     - name: run-tests
       run: cd build && ninja run_tests
