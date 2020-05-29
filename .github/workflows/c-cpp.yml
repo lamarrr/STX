@@ -14,9 +14,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: add-llvm-apt-source
-      run: sudo apt update && sudo apt install software-properties-common && sudo add-apt-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main" &&  sudo add-apt-repository "deb-src http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main"
+      run: sudo apt  –allow-unauthenticated update && sudo apt  –allow-unauthenticated install software-properties-common && sudo add-apt-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main" &&  sudo add-apt-repository "deb-src http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main"
     - name: update-apt
-      run: sudo apt update
+      run: sudo apt update –allow-unauthenticated
     - name: install-build-tools
       run: sudo apt install ninja-build clang-format clang-tidy clang-tools clang clangd libc++-dev libc++1 libc++abi-dev libc++abi1 libclang-dev libclang1 liblldb-dev libllvm-ocaml-dev libomp-dev libomp5 lld lldb llvm-dev llvm-runtime llvm python-clang
     - name: configure-toolchain
