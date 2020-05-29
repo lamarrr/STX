@@ -21,8 +21,10 @@ jobs:
       run: sudo add-apt-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main" # &&  sudo add-apt-repository "deb-src http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main"
     - name: second-apt-update
       run: sudo apt --allow-unauthenticated update
+    - name: log
+      run: sudo apt list clang*
     - name: install-build-tools
-      run: sudo apt install ninja-build clang-format clang-tidy clang-tools clang clangd libc++-dev libc++1 libc++abi-dev libc++abi1 libclang-dev libclang1 liblldb-dev libllvm-ocaml-dev libomp-dev libomp5 lld lldb llvm-dev llvm-runtime llvm python-clang
+      run: sudo apt install ninja-build clang-format-10 clang-tidy-10 clang-tools-10 clang-10 clangd-10 libc++-10-dev libc++1-10 libc++abi-10-dev libc++abi1-0 libclang-10-dev libclang-10 liblldb-10-dev lld-10 lldb-10 llvm-10-dev llvm-runtime llvm-10 python-clang
     - name: configure-toolchain
       run: export CC=clang CXX=clang++
     - name: configure-build-directory
