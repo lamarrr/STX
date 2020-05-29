@@ -160,4 +160,7 @@ using ConstDeref = std::reference_wrapper<internal::DerefValue__<T> const>;
 template <MutDerefable T>
 using MutDeref = Deref<T>;
 
+template <typename T, typename Base>
+concept Impl = std::is_base_of_v<Base, T>;
+
 };  // namespace stx
