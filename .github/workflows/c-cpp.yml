@@ -28,7 +28,7 @@ jobs:
     - name: configure-toolchain
       run: export CC=clang CXX=clang++
     - name: configure-build-directory
-      run: mkdir build && cd build
+      run: cd STX && mkdir build && cd build
     - name: cmake
       run:  cmake .. -DSTX_BUILD_TESTS=ON -GNinja
     - name: run-tests
