@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: tests_ubuntu
 
 on:
   push:
@@ -13,21 +13,45 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: first-apt-update
+      
+    - name: apt-update (1)
       run: sudo apt --allow-unauthenticated update
-    - name: install-add-apt-repo
+    
+    - name: Install add-apt-repository
       run: sudo apt --allow-unauthenticated install software-properties-common
-    - name: add-llvm-apt-sources
+    
+    - name: Add LLVM apt-sources
       run: sudo add-apt-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main" # &&  sudo add-apt-repository "deb-src http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main"
-    - name: second-apt-update
+    
+    - name: apt-update (2)
       run: sudo apt --allow-unauthenticated update
-    - name: log
-      run: sudo apt list clang*
-    - name: install-build-tools
+    
+    - name: Install LLVM tools and Ninja-Build
       run: sudo apt install ninja-build clang-format-10 clang-tidy-10 clang-tools-10 clang-10 clangd-10 libc++-10-dev libc++1-10 libc++abi-10-dev libc++abi1-10 libclang-10-dev libclang1-10 liblldb-10-dev lld-10 lldb-10 llvm-10-dev llvm-runtime llvm-10
-    - name: configure-build-directory
+    
+    - name: Configure Build Directory (1)
       run: mkdir build
-    - name: cmake
-      run: cd build && export CC=clang-10 CXX=clang++-10 && cmake .. -DSTX_BUILD_TESTS=ON -GNinja
-    - name: run-tests
+    
+    - name: Initialize CMake (1)
+      run: cd build && export CC=clang-10 CXX=clang++-10 && cmake .. -DSTX_BUILD_TESTS=ON -DSTX_DISABLE_BACKTRACE=OFF -GNinja
+    
+    - name: Run Tests (1) (Enabled Backtrace, Enabled Panic Backtrace)
+      run: cd build && ninja run_tests
+    
+    - name: Configure Build Directory (2)
+      run: rm -r build && mkdir build
+    
+    - name: Initialize CMake (2)
+      run: cd build && export CC=clang-10 CXX=clang++-10 && cmake .. -DSTX_BUILD_TESTS=ON -DSTX_DISABLE_BACKTRACE=OFF -DSTX_DISABLE_PANIC_BACKTRACE=ON -GNinja
+    
+    - name: Run Tests (2) (Enabled Backtrace, Disabled Panic Backtrace)
+      run: cd build && ninja run_tests
+    
+    - name: Configure Build Directory (3)
+      run: rm -r build && mkdir build
+    
+    - name: Initialize CMake (3)
+      run: cd build && export CC=clang-10 CXX=clang++-10 && cmake .. -DSTX_BUILD_TESTS=ON -DSTX_DISABLE_BACKTRACE=ON -GNinja
+
+    - name: Run Tests (3) (Disabled Backtrace)
       run: cd build && ninja run_tests
