@@ -14,16 +14,16 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: add-llvm-apt-source
-      run: deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main && deb-src http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main
+      run: sudo apt update && sudo apt install software-properties-common && sudo add-apt-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main" &&  sudo add-apt-repository "deb-src http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main"
     - name: update-apt
-      run: apt update
-    - name: install-clang
-      run: apt install clang-format clang-tidy clang-tools clang clangd libc++-dev libc++1 libc++abi-dev libc++abi1 libclang-dev libclang1 liblldb-dev libllvm-ocaml-dev libomp-dev libomp5 lld lldb llvm-dev llvm-runtime llvm python-clang 
+      run: sudo apt update
+    - name: install-build-tools
+      run: sudo apt install ninja-build clang-format clang-tidy clang-tools clang clangd libc++-dev libc++1 libc++abi-dev libc++abi1 libclang-dev libclang1 liblldb-dev libllvm-ocaml-dev libomp-dev libomp5 lld lldb llvm-dev llvm-runtime llvm python-clang
     - name: configure-toolchain
       run: export CC=clang CXX=clang++
-    - name: configure-build-dir
+    - name: configure-build-directory
       run: mkdir build && cd build
     - name: cmake
-      run:  cmake . -DSTX_BUILD_TESTS=ON
-    - name: run_tests
-      run: make run_tests
+      run:  cmake .. -DSTX_BUILD_TESTS=ON -GNinja
+    - name: run-tests
+      run: ninja run_tests
