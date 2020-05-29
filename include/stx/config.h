@@ -13,127 +13,181 @@
 
 #include <version>
 
+/// configuration macro
+#define CFG(param, value) STX_##param##_##value
+
 /*********************** COMPILERS ***********************/
 
-#if defined(__GNUC__)  ///  any compiler that implements the GNU compiler
-                       ///  extensions
-#define STX_COMPILER_GNUC
+#if defined(__GNUC__)  //  any compiler that implements the GNU compiler
+                       //  extensions
+#define STX_COMPILER_GNUC 1
+#else
+#define STX_COMPILER_GNUC 0
 #endif
 
 #if defined(__clang__)
-#define STX_COMPILER_CLANG
+#define STX_COMPILER_CLANG 1
+#else
+#define STX_COMPILER_CLANG 0
 #endif
 
 #if defined(_MSC_VER)
-#define STX_COMPILER_MSVC
+#define STX_COMPILER_MSVC 1
+#else
+#define STX_COMPILER_MSVC 0
 #endif
 
 #if defined(__EMSCRIPTEN__)
-#define STX_COMPILER_EMSCRIPTEN
+#define STX_COMPILER_EMSCRIPTEN 1
+#else
+#define STX_COMPILER_EMSCRIPTEN 0
 #endif
 
 #if defined(__NVCC__)
-#define STX_COMPILER_NVCC
+#define STX_COMPILER_NVCC 1
+#else
+#define STX_COMPILER_NVCC 0
 #endif
 
 #if defined(__CC_ARM)
-#define STX_COMPILER_ARM
+#define STX_COMPILER_ARM 1
+#else
+#define STX_COMPILER_ARM 0
 #endif
 
 #if defined(__INTEL_COMPILER) || defined(__ICL)
-#define STX_COMPILER_INTEL
+#define STX_COMPILER_INTEL 1
+#else
+#define STX_COMPILER_INTEL 0
 #endif
 
 #if defined(__MINGW32__) || defined(__MINGW64__)
-#define STX_COMPILER_MINGW
+#define STX_COMPILER_MINGW 1
+#else
+#define STX_COMPILER_MINGW 0
 #endif
 
 /*********************** OPERATING SYSTEMS ***********************/
 
 #if defined(_WIN32) || defined(_WIN64) || defined(__WIN32__) || \
-    defined(WIN32)  /// Any Windows
-// you can actually compile for win64 in win32 mode, so checking for win64 is
-// somehow redundant
-#define STX_OS_WINDOWS
+    defined(WIN32)  // Any Windows
+#define STX_OS_WINDOWS 1
+#else
+#define STX_OS_WINDOWS 0
 #endif
 
-#if defined(__unix__) || defined(unix)
-#define STX_OS_UNIX
+#if defined(__unix__) || defined(unix)  // UNIX
+#define STX_OS_UNIX 1
+#else
+#define STX_OS_UNIX 0
 #endif
 
-#if __has_include(<unistd.h>)
-#define STX_OS_POSIX  /// Posix-compliant operating system
+#if __has_include(<unistd.h>)  // Posix-compliant operating system
+#define STX_OS_POSIX 1
+#else
+#define STX_OS_POSIX 0
 #endif
 
 #if defined(__linux__) || defined(__linux) || \
-    defined(linux)  /// Linux and variants like Android
-#define STX_OS_LINUX
+    defined(linux)  // Linux and variants like Android
+#define STX_OS_LINUX 1
+#else
+#define STX_OS_LINUX 0
 #endif
 
-#if defined(__gnu_linux__)
-#define STX_OS_GNU_LINUX  /// Linux OS with GNU facilities, unlike Android
+#if defined(__gnu_linux__)  // Linux OS with GNU facilities
+#define STX_OS_GNU_LINUX 1
+#else
+#define STX_OS_GNU_LINUX 0
 #endif
 
-#if defined(__ANDROID__)  /// Android, Also infers STX_OS_LINUX
-#define STX_OS_ANDROID
+#if defined(__ANDROID__)  // Android, Also infers STX_OS_LINUX
+#define STX_OS_ANDROID 1
+#else
+#define STX_OS_ANDROID 0
 #endif
 
-#if defined(__APPLE__)  /// All apple OSs
-#define STX_OS_APPLE
+#if defined(__APPLE__)  // All Apple OSs
+#define STX_OS_APPLE 1
 
 #include <Availability.h>
 #include <TargetConditionals.h>
 
+#else
+#define STX_OS_APPLE 0
 #endif
 
-#if defined(__APPLE__) && defined(__MACH__)  /// Mac OS X
-#define STX_OS_MACOS
+#if defined(__APPLE__) && defined(__MACH__)  // Mac OS X
+#define STX_OS_MACOS 1
+#else
+#define STX_OS_MACOS 0
 #endif
 
 // TODO(lamarrr): add Apple targets from TargetConditional.h
 
-#if defined(__wasi__)  /// WebAssembly System Interface
-#define STX_OS_WASI
+#if defined(__wasi__)  // WebAssembly System Interface
+#define STX_OS_WASI 1
+#else
+#define STX_OS_WASI 0
 #endif
 
 #if defined(__CYGWIN__)  // Cygwin environment
-#define STX_OS_CYGWIN
+#define STX_OS_CYGWIN 1
+#else
+#define STX_OS_CYGWIN 0
 #endif
 
-#if defined(__Fuchsia__)  /// Fuchsia
-#define STX_OS_FUCHSIA
+#if defined(__Fuchsia__)  // Fuchsia
+#define STX_OS_FUCHSIA 1
+#else
+#define STX_OS_FUCHSIA 0
 #endif
 
 /*********************** ARCHITECTURES ***********************/
 
 #if defined(__i386__) || defined(__i386) || defined(_X86_) || \
-    defined(_M_IX86) || defined(_M_I86)
-#define STX_ARCH_X86  /// X86
+    defined(_M_IX86) || defined(_M_I86)  // X86
+#define STX_ARCH_X86 1
+#else
+#define STX_ARCH_X86 0
 #endif
 
 #if defined(__x86_64__) || defined(__x86_64) || defined(_M_X64) || \
-    defined(_M_AMD64) || defined(__amd64) || defined(__amd64__)
-#define STX_ARCH_X64  /// X64
+    defined(_M_AMD64) || defined(__amd64) || defined(__amd64__)  // X86_64
+#define STX_ARCH_X86_64 1
+#else
+#define STX_ARCH_X86_64 0
 #endif
 
-#if defined(__arm__) || defined(_M_ARM)
-#define STX_ARCH_ARM32  /// ARM
+#if defined(__arm__) || defined(_M_ARM)  // ARM
+#define STX_ARCH_ARM32 1
+#else
+#define STX_ARCH_ARM32 0
 #endif
 
-#if defined(__aarch64__)
-#define STX_ARCH_ARM64  /// ARM64
+#if defined(__aarch64__)  // ARM64
+#define STX_ARCH_ARM64 1
+#else
+#define STX_ARCH_ARM64 0
 #endif
 
-#if defined(__XTENSA__)
-#define STX_ARCH_XTENSA  /// Xtensa
+#if defined(__XTENSA__)  // Xtensa
+#define STX_ARCH_XTENSA 1
+#else
+#define STX_ARCH_XTENSA 0
 #endif
 
-#if defined(__mips__) || defined(__mips) || defined(mips) || defined(__MIPS__)
-#define STX_ARCH_MIPS  // MIPS
+#if defined(__mips__) || defined(__mips) || defined(mips) || \
+    defined(__MIPS__)  // MIPS
+#define STX_ARCH_MIPS 1
+#else
+#define STX_ARCH_MIPS 0
 #endif
 
-#if defined(__riscv) || defined(__riscv__)  /// RISC-V
-#define STX_ARCH_RISV
+#if defined(__riscv) || defined(__riscv__)  // RISC-V
+#define STX_ARCH_RISCV 1
+#else
+#define STX_ARCH_RISCV 0
 #endif
 
 /************ FEATURE AND LIBRARY REQUIREMENTS ************/
@@ -160,10 +214,10 @@
 #if __has_cpp_attribute(gnu::always_inline)
 #define STX_FORCE_INLINE [[gnu::always_inline]] inline
 #else
-#ifdef _MSC_VER
+#if CFG(COMPILER, MSVC)
 #define STX_FORCE_INLINE __forceinline
 #else
-#if defined(__NVCC__)
+#if CFG(COMPILER, NVCC)
 #define STX_FORCE_INLINE __forcinline__
 #else
 #define STX_FORCE_INLINE inline
@@ -187,7 +241,7 @@
 
 /*********************** SHARED LIBRARY SUPPORT ***********************/
 
-#if defined(STX_OS_WINDOWS) || defined(STX_OS_CYGWIN)
+#if CFG(OS, WINDOWS) || CFG(OS, CYGWIN)
 #define STX_IMPORT __declspec(dllimport)
 #define STX_EXPORT __declspec(dllexport)
 #define STX_LOCAL
@@ -206,19 +260,27 @@
 /*********************** BINARY FORMATS ***********************/
 
 #if defined(__wasm__)
-#define STX_BINARY_WASW
+#define STX_BINARY_WASW 1
+#else
+#define STX_BINARY_WASW 0
 #endif
 
 #if defined(__ELF__)
-#define STX_BINARY_ELF
+#define STX_BINARY_ELF 1
+#else
+#define STX_BINARY_ELF 0
 #endif
 
-#if defined(STX_OS_WINDOWS)
-#define STX_BINARY_PORTABLE_EXE  // portable executable
+#if CFG(OS, WINDOWS)  // Windows Portable Executable
+#define STX_BINARY_EXE 1
+#else
+#define STX_BINARY_EXE 0
 #endif
 
 /*********************** TOOLCHAINS ***********************/
 
 #if defined(__llvm__)
-#define STX_TOOLCHAIN_LLVM
+#define STX_TOOLCHAIN_LLVM 1
+#else
+#define STX_TOOLCHAIN_LLVM 0
 #endif
