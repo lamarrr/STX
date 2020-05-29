@@ -63,7 +63,7 @@ inline Error divide_by_c_style(double num, double div, double* result) {
   return Error::NoError;
 }
 
-void Variant_HappyPath(benchmark::State& state) {  // NOLINT
+void Variant_SuccessPath(benchmark::State& state) {  // NOLINT
   for (auto _ : state) {
     auto result = divide_by_variant(5.0, variant_divide(0.444, 0.5));
 
@@ -79,7 +79,7 @@ void Variant_HappyPath(benchmark::State& state) {  // NOLINT
   }
 }
 
-void Exception_HappyPath(benchmark::State& state) {  // NOLINT
+void Exception_SuccessPath(benchmark::State& state) {  // NOLINT
   for (auto _ : state) {
     try {
       // either of the two functions can throw an exception, we thus catch the
@@ -94,7 +94,7 @@ void Exception_HappyPath(benchmark::State& state) {  // NOLINT
   }
 }
 
-void Result_HappyPath(benchmark::State& state) {  // NOLINT
+void Result_SuccessPath(benchmark::State& state) {  // NOLINT
   for (auto _ : state) {
     divide_by_result(5.0, result_divide(0.444, 0.5))
         .match([](auto v) { benchmark::DoNotOptimize(v); },
@@ -104,7 +104,7 @@ void Result_HappyPath(benchmark::State& state) {  // NOLINT
   }
 }
 
-void CStyle_HappyPath(benchmark::State& state) {  // NOLINT
+void CStyle_SuccessPath(benchmark::State& state) {  // NOLINT
   for (auto _ : state) {
     double result;
     auto err = c_style_divide(0.444, 0.5, &result);
@@ -120,7 +120,7 @@ void CStyle_HappyPath(benchmark::State& state) {  // NOLINT
   }
 }
 
-void Variant_SadPath(benchmark::State& state) {  // NOLINT
+void Variant_FailurePath(benchmark::State& state) {  // NOLINT
   for (auto _ : state) {
     auto result = divide_by_variant(5.0, variant_divide(0.0, 0.5));
 
@@ -136,7 +136,7 @@ void Variant_SadPath(benchmark::State& state) {  // NOLINT
   }
 }
 
-void Exception_SadPath(benchmark::State& state) {  // NOLINT
+void Exception_FailurePath(benchmark::State& state) {  // NOLINT
   for (auto _ : state) {
     try {
       // either of the two functions can throw an exception, we thus catch the
@@ -151,7 +151,7 @@ void Exception_SadPath(benchmark::State& state) {  // NOLINT
   }
 }
 
-void Result_SadPath(benchmark::State& state) {  // NOLINT
+void Result_FailurePath(benchmark::State& state) {  // NOLINT
   for (auto _ : state) {
     divide_by_result(5.0, result_divide(0.0, 0.5))
         .match([](auto v) { benchmark::DoNotOptimize(v); },
@@ -161,7 +161,7 @@ void Result_SadPath(benchmark::State& state) {  // NOLINT
   }
 }
 
-void CStyle_SadPath(benchmark::State& state) {  // NOLINT
+void CStyle_FailurePath(benchmark::State& state) {  // NOLINT
   for (auto _ : state) {
     double result;
     auto err = c_style_divide(0.0, 0.5, &result);
@@ -177,12 +177,12 @@ void CStyle_SadPath(benchmark::State& state) {  // NOLINT
   }
 }
 
-BENCHMARK(Variant_HappyPath);
-BENCHMARK(Exception_HappyPath);
-BENCHMARK(Result_HappyPath);
-BENCHMARK(CStyle_HappyPath);
+BENCHMARK(Variant_SuccessPath);
+BENCHMARK(Exception_SuccessPath);
+BENCHMARK(Result_SuccessPath);
+BENCHMARK(CStyle_SuccessPath);
 
-BENCHMARK(Variant_SadPath);
-BENCHMARK(Exception_SadPath);
-BENCHMARK(Result_SadPath);
-BENCHMARK(CStyle_SadPath);
+BENCHMARK(Variant_FailurePath);
+BENCHMARK(Exception_FailurePath);
+BENCHMARK(Result_FailurePath);
+BENCHMARK(CStyle_FailurePath);
