@@ -156,8 +156,9 @@ endif()
 
 if(NOT STX_DISABLE_BACKTRACE)
   if(NOT EXISTS third_party/abseil)
-    execute_process(COMMAND git submodule update --init --recursive
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+    execute_process(
+      COMMAND git submodule update --init --recursive third_party/abseil
+      WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
   endif()
   add_subdirectory(third_party/abseil)
 endif()
@@ -208,8 +209,9 @@ endif()
 if(STX_BUILD_TESTS OR STX_BUILD_BENCHMARKS) # benchmark also uses it
 
   if(NOT EXISTS third_party/fmt)
-    execute_process(COMMAND git submodule update --init --recursive
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+    execute_process(
+      COMMAND git submodule update --init --recursive third_party/fmt
+      WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
   endif()
 
   set(FMT_TEST
@@ -221,8 +223,9 @@ endif()
 if(STX_BUILD_TESTS)
 
   if(NOT EXISTS third_party/googletest)
-    execute_process(COMMAND git submodule update --init --recursive
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+    execute_process(
+      COMMAND git submodule update --init --recursive third_party/googletest
+      WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
   endif()
 
   set(BUILD_GMOCK
@@ -243,8 +246,9 @@ endif()
 if(STX_BUILD_BENCHMARKS)
 
   if(NOT EXISTS third_party/benchmark)
-    execute_process(COMMAND git submodule update --init --recursive
-                    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+    execute_process(
+      COMMAND git submodule update --init --recursive third_party/benchmark
+      WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
   endif()
 
   set(BENCHMARK_ENABLE_TESTING OFF)
@@ -275,14 +279,13 @@ endif()
 # ===============================================
 
 list(
-  APPEND
-  STX_TEST_SRCS
-  tests/tests.cc
-  tests/panic_test.cc
-  tests/result_test.cc
-  tests/common_test.cc
-  tests/option_test.cc
-  tests/report_test.cc)
+  APPEND STX_TEST_SRCS
+         tests/tests.cc
+         tests/panic_test.cc
+         tests/result_test.cc
+         tests/common_test.cc
+         tests/option_test.cc
+         tests/report_test.cc)
 
 if(NOT STX_DISABLE_BACKTRACE)
   list(APPEND STX_TEST_SRCS tests/backtrace_test.cc)
@@ -296,8 +299,8 @@ if(STX_BUILD_TESTS)
   target_compile_options(stx_tests PRIVATE ${STX_WARNING_FLAGS}
                                            ${STX_TEST_WARNING_FLAGS})
   target_compile_definitions(stx_tests PRIVATE STX_OVERRIDE_PANIC_HANDLER)
-  set_target_properties(stx_tests PROPERTIES CXX_STANDARD 20
-                                             CXX_STANDARD_REQUIRED ON)
+  set_target_properties(stx_tests
+                        PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON)
   add_custom_target(
     run_tests
     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/stx_tests
@@ -383,12 +386,10 @@ if(STX_BUILD_DOCS)
 
 endif()
 
-#add_executable(example_divide examples/divide.cc)
-#target_link_libraries(example_divide stx)
-#set_target_properties(example_divide PROPERTIES CXX_STANDARD 20
-#                                                CXX_STANDARD_REQUIRED ON)
+# add_executable(example_divide examples/divide.cc)
+# target_link_libraries(example_divide stx) set_target_properties(example_divide
+# PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON)
 
-#add_executable(example_parse examples/parse_version.cc)
-#target_link_libraries(example_parse stx)
-#set_target_properties(example_parse PROPERTIES CXX_STANDARD 20
-#                                               CXX_STANDARD_REQUIRED ON)
+# add_executable(example_parse examples/parse_version.cc)
+# target_link_libraries(example_parse stx) set_target_properties(example_parse
+# PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON)
