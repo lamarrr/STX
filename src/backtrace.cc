@@ -59,19 +59,24 @@ auto backtrace::Symbol::raw() const noexcept -> std::string_view {
 }
 
 size_t backtrace::trace(Callback callback) {
-  int skip_count = 1;
-  void* ips[STX_MAX_STACK_FRAME_DEPTH] = {};
-  void* sps[STX_MAX_STACK_FRAME_DEPTH] = {};
-  int sizes[STX_MAX_STACK_FRAME_DEPTH] = {};
-  int ips_depth =
-      absl::GetStackTrace(ips, sizeof(ips) / sizeof(ips[0]), skip_count);
-  int sps_depth = absl::GetStackFrames(sps, sizes, sizeof(sps) / sizeof(sps[0]),
-                                       skip_count);
+  // size_t stack_head = 0;
+  // *static_cast<volatile size_t*>(&stack_head) = 2;
 
-  int depth = ips_depth > sps_depth ? sps_depth : ips_depth;
+  // auto head_sp = static_cast<uintptr_t>(&stack_head);
+
+  int skip_count = 0;
+  void* ips[STX_MAX_STACK_FRAME_DEPTH] = {};
+  uintptr_t sps[STX_MAX_STACK_FRAME_DEPTH] = {};
+  int sizes[STX_MAX_STACK_FRAME_DEPTH] = {};
+
+  int depth = absl::GetStackFrames(ips, sizes, sizeof(ips) / sizeof(ips[0]),
+                                   skip_count);
 
   char symbol[STX_SYMBOL_BUFFER_SIZE] = {};
   auto max_len = sizeof(symbol) / sizeof(symbol[0]);
+
+  // uintptr_t stack_ptr = head_sp;
+  (void)sps;
 
   for (int i = 0; i < depth; i++) {
     std::memset(symbol, 0, max_len);
@@ -81,8 +86,10 @@ size_t backtrace::trace(Callback callback) {
       frame.symbol = Some(backtrace::Symbol(std::move(span)));
     }
 
+    // stack_ptr += static_cast<uintptr_t>(sizes[i]);
+
     frame.ip = Some(reinterpret_cast<uintptr_t>(ips[i]));
-    frame.sp = Some(reinterpret_cast<uintptr_t>(sps[i]));
+    // frame.sp = Some(static_cast<uintptr_t>(stack_ptr));
 
     if (callback(std::move(frame), depth - i)) break;
   }
@@ -100,6 +107,9 @@ void print_backtrace() {
 
   backtrace::trace([](backtrace::Frame frame, int i) {
     auto const print_none = []() { fputs("<unknown>", stderr); };
+    auto const print_ptr = [](Ref<uintptr_t> ptr) {
+      fprintf(stderr, "0x%" PRIxPTR, ptr.get());
+    };
 
     fprintf(stderr, "#%d\t\t", i);
 
@@ -111,17 +121,13 @@ void print_backtrace() {
         },
         print_none);
 
-    fputs("\t (ip: 0x", stderr);
+    fputs("\t (ip: ", stderr);
 
-    frame.ip.as_ref().match(
-        [](Ref<uintptr_t> ip) { fprintf(stderr, "%" PRIxPTR, ip.get()); },
-        print_none);
+    frame.ip.as_ref().match(print_ptr, print_none);
 
-    fputs(", sp: 0x", stderr);
+    fputs(", sp: ", stderr);
 
-    frame.sp.as_ref().match(
-        [](Ref<uintptr_t> sp) { fprintf(stderr, "%" PRIxPTR, sp.get()); },
-        print_none);
+    frame.sp.as_ref().match(print_ptr, print_none);
 
     fputs(")\n", stderr);
 
