@@ -3,6 +3,10 @@
 <div align="center"><i> C++ 20 error-handling and utility extensions to the C++ standard library.</i>
 </div>
 
+
+<p align="center"><img src="https://github.com/lamarrr/STX/workflows/tests_ubuntu/badge.svg"></p>
+
+
 ## Overview
 
 STX...
