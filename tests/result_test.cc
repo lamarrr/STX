@@ -238,63 +238,59 @@ TEST(ResultTest, ErrExists) {
 
 TEST(ResultTest, Ok) {
   EXPECT_EQ((make_ok<int, int>(20).ok().unwrap()), 20);
-  EXPECT_DEATH((make_err<int, int>(90).ok().unwrap()), ".*");
+  EXPECT_EQ((make_err<int, int>(90).ok()), None);
 
   EXPECT_EQ((make_ok<vector<int>, int>(vector{1, 2, 3, 4}).ok().unwrap()),
             (vector{1, 2, 3, 4}));
-  EXPECT_DEATH((make_err<vector<int>, int>(90).ok().unwrap()), ".*");
+  EXPECT_EQ((make_err<vector<int>, int>(90).ok()), None);
 
   EXPECT_EQ((make_ok<int, vector<int>>(90).ok().unwrap()), 90);
-  EXPECT_DEATH((make_err<int, vector<int>>(vector{1, 2, 3, 4}).ok().unwrap()),
-               ".*");
+  EXPECT_EQ((make_err<int, vector<int>>(vector{1, 2, 3, 4}).ok()), None);
 
   EXPECT_EQ(
       (make_ok<vector<int>, vector<int>>(vector{1, 2, 3, 4}).ok().unwrap()),
       (vector{1, 2, 3, 4}));
-  EXPECT_DEATH(
-      (make_err<vector<int>, vector<int>>(vector{1, 2, 3, 4}).ok().unwrap()),
-      ".*");
+  EXPECT_EQ((make_err<vector<int>, vector<int>>(vector{1, 2, 3, 4}).ok()),
+            None);
 }
 
 TEST(ResultTest, Err) {
   EXPECT_EQ((make_err<int, int>(20).err().unwrap()), 20);
-  EXPECT_DEATH((make_ok<int, int>(90).err().unwrap()), ".*");
+  EXPECT_EQ((make_ok<int, int>(90).err()), None);
 
   EXPECT_EQ((make_err<vector<int>, int>(10).err().unwrap()), 10);
-  EXPECT_DEATH((make_ok<vector<int>, int>(vector{1, 2, 3, 4}).err().unwrap()),
-               ".*");
+  EXPECT_EQ((make_ok<vector<int>, int>(vector{1, 2, 3, 4}).err()), None);
 
   EXPECT_EQ((make_err<int, vector<int>>(vector{1, 2, 3, 4}).err().unwrap()),
             (vector{1, 2, 3, 4}));
-  EXPECT_DEATH((make_ok<int, vector<int>>(78).err().unwrap()), ".*");
+  EXPECT_EQ((make_ok<int, vector<int>>(78).err()), None);
 
   EXPECT_EQ(
       (make_err<vector<int>, vector<int>>(vector{1, 2, 3, 4}).err().unwrap()),
       (vector{1, 2, 3, 4}));
-  EXPECT_DEATH(
-      (make_ok<vector<int>, vector<int>>(vector{78, 67}).err().unwrap()), ".*");
+  EXPECT_EQ((make_ok<vector<int>, vector<int>>(vector{78, 67}).err()), None);
 }
 
 TEST(ResultTest, AsConstRef) {
   auto const a = make_ok<int, int>(68);
   EXPECT_EQ(a.as_cref().unwrap().get(), 68);
   auto const b = make_err<int, int>(-68);
-  EXPECT_DEATH(b.as_cref().unwrap(), ".*");
+  EXPECT_TRUE(b.as_cref().is_err());
 
   auto const c = make_ok<vector<int>, int>(vector{1, 2, 3, 4});
   EXPECT_EQ(c.as_cref().unwrap().get(), (vector{1, 2, 3, 4}));
   auto const d = make_err<vector<int>, int>(-24);
-  EXPECT_DEATH(d.as_cref().unwrap(), ".*");
+  EXPECT_TRUE(d.as_cref().is_err());
 
   auto const e = make_ok<int, vector<int>>(-24);
   EXPECT_EQ(e.as_cref().unwrap().get(), -24);
   auto const f = make_err<int, vector<int>>(vector{-1, -2, -3, -4});
-  EXPECT_DEATH(f.as_cref().unwrap().get(), ".*");
+  EXPECT_TRUE(f.as_cref().is_err());
 
   auto const g = make_ok<vector<int>, vector<int>>(vector{1, 2, 3, 4});
   EXPECT_EQ(g.as_cref().unwrap().get(), (vector{1, 2, 3, 4}));
   auto const h = make_err<vector<int>, vector<int>>(vector{-1, -2, -3, -4});
-  EXPECT_DEATH(h.as_cref().unwrap().get(), ".*");
+  EXPECT_TRUE(h.as_cref().is_err());
 }
 
 TEST(ResultTest, AsMutRef) {
@@ -303,7 +299,7 @@ TEST(ResultTest, AsMutRef) {
   EXPECT_EQ(a.as_ref().unwrap().get(), 89);
 
   auto b = make_err<int, int>(-68);
-  EXPECT_DEATH(b.as_ref().unwrap().get(), ".*");
+  EXPECT_TRUE(b.as_ref().is_err());
   EXPECT_EQ(b.as_ref().unwrap_err().get(), -68);
 
   auto c = make_ok<vector<int>, int>(vector{1, 2, 3, 4});
@@ -311,7 +307,7 @@ TEST(ResultTest, AsMutRef) {
   EXPECT_EQ(c.as_ref().unwrap().get(), (vector{-1, -2, -3, -4}));
 
   auto d = make_err<vector<int>, int>(-24);
-  EXPECT_DEATH(d.as_ref().unwrap().get(), ".*");
+  EXPECT_TRUE(d.as_ref().is_err());
   EXPECT_EQ(d.as_ref().unwrap_err(), -24);
 
   auto e = make_ok<int, vector<int>>(-24);
@@ -319,15 +315,15 @@ TEST(ResultTest, AsMutRef) {
   EXPECT_EQ(e.as_ref().unwrap().get(), 87);
 
   auto f = make_err<int, vector<int>>(vector{-1, -2, -3, -4});
-  EXPECT_DEATH(f.as_ref().unwrap().get(), ".*");
+  EXPECT_TRUE(f.as_ref().is_err());
   EXPECT_EQ(f.as_ref().unwrap_err().get(), (vector{-1, -2, -3, -4}));
 
   auto g = make_ok<vector<int>, vector<int>>(vector{1, 2, 3, 4});
   EXPECT_EQ(g.as_ref().unwrap().get(), (vector{1, 2, 3, 4}));
-  EXPECT_DEATH(g.as_ref().unwrap_err().get(), ".*");
+  EXPECT_TRUE(g.as_ref().is_ok());
 
   auto h = make_err<vector<int>, vector<int>>(vector{-1, -2, -3, -4});
-  EXPECT_DEATH(h.as_ref().unwrap().get(), ".*");
+  EXPECT_TRUE(h.as_ref().is_err());
   h.as_ref().unwrap_err().get() = vector{-5, -6, -7, -8, -9};
   EXPECT_EQ(h.as_ref().unwrap_err().get(), (vector{-5, -6, -7, -8, -9}));
 }
@@ -336,7 +332,7 @@ TEST(ResultTest, Map) {
   // will it be problematic if the map function is not in scope? No!
   auto a = [](int&& value) { return value + 20; };
   EXPECT_EQ((make_ok<int, int>(20).map(a).unwrap()), 40);
-  EXPECT_DEATH((make_err<int, int>(-1).map(a).unwrap()), ".*");
+  EXPECT_TRUE((make_err<int, int>(-1).map(a).is_err()));
 
   // will it be problematic if the map function is not in scope? No!
   auto b = [](vector<int>&& value) {
@@ -345,7 +341,7 @@ TEST(ResultTest, Map) {
   };
   EXPECT_EQ((make_ok<vector<int>, int>({1, 2, 3, 4, 5}).map(b).unwrap()),
             (vector{1, 2, 3, 4, 5, 6}));
-  EXPECT_DEATH((make_err<vector<int>, int>(-1).map(b).unwrap()), ".*");
+  EXPECT_TRUE((make_err<vector<int>, int>(-1).map(b).is_err()));
 }
 
 TEST(ResultTest, MapOr) {
@@ -388,7 +384,7 @@ TEST(ResultTest, MapErr) {
   // will it be problematic if the map function is not in scope? No!
   auto a = [](int&& value) { return value * 10; };
   EXPECT_EQ((make_err<int, int>(10).map_err(a).unwrap_err()), 100);
-  EXPECT_DEATH((make_ok<int, int>(20).map_err(a).unwrap_err()), ".*");
+  EXPECT_TRUE((make_ok<int, int>(20).map_err(a).is_ok()));
 
   // will it be problematic if the map function is not in scope? No!
   auto b = [](vector<int>&& value) {
@@ -399,26 +395,25 @@ TEST(ResultTest, MapErr) {
       (make_err<int, vector<int>>({1, 2, 3, 4, 5}).map_err(b).unwrap_err()),
       (vector{1, 2, 3, 4, 5, 6}));
 
-  EXPECT_DEATH((make_ok<int, vector<int>>(256).map_err(b).unwrap_err()), ".*");
+  EXPECT_TRUE((make_ok<int, vector<int>>(256).map_err(b).is_ok()));
 }
 
 TEST(ResultTest, And) {
   EXPECT_FLOAT_EQ(
       (make_ok<int, int>(20).AND(make_ok<float, int>(40.0f)).unwrap()), 40.0f);
 
-  EXPECT_DEATH(
-      (make_err<int, int>(-20).AND(make_ok<float, int>(40.0f)).unwrap()), ".*");
+  EXPECT_TRUE(
+      (make_err<int, int>(-20).AND(make_ok<float, int>(40.0f)).is_err()));
 
   EXPECT_EQ((make_ok<int, int>(20)
                  .AND(make_ok<vector<float>, int>({40.0f, 50.0f, 60.0f}))
                  .unwrap()),
             (vector{40.0f, 50.0f, 60.0f}));
 
-  EXPECT_DEATH(
+  EXPECT_TRUE(
       (make_err<int, int>(-20)
            .AND(make_ok<vector<float>, int>(vector{40.0f, 50.0f, 60.0f}))
-           .unwrap()),
-      ".*");
+           .is_err()));
 
   EXPECT_EQ((make_err<int, int>(-20)
                  .AND(make_ok<vector<float>, int>(vector{40.0f, 50.0f, 60.0f}))
@@ -430,7 +425,7 @@ TEST(ResultTest, AndThen) {
   auto a = [](int v) { return v * 2.0f; };
   EXPECT_FLOAT_EQ((make_ok<int, int>(20).and_then(a).unwrap()), 40.0f);
 
-  EXPECT_DEATH((make_err<int, int>(-20).and_then(a).unwrap()), ".*");
+  EXPECT_TRUE((make_err<int, int>(-20).and_then(a).is_err()));
 
   EXPECT_EQ((make_err<int, int>(-20).and_then(a).unwrap_err()), -20);
 
@@ -442,7 +437,7 @@ TEST(ResultTest, AndThen) {
 
   EXPECT_EQ((make_ok<int, int>(80).and_then(b).unwrap()), (vector{80.0f}));
 
-  EXPECT_DEATH((make_err<int, int>(-20).and_then(b).unwrap()), ".*");
+  EXPECT_TRUE((make_err<int, int>(-20).and_then(b).is_err()));
   EXPECT_EQ((make_err<int, int>(-20).and_then(b).unwrap_err()), -20);
 }
 
@@ -451,8 +446,7 @@ TEST(ResultTest, Or) {
 
   EXPECT_EQ((make_ok<int, int>(20).OR(make_err<int, int>(40)).unwrap()), 20);
 
-  EXPECT_DEATH((make_err<int, int>(-20).OR(make_err<int, int>(40)).unwrap()),
-               ".*");
+  EXPECT_TRUE((make_err<int, int>(-20).OR(make_err<int, int>(40)).is_err()));
 
   EXPECT_EQ((make_err<int, int>(-20).OR(make_err<int, int>(40)).unwrap_err()),
             40);
@@ -467,10 +461,9 @@ TEST(ResultTest, Or) {
                  .unwrap()),
             (vector{1, 2, 3, 4, 5}));
 
-  EXPECT_DEATH((make_err<vector<int>, int>(-9)
-                    .OR(make_err<vector<int>, int>(-8))
-                    .unwrap()),
-               ".*");
+  EXPECT_TRUE((make_err<vector<int>, int>(-9)
+                   .OR(make_err<vector<int>, int>(-8))
+                   .is_err()));
 
   EXPECT_EQ((make_err<vector<float>, int>(-20)
                  .OR(make_ok<vector<float>, int>(vector{40.0f, 50.0f, 60.0f}))
@@ -509,14 +502,14 @@ TEST(ResultTest, UnwrapOr) {
 
 TEST(ResultTest, Unwrap) {
   EXPECT_EQ((make_ok<int, int>(89).unwrap()), 89);
-  EXPECT_DEATH((make_err<int, int>(89).unwrap()), ".*");
+  EXPECT_TRUE((make_err<int, int>(89).is_err()));
 
   EXPECT_EQ((make_ok<string, int>("John Doe"s).unwrap()), "John Doe"s);
-  EXPECT_DEATH((make_err<string, int>(-20).unwrap()), ".*");
+  EXPECT_TRUE((make_err<string, int>(-20)).is_err());
 
   EXPECT_EQ((make_ok<vector<int>, int>(vector{1, 2, 3, 4, 5}).unwrap()),
             (vector{1, 2, 3, 4, 5}));
-  EXPECT_DEATH((make_err<vector<int>, int>(-1).unwrap()), ".*");
+  EXPECT_TRUE((make_err<vector<int>, int>(-1)).is_err());
 }
 
 TEST(ResultTest, UnwrapOrElse) {
@@ -638,7 +631,7 @@ TEST(ResultTest, AsConstDeref) {
   EXPECT_EQ(&a.as_const_deref().unwrap().get(), &x);
 
   auto const b = make_err<int*, int>(-68);
-  EXPECT_DEATH(b.as_const_deref().unwrap().get(), ".*");
+  EXPECT_TRUE(b.as_const_deref().is_err());
 
   vector<int> vec{1, 2, 3, 4, 5};
   auto const c = make_ok<typename vector<int>::iterator, int>(vec.begin());
@@ -651,7 +644,7 @@ TEST(ResultTest, AsConstDeref) {
 
   auto const e =
       make_err<typename vector<int>::const_reverse_iterator, int>(-87);
-  EXPECT_DEATH(e.as_const_deref().unwrap().get(), ".*");
+  EXPECT_TRUE(e.as_const_deref().is_err());
 }
 
 TEST(ResultTest, AsConstDerefErr) {
@@ -661,7 +654,7 @@ TEST(ResultTest, AsConstDerefErr) {
   EXPECT_EQ(&a.as_const_deref_err().unwrap_err().get(), &x);
 
   auto const b = make_ok<int, int*>(-68);
-  EXPECT_DEATH(b.as_const_deref_err().unwrap_err().get(), ".*");
+  EXPECT_TRUE(b.as_const_deref_err().is_ok());
 
   vector<int> vec{1, 2, 3, 4, 5};
   auto const c = make_err<int, typename vector<int>::iterator>(vec.begin());
@@ -674,7 +667,7 @@ TEST(ResultTest, AsConstDerefErr) {
 
   auto const e =
       make_ok<int, typename vector<int>::const_reverse_iterator>(-87);
-  EXPECT_DEATH(e.as_const_deref_err().unwrap_err().get(), ".*");
+  EXPECT_TRUE(e.as_const_deref_err().is_ok());
 }
 
 TEST(ResultTest, AsMutDeref) {
@@ -685,7 +678,7 @@ TEST(ResultTest, AsMutDeref) {
   EXPECT_EQ(&a.as_mut_deref().unwrap().get(), &x);
 
   auto b = make_err<int*, int>(-68);
-  EXPECT_DEATH(b.as_mut_deref().unwrap().get(), ".*");
+  EXPECT_TRUE(b.as_mut_deref().is_err());
 
   vector<int> vec{1, 2, 3, 4, 5};
   auto c = make_ok<typename vector<int>::iterator, int>(vec.begin());
@@ -697,7 +690,7 @@ TEST(ResultTest, AsMutDeref) {
   EXPECT_EQ(&d.as_mut_deref().unwrap().get(), &vec.back());
 
   auto e = make_err<typename vector<int>::reverse_iterator, int>(-87);
-  EXPECT_DEATH(e.as_mut_deref().unwrap().get(), ".*");
+  EXPECT_TRUE(e.as_mut_deref().is_err());
 }
 
 TEST(ResultTest, AsMutDerefErr) {
@@ -708,7 +701,7 @@ TEST(ResultTest, AsMutDerefErr) {
   EXPECT_EQ(&a.as_mut_deref_err().unwrap_err().get(), &x);
 
   auto b = make_ok<int, int*>(-68);
-  EXPECT_DEATH(b.as_mut_deref_err().unwrap_err().get(), ".*");
+  EXPECT_TRUE(b.as_mut_deref_err().is_ok());
 
   vector<int> vec{1, 2, 3, 4, 5};
   auto c = make_err<int, typename vector<int>::iterator>(vec.begin());
@@ -720,7 +713,7 @@ TEST(ResultTest, AsMutDerefErr) {
   EXPECT_EQ(&d.as_mut_deref_err().unwrap_err().get(), &vec.back());
 
   auto e = make_ok<int, typename vector<int>::reverse_iterator>(-87);
-  EXPECT_DEATH(e.as_mut_deref_err().unwrap_err().get(), ".*");
+  EXPECT_TRUE(e.as_mut_deref_err().is_ok());
 }
 
 TEST(ResultTest, Match) {
