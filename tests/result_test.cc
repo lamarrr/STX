@@ -170,33 +170,33 @@ TEST(ResultTest, Exists) {
   auto even = [](auto x) { return x % 2 == 0; };
   auto all_even = [=](auto x) { return std::all_of(x.begin(), x.end(), even); };
 
-  ASSERT_TRUE((make_ok<int, int>(2).exists(even)));
-  ASSERT_FALSE((make_ok<int, int>(5).exists(even)));
-  ASSERT_FALSE((make_err<int, int>(2).exists(even)));
-  ASSERT_FALSE((make_err<int, int>(3).exists(even)));
+  EXPECT_TRUE((make_ok<int, int>(2).exists(even)));
+  EXPECT_FALSE((make_ok<int, int>(5).exists(even)));
+  EXPECT_FALSE((make_err<int, int>(2).exists(even)));
+  EXPECT_FALSE((make_err<int, int>(3).exists(even)));
 
-  ASSERT_TRUE(
+  EXPECT_TRUE(
       (make_ok<vector<int>, int>(vector{2, 4, 6, 8, 10, 12}).exists(all_even)));
-  ASSERT_FALSE((make_ok<vector<int>, int>(vector{2, 4, 6, 8, 10, 12, 13})
+  EXPECT_FALSE((make_ok<vector<int>, int>(vector{2, 4, 6, 8, 10, 12, 13})
                     .exists(all_even)));
-  ASSERT_FALSE((make_err<vector<int>, int>(2).exists(all_even)));
-  ASSERT_FALSE((make_err<vector<int>, int>(3).exists(all_even)));
+  EXPECT_FALSE((make_err<vector<int>, int>(2).exists(all_even)));
+  EXPECT_FALSE((make_err<vector<int>, int>(3).exists(all_even)));
 
-  ASSERT_TRUE((make_ok<int, vector<int>>(2).exists(even)));
-  ASSERT_FALSE((make_ok<int, vector<int>>(5).exists(even)));
-  ASSERT_FALSE(
+  EXPECT_TRUE((make_ok<int, vector<int>>(2).exists(even)));
+  EXPECT_FALSE((make_ok<int, vector<int>>(5).exists(even)));
+  EXPECT_FALSE(
       (make_err<int, vector<int>>(vector{2, 4, 6, 8, 10, 12}).exists(even)));
-  ASSERT_FALSE((
+  EXPECT_FALSE((
       make_err<int, vector<int>>(vector{2, 4, 6, 8, 10, 12, 13}).exists(even)));
 
-  ASSERT_TRUE((make_ok<vector<int>, vector<int>>(vector{2, 4, 6, 8, 10, 12})
+  EXPECT_TRUE((make_ok<vector<int>, vector<int>>(vector{2, 4, 6, 8, 10, 12})
                    .exists(all_even)));
-  ASSERT_FALSE(
+  EXPECT_FALSE(
       (make_ok<vector<int>, vector<int>>(vector{2, 4, 6, 8, 10, 12, 13})
            .exists(all_even)));
-  ASSERT_FALSE((make_err<vector<int>, vector<int>>(vector{2, 4, 6, 8, 10, 12})
+  EXPECT_FALSE((make_err<vector<int>, vector<int>>(vector{2, 4, 6, 8, 10, 12})
                     .exists(all_even)));
-  ASSERT_FALSE(
+  EXPECT_FALSE(
       (make_err<vector<int>, vector<int>>(vector{2, 4, 6, 8, 10, 12, 13})
            .exists(all_even)));
 }
@@ -205,33 +205,33 @@ TEST(ResultTest, ErrExists) {
   auto even = [](auto x) { return x % 2 == 0; };
   auto all_even = [=](auto x) { return std::all_of(x.begin(), x.end(), even); };
 
-  ASSERT_FALSE((make_ok<int, int>(2).err_exists(even)));
-  ASSERT_FALSE((make_ok<int, int>(5).err_exists(even)));
-  ASSERT_TRUE((make_err<int, int>(2).err_exists(even)));
-  ASSERT_FALSE((make_err<int, int>(3).err_exists(even)));
+  EXPECT_FALSE((make_ok<int, int>(2).err_exists(even)));
+  EXPECT_FALSE((make_ok<int, int>(5).err_exists(even)));
+  EXPECT_TRUE((make_err<int, int>(2).err_exists(even)));
+  EXPECT_FALSE((make_err<int, int>(3).err_exists(even)));
 
-  ASSERT_FALSE(
+  EXPECT_FALSE(
       (make_ok<vector<int>, int>(vector{2, 4, 6, 8, 10, 12}).err_exists(even)));
-  ASSERT_FALSE((make_ok<vector<int>, int>(vector{2, 4, 6, 8, 10, 12, 13})
+  EXPECT_FALSE((make_ok<vector<int>, int>(vector{2, 4, 6, 8, 10, 12, 13})
                     .err_exists(even)));
-  ASSERT_TRUE((make_err<vector<int>, int>(2).err_exists(even)));
-  ASSERT_FALSE((make_err<vector<int>, int>(3).err_exists(even)));
+  EXPECT_TRUE((make_err<vector<int>, int>(2).err_exists(even)));
+  EXPECT_FALSE((make_err<vector<int>, int>(3).err_exists(even)));
 
-  ASSERT_FALSE((make_ok<int, vector<int>>(2).err_exists(all_even)));
-  ASSERT_FALSE((make_ok<int, vector<int>>(5).err_exists(all_even)));
-  ASSERT_TRUE((make_err<int, vector<int>>(vector{2, 4, 6, 8, 10, 12})
+  EXPECT_FALSE((make_ok<int, vector<int>>(2).err_exists(all_even)));
+  EXPECT_FALSE((make_ok<int, vector<int>>(5).err_exists(all_even)));
+  EXPECT_TRUE((make_err<int, vector<int>>(vector{2, 4, 6, 8, 10, 12})
                    .err_exists(all_even)));
-  ASSERT_FALSE((make_err<int, vector<int>>(vector{2, 4, 6, 8, 10, 12, 13})
+  EXPECT_FALSE((make_err<int, vector<int>>(vector{2, 4, 6, 8, 10, 12, 13})
                     .err_exists(all_even)));
 
-  ASSERT_FALSE((make_ok<vector<int>, vector<int>>(vector{2, 4, 6, 8, 10, 12})
+  EXPECT_FALSE((make_ok<vector<int>, vector<int>>(vector{2, 4, 6, 8, 10, 12})
                     .err_exists(all_even)));
-  ASSERT_FALSE(
+  EXPECT_FALSE(
       (make_ok<vector<int>, vector<int>>(vector{2, 4, 6, 8, 10, 12, 13})
            .err_exists(all_even)));
-  ASSERT_TRUE((make_err<vector<int>, vector<int>>(vector{2, 4, 6, 8, 10, 12})
+  EXPECT_TRUE((make_err<vector<int>, vector<int>>(vector{2, 4, 6, 8, 10, 12})
                    .err_exists(all_even)));
-  ASSERT_FALSE(
+  EXPECT_FALSE(
       (make_err<vector<int>, vector<int>>(vector{2, 4, 6, 8, 10, 12, 13})
            .err_exists(all_even)));
 }

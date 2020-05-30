@@ -107,19 +107,19 @@ TEST(OptionTest, ObjectForwardingTest) {
 
   g = Some(vector{5, 6, 7, 8, 9});
 
-  ASSERT_EQ(g, Some(vector{5, 6, 7, 8, 9}));
+  EXPECT_EQ(g, Some(vector{5, 6, 7, 8, 9}));
 
   g = None;
 
-  ASSERT_EQ(g, None);
+  EXPECT_EQ(g, None);
 
   g = Some(vector{1, 2, 3, 4, 5});
 
-  ASSERT_EQ(g, Some(vector{1, 2, 3, 4, 5}));
+  EXPECT_EQ(g, Some(vector{1, 2, 3, 4, 5}));
 
   g = None;
 
-  ASSERT_EQ(g, None);
+  EXPECT_EQ(g, None);
 }
 
 TEST(OptionTest, Equality) {
