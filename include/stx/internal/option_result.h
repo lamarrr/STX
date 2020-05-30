@@ -1409,17 +1409,16 @@ class [[nodiscard]] Option {
 //! enum class Version { Version1 = 1, Version2 = 2 };
 //!
 //! auto parse_version =
-//!     [](array<uint8_t, 5> const& header) -> Result<Version, string_view> {
-//!   if (header.size() < 1) {
-//!     return Err("invalid header length"sv);
-//!   } else if (header[0] == 1) {
-//!     return Ok(Version::Version1);
-//!   } else if (header[0] == 2) {
-//!     return Ok(Version::Version2);
-//!   } else {
-//!     return Err("invalid version"sv);
-//!   }
-//! };
+//!      [](array<uint8_t, 5> const& header) -> Result<Version, string_view> {
+//!    switch (header.at(0)) {
+//!      case 1:
+//!        return Ok(Version::Version1);
+//!      case 2:
+//!        return Ok(Version::Version2);
+//!      default:
+//!        return Err("invalid version"sv);
+//!    }
+//!  };
 //!
 //! parse_version({1u, 2u, 3u, 4u, 5u})
 //!     .match(
