@@ -12,5 +12,5 @@ add_subdirectory(third_party/STX)
 
 target_link_libraries(example.bin stx)
 
-set_target_properties(example.bin PROPERTIES CXX_STANDARD 20
-                                             CXX_STANDARD_REQUIRED ON)
+set_target_properties(example.bin
+                      PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON)

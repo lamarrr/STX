@@ -272,14 +272,13 @@ endif()
 # ===============================================
 
 list(
-  APPEND
-  STX_TEST_SRCS
-  tests/tests.cc
-  tests/panic_test.cc
-  tests/result_test.cc
-  tests/common_test.cc
-  tests/option_test.cc
-  tests/report_test.cc)
+  APPEND STX_TEST_SRCS
+         tests/tests.cc
+         tests/panic_test.cc
+         tests/result_test.cc
+         tests/common_test.cc
+         tests/option_test.cc
+         tests/report_test.cc)
 
 if(STX_ENABLE_BACKTRACE)
   list(APPEND STX_TEST_SRCS tests/backtrace_test.cc)
@@ -293,8 +292,8 @@ if(STX_BUILD_TESTS)
   target_compile_options(stx_tests PRIVATE ${STX_WARNING_FLAGS}
                                            ${STX_TEST_WARNING_FLAGS})
   target_compile_definitions(stx_tests PRIVATE STX_OVERRIDE_PANIC_HANDLER)
-  set_target_properties(stx_tests PROPERTIES CXX_STANDARD 20
-                                             CXX_STANDARD_REQUIRED ON)
+  set_target_properties(stx_tests
+                        PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON)
   add_custom_target(
     run_tests
     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/stx_tests

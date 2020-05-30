@@ -9,14 +9,14 @@ execute_process(
   WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 
 set(STX_ENABLE_BACKTRACE
-    OFF
+    ON
     CACHE BOOL "Enable the backtrace library" FORCE)
 
 add_subdirectory(third_party/STX)
 
 target_link_libraries(example.bin stx)
 
-set_target_properties(example.bin PROPERTIES CXX_STANDARD 20
-                                             CXX_STANDARD_REQUIRED ON)
+set_target_properties(example.bin
+                      PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON)
 
 target_compile_options(stx PRIVATE "-Wall" "-Wextra" "-Wpedantic")
