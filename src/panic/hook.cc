@@ -23,27 +23,35 @@ STX_LOCAL AtomicPanicHook& panic_hook_ref() noexcept {
 
 }  // namespace stx
 
-STX_EXPORT bool stx::has_panic_hook() noexcept { return kHasPanicHook; }
+STX_EXPORT bool stx::panic_hook_visible() noexcept { return kHasPanicHook; }
 
 STX_EXPORT bool stx::this_thread::is_panicking() noexcept {
   return stx::this_thread::step_panic_count(0) != 0;
 }
 
 #if defined(STX_VISIBLE_PANIC_HOOK)
+STX_EXPORT
+#else
+STX_LOCAL
+#endif
 
-STX_EXPORT bool stx::attach_panic_hook(stx::PanicHook hook) noexcept {
+bool stx::attach_panic_hook(stx::PanicHook hook) noexcept {
   if (stx::this_thread::is_panicking()) return false;
   stx::panic_hook_ref().exchange(hook, std::memory_order::seq_cst);
   return true;
 }
 
-STX_EXPORT bool stx::take_panic_hook(PanicHook* out) noexcept {
+#if defined(STX_VISIBLE_PANIC_HOOK)
+STX_EXPORT
+#else
+STX_LOCAL
+#endif
+
+bool stx::take_panic_hook(PanicHook* out) noexcept {
   if (stx::this_thread::is_panicking()) return false;
   *out = stx::panic_hook_ref().exchange(nullptr, std::memory_order::seq_cst);
   return true;
 }
-
-#endif
 
 namespace stx {
 // the panic hook takes higher precedence over the panic handler
