@@ -35,7 +35,7 @@ The call to `panic` causes the error message. The second line shows our panic me
 
 In this case, the line indicated is part of our code, and if we go to that line, we see the `panic` function call.
 
-In other cases, the `panic` call might be in code that our code calls, and the filename and line number reported by the error message will be someone else's code where the `panic` function is called, not the line of our code that eventually led to the `panic` call. We can use the backtrace of the functions the `panic` call came from to figure out the part of our code that is causing the problem. Backtraces can be enabled via your application CMakeLists.txt file by setting `STX_DISABLE_BACKTRACE` to `OFF` .
+In other cases, the `panic` call might be in code that our code calls, and the filename and line number reported by the error message will be someone else's code where the `panic` function is called, not the line of our code that eventually led to the `panic` call. We can use the backtrace of the functions the `panic` call came from to figure out the part of our code that is causing the problem. Backtraces can be enabled via your application CMakeLists.txt file by setting `STX_ENABLE_BACKTRACE` to `ON` .
 
 # When to panic() ?
 
