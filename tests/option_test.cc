@@ -164,6 +164,20 @@ TEST(OptionLifetimeTest, Contains) {
   EXPECT_NO_THROW(Option<MoveOnly<1>>(None).contains(make_mv<1>()));
 }
 
+TEST(OptionTest, Exists) {
+  constexpr auto even = [](int const& x) { return x % 2 == 0; };
+
+  auto const all_even = [=](vector<int> const& x) {
+    return std::all_of(x.begin(), x.end(), even);
+  };
+
+  EXPECT_TRUE(make_some(8).exists(even));
+  EXPECT_FALSE(make_some(81).exists(even));
+
+  EXPECT_TRUE(make_some(vector{2, 4, 6, 8, 10}).exists(all_even));
+  EXPECT_FALSE(make_some(vector{2, 4, 6, 9, 10}).exists(all_even));
+}
+
 TEST(OptionTest, AsConstRef) {
   Option const a = Some(68);
   EXPECT_EQ(a.as_cref().unwrap().get(), 68);
@@ -451,6 +465,27 @@ TEST(OptionTest, Filter) {
 
   EXPECT_DEATH(Option<vector<int>>(None).filter(all_odd).unwrap(), ".*");
   EXPECT_DEATH(Option<vector<int>>(None).filter(all_odd).unwrap(), ".*");
+}
+
+TEST(OptionTest, FilterNot) {
+  auto is_even = [](int const& num) { return num % 2 == 0; };
+
+  EXPECT_EQ(Option(Some(90)).filter_not(is_even), None);
+  EXPECT_EQ(Option(Some(99)).filter_not(is_even), Some(99));
+
+  EXPECT_EQ(make_none<int>().filter_not(is_even), None);
+  EXPECT_EQ(make_none<int>().filter_not(is_even), None);
+
+  auto all_odd = [&](vector<int> const& vec) {
+    return all_of(vec.begin(), vec.end(), [=](auto x) { return !is_even(x); });
+  };
+
+  EXPECT_EQ(Option(Some(vector{1, 3, 5, 7, 2, 4, 6, 8})).filter_not(all_odd),
+            Some(vector{1, 3, 5, 7, 2, 4, 6, 8}));
+  EXPECT_EQ(make_some(vector{1, 3, 5, 7}).filter_not(all_odd), None);
+
+  EXPECT_EQ(make_none<vector<int>>().filter_not(all_odd), None);
+  EXPECT_EQ(make_none<vector<int>>().filter_not(all_odd), None);
 }
 
 TEST(OptionTest, Or) {
