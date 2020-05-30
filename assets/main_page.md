@@ -32,6 +32,7 @@ The panic library provides:
 - optional panic backtraces
 
 - error reporting
+
 - panic handlers:
 
   - `stx::panic_default` : The default panic handler that prints the error message and panic location data, and afterwards aborts the program.
@@ -47,8 +48,7 @@ These monadic types not only make error handling easer but also make the paths m
 
 ## Backtracing Library
 
-The backtracing library is useful for manually querying/viewing information of active stack frames. It makes debugging easier by making it easier to get stackframe information programmartically or automatically (panics) without having to inspect core dumps or step into a debugger in which errors might not be reproducible (especially for embedded systems).
-The backtrace library is disabled by default as not all platforms support them, It can be enabled.
+The backtracing library is useful for manually querying/viewing information of active stack frames. It makes debugging easier by making it easier to get stackframe information programmartically or automatically (panics) without having to inspect core dumps or step into a debugger in which errors might not be reproducible (especially for embedded systems). The backtrace library is disabled by default as not all platforms support them, It can be enabled.
 
 - Fatal signal backtraces for `SIGSEGV` , `SIGFPE` , and `SIGILL` .
 - Manual stack backtraces.
@@ -71,6 +71,7 @@ Here is a list of C++ projects with a similar error-handling model:
 - LLVM's [`Error` , `Expected`](https://github.com/llvm/llvm-project/blob/master/llvm/include/llvm/Support/Error.h), [`ErrorOr`](https://github.com/llvm/llvm-project/blob/master/llvm/include/llvm/Support/ErrorOr.h), [`ErrorHandling`](https://github.com/llvm/llvm-project/blob/master/llvm/lib/Support/ErrorHandling.cpp)
 - Fuchsia OS - Zircon Common Library' s [`Result`](https://fuchsia.googlesource.com/fuchsia/+/refs/heads/master/zircon/system/ulib/zxc/) and [`Status`](https://fuchsia.googlesource.com/fuchsia/+/refs/heads/master/zircon/system/ulib/zxc/)
 - P-ranav's [`Result<T, E>`](https://github.com/p-ranav/result/blob/master/include/result/result.hpp)
+- Mum4k's Arduino Error Classes: [`ErrorOr`](https://github.com/mum4k/arduino_error/blob/master/error_or.h), [`Error`](https://github.com/mum4k/arduino_error/blob/master/error.h), and [Error Macros](https://github.com/mum4k/arduino_error/blob/master/error_macros.h)
 
 # FAQs
 
