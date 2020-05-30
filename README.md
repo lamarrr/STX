@@ -24,6 +24,7 @@ STX...
 
 * Efficient `Result<T, E>` (error-handling) and `Option<T>` (optional-value) implementation with monadic methods
 * Fatal failure reporting via Panicking
+* Reporting via `Report`
 * Runtime panic hooks
 * Panic backtraces
 * Signal backtraces i.e. `SIGSEGV` , `SIGILL` , `SIGFPE` 
@@ -191,8 +192,8 @@ C-Style/FailurePath   |     0.384 ns  |      0.383 ns |  1000000000
 * `STX_BUILD_BENCHMARKS` - Build benchmarks
 * `STX_SANITIZE_TESTS` - Sanitize tests if supported. Builds address-sanitized, thread-sanitized, leak-sanitized, and undefined-sanitized tests
 * `STX_OVERRIDE_PANIC_HANDLER` - Override the global panic handler
-* `STX_ENABLE_BACKTRACE` - Disable the backtrace backend
-* `STX_ENABLE_PANIC_BACKTRACE` - Disables panic backtraces. It depends on the backtrace backend.
+* `STX_ENABLE_BACKTRACE` - Enable the backtrace backend
+* `STX_ENABLE_PANIC_BACKTRACE` - Enable panic backtraces. It depends on the backtrace backend (STX_ENABLE_BACKTRACE).
 
 ## FAQs
 
