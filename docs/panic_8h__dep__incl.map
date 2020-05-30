@@ -1,0 +1,11 @@
+<map id="include/stx/panic.h" name="include/stx/panic.h">
+<area shape="rect" id="node2" href="$panic__helpers_8h.html" title="include/stx/internal\l/panic_helpers.h" alt="" coords="215,80,361,121"/>
+<area shape="rect" id="node8" href="$abort_8h.html" title="include/stx/panic/handlers\l/abort/abort.h" alt="" coords="385,80,577,121"/>
+<area shape="rect" id="node9" href="$halt_8h.html" title="include/stx/panic/handlers\l/halt/halt.h" alt="" coords="601,80,793,121"/>
+<area shape="rect" id="node10" href="$hook_8h.html" title="include/stx/panic/hook.h" alt="" coords="818,87,998,114"/>
+<area shape="rect" id="node3" href="$option__result_8h.html" title="include/stx/internal\l/option_result.h" alt="" coords="215,169,361,211"/>
+<area shape="rect" id="node4" href="$backtrace_8h.html" title="include/stx/backtrace.h" alt="" coords="15,259,188,285"/>
+<area shape="rect" id="node6" href="$option_8h.html" title="include/stx/option.h" alt="" coords="213,259,363,285"/>
+<area shape="rect" id="node7" href="$result_8h.html" title="include/stx/result.h" alt="" coords="388,259,535,285"/>
+<area shape="rect" id="node5" href="$default_8h.html" title="include/stx/panic/handlers\l/default/default.h" alt="" coords="5,333,197,375"/>
+</map>
