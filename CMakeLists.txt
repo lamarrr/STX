@@ -44,24 +44,24 @@ option(
 
 option(STX_VISIBLE_PANIC_HOOK "Make runtime panic hook visible"
        ${STX_BUILD_SHARED}) # the default panic hook calls the
-# provided panic handler. the behaviour can be overriden at runtime especially
-# when built as a shared library, which enables you to control the behaviour of
-# the dynamically loaded library that depends on STX, i.e. for device drivers
-# you might not want them to cause the whole program to fail on a panic.
+# provided panic handler. the behaviour can be changed at runtime especially
+# when built as a shared library. Making panic hooks visible enables you to
+# control the panic behaviour of the dynamically loaded library that depends on
+# STX, i.e. for device drivers you might not want them to cause the whole
+# program to fail on a panic.
 
-option(STX_DISABLE_BACKTRACE "Disables the backtrace feature" ON) # disables the
-                                                                  # backtrace
-                                                                  # library, we
-# won't allow it to work by default when built as a shared library for now until
-# we find a reason to, If you find it inconvenient please drop a PR!.
+option(STX_ENABLE_BACKTRACE "Enables the backtrace feature" OFF) # enables the
+# backtrace library, we won't allow it to work by default when built as a shared
+# library for now until we find a reason to, If you find it inconvenient please
+# drop a PR!.
 
 cmake_dependent_option(
-  STX_DISABLE_PANIC_BACKTRACE "Disables the panic backtrace feature" OFF
-  "NOT STX_DISABLE_BACKTRACE;NOT STX_OVERRIDE_PANIC_HANDLER" ON) # disables
+  STX_ENABLE_PANIC_BACKTRACE "Enables the panic backtrace feature" ON
+  "STX_ENABLE_BACKTRACE;NOT STX_OVERRIDE_PANIC_HANDLER" OFF) # disables
 # printing backtraces on panic by the default panic handler. This requires that
 # panic backtraces are enabled and that the panic handler is not overriden.
 
-option(STX_USE_LIB_CPP "Use Clang's libc++" OFF)
+option(STX_USE_LIBCPP "Use Clang's libc++" OFF)
 
 # ===============================================
 #
@@ -79,19 +79,18 @@ message(STATUS "[STX] Build sanitized tests: " ${STX_SANITIZE_TESTS})
 message(STATUS "[STX] Override panic handler: " ${STX_OVERRIDE_PANIC_HANDLER})
 message(STATUS "[STX] Make runtime panic hook visible: "
                ${STX_VISIBLE_PANIC_HOOK})
-message(STATUS "[STX] Disable backtrace: " ${STX_DISABLE_BACKTRACE})
-message(STATUS "[STX] Disable panic backtrace: " ${STX_DISABLE_PANIC_BACKTRACE})
-message(STATUS "[STX] Use clang's libc++: " ${STX_USE_LIB_CPP})
+message(STATUS "[STX] Enable backtrace: " ${STX_ENABLE_BACKTRACE})
+message(STATUS "[STX] Enable panic backtrace: " ${STX_ENABLE_PANIC_BACKTRACE})
+message(STATUS "[STX] Use clang's libc++: " ${STX_USE_LIBCPP})
 
 # ===============================================
 #
 # === Flags and Global Definitions
 #
 # ===============================================
-list(APPEND STX_FLAGS)
 list(APPEND STX_COMPILER_DEFS)
+list(APPEND STX_FLAGS)
 list(APPEND STX_WARNING_FLAGS)
-list(APPEND STX_CHECK_FLAGS)
 list(APPEND STX_TEST_WARNING_FLAGS) # tests make use of macros which don't use
                                     # the result, especially EXPECT_ANY_THROW,
                                     # the result is thus discarded and
@@ -102,13 +101,7 @@ list(APPEND STX_TEST_WARNING_FLAGS) # tests make use of macros which don't use
 #
 # ===============================================
 
-if(MSVC)
-  append_flags_if_supported(STX_ASSERT_FLAGS "/std:c++20")
-else()
-  append_flags_if_supported(STX_ASSERT_FLAGS "-std=c++20")
-endif()
-
-if(STX_USE_LIB_CPP) # same for MSVC?
+if(STX_USE_LIBCPP) # equivalent for MSVC?
   append_flags_if_supported(STX_FLAGS "-stdlib=libc++")
 endif()
 
@@ -140,11 +133,11 @@ if(STX_VISIBLE_PANIC_HOOK)
   list(APPEND STX_COMPILER_DEFS "STX_VISIBLE_PANIC_HOOK")
 endif()
 
-if(STX_DISABLE_PANIC_BACKTRACE)
-  list(APPEND STX_COMPILER_DEFS "STX_DISABLE_PANIC_BACKTRACE")
+if(STX_ENABLE_PANIC_BACKTRACE)
+  list(APPEND STX_COMPILER_DEFS "STX_ENABLE_PANIC_BACKTRACE")
 endif()
 
-if(NOT STX_DISABLE_BACKTRACE)
+if(STX_ENABLE_BACKTRACE)
   # check platform support
 endif()
 
@@ -154,7 +147,7 @@ endif()
 #
 # ===============================================
 
-if(NOT STX_DISABLE_BACKTRACE)
+if(STX_ENABLE_BACKTRACE)
   if(NOT EXISTS third_party/abseil)
     execute_process(
       COMMAND git submodule update --init --recursive third_party/abseil
@@ -173,7 +166,7 @@ endif()
 #
 # ===============================================
 
-if(NOT STX_DISABLE_BACKTRACE)
+if(STX_ENABLE_BACKTRACE)
   list(APPEND STX_SRCS src/backtrace.cc)
 endif()
 
@@ -193,10 +186,10 @@ endif()
 
 target_include_directories(stx PUBLIC include)
 set_target_properties(stx PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON)
-target_compile_options(stx PRIVATE ${STX_WARNING_FLAGS})
+target_compile_options(stx PRIVATE ${STX_FLAGS} ${STX_WARNING_FLAGS})
 target_compile_definitions(stx PUBLIC ${STX_COMPILER_DEFS})
 
-if(NOT STX_DISABLE_BACKTRACE)
+if(STX_ENABLE_BACKTRACE)
   target_link_libraries(stx absl::stacktrace absl::symbolize)
 endif()
 
@@ -279,15 +272,16 @@ endif()
 # ===============================================
 
 list(
-  APPEND STX_TEST_SRCS
-         tests/tests.cc
-         tests/panic_test.cc
-         tests/result_test.cc
-         tests/common_test.cc
-         tests/option_test.cc
-         tests/report_test.cc)
+  APPEND
+  STX_TEST_SRCS
+  tests/tests.cc
+  tests/panic_test.cc
+  tests/result_test.cc
+  tests/common_test.cc
+  tests/option_test.cc
+  tests/report_test.cc)
 
-if(NOT STX_DISABLE_BACKTRACE)
+if(STX_ENABLE_BACKTRACE)
   list(APPEND STX_TEST_SRCS tests/backtrace_test.cc)
 endif()
 
@@ -299,8 +293,8 @@ if(STX_BUILD_TESTS)
   target_compile_options(stx_tests PRIVATE ${STX_WARNING_FLAGS}
                                            ${STX_TEST_WARNING_FLAGS})
   target_compile_definitions(stx_tests PRIVATE STX_OVERRIDE_PANIC_HANDLER)
-  set_target_properties(stx_tests
-                        PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON)
+  set_target_properties(stx_tests PROPERTIES CXX_STANDARD 20
+                                             CXX_STANDARD_REQUIRED ON)
   add_custom_target(
     run_tests
     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/stx_tests
@@ -385,11 +379,3 @@ if(STX_BUILD_DOCS)
        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/docs/html/assets)
 
 endif()
-
-# add_executable(example_divide examples/divide.cc)
-# target_link_libraries(example_divide stx) set_target_properties(example_divide
-# PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON)
-
-# add_executable(example_parse examples/parse_version.cc)
-# target_link_libraries(example_parse stx) set_target_properties(example_parse
-# PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON)
