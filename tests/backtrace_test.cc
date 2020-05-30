@@ -25,13 +25,6 @@ using namespace stx::backtrace;
 
     return false;
   });
-
-  stx::Option<int> f = stx::None;
-
-  auto r = make_ok<int, int>(9);
-  r.err_value();
-  Ok h (9);
-  int const t = std::forward<Ok<int> const&&>(std::move(h)).value();
 }
 
 [[gnu::noinline]] void c() { d(); }
