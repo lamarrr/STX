@@ -8,7 +8,7 @@
 STX...
 
 <div align="center">
-<h3><a href="http://lamarrr.github.io/blog/error-handling">READ THE DOCUMENTATION</a></h3>
+<h3><a href="http://lamarrr.github.io/STX">READ THE DOCUMENTATION</a></h3>
 </div>
 
 ## Libraries
