@@ -105,7 +105,7 @@ class [[nodiscard]] ReportPayload {
   constexpr ReportPayload& operator=(ReportPayload&&) noexcept = default;
   constexpr ~ReportPayload() noexcept = default;
 
-  [[nodiscard]] std::string_view const& data() const noexcept {
+  [[nodiscard]] constexpr std::string_view const& data() const noexcept {
     return content_;
   }
 

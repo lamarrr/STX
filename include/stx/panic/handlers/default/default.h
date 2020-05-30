@@ -14,7 +14,7 @@
 #include <mutex>   // mutex NOLINT
 #include <thread>  // thread::id NOLINT
 
-#if !defined(STX_DISABLE_PANIC_BACKTRACE)
+#if defined(STX_ENABLE_PANIC_BACKTRACE)
 #include "stx/backtrace.h"
 #endif
 
@@ -104,7 +104,7 @@ inline void panic_default(
 
   std::fflush(stderr);
 
-#if !defined(STX_DISABLE_PANIC_BACKTRACE)
+#if defined(STX_ENABLE_PANIC_BACKTRACE)
   // assumes the presence of an operating system
 
   std::fputs(
@@ -114,6 +114,9 @@ inline void panic_default(
 
   stx::backtrace::trace([](backtrace::Frame frame, int i) {
     auto const print_none = []() { std::fputs("<unknown>", stderr); };
+    auto const print_ptr = [](Ref<uintptr_t> ip) {
+      std::fprintf(stderr, "0x%" PRIxPTR, ip.get());
+    };
 
     std::fprintf(stderr, "#%d\t\t", i);
 
@@ -125,17 +128,13 @@ inline void panic_default(
         },
         print_none);
 
-    std::fputs("\t (ip: 0x", stderr);
+    std::fputs("\t (ip: ", stderr);
 
-    frame.ip.as_ref().match(
-        [](Ref<uintptr_t> ip) { std::fprintf(stderr, "%" PRIxPTR, ip.get()); },
-        print_none);
+    frame.ip.as_ref().match(print_ptr, print_none);
 
-    std::fputs(", sp: 0x", stderr);
+    std::fputs(", sp: ", stderr);
 
-    frame.sp.as_ref().match(
-        [](Ref<uintptr_t> sp) { std::fprintf(stderr, "%" PRIxPTR, sp.get()); },
-        print_none);
+    frame.sp.as_ref().match(print_ptr, print_none);
 
     std::fputs(")\n", stderr);
 
