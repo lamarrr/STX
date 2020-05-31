@@ -41,9 +41,9 @@
 namespace stx {
 
 #if defined(STX_VISIBLE_PANIC_HOOK)
-constexpr bool kHasPanicHook = true;
+constexpr bool kVisiblePanicHook = true;
 #else
-constexpr bool kHasPanicHook = false;
+constexpr bool kVisiblePanicHook = false;
 #endif
 
 // multiple threads can try to modify/read the hook at once.
@@ -52,48 +52,61 @@ using AtomicPanicHook = std::atomic<PanicHook>;
 
 namespace this_thread {
 
+/// Checks if the current thread is panicking.
+///
 /// # THREAD-SAFETY
 /// thread-safe.
-STX_EXPORT bool is_panicking() noexcept;
+[[nodiscard]] STX_EXPORT bool is_panicking() noexcept;
 };  // namespace this_thread
 
-/// Checks if panic hooks are visible to be attached to when loaded as a dynamic
+/// Checks if panic hooks are visible to be attached-to when loaded as a dynamic
 /// library. This should be called before calling any of `attach_panic_hook` or
-/// `take_panic_hook`when loaded as a dynamic library.
+/// `take_panic_hook` when loaded as a dynamic library.
 ///
 /// # THREAD-SAFETY
 ///
 /// thread-safe.
-STX_EXPORT bool panic_hook_visible() noexcept;
+[[nodiscard]] STX_EXPORT bool panic_hook_visible() noexcept;
 
 /// Attaches a new panic hook, the attached panic hook is called in place of the
 /// default panic hook.
 ///
+/// Returns `true` if the thread is not panicking and the panic hook was
+/// successfully attached, else returns `false`.
+///
 /// # THREAD-SAFETY
 ///
 /// thread-safe.
 
+[[nodiscard]]
 #if defined(STX_VISIBLE_PANIC_HOOK)
 STX_EXPORT
 #else
 STX_LOCAL
 #endif
 
-bool attach_panic_hook(PanicHook hook) noexcept;
+    bool
+    attach_panic_hook(PanicHook hook) noexcept;
 
-/// Removes the registered panic hook (if any) and let's it resort to the
-/// default.
+/// Removes the registered panic hook (if any) and resets it to the
+/// default panic hook.
+/// `hook` is set to the last-registered panic hook or the default.
+///
+/// Returns `true` if the thread is not panicking and the panic hook was
+/// successfully taken, else returns `false`.
 ///
 /// # THREAD-SAFETY
 ///
 /// thread-safe.
 
+[[nodiscard]]
 #if defined(STX_VISIBLE_PANIC_HOOK)
 STX_EXPORT
 #else
 STX_LOCAL
 #endif
 
-bool take_panic_hook(PanicHook* hook) noexcept;
+    bool
+    take_panic_hook(PanicHook* hook) noexcept;
 
 };  // namespace stx

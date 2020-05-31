@@ -23,11 +23,20 @@ STX_LOCAL AtomicPanicHook& panic_hook_ref() noexcept {
 
 }  // namespace stx
 
-STX_EXPORT bool stx::panic_hook_visible() noexcept { return kHasPanicHook; }
+STX_EXPORT bool stx::panic_hook_visible() noexcept { return kVisiblePanicHook; }
 
 STX_EXPORT bool stx::this_thread::is_panicking() noexcept {
   return stx::this_thread::step_panic_count(0) != 0;
 }
+
+namespace stx {
+// the panic hook takes higher precedence over the panic handler
+STX_LOCAL void default_panic_hook(std::string_view info,
+                                  ReportPayload const& payload,
+                                  SourceLocation location) noexcept {
+  panic_handler(std::move(info), payload, std::move(location));
+}
+}  // namespace stx
 
 #if defined(STX_VISIBLE_PANIC_HOOK)
 STX_EXPORT
@@ -49,18 +58,15 @@ STX_LOCAL
 
 bool stx::take_panic_hook(PanicHook* out) noexcept {
   if (stx::this_thread::is_panicking()) return false;
-  *out = stx::panic_hook_ref().exchange(nullptr, std::memory_order::seq_cst);
+  auto hook =
+      stx::panic_hook_ref().exchange(nullptr, std::memory_order::seq_cst);
+  if (hook == nullptr) {
+    *out = stx::default_panic_hook;
+  } else {
+    *out = hook;
+  }
   return true;
 }
-
-namespace stx {
-// the panic hook takes higher precedence over the panic handler
-STX_LOCAL void default_panic_hook(std::string_view info,
-                                  ReportPayload const& payload,
-                                  SourceLocation location) noexcept {
-  panic_handler(std::move(info), payload, std::move(location));
-}
-}  // namespace stx
 
 [[noreturn]] STX_LOCAL void stx::begin_panic(std::string_view info,
                                              ReportPayload const& payload,
