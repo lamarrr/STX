@@ -22,7 +22,7 @@ STX is a collection of libraries and utilities designed to make working with C++
 * [Panicking](https://lamarrr.github.io/STX/Panicking.html)
 * [`Result<T, E>`](https://lamarrr.github.io/STX/classstx_1_1Result.html)
 * [`Option<T>`](https://lamarrr.github.io/STX/classstx_1_1Option.html)
-* [Backtracing] (https://lamarrr.github.io/STX/namespacestx_1_1backtrace.html)
+* [Backtracing](https://lamarrr.github.io/STX/namespacestx_1_1backtrace.html)
 
 ## Features
 
