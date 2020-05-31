@@ -107,7 +107,7 @@ int main() {
 
 ## Guidelines
 
-* Some methods like `match` , `map` , `unwrap` and most of the `Result` , and `Option` methods **consume** the stored value and thus the `Result` or `Option` has to be destroyed as its lifetime has ended. For example:
+* Some methods like `match` , `map` , `unwrap` and most of the `Result` , and `Option` monadic methods **consume** the stored value and thus the `Result` or `Option` has to be destroyed as its lifetime has ended. For example:
 
   Say we define a function named `safe_divide` as in the example above, with the following prototype:
 
