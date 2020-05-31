@@ -201,8 +201,6 @@ C-Style/FailurePath   |     0.384 ns  |      0.383 ns |  1000000000
 * `STX_ENABLE_BACKTRACE` - Enable the backtrace library
 * `STX_ENABLE_PANIC_BACKTRACE` - Enable panic backtraces. It depends on the backtrace library (`STX_ENABLE_BACKTRACE`)
 
-## FAQs
-
 ## License
 
 [**MIT License**](LICENSE)
