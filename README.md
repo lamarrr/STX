@@ -20,15 +20,15 @@ STX is a collection of libraries and utilities designed to make working with C++
 ## Libraries
 
 * [Panicking](https://lamarrr.github.io/STX/Panicking.html)
-* [`Result<T, E>`](https://lamarrr.github.io/STX/classstx_1_1Result.html)
-* [`Option<T>`](https://lamarrr.github.io/STX/classstx_1_1Option.html)
+* [ `Result<T, E>` ](https://lamarrr.github.io/STX/classstx_1_1Result.html)
+* [ `Option<T>` ](https://lamarrr.github.io/STX/classstx_1_1Option.html)
 * [Backtracing](https://lamarrr.github.io/STX/namespacestx_1_1backtrace.html)
 
 ## Features
 
 * Efficient `Result<T, E>` (error-handling) and `Option<T>` (optional-value) implementation with monadic methods
 * Fatal failure reporting via Panicking
-* Reporting via `Report`
+* Reporting via `Report` 
 * Runtime panic hooks
 * Panic backtraces
 * Signal backtraces i.e. `SIGSEGV` , `SIGILL` , `SIGFPE` 
@@ -75,6 +75,7 @@ int main() {
 ``` cpp
 
 #include <array>
+#include <cinttypes>
 #include <iostream>
 
 #include "stx/result.h"
@@ -83,30 +84,53 @@ using std::array, std::string_view;
 using stx::Result, stx::Ok, stx::Err;
 using namespace std::literals;
 
-enum class Version { Version1 = 1, Version2 = 2 };
+enum class Version { V1 = 1, V2 = 2 };
 
 auto parse_version(array<uint8_t, 6> const& header) -> Result<Version, string_view> {
   switch (header.at(0)) {
     case 1:
-      return Ok(Version::Version1);
+      return Ok(Version::V1);
     case 2:
-      return Ok(Version::Version2);
+      return Ok(Version::V2);
     default:
       return Err("Unknown Version"sv);
   }
 }
 
 int main() {
-  auto version =
-      parse_version({2, 3, 4, 5, 6, 7}).unwrap_or("<Unknown Version>");
+  parse_version({2, 3, 4, 5, 6, 7}).match([](auto version){
+    std::cout << "Version: " << version << std::endl;
+  }, [](auto error){
+    std::cout << error  << std::endl;
+  });
 
-  std::cout << version << std::endl;
+}
+
+```
+
+### Result with TRY_OK
+
+``` cpp
+
+// As in the example above
+auto parse_version(array<uint8_t, 6> const& header) -> Result<Version, string_view>;
+
+auto parse_data(array<uint8_t, 6> const& header) -> Result<uint64_t, string_view> {
+  TRY_OK(version, parse_version(header)); // returns the error value if an error occured
+  return Ok(static_cast<uint64_t>(version) + header.at(1) + header.at(2));
+}
+
+int main() {
+  auto parsed = parse_data({2, 3, 4, 5, 6, 7}).unwrap();
+
+  std::cout << parsed << std::endl;
 }
 
 ```
 
 ## Guidelines
 
+* To ensure you never forget to use the returned errors/results, raise the warning levels for your project ( `-Wall`  `-Wextra`  `-Wpedantic` on GNUC-based compilers, and `/W4` on MSVC)
 * Some methods like `match` , `map` , `unwrap` and most of the `Result` , and `Option` monadic methods **consume** the stored value and thus the `Result` or `Option` has to be destroyed as its lifetime has ended. For example:
 
   Say we define a function named `safe_divide` as in the example above, with the following prototype:
@@ -199,7 +223,7 @@ C-Style/FailurePath   |     0.384 ns  |      0.383 ns |  1000000000
 * `STX_SANITIZE_TESTS` - Sanitize tests if supported. Builds address-sanitized, thread-sanitized, leak-sanitized, and undefined-sanitized tests
 * `STX_OVERRIDE_PANIC_HANDLER` - Override the global panic handler
 * `STX_ENABLE_BACKTRACE` - Enable the backtrace library
-* `STX_ENABLE_PANIC_BACKTRACE` - Enable panic backtraces. It depends on the backtrace library (`STX_ENABLE_BACKTRACE`)
+* `STX_ENABLE_PANIC_BACKTRACE` - Enable panic backtraces. It depends on the backtrace library ( `STX_ENABLE_BACKTRACE` )
 
 ## License
 
