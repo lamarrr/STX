@@ -7,6 +7,7 @@ var searchData=
   ['panic_5fhalt',['panic_halt',['../namespacestx.html#ac12bc9b5d83367f67f863b8e1bfad0b4',1,'stx']]],
   ['panic_5fhandler',['panic_handler',['../namespacestx.html#aaae2887ae84237096b9215da4e6cfdb9',1,'stx']]],
   ['panic_5fhelpers_2eh',['panic_helpers.h',['../panic__helpers_8h.html',1,'']]],
+  ['panic_5fhook_5fvisible',['panic_hook_visible',['../namespacestx.html#ab773ac393ac1bed763cef3d30ea74ee2',1,'stx']]],
   ['panichook',['PanicHook',['../namespacestx.html#a61a30e1af6dca221060e2d109d670eeb',1,'stx']]],
   ['panicking_2emd',['panicking.md',['../panicking_8md.html',1,'']]],
   ['pointer',['Pointer',['../namespacestx.html#a7963292b1244776f2feec99973c5b2b6',1,'stx']]]

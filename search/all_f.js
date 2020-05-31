@@ -54,6 +54,6 @@ var searchData=
   ['stx_5fsymbol_5fbuffer_5fsize',['STX_SYMBOL_BUFFER_SIZE',['../backtrace_8h.html#a367a6b31616c96d57cd5599f4590e424',1,'backtrace.h']]],
   ['stx_5ftoolchain_5fllvm',['STX_TOOLCHAIN_LLVM',['../config_8h.html#a3b453acdd0ac06779d5a1ed4326400fd',1,'config.h']]],
   ['swappable',['Swappable',['../namespacestx.html#a84fb09ef1fd8c4956f06f7e5f5f75bca',1,'stx']]],
-  ['symbol',['Symbol',['../structstx_1_1backtrace_1_1Symbol.html',1,'stx::backtrace::Symbol'],['../structstx_1_1backtrace_1_1Symbol.html#a27dff4266018cb3ad3ec364982bbe2fb',1,'stx::backtrace::Symbol::Symbol()'],['../structstx_1_1backtrace_1_1Frame.html#aeb2633dce6ef3682908f9b64436212dc',1,'stx::backtrace::Frame::symbol()']]],
+  ['symbol',['Symbol',['../structstx_1_1backtrace_1_1Symbol.html',1,'stx::backtrace::Symbol'],['../structstx_1_1backtrace_1_1Frame.html#aeb2633dce6ef3682908f9b64436212dc',1,'stx::backtrace::Frame::symbol()'],['../structstx_1_1backtrace_1_1Symbol.html#a27dff4266018cb3ad3ec364982bbe2fb',1,'stx::backtrace::Symbol::Symbol()']]],
   ['this_5fthread',['this_thread',['../namespacestx_1_1this__thread.html',1,'stx']]]
 ];

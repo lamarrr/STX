@@ -107,16 +107,7 @@ $(function() {
 <div class="contents">
 <div class="textblock"><h1>What is STX?</h1>
 <p>STX is a collection of libraries and utilities designed to make working with C++ easier and less error-prone. This includes but is not limited to well-proven and widely adopted paradigms, data-structures, and designs from other prominent projects and programming languages accross the software engineering community.</p>
-<p>At the core, all STX libraries are <code>no_std</code> .</p>
-<h1>Primary Goals</h1>
-<ul>
-<li>Unifying community efforts, and reducing code duplication</li>
-<li>Providing deterministic and convenient error-handling facilities</li>
-<li>Providing clean libraries that avoids quarks and complexities</li>
-<li>Portability</li>
-<li>Suitability for real-time systems, operating systems, embedded systems, and safety-critical systems</li>
-<li>Efficiency</li>
-</ul>
+<p>At the core, all STX libraries are <code>no_std</code> . No RTTI, memory allocation, nor exceptions.</p>
 <h1>STX Libraries</h1>
 <h2>Panic Library</h2>
 <p>See guide on <a class="el" href="Panicking.html">Panicking</a></p>
@@ -126,8 +117,11 @@ $(function() {
 <li><code><a class="el" href="namespacestx.html#acf6af607fec2dc51a8fdb46f50585932">stx::panic</a></code> : signals an abnormal flow/error in the program.</li>
 </ul>
 </li>
-<li>runtime panic hooks</li>
-<li>optional panic backtraces</li>
+<li>runtime panic hooks<ul>
+<li><code><a class="el" href="namespacestx.html#ae665459dd656d01fbba3db15a8294661">stx::take_panic_hook</a></code>, <code><a class="el" href="namespacestx.html#a6dcdb760094ff41ef8cc186ff9eb7b85">stx::attach_panic_hook</a></code>, and <code><a class="el" href="namespacestx.html#ab773ac393ac1bed763cef3d30ea74ee2">stx::panic_hook_visible</a></code></li>
+</ul>
+</li>
+<li>panic backtraces</li>
 <li>error reporting</li>
 <li>panic handlers:<ul>
 <li><code><a class="el" href="namespacestx.html#a1ebce27ece974208de2c36d2dc15c531">stx::panic_default</a></code> : The default panic handler that prints the error message and panic location data, and afterwards aborts the program.</li>
@@ -137,19 +131,19 @@ $(function() {
 </li>
 </ul>
 <h2>Error and Optional-Value Handling Library</h2>
-<p>These monadic types not only make error handling easer but also make the paths more obvious to the compiler for optimizations. Their monadic nature makes it easy to operate on them as pipelines and in the process eliminate redundant error-handling logic code.</p>
+<p>These monadic types not only make error handling easier but also make the paths more obvious to the compiler for optimizations. Monads can be simply thought of as abstract types of actions. Their monadic nature makes it easy to operate on them as pipelines and in the process eliminate redundant error-handling logic code.</p>
 <ul>
-<li><code><a class="el" href="classstx_1_1Result.html">stx::Result</a>&lt;T, E&gt;</code> : Type for relaying the result of a function that can fail or succeed. (with monadic extensions).</li>
+<li><code><a class="el" href="classstx_1_1Result.html">stx::Result</a>&lt;T, E&gt;</code> : Type for relaying the result of a function that can fail or succeed (with monadic extensions).</li>
 <li><code><a class="el" href="classstx_1_1Option.html">stx::Option</a>&lt;T&gt;</code> : Type for <b>safe</b> optional values (with monadic extensions).</li>
 </ul>
 <h2>Backtracing Library</h2>
-<p>The backtracing library is useful for manually querying/viewing information of active stack frames. It makes debugging easier by making it easier to get stackframe information programmartically or automatically (panics) without having to inspect core dumps or step into a debugger in which errors might not be reproducible (especially for embedded systems). The backtrace library is disabled by default as not all platforms support them, It can be enabled.</p>
+<p>The backtracing library is useful for manually querying/viewing information of active stack frames. It makes debugging easier by making it easier to get stackframe information programmartically or automatically (via panics) without having to inspect core dumps or step into a debugger in which errors might not be reproducible (especially for embedded systems). The backtrace library is disabled by default as not all platforms support them, It can be enabled by setting <code>STX_ENABLE_BACKTRACE</code> to <code>ON</code> in the CMakeLists.txt file, this is demonstrated in the <a href="https://github.com/lamarrr/STX/tree/master/examples"><code>panic_backtrace</code></a> example project.</p>
 <ul>
 <li>Fatal signal backtraces for <code>SIGSEGV</code> , <code>SIGFPE</code> , and <code>SIGILL</code> .</li>
 <li>Manual stack backtraces.</li>
 </ul>
 <h1>Why STX?</h1>
-<p>STX is partially an effort to bring a more convenient and usable error-handling model to the C++ ecosystem. Whilst also sampling ideas from various error-handling model implementations duplicated across the community, Most of the basic facilities for which these libraries provide.</p>
+<p>STX is primarilly an effort to bring a more convenient and usable error-handling model to the C++ ecosystem. Whilst also sampling ideas from various error-handling model implementations duplicated across the community, Most of the basic facilities for which STX's libraries aims to provide.</p>
 <p>Here is a list of C++ projects with a similar error-handling model:</p>
 <ul>
 <li>Boost's <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4109.pdf"><code>expected</code></a> and <a href="https://www.boost.org/doc/libs/1_70_0/libs/outcome/doc/html/index.html"><code>outcome</code></a></li>
@@ -164,10 +158,21 @@ $(function() {
 <li>LLVM's <a href="https://github.com/llvm/llvm-project/blob/master/llvm/include/llvm/Support/Error.h"><code>Error</code> , <code>Expected</code></a>, <a href="https://github.com/llvm/llvm-project/blob/master/llvm/include/llvm/Support/ErrorOr.h"><code>ErrorOr</code></a>, <a href="https://github.com/llvm/llvm-project/blob/master/llvm/lib/Support/ErrorHandling.cpp"><code>ErrorHandling</code></a></li>
 <li>Fuchsia OS - Zircon Common Library' s <a href="https://fuchsia.googlesource.com/fuchsia/+/refs/heads/master/zircon/system/ulib/zxc/"><code>Result</code></a> and <a href="https://fuchsia.googlesource.com/fuchsia/+/refs/heads/master/zircon/system/ulib/zxc/"><code>Status</code></a></li>
 <li>P-ranav's <a href="https://github.com/p-ranav/result/blob/master/include/result/result.hpp"><code>Result&lt;T, E&gt;</code></a></li>
+<li>Mum4k's Arduino Error Classes: <a href="https://github.com/mum4k/arduino_error/blob/master/error_or.h"><code>ErrorOr</code></a>, <a href="https://github.com/mum4k/arduino_error/blob/master/error.h"><code>Error</code></a>, and <a href="https://github.com/mum4k/arduino_error/blob/master/error_macros.h">Error Macros</a></li>
 </ul>
 <h1>FAQs</h1>
 <ul>
-<li>xpc_error_code </li>
+<li>Why not exceptions? These reasons are a bit biased, but based on my team's experience:<ul>
+<li>Exceptions are really great, but present implementations are not so great for fail-often functions</li>
+<li>Some embedded systems toolchains don't have a conformant exception implementation and throwing an exception resorts to an immediate abort</li>
+<li>Currently, Exceptions are not deterministic in both space and time</li>
+<li>You never know which function throws which exception. And you never know when the callee code's API changes the exception type</li>
+<li>Exceptions are implicitly and automatically propagated up the call stack until it finds a function to handle it</li>
+<li>Exceptions aren't great for error-handling, the code gets messy easily</li>
+<li>Exceptions are essentially for exceptional cases</li>
+<li>Exceptions require RTTI </li>
+</ul>
+</li>
 </ul>
 </div></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.13-->

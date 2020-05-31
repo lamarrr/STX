@@ -1,9 +1,2 @@
 <map id="include/stx/panic/handlers/default/default.h" name="include/stx/panic/handlers/default/default.h">
-<area shape="rect" id="node4" href="$backtrace_8h.html" title="stx/backtrace.h" alt="" coords="213,95,336,121"/>
-<area shape="rect" id="node6" href="$option__result_8h.html" title="stx/internal/option\l_result.h" alt="" coords="268,169,409,211"/>
-<area shape="rect" id="node7" href="$panic__helpers_8h.html" title="stx/internal/panic\l_helpers.h" alt="" coords="271,259,406,300"/>
-<area shape="rect" id="node8" href="$panic_8h.html" title="stx/panic.h" alt="" coords="292,348,385,375"/>
-<area shape="rect" id="node9" href="$report_8h.html" title="stx/report.h" alt="" coords="215,430,313,457"/>
-<area shape="rect" id="node15" href="$common_8h.html" title="stx/common.h" alt="" coords="483,512,597,539"/>
-<area shape="rect" id="node19" href="$config_8h.html" title="stx/config.h" alt="" coords="663,587,761,613"/>
 </map>

@@ -148,13 +148,17 @@ Typedefs</h2></td></tr>
 Functions</h2></td></tr>
 <tr class="memitem:a1efe3f00cd2d6df6a76fefd21b915298"><td class="memItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a80cc60329c606255ca38f9350aefb0bc">STX_EXPORT</a> bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1this__thread.html#a1efe3f00cd2d6df6a76fefd21b915298">stx::this_thread::is_panicking</a> () noexcept</td></tr>
 <tr class="separator:a1efe3f00cd2d6df6a76fefd21b915298"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab8354ddc2af696963acde0074aa186d8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a80cc60329c606255ca38f9350aefb0bc">STX_EXPORT</a> bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#ab8354ddc2af696963acde0074aa186d8">stx::has_panic_hook</a> () noexcept</td></tr>
-<tr class="separator:ab8354ddc2af696963acde0074aa186d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab773ac393ac1bed763cef3d30ea74ee2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a80cc60329c606255ca38f9350aefb0bc">STX_EXPORT</a> bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#ab773ac393ac1bed763cef3d30ea74ee2">stx::panic_hook_visible</a> () noexcept</td></tr>
+<tr class="separator:ab773ac393ac1bed763cef3d30ea74ee2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6dcdb760094ff41ef8cc186ff9eb7b85"><td class="memItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#ab45a3bcef403e41fbcec0db88e1d3259">STX_LOCAL</a> bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#a6dcdb760094ff41ef8cc186ff9eb7b85">stx::attach_panic_hook</a> (PanicHook hook) noexcept</td></tr>
+<tr class="separator:a6dcdb760094ff41ef8cc186ff9eb7b85"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae665459dd656d01fbba3db15a8294661"><td class="memItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#ab45a3bcef403e41fbcec0db88e1d3259">STX_LOCAL</a> bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#ae665459dd656d01fbba3db15a8294661">stx::take_panic_hook</a> (PanicHook *hook) noexcept</td></tr>
+<tr class="separator:ae665459dd656d01fbba3db15a8294661"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:a38a7e86789b7a7be4481fc25734915c8"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#a38a7e86789b7a7be4481fc25734915c8">stx::kHasPanicHook</a> = false</td></tr>
-<tr class="separator:a38a7e86789b7a7be4481fc25734915c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2ae7a7bbbbec43b212336a0fac47a7ff"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#a2ae7a7bbbbec43b212336a0fac47a7ff">stx::kVisiblePanicHook</a> = false</td></tr>
+<tr class="separator:a2ae7a7bbbbec43b212336a0fac47a7ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><dl class="section author"><dt>Author</dt><dd>Basit Ayantunde <a href="#" onclick="location.href='mai'+'lto:'+'rla'+'ma'+'rrr'+'@g'+'mai'+'l.'+'com'; return false;">rlama<span style="display: none;">.nosp@m.</span>rrr@<span style="display: none;">.nosp@m.</span>gmail<span style="display: none;">.nosp@m.</span>.com</a> </dd></dl>
@@ -165,8 +169,8 @@ Variables</h2></td></tr>
 <h1>NOTE</h1>
 <p>You might have to do some extra demangling as it is not exposed via a C ABI for consistency and internal reasons.</p>
 <p>Process:</p><ul>
-<li>Check if hooks are available for attaching: <code><a class="el" href="namespacestx.html#ab8354ddc2af696963acde0074aa186d8">has_panic_hook()</a></code></li>
-<li>If hooks are available, attach a panic hook: <code>attach_panic_hook(my_handler)</code> or reset the exisiting panic hook back to the default: <code>take_panic_hook()</code> </li>
+<li>Check if hooks are available for attaching: <code>has_panic_hook()</code></li>
+<li>If hooks are available, attach a panic hook: <code>attach_panic_hook(my_handler)</code> or reset the exisiting panic hook back to the default: <code><a class="el" href="namespacestx.html#ae665459dd656d01fbba3db15a8294661">take_panic_hook()</a></code> </li>
 </ul>
 </div></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.13-->

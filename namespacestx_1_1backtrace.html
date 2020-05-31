@@ -233,7 +233,8 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Gets a backtrace within the current machine's state. This function walks down the stack, and calls callback on each stack frame as it does so. if the callback invocation's result evaluates to true, it stops which means it has found the desired stack frame, else, it keeps walking the stack until it exhausts the stack frame / reaches the maximum stack depth. This function does not perform stack-unwinding.</p>
-<p><code>callback</code> is presently allowed to throw exceptions</p>
+<p>Returns the number of stack frames read.</p>
+<p><code>callback</code> is allowed to throw exceptions.</p>
 <h1>WARNING</h1>
 <p>Do not move the frame nor its member objects out of the callback, nor bind a reference to them.</p>
 <h1>Panic and Exception Tolerance</h1>

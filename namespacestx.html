@@ -204,8 +204,12 @@ Functions</h2></td></tr>
 <tr class="separator:a1ebce27ece974208de2c36d2dc15c531"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac12bc9b5d83367f67f863b8e1bfad0b4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#ac12bc9b5d83367f67f863b8e1bfad0b4">panic_halt</a> (std::string_view info, <a class="el" href="classstx_1_1ReportPayload.html">ReportPayload</a> const &amp;payload, <a class="el" href="namespacestx.html#aa8c3cd9138ec6458eaf97ddf25e18449">SourceLocation</a> location=SourceLocation::current()) noexcept</td></tr>
 <tr class="separator:ac12bc9b5d83367f67f863b8e1bfad0b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab8354ddc2af696963acde0074aa186d8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a80cc60329c606255ca38f9350aefb0bc">STX_EXPORT</a> bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#ab8354ddc2af696963acde0074aa186d8">has_panic_hook</a> () noexcept</td></tr>
-<tr class="separator:ab8354ddc2af696963acde0074aa186d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab773ac393ac1bed763cef3d30ea74ee2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a80cc60329c606255ca38f9350aefb0bc">STX_EXPORT</a> bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#ab773ac393ac1bed763cef3d30ea74ee2">panic_hook_visible</a> () noexcept</td></tr>
+<tr class="separator:ab773ac393ac1bed763cef3d30ea74ee2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6dcdb760094ff41ef8cc186ff9eb7b85"><td class="memItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#ab45a3bcef403e41fbcec0db88e1d3259">STX_LOCAL</a> bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#a6dcdb760094ff41ef8cc186ff9eb7b85">attach_panic_hook</a> (<a class="el" href="namespacestx.html#a61a30e1af6dca221060e2d109d670eeb">PanicHook</a> hook) noexcept</td></tr>
+<tr class="separator:a6dcdb760094ff41ef8cc186ff9eb7b85"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae665459dd656d01fbba3db15a8294661"><td class="memItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#ab45a3bcef403e41fbcec0db88e1d3259">STX_LOCAL</a> bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#ae665459dd656d01fbba3db15a8294661">take_panic_hook</a> (<a class="el" href="namespacestx.html#a61a30e1af6dca221060e2d109d670eeb">PanicHook</a> *hook) noexcept</td></tr>
+<tr class="separator:ae665459dd656d01fbba3db15a8294661"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaae2887ae84237096b9215da4e6cfdb9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#ab45a3bcef403e41fbcec0db88e1d3259">STX_LOCAL</a> void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#aaae2887ae84237096b9215da4e6cfdb9">panic_handler</a> (std::string_view info, <a class="el" href="classstx_1_1ReportPayload.html">ReportPayload</a> const &amp;payload, <a class="el" href="namespacestx.html#aa8c3cd9138ec6458eaf97ddf25e18449">SourceLocation</a> location) noexcept</td></tr>
 <tr class="separator:aaae2887ae84237096b9215da4e6cfdb9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a03a1b36ff7ba488963d26582d10616b2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#ab45a3bcef403e41fbcec0db88e1d3259">STX_LOCAL</a> void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#a03a1b36ff7ba488963d26582d10616b2">begin_panic</a> (std::string_view info, <a class="el" href="classstx_1_1ReportPayload.html">ReportPayload</a> const &amp;payload, <a class="el" href="namespacestx.html#aa8c3cd9138ec6458eaf97ddf25e18449">SourceLocation</a> location) noexcept</td></tr>
@@ -306,8 +310,8 @@ Variables</h2></td></tr>
 <tr class="memitem:aa7d1db411462b74cc4432ab51dee8e7d"><td class="memTemplParams" colspan="2">template&lt;Swappable T, Swappable E&gt; </td></tr>
 <tr class="memitem:aa7d1db411462b74cc4432ab51dee8e7d"><td class="memTemplItemLeft" align="right" valign="top">class nodiscard&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#aa7d1db411462b74cc4432ab51dee8e7d">Result</a></td></tr>
 <tr class="separator:aa7d1db411462b74cc4432ab51dee8e7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a38a7e86789b7a7be4481fc25734915c8"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#a38a7e86789b7a7be4481fc25734915c8">kHasPanicHook</a> = false</td></tr>
-<tr class="separator:a38a7e86789b7a7be4481fc25734915c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2ae7a7bbbbec43b212336a0fac47a7ff"><td class="memItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#a2ae7a7bbbbec43b212336a0fac47a7ff">kVisiblePanicHook</a> = false</td></tr>
+<tr class="separator:a2ae7a7bbbbec43b212336a0fac47a7ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad9682e89025c42157ac1adb579fb3a70"><td class="memItemLeft" align="right" valign="top">constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#ad9682e89025c42157ac1adb579fb3a70">kMaxReportSize</a> = 512</td></tr>
 <tr class="separator:ad9682e89025c42157ac1adb579fb3a70"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a084832ee2ae8227752582cd88cdc61fe"><td class="memItemLeft" align="right" valign="top">constexpr std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#a084832ee2ae8227752582cd88cdc61fe">kReportTruncationMessage</a></td></tr>
@@ -509,6 +513,36 @@ template&lt;typename T &gt; </div>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="a6dcdb760094ff41ef8cc186ff9eb7b85"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6dcdb760094ff41ef8cc186ff9eb7b85">&#9670;&nbsp;</a></span>attach_panic_hook()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="config_8h.html#ab45a3bcef403e41fbcec0db88e1d3259">STX_LOCAL</a> bool stx::attach_panic_hook </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacestx.html#a61a30e1af6dca221060e2d109d670eeb">PanicHook</a>&#160;</td>
+          <td class="paramname"><em>hook</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Attaches a new panic hook, the attached panic hook is called in place of the default panic hook.</p>
+<p>Returns <code>true</code> if the thread is not panicking and the panic hook was successfully attached, else returns <code>false</code>.</p>
+<h1>THREAD-SAFETY</h1>
+<p>thread-safe. </p>
+
+</div>
+</div>
 <a id="a03a1b36ff7ba488963d26582d10616b2"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a03a1b36ff7ba488963d26582d10616b2">&#9670;&nbsp;</a></span>begin_panic()</h2>
 
@@ -549,34 +583,6 @@ template&lt;typename T &gt; </div>
 </table>
 </div><div class="memdoc">
 <p>Handles and dispatches the panic handler. The debugging breakpoint should be attached to this function to investigate panics. </p>
-
-</div>
-</div>
-<a id="ab8354ddc2af696963acde0074aa186d8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab8354ddc2af696963acde0074aa186d8">&#9670;&nbsp;</a></span>has_panic_hook()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="config_8h.html#a80cc60329c606255ca38f9350aefb0bc">STX_EXPORT</a> bool stx::has_panic_hook </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Checks if panic hooks are enabled and visible. This should be called before calling any of <code>attach_panic_hook</code> or <code>take_panic_hook</code>.</p>
-<h1>THREAD-SAFETY</h1>
-<p>thread-safe. </p>
 
 </div>
 </div>
@@ -1255,6 +1261,64 @@ template&lt;typename T &gt; </div>
 
 </div>
 </div>
+<a id="ab773ac393ac1bed763cef3d30ea74ee2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab773ac393ac1bed763cef3d30ea74ee2">&#9670;&nbsp;</a></span>panic_hook_visible()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="config_8h.html#a80cc60329c606255ca38f9350aefb0bc">STX_EXPORT</a> bool stx::panic_hook_visible </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Checks if panic hooks are visible to be attached-to when loaded as a dynamic library. This should be called before calling any of <code>attach_panic_hook</code> or <code>take_panic_hook</code> when loaded as a dynamic library.</p>
+<h1>THREAD-SAFETY</h1>
+<p>thread-safe. </p>
+
+</div>
+</div>
+<a id="ae665459dd656d01fbba3db15a8294661"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae665459dd656d01fbba3db15a8294661">&#9670;&nbsp;</a></span>take_panic_hook()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="config_8h.html#ab45a3bcef403e41fbcec0db88e1d3259">STX_LOCAL</a> bool stx::take_panic_hook </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacestx.html#a61a30e1af6dca221060e2d109d670eeb">PanicHook</a> *&#160;</td>
+          <td class="paramname"><em>hook</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Removes the registered panic hook (if any) and resets it to the default panic hook. <code>hook</code> is set to the last-registered panic hook or the default.</p>
+<p>Returns <code>true</code> if the thread is not panicking and the panic hook was successfully taken, else returns <code>false</code>.</p>
+<h1>THREAD-SAFETY</h1>
+<p>thread-safe. </p>
+
+</div>
+</div>
 <h2 class="groupheader">Variable Documentation</h2>
 <a id="ab1afd2f750ccc65f9bfe9ce66c3721f3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab1afd2f750ccc65f9bfe9ce66c3721f3">&#9670;&nbsp;</a></span>Const</h2>
@@ -1465,20 +1529,6 @@ template&lt;typename T &gt; </div>
 <b>Initial value:</b><div class="fragment"><div class="line">=</div><div class="line">    requires(std::iterator_traits&lt;T&gt; traits,</div><div class="line">             <span class="keyword">typename</span> std::iterator_traits&lt;T&gt;::value_type value,</div><div class="line">             <span class="keyword">typename</span> std::iterator_traits&lt;T&gt;::reference reference,</div><div class="line">             <span class="keyword">typename</span> std::iterator_traits&lt;T&gt;::pointer pointer,</div><div class="line">             <span class="keyword">typename</span> std::iterator_traits&lt;T&gt;::difference_type difference,</div><div class="line">             <span class="keyword">typename</span> std::iterator_traits&lt;T&gt;::iterator_category category) {</div><div class="line">  {traits};</div><div class="line">}</div><div class="line">&amp;&amp;(</div><div class="line">    requires(T iter) {</div><div class="line">      { iter++ }</div><div class="line">      -&gt;convertible_to&lt;T&gt;;</div><div class="line">    } ||</div><div class="line">    requires(T iter) {</div><div class="line">      { iter-- }</div><div class="line">      -&gt;convertible_to&lt;T&gt;;</div><div class="line">    })</div></div><!-- fragment -->
 </div>
 </div>
-<a id="a38a7e86789b7a7be4481fc25734915c8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a38a7e86789b7a7be4481fc25734915c8">&#9670;&nbsp;</a></span>kHasPanicHook</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">constexpr bool stx::kHasPanicHook = false</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a id="ad9682e89025c42157ac1adb579fb3a70"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad9682e89025c42157ac1adb579fb3a70">&#9670;&nbsp;</a></span>kMaxReportSize</h2>
 
@@ -1505,6 +1555,20 @@ template&lt;typename T &gt; </div>
       </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">=</div><div class="line">    <span class="stringliteral">&quot;... (error report truncated)&quot;</span></div></div><!-- fragment -->
+</div>
+</div>
+<a id="a2ae7a7bbbbec43b212336a0fac47a7ff"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2ae7a7bbbbec43b212336a0fac47a7ff">&#9670;&nbsp;</a></span>kVisiblePanicHook</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr bool stx::kVisiblePanicHook = false</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
 </div>
 </div>
 <a id="a4c2b065ac3478dc862f0dcf5c9dc034c"></a>

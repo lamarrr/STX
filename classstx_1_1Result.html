@@ -121,7 +121,7 @@ class stx::Result&lt; T, E &gt;</h3>
 <p><code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;</code> is a type used for returning and propagating errors. It is a class with the variants: <code><a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a>&lt;T&gt;</code>, representing success and containing a value, and <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a>&lt;E&gt;</code>, representing error and containing an error value.</p>
 <p>Functions return <code><a class="el" href="classstx_1_1Result.html">Result</a></code> whenever errors are expected and recoverable.</p>
 <p>A simple function returning <code><a class="el" href="classstx_1_1Result.html">Result</a></code> might be defined and used like so:</p>
-<div class="fragment"><div class="line"><span class="keyword">enum class</span> Version { Version1 = 1, Version2 = 2 };</div><div class="line"></div><div class="line"><span class="keyword">auto</span> parse_version =</div><div class="line">    [](array&lt;uint8_t, 5&gt; <span class="keyword">const</span>&amp; header) -&gt; Result&lt;Version, string_view&gt; {</div><div class="line">  <span class="keywordflow">if</span> (header.size() &lt; 1) {</div><div class="line">    <span class="keywordflow">return</span> Err(<span class="stringliteral">&quot;invalid header length&quot;</span>sv);</div><div class="line">  } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (header[0] == 1) {</div><div class="line">    <span class="keywordflow">return</span> Ok(Version::Version1);</div><div class="line">  } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (header[0] == 2) {</div><div class="line">    <span class="keywordflow">return</span> Ok(Version::Version2);</div><div class="line">  } <span class="keywordflow">else</span> {</div><div class="line">    <span class="keywordflow">return</span> Err(<span class="stringliteral">&quot;invalid version&quot;</span>sv);</div><div class="line">  }</div><div class="line">};</div><div class="line"></div><div class="line">parse_version({1u, 2u, 3u, 4u, 5u})</div><div class="line">    .<a class="code" href="classstx_1_1Result.html#a71b44d71b194ffba79f5fadc2b2b85a5">match</a>(</div><div class="line">        [](<span class="keyword">auto</span> value) { fmt::print(<span class="stringliteral">&quot;Working with version: {}\n&quot;</span>, value);</div><div class="line">        },</div><div class="line">        [](<span class="keyword">auto</span> <a class="code" href="classstx_1_1Result.html#a4548a280df6c073e970fb7492e64b738">err</a>) { fmt::print(<span class="stringliteral">&quot;Error parsing header: {}\n&quot;</span>, <a class="code" href="classstx_1_1Result.html#a4548a280df6c073e970fb7492e64b738">err</a>); });</div></div><!-- fragment --><p><code><a class="el" href="classstx_1_1Result.html">Result</a></code> comes with some convenience methods that make working with it more succinct.</p>
+<div class="fragment"><div class="line"><span class="keyword">enum class</span> Version { Version1 = 1, Version2 = 2 };</div><div class="line"></div><div class="line"><span class="keyword">auto</span> parse_version =</div><div class="line">     [](array&lt;uint8_t, 5&gt; <span class="keyword">const</span>&amp; header) -&gt; Result&lt;Version, string_view&gt; {</div><div class="line">   <span class="keywordflow">switch</span> (header.at(0)) {</div><div class="line">     <span class="keywordflow">case</span> 1:</div><div class="line">       <span class="keywordflow">return</span> Ok(Version::Version1);</div><div class="line">     <span class="keywordflow">case</span> 2:</div><div class="line">       <span class="keywordflow">return</span> Ok(Version::Version2);</div><div class="line">     <span class="keywordflow">default</span>:</div><div class="line">       <span class="keywordflow">return</span> Err(<span class="stringliteral">&quot;invalid version&quot;</span>sv);</div><div class="line">   }</div><div class="line"> };</div><div class="line"></div><div class="line">parse_version({1u, 2u, 3u, 4u, 5u})</div><div class="line">    .<a class="code" href="classstx_1_1Result.html#a71b44d71b194ffba79f5fadc2b2b85a5">match</a>(</div><div class="line">        [](<span class="keyword">auto</span> value) { fmt::print(<span class="stringliteral">&quot;Working with version: {}\n&quot;</span>, value);</div><div class="line">        },</div><div class="line">        [](<span class="keyword">auto</span> <a class="code" href="classstx_1_1Result.html#a4548a280df6c073e970fb7492e64b738">err</a>) { fmt::print(<span class="stringliteral">&quot;Error parsing header: {}\n&quot;</span>, <a class="code" href="classstx_1_1Result.html#a4548a280df6c073e970fb7492e64b738">err</a>); });</div></div><!-- fragment --><p><code><a class="el" href="classstx_1_1Result.html">Result</a></code> comes with some convenience methods that make working with it more succinct.</p>
 <div class="fragment"><div class="line">Result&lt;int, int&gt; good_result = Ok(10);</div><div class="line">Result&lt;int, int&gt; bad_result = Err(10);</div><div class="line"></div><div class="line"><span class="comment">// The `is_ok` and `is_err` methods do what they say.</span></div><div class="line">ASSERT_TRUE(good_result.is_ok() &amp;&amp; !good_result.is_err());</div><div class="line">ASSERT_TRUE(bad_result.is_err() &amp;&amp; !bad_result.is_ok());</div></div><!-- fragment --><p><code><a class="el" href="classstx_1_1Result.html">Result</a></code> is a type that represents either success (<code><a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a></code>) or failure (<code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a></code>).</p>
 <p><a class="el" href="classstx_1_1Result.html">Result</a> is either in the <a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a> or <a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a> state at any point in time </p>
 </div><div class="dynheader">
@@ -888,6 +888,39 @@ template&lt;Swappable T, Swappable E&gt; </div>
 <div class="fragment"><div class="line">Result&lt;int, string&gt; x = Ok(2);</div><div class="line">ASSERT_EQ(move(x).<a class="code" href="classstx_1_1Result.html#a4548a280df6c073e970fb7492e64b738">err</a>(), <a class="code" href="namespacestx.html#a9ba8a760ec020ea9b105ae6060494203">None</a>);</div><div class="line"></div><div class="line">Result&lt;int, string&gt; y = Err(<span class="stringliteral">&quot;Nothing here&quot;</span>s);</div><div class="line">ASSERT_EQ(move(y).<a class="code" href="classstx_1_1Result.html#a4548a280df6c073e970fb7492e64b738">err</a>(), Some(<span class="stringliteral">&quot;Nothing here&quot;</span>s));</div></div><!-- fragment --> 
 </div>
 </div>
+<a id="aa85e4cd43d8f9e21cb3970f19954f7cb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa85e4cd43d8f9e21cb3970f19954f7cb">&#9670;&nbsp;</a></span>err_exists()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;Swappable T, Swappable E&gt; </div>
+<div class="memtemplate">
+template&lt;typename UnaryPredicate &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">requires <a class="el" href="namespacestx.html#aa8f14c3c14e6dcdecfdf0710ee2ed774">invocable</a>&lt;UnaryPredicate&amp;&amp;, E const&amp;&gt;&amp;&amp; <a class="el" href="namespacestx.html#aa0bd2b8f4938c62598f62d340bd74008">convertible_to</a>&lt;<a class="el" href="namespacestx.html#ac43d924d52c43f451ac8f9a9ae00934b">invoke_result</a>&lt;UnaryPredicate&amp;&amp;, E const&amp;&gt;, bool&gt; [[nodiscard]] constexpr bool <a class="el" href="classstx_1_1Result.html">stx::Result</a>&lt; T, E &gt;::err_exists </td>
+          <td>(</td>
+          <td class="paramtype">UnaryPredicate &amp;&amp;&#160;</td>
+          <td class="paramname"><em>predicate</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Returns the value of evaluating the <code>predicate</code> on the contained value if the <code><a class="el" href="classstx_1_1Option.html">Option</a></code> is a <code><a class="el" href="structstx_1_1Some.html" title="value-variant for Option&lt;T&gt; wrapping the contained value ">Some</a></code>, else returns <code>false</code>.</p>
+<h1>Examples</h1>
+<p>Basic usage:</p>
+<div class="fragment"><div class="line">Result&lt;int, string&gt; x = Err(<span class="stringliteral">&quot;invalid&quot;</span>s);</div><div class="line"><span class="keyword">auto</span> invalid = [](<span class="keyword">auto</span> x) { <span class="keywordflow">return</span> x == <span class="stringliteral">&quot;invalid&quot;</span>; };</div><div class="line"></div><div class="line">ASSERT_TRUE(x.err_exists(invalid));</div></div><!-- fragment --> 
+</div>
+</div>
 <a id="a05656bba7ff00549e0e9aa054e50ad74"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a05656bba7ff00549e0e9aa054e50ad74">&#9670;&nbsp;</a></span>err_value() <span class="overload">[1/4]</span></h2>
 
@@ -1008,6 +1041,39 @@ template&lt;Swappable T, Swappable E&gt; </div>
 
 <p>Use <code><a class="el" href="classstx_1_1Result.html#afe3376a66e7cf9cb15728ba5f4605753">unwrap_err()</a></code> instead. </p>
 
+</div>
+</div>
+<a id="af3898e020be4aed891e5e90f350b5dde"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af3898e020be4aed891e5e90f350b5dde">&#9670;&nbsp;</a></span>exists()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;Swappable T, Swappable E&gt; </div>
+<div class="memtemplate">
+template&lt;typename UnaryPredicate &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">requires <a class="el" href="namespacestx.html#aa8f14c3c14e6dcdecfdf0710ee2ed774">invocable</a>&lt;UnaryPredicate&amp;&amp;, T const&amp;&gt;&amp;&amp; <a class="el" href="namespacestx.html#aa0bd2b8f4938c62598f62d340bd74008">convertible_to</a>&lt;<a class="el" href="namespacestx.html#ac43d924d52c43f451ac8f9a9ae00934b">invoke_result</a>&lt;UnaryPredicate&amp;&amp;, T const&amp;&gt;, bool&gt; [[nodiscard]] constexpr bool <a class="el" href="classstx_1_1Result.html">stx::Result</a>&lt; T, E &gt;::exists </td>
+          <td>(</td>
+          <td class="paramtype">UnaryPredicate &amp;&amp;&#160;</td>
+          <td class="paramname"><em>predicate</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Returns the value of evaluating the <code>predicate</code> on the contained value if the <code><a class="el" href="classstx_1_1Option.html">Option</a></code> is a <code><a class="el" href="structstx_1_1Some.html" title="value-variant for Option&lt;T&gt; wrapping the contained value ">Some</a></code>, else returns <code>false</code>.</p>
+<h1>Examples</h1>
+<p>Basic usage:</p>
+<div class="fragment"><div class="line">Result&lt;int, string&gt; x = Ok(2);</div><div class="line"><span class="keyword">auto</span> even = [](<span class="keyword">auto</span> x) { <span class="keywordflow">return</span> x == 2; };</div><div class="line"></div><div class="line">ASSERT_TRUE(x.exists(even));</div></div><!-- fragment --> 
 </div>
 </div>
 <a id="a87ace0350f90e707006b76044f9fa9f8"></a>
@@ -1910,8 +1976,7 @@ template&lt;Swappable T, Swappable E&gt; </div>
           <td class="memname">constexpr auto <a class="el" href="classstx_1_1Result.html">stx::Result</a>&lt; T, E &gt;::unwrap_or_default </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td> &amp;&amp; -&gt; T
-      requires <a class="el" href="namespacestx.html#a33c4edb845e3f658de071107790b37bc">default_constructible</a>&lt;T&gt; </td>
+          <td> &amp;&amp; -&gt; T requires <a class="el" href="namespacestx.html#a33c4edb845e3f658de071107790b37bc">default_constructible</a>&lt;T&gt; </td>
         </tr>
       </table>
   </td>

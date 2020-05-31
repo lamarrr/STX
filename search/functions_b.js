@@ -4,5 +4,6 @@ var searchData=
   ['panic_5fabort',['panic_abort',['../namespacestx.html#aa46f26a96cafe98167a3dd212bda8027',1,'stx']]],
   ['panic_5fdefault',['panic_default',['../namespacestx.html#a1ebce27ece974208de2c36d2dc15c531',1,'stx']]],
   ['panic_5fhalt',['panic_halt',['../namespacestx.html#ac12bc9b5d83367f67f863b8e1bfad0b4',1,'stx']]],
-  ['panic_5fhandler',['panic_handler',['../namespacestx.html#aaae2887ae84237096b9215da4e6cfdb9',1,'stx']]]
+  ['panic_5fhandler',['panic_handler',['../namespacestx.html#aaae2887ae84237096b9215da4e6cfdb9',1,'stx']]],
+  ['panic_5fhook_5fvisible',['panic_hook_visible',['../namespacestx.html#ab773ac393ac1bed763cef3d30ea74ee2',1,'stx']]]
 ];

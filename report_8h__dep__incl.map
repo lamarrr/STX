@@ -1,12 +1,11 @@
 <map id="include/stx/report.h" name="include/stx/report.h">
-<area shape="rect" id="node2" href="$panic_8h.html" title="include/stx/panic.h" alt="" coords="517,80,661,107"/>
-<area shape="rect" id="node3" href="$panic__helpers_8h.html" title="include/stx/internal\l/panic_helpers.h" alt="" coords="215,155,361,196"/>
-<area shape="rect" id="node9" href="$abort_8h.html" title="include/stx/panic/handlers\l/abort/abort.h" alt="" coords="385,155,577,196"/>
-<area shape="rect" id="node10" href="$halt_8h.html" title="include/stx/panic/handlers\l/halt/halt.h" alt="" coords="601,155,793,196"/>
-<area shape="rect" id="node11" href="$hook_8h.html" title="include/stx/panic/hook.h" alt="" coords="818,162,998,189"/>
-<area shape="rect" id="node4" href="$option__result_8h.html" title="include/stx/internal\l/option_result.h" alt="" coords="215,244,361,285"/>
-<area shape="rect" id="node5" href="$backtrace_8h.html" title="include/stx/backtrace.h" alt="" coords="15,333,188,360"/>
-<area shape="rect" id="node7" href="$option_8h.html" title="include/stx/option.h" alt="" coords="213,333,363,360"/>
-<area shape="rect" id="node8" href="$result_8h.html" title="include/stx/result.h" alt="" coords="388,333,535,360"/>
-<area shape="rect" id="node6" href="$default_8h.html" title="include/stx/panic/handlers\l/default/default.h" alt="" coords="5,408,197,449"/>
+<area shape="rect" id="node2" href="$panic_8h.html" title="include/stx/panic.h" alt="" coords="508,80,652,107"/>
+<area shape="rect" id="node3" href="$panic__helpers_8h.html" title="include/stx/internal\l/panic_helpers.h" alt="" coords="205,155,352,196"/>
+<area shape="rect" id="node8" href="$abort_8h.html" title="include/stx/panic/handlers\l/abort/abort.h" alt="" coords="376,155,568,196"/>
+<area shape="rect" id="node9" href="$halt_8h.html" title="include/stx/panic/handlers\l/halt/halt.h" alt="" coords="592,155,784,196"/>
+<area shape="rect" id="node10" href="$hook_8h.html" title="include/stx/panic/hook.h" alt="" coords="809,162,989,189"/>
+<area shape="rect" id="node4" href="$option__result_8h.html" title="include/stx/internal\l/option_result.h" alt="" coords="205,244,352,285"/>
+<area shape="rect" id="node5" href="$backtrace_8h.html" title="include/stx/backtrace.h" alt="" coords="5,333,179,360"/>
+<area shape="rect" id="node6" href="$option_8h.html" title="include/stx/option.h" alt="" coords="203,333,354,360"/>
+<area shape="rect" id="node7" href="$result_8h.html" title="include/stx/result.h" alt="" coords="379,333,525,360"/>
 </map>
