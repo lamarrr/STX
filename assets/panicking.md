@@ -84,14 +84,14 @@ Suppose you want to log the errors to disk or to a network before terminating th
 
 Firstly via your project's CMake build file, set the `STX_OVERRIDE_PANIC_HANDLER` option to `ON` , and then define the panic handler in your executable.
 
-See the [`panic_handler`](https://github.com/lamarrr/STX/examples) example project that illustrates how to do this.
+See the [`panic_handler`](https://github.com/lamarrr/STX/tree/master/examples) example project that illustrates how to do this.
 
 We can also call any of the provided panic handlers.
 
 # Debugging Notes
 
 - For all calls to `stx::panic` within a program, the panic handler will be called to handle the panic. You can set your debugging breakpoint to the `stx::begin_panic` function to investigate all panics that occur within the program and also view a detailed backtrace.
-- You can optionally enable automatic backtraces on panics. See the [`panic_backtrace`]((https://github.com/lamarrr/STX/examples)) example project.
+- You can optionally enable automatic backtraces on panics. See the [`panic_backtrace`](https://github.com/lamarrr/STX/tree/master/examples) example project.
 
 # Implementation and Portability Notes
 

@@ -19,7 +19,7 @@ The panic library provides:
   - `stx::panic` : signals an abnormal flow/error in the program.
 
 - runtime panic hooks
-  - `stx::take_panic_hook`, `stx::attach_panic_hook`, and `stx::panic_hook_visible`
+  - `stx::take_panic_hook` , `stx::attach_panic_hook` , and `stx::panic_hook_visible`
 
 - panic backtraces
 
