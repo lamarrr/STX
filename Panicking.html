@@ -129,12 +129,12 @@ $(function() {
 <p>Suppose you want to log the errors to disk or to a network before terminating the program, you can define your custom panic handlers to do that.</p>
 <p><b>NOTE</b>: A panic handler can only be defined once (One Definition Rule).</p>
 <p>Firstly via your project's CMake build file, set the <code>STX_OVERRIDE_PANIC_HANDLER</code> option to <code>ON</code> , and then define the panic handler in your executable.</p>
-<p>See the <a href="https://github.com/lamarrr/STX/examples"><code>panic_handler</code></a> example project that illustrates how to do this.</p>
+<p>See the <a href="https://github.com/lamarrr/STX/tree/master/examples"><code>panic_handler</code></a> example project that illustrates how to do this.</p>
 <p>We can also call any of the provided panic handlers.</p>
 <h1>Debugging Notes</h1>
 <ul>
 <li>For all calls to <code><a class="el" href="namespacestx.html#acf6af607fec2dc51a8fdb46f50585932">stx::panic</a></code> within a program, the panic handler will be called to handle the panic. You can set your debugging breakpoint to the <code><a class="el" href="namespacestx.html#a03a1b36ff7ba488963d26582d10616b2">stx::begin_panic</a></code> function to investigate all panics that occur within the program and also view a detailed backtrace.</li>
-<li>You can optionally enable automatic backtraces on panics. See the <a href="(https://github.com/lamarrr/STX/examples)"><code>panic_backtrace</code></a> example project.</li>
+<li>You can optionally enable automatic backtraces on panics. See the <a href="https://github.com/lamarrr/STX/tree/master/examples"><code>panic_backtrace</code></a> example project.</li>
 </ul>
 <h1>Implementation and Portability Notes</h1>
 <ul>
