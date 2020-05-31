@@ -13,7 +13,7 @@ using namespace stx::backtrace;
 
 #define LOG(x) ::std::cout << (x) << ::std::endl
 
-[[gnu::noinline]] void d() {
+[[gnu::noinline]] void fn_d() {
   std::cout << std::hex;
 
   backtrace::trace([](Frame frame, int) {
@@ -27,10 +27,10 @@ using namespace stx::backtrace;
   });
 }
 
-[[gnu::noinline]] void c() { d(); }
+[[gnu::noinline]] void fn_c() { fn_d(); }
 
-[[gnu::noinline]] void b() { c(); }
+[[gnu::noinline]] void fn_b() { fn_c(); }
 
-[[gnu::noinline]] void a() { b(); }
+[[gnu::noinline]] void fn_a() { fn_b(); }
 
-TEST(BacktraceTest, Backtrace) { a(); }
+TEST(BacktraceTest, Backtrace) { fn_a(); }

@@ -752,10 +752,10 @@ TEST(ResultTest, Clone) {
   EXPECT_EQ(c, Ok(vector<int>{89, 89, 120}));
 }
 
-stx::Result<int, int> b() { return Err(-1); }
+stx::Result<int, int> try_b() { return Err(-1); }
 
-stx::Result<int, int> a() {
-  TRY_OK(x, b());
+stx::Result<int, int> try_a() {
+  TRY_OK(x, try_b());
   x += 57;
   return Ok(std::move(x));
 }
