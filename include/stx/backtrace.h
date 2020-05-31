@@ -113,7 +113,10 @@ using Callback = bool (*)(Frame, int);
 /// walking the stack until it exhausts the stack frame / reaches the maximum
 /// stack depth. This function does not perform stack-unwinding.
 ///
-/// `callback`  is presently allowed to throw exceptions
+/// Returns the number of stack frames read.
+///
+///
+/// `callback`  is allowed to throw exceptions.
 ///
 /// # WARNING
 ///
