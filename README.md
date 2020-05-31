@@ -2,23 +2,27 @@
 <br/>
 <div align="center"><img src="assets/stx.png"/> </div>
 
-<div align="center"><i> C++ 20 error-handling and utility extensions to the C++ standard library.</i>
+<div align="center"><i> C++ 20 error-handling and utility extensions.</i>
 </div>
 
 ## Overview
 
-STX...
+STX is a collection of libraries and utilities designed to make working with C++ easier and less error-prone.
 
 <div align="center">
 <h3><a href="http://lamarrr.github.io/STX">READ THE DOCUMENTATION</a></h3>
 </div>
 
+<div align="center">
+<h3><a href="https://github.com/lamarrr/STX/tree/master/examples">See the examples</a></h3>
+</div>
+
 ## Libraries
 
-* Panicking
-* `Result<T, E>` 
-* `Option<T>` 
-* Backtracing
+* [Panicking](https://lamarrr.github.io/STX/Panicking.html)
+* [`Result<T, E>`](https://lamarrr.github.io/STX/classstx_1_1Result.html)
+* [`Option<T>`](https://lamarrr.github.io/STX/classstx_1_1Option.html)
+* [Backtracing] (https://lamarrr.github.io/STX/namespacestx_1_1backtrace.html)
 
 ## Features
 
@@ -29,15 +33,17 @@ STX...
 * Panic backtraces
 * Signal backtraces i.e. `SIGSEGV` , `SIGILL` , `SIGFPE` 
 * Backtrace library
-* Suitable and easily adoptable for embedded systems
+* Portable, suitable, and easily-adoptable for embedded systems, safety-critical systems, and operating systems.
 * Easy debugging
-* Easy to use and hard to misuse API
+* Easy to use and hard to misuse API?
 * Exception-free, RTTI-free, and memory allocation free ( `no-std` )
 * SFINAE-free
+* Space and time deterministic error-handling
 * Deterministic value lifetimes
 * Eliminates repitive code and abstractable error-handling logic code via monadic extensions
 * Fast success and error return paths
 * Modern and clean API
+* Well-documented
 
 ## Basic Examples
 
@@ -192,8 +198,8 @@ C-Style/FailurePath   |     0.384 ns  |      0.383 ns |  1000000000
 * `STX_BUILD_BENCHMARKS` - Build benchmarks
 * `STX_SANITIZE_TESTS` - Sanitize tests if supported. Builds address-sanitized, thread-sanitized, leak-sanitized, and undefined-sanitized tests
 * `STX_OVERRIDE_PANIC_HANDLER` - Override the global panic handler
-* `STX_ENABLE_BACKTRACE` - Enable the backtrace backend
-* `STX_ENABLE_PANIC_BACKTRACE` - Enable panic backtraces. It depends on the backtrace backend (`STX_ENABLE_BACKTRACE`).
+* `STX_ENABLE_BACKTRACE` - Enable the backtrace library
+* `STX_ENABLE_PANIC_BACKTRACE` - Enable panic backtraces. It depends on the backtrace library (`STX_ENABLE_BACKTRACE`)
 
 ## FAQs
 
