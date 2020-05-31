@@ -4,16 +4,7 @@
 
 STX is a collection of libraries and utilities designed to make working with C++ easier and less error-prone. This includes but is not limited to well-proven and widely adopted paradigms, data-structures, and designs from other prominent projects and programming languages accross the software engineering community.
 
-At the core, all STX libraries are `no_std` .
-
-# Primary Goals
-
-- Unifying community efforts, and reducing code duplication
-- Providing deterministic and convenient error-handling facilities
-- Providing clean libraries that avoids quarks and complexities
-- Portability
-- Suitability for real-time systems, operating systems, embedded systems, and safety-critical systems
-- Efficiency
+At the core, all STX libraries are `no_std` . No RTTI, memory allocation, nor exceptions.
 
 # STX Libraries
 
@@ -28,8 +19,9 @@ The panic library provides:
   - `stx::panic` : signals an abnormal flow/error in the program.
 
 - runtime panic hooks
+  - `stx::take_panic_hook`, `stx::attach_panic_hook`, and `stx::panic_hook_visible`
 
-- optional panic backtraces
+- panic backtraces
 
 - error reporting
 
@@ -41,21 +33,22 @@ The panic library provides:
 
 ## Error and Optional-Value Handling Library
 
-These monadic types not only make error handling easer but also make the paths more obvious to the compiler for optimizations. Their monadic nature makes it easy to operate on them as pipelines and in the process eliminate redundant error-handling logic code.
+These monadic types not only make error handling easier but also make the paths more obvious to the compiler for optimizations.
+Monads can be simply thought of as abstract types of actions. Their monadic nature makes it easy to operate on them as pipelines and in the process eliminate redundant error-handling logic code.
 
-- `stx::Result<T, E>` : Type for relaying the result of a function that can fail or succeed. (with monadic extensions).
+- `stx::Result<T, E>` : Type for relaying the result of a function that can fail or succeed (with monadic extensions).
 - `stx::Option<T>` : Type for **safe** optional values (with monadic extensions).
 
 ## Backtracing Library
 
-The backtracing library is useful for manually querying/viewing information of active stack frames. It makes debugging easier by making it easier to get stackframe information programmartically or automatically (panics) without having to inspect core dumps or step into a debugger in which errors might not be reproducible (especially for embedded systems). The backtrace library is disabled by default as not all platforms support them, It can be enabled.
+The backtracing library is useful for manually querying/viewing information of active stack frames. It makes debugging easier by making it easier to get stackframe information programmartically or automatically (via panics) without having to inspect core dumps or step into a debugger in which errors might not be reproducible (especially for embedded systems). The backtrace library is disabled by default as not all platforms support them, It can be enabled by setting `STX_ENABLE_BACKTRACE` to `ON` in the CMakeLists.txt file, this is demonstrated in the [`panic_backtrace`](https://github.com/lamarrr/STX/tree/master/examples) example project.
 
 - Fatal signal backtraces for `SIGSEGV` , `SIGFPE` , and `SIGILL` .
 - Manual stack backtraces.
 
 # Why STX?
 
-STX is partially an effort to bring a more convenient and usable error-handling model to the C++ ecosystem. Whilst also sampling ideas from various error-handling model implementations duplicated across the community, Most of the basic facilities for which these libraries provide.
+STX is primarilly an effort to bring a more convenient and usable error-handling model to the C++ ecosystem. Whilst also sampling ideas from various error-handling model implementations duplicated across the community, Most of the basic facilities for which STX's libraries aims to provide.
 
 Here is a list of C++ projects with a similar error-handling model:
 
@@ -75,4 +68,13 @@ Here is a list of C++ projects with a similar error-handling model:
 
 # FAQs
 
-- xpc_error_code
+- Why not exceptions?
+These reasons are a bit biased, but based on my team's experience:
+  - Exceptions are really great, but present implementations are not so great for fail-often functions
+  - Some embedded systems toolchains don't have a conformant exception implementation and throwing an exception resorts to an immediate abort
+  - Currently, Exceptions are not deterministic in both space and time
+  - You never know which function throws which exception. And you never know when the callee code's API changes the exception type
+  - Exceptions are implicitly and automatically propagated up the call stack until it finds a function to handle it
+  - Exceptions aren't great for error-handling, the code gets messy easily
+  - Exceptions are essentially for exceptional cases
+  - Exceptions require RTTI
