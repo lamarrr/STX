@@ -1,5 +1,4 @@
-.vscode
-.maybe
+/.vscode
+/.maybe
 build
-docs/*
 NOTES.md
