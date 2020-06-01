@@ -329,6 +329,7 @@ class [[nodiscard]] Result;
 //!
 template <Swappable T>
 class [[nodiscard]] Option {
+ public:
   using value_type = T;
 
   static_assert(!std::is_reference_v<T>,
@@ -336,7 +337,6 @@ class [[nodiscard]] Option {
                 "type wrappers like std::reference_wrapper or any of the "
                 "`stx::ConstRef` or `stx::MutRef` specialized aliases instead");
 
- public:
   [[nodiscard]] constexpr Option(Some<T>&& some)
       : storage_value_(std::move(some.value_)), is_none_(false) {}
 
@@ -2873,7 +2873,8 @@ template <typename T, typename E>
 #define TRY_OK(identifier, result_expr)                                        \
   decltype(result_expr) stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh = (result_expr); \
   if (stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh.is_err())                          \
-    return stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh;                              \
+    return Err<decltype(result_expr)::error_type>(                             \
+        std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap_err());        \
   decltype(result_expr)::value_type identifier =                               \
       std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap();
 
@@ -2888,7 +2889,8 @@ template <typename T, typename E>
 #define CO_TRY_OK(identifier, result_expr)                                     \
   decltype(result_expr) stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh = (result_expr); \
   if (stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh.is_err())                          \
-    co_return stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh;                           \
+    co_return Err<decltype(result_expr)::error_type>(                          \
+        std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap_err());        \
   decltype(result_expr)::value_type identifier =                               \
       std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap();
 
