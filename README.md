@@ -31,6 +31,7 @@ STX is a collection of libraries and utilities designed to make working with C++
 ## Features
 
 * Efficient `Result<T, E>` (error-handling) and `Option<T>` (optional-value) implementation with monadic methods
+* Unignorable error-types
 * Fail-fast (Abandonment/ Fatal failure) via `panic` s
 * Reporting via `Report` 
 * Runtime panic hooks
@@ -131,6 +132,17 @@ int main() {
   auto parsed = parse_data({2, 3, 4, 5, 6, 7}).unwrap();
 
   std::cout << parsed << std::endl;
+}
+
+```
+
+You can also add const/volatile attributes to `TRY_OK` 's assigned value, i.e:
+
+``` cpp
+
+auto parse_data(array<uint8_t, 6> const& header) -> Result<uint8_t, string_view> {
+  TRY_OK(const version, parse_version(header));
+  return Ok(version + header.at(1) + header.at(2));
 }
 
 ```
