@@ -1,3 +1,5 @@
 /.vscode
 /build
 /third_party
+.maybe
+NOTES.md
