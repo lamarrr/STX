@@ -710,30 +710,25 @@ TEST(OptionTest, Match) {
   EXPECT_EQ(d, -1);
 }
 
-TEST(DocTests, Main) {
-  using std::move, std::string;
-  using stx::Option, stx::Some, stx::None;
-  using namespace std::string_literals;
-
-  Option x = make_some(89);
-
-  Option const xc = make_some(89);
-  int y = 98;
-  int z = 40;
-  auto fn = [&](auto) -> int& { return y; };
-  auto mem = [](int i) { return std::make_unique<int[]>(i); };
-  auto g = std::make_unique<int[]>(89);
-  int const h = 99;
-  make_some(76).ok_or(h);
-
-  auto const b = [](int x) { return x % 2 == 0; };
-
-  int cd = 87;
-  int const dd = 90;
-
-  Option op = make_some(9.0);
-  make_some(9.0).AND(make_some(8));
-  struct H {};
-
-  // make_err<int, int>(9).contains(H{});
+auto opt_try_b(int x) -> Option<int> {
+  if (x > 0) {
+    return Some(std::move(x));
+  } else {
+    return None;
+  }
 }
+
+auto opt_try_a(int m) -> Option<int> {
+  TRY_SOME(x, opt_try_b(m));
+  x += 60;
+  return Some(std::move(x));
+}
+
+TEST(OptionTest, TrySome) {
+  EXPECT_EQ(opt_try_a(10), Some(70));
+  EXPECT_EQ(opt_try_a(100'000), Some(100'060));
+  EXPECT_EQ(opt_try_a(-1), None);
+  EXPECT_EQ(opt_try_a(-10), None);
+}
+
+TEST(OptionTest, Docs) {}
