@@ -36,15 +36,15 @@ The panic library provides:
 These monadic types not only make error handling easier but also make the paths more obvious to the compiler for optimizations.
 Monads can be simply thought of as abstract types of actions. Their monadic nature makes it easy to operate on them as pipelines and in the process eliminate redundant error-handling logic code.
 
-* `stx::Result<T, E>` : Type for relaying the result of a function that can fail or succeed (with monadic extensions).
-* `stx::Option<T>` : Type for **safe** optional values (with monadic extensions).
+* `stx::Result<T, E>` : Type for relaying the result of a function that can fail or succeed (with monadic extensions)
+* `stx::Option<T>` : Type for **safe** optional values (with monadic extensions)
 
 ## Backtracing Library
 
 The backtracing library is useful for manually querying/viewing information of active stack frames. It makes debugging easier by making it easier to get stackframe information programmartically or automatically (via panics) without having to inspect core dumps or step into a debugger in which errors might not be reproducible (especially for embedded systems). The backtrace library is disabled by default as not all platforms support them, It can be enabled by setting `STX_ENABLE_BACKTRACE` to `ON` in the CMakeLists.txt file, this is demonstrated in the [ `panic_backtrace` ](https://github.com/lamarrr/STX/tree/master/examples) example project.
 
-* Fatal signal backtraces for `SIGSEGV` , `SIGFPE` , and `SIGILL` .
-* Manual stack backtraces.
+* Fatal signal backtraces for `SIGSEGV` , `SIGFPE` , and `SIGILL` 
+* Manual stack backtraces
 
 # Why STX?
 
@@ -82,14 +82,14 @@ These reasons are a bit biased, but based on my team's experience:
   + Exceptions are essentially for exceptional cases
   + Exceptions require RTTI
 
-## Some Interesting Reads
+# Some Interesting Reads
 
 * Joe Duffy: [The Error Model](http://joeduffyblog.com/2016/02/07/the-error-model/)
 
-Relatable Excerpts:
+## Relatable Excerpts:
 
 > This problem isn’t theoretical. I’ve encountered numerous bugs caused by ignoring return codes and I’m sure you have too. Indeed, in the development of this very Error Model, my team encountered some fascinating ones. For example, when we ported Microsoft’s Speech Server to Midori, we found that 80% of Taiwan Chinese (zh-tw) requests were failing. Not failing in a way the developers immediately saw, however; instead, clients would get a gibberish response. At first, we thought it was our fault. But then we discovered a silently swallowed HRESULT in the original code. Once we got it over to Midori, the bug was thrown into our faces, found, and fixed immediately after porting. This experience certainly informed our opinion about error codes.
 
-> In C-based languages with error codes, you end up writing lots of hand-crafted if checks everywhere after function calls. This can be especially tedious if many of your functions fail which, in C programs where allocation failures are also communicated with return codes, is frequently the case. It’s also clumsy to return multiple values.
+> In the exception model, any function call – and sometimes any statement – can throw an exception, transferring control non-locally somewhere else. Where? Who knows. There are no annotations or type system artifacts to guide your analysis. As a result, it’s difficult for anyone to reason about a program’s state at the time of the throw, the state changes that occur while that exception is propagated up the call stack – and possibly across threads in a concurrent program – and the resulting state by the time it gets caught or goes unhandled.
 
-> Functional languages address many of the usability challenges by packaging up the possibility of either a value or an error, into a single data structure. Because you’re forced to pick apart the error from the value if you want to do anything useful with the value at the callsite – which, thanks to a dataflow style of programming, you probably will – it’s easy to avoid the killer problem of forgetting to check for errors.
+> Bugs Aren’t Recoverable Errors!
