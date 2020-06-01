@@ -752,12 +752,25 @@ TEST(ResultTest, Clone) {
   EXPECT_EQ(c, Ok(vector<int>{89, 89, 120}));
 }
 
-stx::Result<int, int> try_b() { return Err(-1); }
+auto ok_try_b(int x) -> stx::Result<int, int> {
+  if (x > 0) {
+    return Ok(std::move(x));
+  } else {
+    return Err(-1);
+  }
+}
 
-stx::Result<int, int> try_a() {
-  TRY_OK(x, try_b());
-  x += 57;
+auto ok_try_a(int m) -> stx::Result<int, int> {
+  TRY_OK(x, ok_try_b(m));
+  x += 60;
   return Ok(std::move(x));
+}
+
+TEST(ResultTest, TryOk) {
+  EXPECT_EQ(ok_try_a(10), Ok(70));
+  EXPECT_EQ(ok_try_a(100'000), Ok(100'060));
+  EXPECT_EQ(ok_try_a(-1), Err(-1));
+  EXPECT_EQ(ok_try_a(-10), Err(-1));
 }
 
 TEST(ResultTest, Docs) {}
