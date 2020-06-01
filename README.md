@@ -10,11 +10,15 @@
 STX is a collection of libraries and utilities designed to make working with C++ easier and less error-prone.
 
 <div align="center">
-<h3><a href="http://lamarrr.github.io/STX">READ THE DOCUMENTATION</a></h3>
+<h3>
+<a href="http://lamarrr.github.io/STX"> READ THE DOCUMENTATION </a>
+</h3>
 </div>
 
 <div align="center">
-<h3><a href="https://github.com/lamarrr/STX/tree/master/examples">See the examples</a></h3>
+<h3>
+<a href="https://github.com/lamarrr/STX/tree/master/examples"> SEE THE EXAMPLES </a>
+</h3>
 </div>
 
 ## Libraries
@@ -27,7 +31,7 @@ STX is a collection of libraries and utilities designed to make working with C++
 ## Features
 
 * Efficient `Result<T, E>` (error-handling) and `Option<T>` (optional-value) implementation with monadic methods
-* Fatal failure reporting via Panicking
+* Fail-fast (Abandonment/ Fatal failure) via `panic` s
 * Reporting via `Report` 
 * Runtime panic hooks
 * Panic backtraces
@@ -81,8 +85,9 @@ int main() {
 #include "stx/result.h"
 
 using std::array, std::string_view;
-using stx::Result, stx::Ok, stx::Err;
 using namespace std::literals;
+
+using stx::Result, stx::Ok, stx::Err;
 
 enum class Version { V1 = 1, V2 = 2 };
 
@@ -99,7 +104,7 @@ auto parse_version(array<uint8_t, 6> const& header) -> Result<Version, string_vi
 
 int main() {
   parse_version({2, 3, 4, 5, 6, 7}).match([](auto version){
-    std::cout << "Version: " << version << std::endl;
+    std::cout << "Version: " << static_cast<int>(version) << std::endl;
   }, [](auto error){
     std::cout << error  << std::endl;
   });
@@ -110,14 +115,16 @@ int main() {
 
 ### Result with TRY_OK
 
+`TRY_OK` assigns the successful value to its first parameter `version` if `parse_version` returned an `Ok` , else propagates the error value.
+
 ``` cpp
 
 // As in the example above
 auto parse_version(array<uint8_t, 6> const& header) -> Result<Version, string_view>;
 
-auto parse_data(array<uint8_t, 6> const& header) -> Result<uint64_t, string_view> {
-  TRY_OK(version, parse_version(header)); // returns the error value if an error occured
-  return Ok(static_cast<uint64_t>(version) + header.at(1) + header.at(2));
+auto parse_data(array<uint8_t, 6> const& header) -> Result<uint8_t, string_view> {
+  TRY_OK(version, parse_version(header));
+  return Ok(version + header.at(1) + header.at(2));
 }
 
 int main() {
@@ -142,12 +149,12 @@ auto safe_divide(float n, float d) -> Option<float>;
 And we call:
 
 ``` cpp
-float result = safe_divide(n, d).unwrap(); // compiles, because safe_divide returns a temporary
+float result = safe_divide(n, d).unwrap(); // compiles, because 'safe_divide' returns a temporary
 ```
 
 ``` cpp
 Option option = safe_divide(n, d);
-float result = option.unwrap();  // will not compile, because unwrap consumes the value and is only usable with temporaries (as above) or r-value references (as below)
+float result = option.unwrap();  // will not compile, because 'unwrap' consumes the value and is only usable with temporaries (as above) or r-value references (as below)
 ```
 
 Alternatively, suppose the `Option` or `Result` is no longer needed, we can obtain an r-value reference:
@@ -155,20 +162,20 @@ Alternatively, suppose the `Option` or `Result` is no longer needed, we can obta
 ``` cpp
 
 Option option = safe_divide(n, d);
-float result  = std::move(option).unwrap(); // will compile, the value is moved out of `option` , `option` should not be used any more
+float result  = std::move(option).unwrap(); // will compile, the value is moved out of 'option' , 'option' should not be used any more
 
 ```
 
-<span style="color:red">**NOTE**</span>: Just as any moved-from object, `Option` and `Result` are not to be used after a `std::move` ! (as the objects will be left in an unspecified state).
+<span style="color:red"><b>NOTE</b></span>: Just as any moved-from object, `Option` and `Result` are not to be used after a `std::move` ! (as the objects will be left in an unspecified state).
 
-* `Option` and `Result` do not perform any implicit copies of the contained object as they are designed as purely forwarding types, this is especially due to their primary purpose as return channels in which we do not want duplication or implicit copies of the returned values. 
+* `Option` and `Result` do not perform any implicit copies of the contained object as they are designed as purely forwarding types, this is especially due to their primary purpose as return channels in which we do not want duplication or implicit copies of the returned values.
 
 To make explicit copies:
 
 ``` cpp
 
 Option option = safe_divide(n, d);
-float result = option.clone().unwrap(); // note that `clone()` explicitly makes a copy of the `Option` 
+float result = option.clone().unwrap(); // note that 'clone()' explicitly makes a copy of the 'Option'
 
 ```
 
@@ -177,13 +184,13 @@ We can also obtain an l-value reference to copy the value:
 ``` cpp
 
 Option option = safe_divide(n, d);
-float result = option.value(); // note that `value()` returns an l-value reference and `result` is copied from `option` 's value in the process
+float result = option.value(); // note that 'value()' returns an l-value reference and 'result' is copied from 'option''s value in the process
 
 ```
 
 ``` cpp
 
-float result = safe_divide(n, d).value(); // this won't compile as `value` always returns an l-value reference, use `unwrap()` instead
+float result = safe_divide(n, d).value(); // this won't compile as 'value' always returns an l-value reference, use 'unwrap()' instead
 
 ```
 
