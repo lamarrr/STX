@@ -1,5 +1,5 @@
 <map id="stx::backtrace::Frame" name="stx::backtrace::Frame">
-<area shape="rect" id="node2" href="$classstx_1_1Option.html" title="stx::Option\&lt; stx::backtrace\l::Symbol \&gt;" alt="" coords="5,184,205,225"/>
-<area shape="rect" id="node4" href="$classstx_1_1Option.html" title="stx::Option\&lt; T \&gt;" alt="" coords="215,95,345,121"/>
-<area shape="rect" id="node5" href="$classstx_1_1Option.html" title="stx::Option\&lt; uintptr_t \&gt;" alt="" coords="231,191,409,218"/>
+<area shape="rect" id="node2" href="$classstx_1_1Option.html" title="stx::Option\&lt; stx::backtrace\l::Symbol \&gt;" alt="" coords="5,184,244,225"/>
+<area shape="rect" id="node4" href="$classstx_1_1Option.html" title="stx::Option\&lt; T \&gt;" alt="" coords="259,95,409,121"/>
+<area shape="rect" id="node5" href="$classstx_1_1Option.html" title="stx::Option\&lt; uintptr_t \&gt;" alt="" coords="268,191,483,218"/>
 </map>

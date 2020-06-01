@@ -112,16 +112,19 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>value-variant for <code><a class="el" href="classstx_1_1Option.html">Option</a>&lt;T&gt;</code> wrapping the contained value  
- <a href="structstx_1_1Some.html#details">More...</a></p>
-
 <p><code>#include &lt;<a class="el" href="option__result_8h_source.html">option_result.h</a>&gt;</code></p>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><h3>template&lt;Swappable T&gt;<br />
 struct stx::Some&lt; T &gt;</h3>
 
-<p>value-variant for <code><a class="el" href="classstx_1_1Option.html">Option</a>&lt;T&gt;</code> wrapping the contained value </p>
-</div><h2 class="groupheader">Member Typedef Documentation</h2>
+<p>value-variant for <code><a class="el" href="classstx_1_1Option.html">Option</a>&lt;T&gt;</code> wrapping the contained value</p>
+<h1>Usage</h1>
+<p>Note that <code><a class="el" href="structstx_1_1Some.html">Some</a></code> is only a value-forwarding type. It doesn't make copies of it's constructor arguments and only accepts r-values.</p>
+<p>What does this mean?</p>
+<p>For example, You can:</p>
+<div class="fragment"><div class="line"><a class="code" href="structstx_1_1Some.html#aea0ebd1b3079491cca07716097afe1ff">Option</a> a = <a class="code" href="structstx_1_1Some.html#a32df4bb1c7d828b3dd45b5d66f69dc1f">Some</a>(vector{1, 2, 3, 4});</div></div><!-- fragment --><p> You can't:</p>
+<div class="fragment"><div class="line">vector&lt;int&gt; x {1, 2, 3, 4};</div><div class="line"><a class="code" href="structstx_1_1Some.html#aea0ebd1b3079491cca07716097afe1ff">Option</a> a = <a class="code" href="structstx_1_1Some.html#a32df4bb1c7d828b3dd45b5d66f69dc1f">Some</a>(x);</div></div><!-- fragment --><p> But, to explicitly make <code>a</code> take ownership, you will:</p>
+<div class="fragment"><div class="line">vector&lt;int&gt; x {1, 2, 3, 4};</div><div class="line"><a class="code" href="structstx_1_1Some.html#aea0ebd1b3079491cca07716097afe1ff">Option</a> a = <a class="code" href="structstx_1_1Some.html#a32df4bb1c7d828b3dd45b5d66f69dc1f">Some</a>(std::move(x));</div></div><!-- fragment --> </div><h2 class="groupheader">Member Typedef Documentation</h2>
 <a id="a59926b65fcdcccc1deabf5ed43aa4186"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a59926b65fcdcccc1deabf5ed43aa4186">&#9670;&nbsp;</a></span>value_type</h2>
 
@@ -165,7 +168,7 @@ template&lt;Swappable T&gt; </div>
 </table>
 </div><div class="memdoc">
 
-<p>a <code><a class="el" href="structstx_1_1Some.html" title="value-variant for Option&lt;T&gt; wrapping the contained value ">Some</a>&lt;T&gt;</code> can only be constructed with an r-value of type <code>T</code> </p>
+<p>a <code><a class="el" href="structstx_1_1Some.html">Some</a>&lt;T&gt;</code> can only be constructed with an r-value of type <code>T</code> </p>
 
 </div>
 </div>

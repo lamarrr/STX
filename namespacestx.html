@@ -130,7 +130,6 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">value-variant Type for <code><a class="el" href="classstx_1_1Option.html">Option</a>&lt;T&gt;</code> representing no-value  <a href="classstx_1_1NoneType.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structstx_1_1Ok.html">Ok</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">value-variant for <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;</code> wrapping the contained value  <a href="structstx_1_1Ok.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classstx_1_1Option.html">Option</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -144,7 +143,6 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classstx_1_1Result.html">Result</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structstx_1_1Some.html">Some</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">value-variant for <code><a class="el" href="classstx_1_1Option.html">Option</a>&lt;T&gt;</code> wrapping the contained value  <a href="structstx_1_1Some.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
@@ -650,7 +648,7 @@ template&lt;typename T , typename E &gt; </div>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Helper function to construct a <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;</code> with an <code><a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a>&lt;T&gt;</code> value.</p>
+<p>Helper function to construct a <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;</code> with an <code><a class="el" href="structstx_1_1Ok.html">Ok</a>&lt;T&gt;</code> value.</p>
 <h1>NOTE</h1>
 <p>The error type <code>E</code> must be specified and is the first template parameter.</p>
 <h1>Examples</h1>
@@ -675,7 +673,7 @@ template&lt;typename T &gt; </div>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Helper function to construct an <code><a class="el" href="classstx_1_1Option.html">Option</a>&lt;T&gt;</code> with a <code><a class="el" href="structstx_1_1Some.html" title="value-variant for Option&lt;T&gt; wrapping the contained value ">Some</a>&lt;T&gt;</code> value. if the template parameter is not specified, it is auto-deduced from the parameter's value.</p>
+<p>Helper function to construct an <code><a class="el" href="classstx_1_1Option.html">Option</a>&lt;T&gt;</code> with a <code><a class="el" href="structstx_1_1Some.html">Some</a>&lt;T&gt;</code> value. if the template parameter is not specified, it is auto-deduced from the parameter's value.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
 <div class="fragment"><div class="line"><span class="comment">// these are some of the various ways to construct on Option&lt;T&gt; with a</span></div><div class="line"><span class="comment">// Some&lt;T&gt; value</span></div><div class="line">Option g = Some(9);</div><div class="line">Option h = Some&lt;int&gt;(9);</div><div class="line">Option&lt;int&gt; i = Some(9);</div><div class="line"><span class="keyword">auto</span> j = <a class="code" href="namespacestx.html#af3dd9531b7d03154feb5ab0b5230cd84">make_some</a>(9);</div><div class="line"><span class="keyword">auto</span> k = Option&lt;int&gt;(Some&lt;int&gt;(9));</div><div class="line"><span class="keyword">auto</span> l = Option&lt;int&gt;(Some(9));</div><div class="line"><span class="comment">// ... and a few more</span></div><div class="line"></div><div class="line"><span class="comment">// to make it easier and less verbose:</span></div><div class="line"><span class="keyword">auto</span> m = <a class="code" href="namespacestx.html#af3dd9531b7d03154feb5ab0b5230cd84">make_some</a>(9);</div><div class="line">ASSERT_EQ(m, Some(9));</div><div class="line"></div><div class="line"><span class="keyword">auto</span> n = make_some&lt;int&gt;(9);</div><div class="line">ASSERT_EQ(m, Some(9));</div><div class="line"></div><div class="line"><span class="comment">// observe that m is constructed as an Option&lt;int&gt; (=Option&lt;T&gt;) and T (=int)</span></div><div class="line"><span class="comment">// is auto-deduced from make_some&#39;s parameter type.</span></div></div><!-- fragment --> 

@@ -1,7 +1,7 @@
 <map id="include/stx/panic/handlers" name="include/stx/panic/handlers">
-<area shape="rect" id="node2" href="dir_b007ec6cf0a483e8a155a2d068b0aaae.html" title="abort" alt="" coords="229,63,301,111"/>
-<area shape="rect" id="node3" href="dir_573cc27428039f2c68defe3b3f48ed0b.html" title="default" alt="" coords="133,63,205,111"/>
+<area shape="rect" id="node2" href="dir_b007ec6cf0a483e8a155a2d068b0aaae.html" title="abort" alt="" coords="237,63,309,111"/>
+<area shape="rect" id="node3" href="dir_573cc27428039f2c68defe3b3f48ed0b.html" title="default" alt="" coords="134,63,213,111"/>
 <area shape="rect" id="node4" href="dir_ffb2e3fb99690e3dd781b405896cabac.html" title="halt" alt="" coords="37,63,109,111"/>
-<area shape="rect" id="clust2" href="dir_230a3cfc6b45bcc1428bbaa88f78fb3e.html" alt="" coords="27,52,416,121"/>
-<area shape="rect" id="clust1" href="dir_15843fe3b00b54d09611a61b4e051238.html" title="panic" alt="" coords="16,16,427,132"/>
+<area shape="rect" id="clust2" href="dir_230a3cfc6b45bcc1428bbaa88f78fb3e.html" alt="" coords="27,52,432,121"/>
+<area shape="rect" id="clust1" href="dir_15843fe3b00b54d09611a61b4e051238.html" title="panic" alt="" coords="16,16,443,132"/>
 </map>

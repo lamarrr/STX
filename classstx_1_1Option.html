@@ -118,7 +118,7 @@ $(function() {
 class stx::Option&lt; T &gt;</h3>
 
 <p>Optional values.</p>
-<p>Type <code><a class="el" href="classstx_1_1Option.html">Option</a></code> represents an optional value: every <code><a class="el" href="classstx_1_1Option.html">Option</a></code> is either <code><a class="el" href="structstx_1_1Some.html" title="value-variant for Option&lt;T&gt; wrapping the contained value ">Some</a></code> and contains a value, or <code>None</code>, and does not. They have a number of uses:</p>
+<p>Type <code><a class="el" href="classstx_1_1Option.html">Option</a></code> represents an optional value: every <code><a class="el" href="classstx_1_1Option.html">Option</a></code> is either <code><a class="el" href="structstx_1_1Some.html">Some</a></code> and contains a value, or <code>None</code>, and does not. They have a number of uses:</p>
 <ul>
 <li>Initial values</li>
 <li>Return values for functions that are not defined over their entire input range (partial functions)</li>
@@ -137,6 +137,23 @@ Collaboration diagram for stx::Option&lt; T &gt;:</div>
 <map name="stx_1_1Option_3_01T_01_4_coll__map" id="stx_1_1Option_3_01T_01_4_coll__map">
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
+<h2 class="groupheader">Member Typedef Documentation</h2>
+<a id="aeaa044f1723c0cc20cb7690d8fe4e490"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeaa044f1723c0cc20cb7690d8fe4e490">&#9670;&nbsp;</a></span>value_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;Swappable T&gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">using <a class="el" href="classstx_1_1Option.html">stx::Option</a>&lt; T &gt;::<a class="el" href="classstx_1_1Option.html#aeaa044f1723c0cc20cb7690d8fe4e490">value_type</a> =  T</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a4932534a2ba009b62edbd0fd7125cc47"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a4932534a2ba009b62edbd0fd7125cc47">&#9670;&nbsp;</a></span>Option() <span class="overload">[1/5]</span></h2>
@@ -366,7 +383,7 @@ template&lt;typename Fn &gt; </div>
 </table>
 </div><div class="memdoc">
 <p>Returns <code>None</code> if the option is <code>None</code>, otherwise calls <code>op</code> with the wrapped value and returns the result.</p>
-<p><a class="el" href="structstx_1_1Some.html" title="value-variant for Option&lt;T&gt; wrapping the contained value ">Some</a> languages call this operation flatmap.</p>
+<p><a class="el" href="structstx_1_1Some.html">Some</a> languages call this operation flatmap.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
 <div class="fragment"><div class="line"><span class="keyword">auto</span> sq = [] (<span class="keyword">auto</span> x) -&gt; Option&lt;int&gt; { <span class="keywordflow">return</span> Some(x * x); };</div><div class="line"><span class="keyword">auto</span> nope = [] (<span class="keyword">auto</span>) -&gt; Option&lt;int&gt; { <span class="keywordflow">return</span> <a class="code" href="namespacestx.html#a9ba8a760ec020ea9b105ae6060494203">None</a>; };</div><div class="line"></div><div class="line">ASSERT_EQ(<a class="code" href="namespacestx.html#af3dd9531b7d03154feb5ab0b5230cd84">make_some</a>(2).<a class="code" href="classstx_1_1Option.html#a169ed0965ab0e3486db4b8f6a76e6ee4">and_then</a>(sq).<a class="code" href="classstx_1_1Option.html#a169ed0965ab0e3486db4b8f6a76e6ee4">and_then</a>(sq), Some(16));</div><div class="line">ASSERT_EQ(<a class="code" href="namespacestx.html#af3dd9531b7d03154feb5ab0b5230cd84">make_some</a>(2).<a class="code" href="classstx_1_1Option.html#a169ed0965ab0e3486db4b8f6a76e6ee4">and_then</a>(sq).<a class="code" href="classstx_1_1Option.html#a169ed0965ab0e3486db4b8f6a76e6ee4">and_then</a>(nope), <a class="code" href="namespacestx.html#a9ba8a760ec020ea9b105ae6060494203">None</a>);</div><div class="line">ASSERT_EQ(<a class="code" href="namespacestx.html#af3dd9531b7d03154feb5ab0b5230cd84">make_some</a>(2).<a class="code" href="classstx_1_1Option.html#a169ed0965ab0e3486db4b8f6a76e6ee4">and_then</a>(nope).<a class="code" href="classstx_1_1Option.html#a169ed0965ab0e3486db4b8f6a76e6ee4">and_then</a>(sq), <a class="code" href="namespacestx.html#a9ba8a760ec020ea9b105ae6060494203">None</a>);</div><div class="line">ASSERT_EQ(make_none&lt;int&gt;().<a class="code" href="classstx_1_1Option.html#a169ed0965ab0e3486db4b8f6a76e6ee4">and_then</a>(sq).<a class="code" href="classstx_1_1Option.html#a169ed0965ab0e3486db4b8f6a76e6ee4">and_then</a>(sq), <a class="code" href="namespacestx.html#a9ba8a760ec020ea9b105ae6060494203">None</a>);</div></div><!-- fragment --> 
@@ -617,7 +634,8 @@ template&lt;Swappable T&gt; </div>
           <td class="memname">constexpr auto <a class="el" href="classstx_1_1Option.html">stx::Option</a>&lt; T &gt;::clone </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td> const -&gt; <a class="el" href="classstx_1_1Option.html">Option</a> requires <a class="el" href="namespacestx.html#ac27784f661f2d1e57b357110b69ec260">copy_constructible</a>&lt;T&gt; </td>
+          <td> const -&gt; <a class="el" href="classstx_1_1Option.html">Option</a>
+      requires <a class="el" href="namespacestx.html#ac27784f661f2d1e57b357110b69ec260">copy_constructible</a>&lt;T&gt; </td>
         </tr>
       </table>
   </td>
@@ -659,7 +677,7 @@ template&lt;typename CmpType &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Returns <code>true</code> if the option is a <code><a class="el" href="structstx_1_1Some.html" title="value-variant for Option&lt;T&gt; wrapping the contained value ">Some</a></code> value containing the given value.</p>
+<p>Returns <code>true</code> if the option is a <code><a class="el" href="structstx_1_1Some.html">Some</a></code> value containing the given value.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
 <div class="fragment"><div class="line"><a class="code" href="classstx_1_1Option.html#a9393450b154680722566eef0236a7765">Option</a> x = Some(2);</div><div class="line">ASSERT_TRUE(x.contains(2));</div><div class="line"></div><div class="line"><a class="code" href="classstx_1_1Option.html#a9393450b154680722566eef0236a7765">Option</a> y = Some(3);</div><div class="line">ASSERT_FALSE(y.contains(2));</div><div class="line"></div><div class="line">Option&lt;int&gt; z = <a class="code" href="namespacestx.html#a9ba8a760ec020ea9b105ae6060494203">None</a>;</div><div class="line">ASSERT_FALSE(z.contains(2));</div></div><!-- fragment --> 
@@ -692,7 +710,7 @@ template&lt;typename UnaryPredicate &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Returns the value of evaluating the <code>predicate</code> on the contained value if the <code><a class="el" href="classstx_1_1Option.html">Option</a></code> is a <code><a class="el" href="structstx_1_1Some.html" title="value-variant for Option&lt;T&gt; wrapping the contained value ">Some</a></code>, else returns <code>false</code>.</p>
+<p>Returns the value of evaluating the <code>predicate</code> on the contained value if the <code><a class="el" href="classstx_1_1Option.html">Option</a></code> is a <code><a class="el" href="structstx_1_1Some.html">Some</a></code>, else returns <code>false</code>.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
 <div class="fragment"><div class="line"><a class="code" href="classstx_1_1Option.html#a9393450b154680722566eef0236a7765">Option</a> x = Some(2);</div><div class="line"><span class="keyword">auto</span> even = [](<span class="keyword">auto</span> x) { <span class="keywordflow">return</span> x == 2; };</div><div class="line">ASSERT_TRUE(x.exists(even));</div></div><!-- fragment --> 
@@ -723,7 +741,7 @@ template&lt;Swappable T&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Unwraps an option, yielding the content of a <code><a class="el" href="structstx_1_1Some.html" title="value-variant for Option&lt;T&gt; wrapping the contained value ">Some</a></code>.</p>
+<p>Unwraps an option, yielding the content of a <code><a class="el" href="structstx_1_1Some.html">Some</a></code>.</p>
 <h1>Panics</h1>
 <p>Panics if the value is a <code>None</code> with a custom panic message provided by <code>msg</code>.</p>
 <h1>Examples</h1>
@@ -758,7 +776,7 @@ template&lt;Swappable T&gt; </div>
 </div><div class="memdoc">
 <p>Unwraps an option, expecting <code>None</code> and returning nothing.</p>
 <h1>Panics</h1>
-<p>Panics if the value is a <code><a class="el" href="structstx_1_1Some.html" title="value-variant for Option&lt;T&gt; wrapping the contained value ">Some</a></code>, with a panic message including the passed message, and the content of the <code><a class="el" href="structstx_1_1Some.html" title="value-variant for Option&lt;T&gt; wrapping the contained value ">Some</a></code>.</p>
+<p>Panics if the value is a <code><a class="el" href="structstx_1_1Some.html">Some</a></code>, with a panic message including the passed message, and the content of the <code><a class="el" href="structstx_1_1Some.html">Some</a></code>.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
 <div class="fragment"><div class="line"><span class="keyword">auto</span> divide = [](<span class="keywordtype">double</span> num, <span class="keywordtype">double</span> denom) -&gt; Option&lt;double&gt; {</div><div class="line"><span class="keywordflow">if</span> (denom == 0.0) <span class="keywordflow">return</span> <a class="code" href="namespacestx.html#a9ba8a760ec020ea9b105ae6060494203">None</a>;</div><div class="line"> <span class="keywordflow">return</span> Some(num / denom);</div><div class="line">};</div><div class="line"></div><div class="line">EXPECT_DEATH(divide(0.0, 1.0).<a class="code" href="classstx_1_1Option.html#a44e064a8f29d3491ec611ea8cb035a43">unwrap_none</a>());</div><div class="line">EXPECT_NO_THROW(divide(1.0, 0.0).<a class="code" href="classstx_1_1Option.html#a44e064a8f29d3491ec611ea8cb035a43">unwrap_none</a>());</div></div><!-- fragment --> 
@@ -793,7 +811,7 @@ template&lt;typename UnaryPredicate &gt; </div>
 </div><div class="memdoc">
 <p>Returns <code>None</code> if the option is <code>None</code>, otherwise calls <code>predicate</code> with the wrapped value and returns:</p>
 <ul>
-<li><code><a class="el" href="structstx_1_1Some.html" title="value-variant for Option&lt;T&gt; wrapping the contained value ">Some</a>&lt;T&gt;</code> if <code>predicate</code> returns <code>true</code> on invocation on the value.</li>
+<li><code><a class="el" href="structstx_1_1Some.html">Some</a>&lt;T&gt;</code> if <code>predicate</code> returns <code>true</code> on invocation on the value.</li>
 <li><code>None</code> if <code>predicate</code> returns <code>false</code> on invocation on the value.</li>
 </ul>
 <p><code><a class="el" href="classstx_1_1Option.html#a89ec66ce64c657369fb79f39beed1d8e">filter()</a></code> lets you decide which elements to keep.</p>
@@ -831,7 +849,7 @@ template&lt;typename UnaryPredicate &gt; </div>
 </div><div class="memdoc">
 <p>Returns <code>None</code> if the option is <code>None</code>, otherwise calls <code>predicate</code> with the wrapped value and returns:</p>
 <ul>
-<li><code><a class="el" href="structstx_1_1Some.html" title="value-variant for Option&lt;T&gt; wrapping the contained value ">Some</a>&lt;T&gt;</code> if <code>predicate</code> returns <code>false</code> on invocation on the value.</li>
+<li><code><a class="el" href="structstx_1_1Some.html">Some</a>&lt;T&gt;</code> if <code>predicate</code> returns <code>false</code> on invocation on the value.</li>
 <li><code>None</code> if <code>predicate</code> returns <code>true</code> on invocation on the value.</li>
 </ul>
 <p><code><a class="el" href="classstx_1_1Option.html#ac014cc8bf8f92c1414bbd714c3b339b3">filter_not()</a></code> lets you decide which elements to keep.</p>
@@ -894,7 +912,7 @@ template&lt;Swappable T&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Returns <code>true</code> if this <a class="el" href="classstx_1_1Option.html">Option</a> is a <code><a class="el" href="structstx_1_1Some.html" title="value-variant for Option&lt;T&gt; wrapping the contained value ">Some</a></code> value.</p>
+<p>Returns <code>true</code> if this <a class="el" href="classstx_1_1Option.html">Option</a> is a <code><a class="el" href="structstx_1_1Some.html">Some</a></code> value.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
 <div class="fragment"><div class="line"><a class="code" href="classstx_1_1Option.html#a9393450b154680722566eef0236a7765">Option</a> x = Some(2);</div><div class="line">ASSERT_TRUE(x.is_some());</div><div class="line"></div><div class="line">Option&lt;int&gt; y = <a class="code" href="namespacestx.html#a9ba8a760ec020ea9b105ae6060494203">None</a>;</div><div class="line">ASSERT_FALSE(y.is_some());</div></div><!-- fragment --> 
@@ -1057,7 +1075,7 @@ template&lt;typename SomeFn , typename NoneFn &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Calls the parameter <code>some_fn</code> with the value if this <code><a class="el" href="classstx_1_1Option.html">Option</a></code> is a <code><a class="el" href="structstx_1_1Some.html" title="value-variant for Option&lt;T&gt; wrapping the contained value ">Some</a>&lt;T&gt;</code> variant, else calls <code>none_fn</code>. This <code><a class="el" href="classstx_1_1Option.html">Option</a></code> is consumed afterward.</p>
+<p>Calls the parameter <code>some_fn</code> with the value if this <code><a class="el" href="classstx_1_1Option.html">Option</a></code> is a <code><a class="el" href="structstx_1_1Some.html">Some</a>&lt;T&gt;</code> variant, else calls <code>none_fn</code>. This <code><a class="el" href="classstx_1_1Option.html">Option</a></code> is consumed afterward.</p>
 <p>The return type of both parameters must be same (without expecting implicit conversions). They can also both return nothing <code>void</code>.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
@@ -1091,7 +1109,7 @@ template&lt;typename E &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Transforms the <code><a class="el" href="classstx_1_1Option.html">Option</a>&lt;T&gt;</code> into a <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;</code>, mapping <code><a class="el" href="structstx_1_1Some.html" title="value-variant for Option&lt;T&gt; wrapping the contained value ">Some</a>&lt;T&gt;</code> to <code><a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a>&lt;T&gt;</code> and <code>None</code> to <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a>&lt;E&gt;</code>.</p>
+<p>Transforms the <code><a class="el" href="classstx_1_1Option.html">Option</a>&lt;T&gt;</code> into a <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;</code>, mapping <code><a class="el" href="structstx_1_1Some.html">Some</a>&lt;T&gt;</code> to <code><a class="el" href="structstx_1_1Ok.html">Ok</a>&lt;T&gt;</code> and <code>None</code> to <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a>&lt;E&gt;</code>.</p>
 <p>Arguments passed to <code>ok_or</code> are eagerly evaluated; if you are passing the result of a function call, it is recommended to use <code>ok_or_else</code>, which is lazily evaluated.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
@@ -1125,7 +1143,7 @@ template&lt;typename Fn &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Transforms the <code><a class="el" href="classstx_1_1Option.html">Option</a>&lt;T&gt;</code> into a <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;</code>, mapping <code><a class="el" href="structstx_1_1Some.html" title="value-variant for Option&lt;T&gt; wrapping the contained value ">Some</a>&lt;T&gt;</code> to <code><a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a>&lt;T&gt;</code> and <code>None</code> to <code>Err(op())</code>.</p>
+<p>Transforms the <code><a class="el" href="classstx_1_1Option.html">Option</a>&lt;T&gt;</code> into a <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;</code>, mapping <code><a class="el" href="structstx_1_1Some.html">Some</a>&lt;T&gt;</code> to <code><a class="el" href="structstx_1_1Ok.html">Ok</a>&lt;T&gt;</code> and <code>None</code> to <code>Err(op())</code>.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
 <div class="fragment"><div class="line"><span class="keyword">auto</span> else_fn = [] () { <span class="keywordflow">return</span> 0; };</div><div class="line"></div><div class="line"><a class="code" href="classstx_1_1Option.html#a9393450b154680722566eef0236a7765">Option</a> x = Some(<span class="stringliteral">&quot;foo&quot;</span>s);</div><div class="line">ASSERT_EQ(move(x).<a class="code" href="classstx_1_1Option.html#a22db8455dda38c384e9dcd423a4cb4cd">ok_or_else</a>(else_fn), Ok(<span class="stringliteral">&quot;foo&quot;</span>s));</div><div class="line"></div><div class="line">Option&lt;string&gt; y = <a class="code" href="namespacestx.html#a9ba8a760ec020ea9b105ae6060494203">None</a>;</div><div class="line">ASSERT_EQ(move(y).<a class="code" href="classstx_1_1Option.html#a22db8455dda38c384e9dcd423a4cb4cd">ok_or_else</a>(else_fn), Err(0));</div></div><!-- fragment --> 
@@ -1473,7 +1491,7 @@ template&lt;Swappable T&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Replaces the actual value in the option by the value given in parameter, returning the old value if present, leaving a <code><a class="el" href="structstx_1_1Some.html" title="value-variant for Option&lt;T&gt; wrapping the contained value ">Some</a></code> in its place without deinitializing either one.</p>
+<p>Replaces the actual value in the option by the value given in parameter, returning the old value if present, leaving a <code><a class="el" href="structstx_1_1Some.html">Some</a></code> in its place without deinitializing either one.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
 <div class="fragment"><div class="line"><a class="code" href="classstx_1_1Option.html#a9393450b154680722566eef0236a7765">Option</a> x = Some(2);</div><div class="line"><span class="keyword">auto</span> old_x = x.replace(5);</div><div class="line">ASSERT_EQ(x, Some(5));</div><div class="line">ASSERT_EQ(old_x, Some(2));</div><div class="line"></div><div class="line">Option&lt;int&gt; y = <a class="code" href="namespacestx.html#a9ba8a760ec020ea9b105ae6060494203">None</a>;</div><div class="line"><span class="keyword">auto</span> old_y = y.replace(3);</div><div class="line">ASSERT_EQ(y, Some(3));</div><div class="line">ASSERT_EQ(old_y, <a class="code" href="namespacestx.html#a9ba8a760ec020ea9b105ae6060494203">None</a>);</div></div><!-- fragment --> 
@@ -1504,7 +1522,7 @@ template&lt;Swappable T&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Replaces the actual value in the option by the value given in parameter, returning the old value if present, leaving a <code><a class="el" href="structstx_1_1Some.html" title="value-variant for Option&lt;T&gt; wrapping the contained value ">Some</a></code> in its place without deinitializing either one.</p>
+<p>Replaces the actual value in the option by the value given in parameter, returning the old value if present, leaving a <code><a class="el" href="structstx_1_1Some.html">Some</a></code> in its place without deinitializing either one.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
 <div class="fragment"><div class="line"><a class="code" href="classstx_1_1Option.html#a9393450b154680722566eef0236a7765">Option</a> x = Some(2);</div><div class="line"><span class="keyword">auto</span> old_x = x.replace(5);</div><div class="line">ASSERT_EQ(x, Some(5));</div><div class="line">ASSERT_EQ(old_x, Some(2));</div><div class="line"></div><div class="line">Option&lt;int&gt; y = <a class="code" href="namespacestx.html#a9ba8a760ec020ea9b105ae6060494203">None</a>;</div><div class="line"><span class="keyword">auto</span> old_y = y.replace(3);</div><div class="line">ASSERT_EQ(y, Some(3));</div><div class="line">ASSERT_EQ(old_y, <a class="code" href="namespacestx.html#a9ba8a760ec020ea9b105ae6060494203">None</a>);</div></div><!-- fragment --> 
@@ -1564,7 +1582,7 @@ template&lt;Swappable T&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Moves the value out of the <code><a class="el" href="classstx_1_1Option.html">Option</a>&lt;T&gt;</code> if it is in the variant state of <code><a class="el" href="structstx_1_1Some.html" title="value-variant for Option&lt;T&gt; wrapping the contained value ">Some</a>&lt;T&gt;</code>.</p>
+<p>Moves the value out of the <code><a class="el" href="classstx_1_1Option.html">Option</a>&lt;T&gt;</code> if it is in the variant state of <code><a class="el" href="structstx_1_1Some.html">Some</a>&lt;T&gt;</code>.</p>
 <p>In general, because this function may panic, its use is discouraged. Instead, prefer to use pattern matching and handle the <code>None</code> case explicitly.</p>
 <h1>Panics</h1>
 <p>Panics if its value equals <code>None</code>.</p>
@@ -1599,7 +1617,7 @@ template&lt;Swappable T&gt; </div>
 </div><div class="memdoc">
 <p>Unwraps an option, expecting <code>None</code> and returning nothing.</p>
 <h1>Panics</h1>
-<p>Panics if the value is a <code><a class="el" href="structstx_1_1Some.html" title="value-variant for Option&lt;T&gt; wrapping the contained value ">Some</a></code>, with a panic message including the passed message, and the content of the <code><a class="el" href="structstx_1_1Some.html" title="value-variant for Option&lt;T&gt; wrapping the contained value ">Some</a></code>.</p>
+<p>Panics if the value is a <code><a class="el" href="structstx_1_1Some.html">Some</a></code>, with a panic message including the passed message, and the content of the <code><a class="el" href="structstx_1_1Some.html">Some</a></code>.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
 <div class="fragment"><div class="line"><span class="keyword">auto</span> divide = [](<span class="keywordtype">double</span> num, <span class="keywordtype">double</span> denom) -&gt; Option&lt;double&gt; {</div><div class="line"><span class="keywordflow">if</span> (denom == 0.0) <span class="keywordflow">return</span> <a class="code" href="namespacestx.html#a9ba8a760ec020ea9b105ae6060494203">None</a>;</div><div class="line"> <span class="keywordflow">return</span> Some(num / denom);</div><div class="line">};</div><div class="line"></div><div class="line">EXPECT_DEATH(divide(0.0, 1.0).<a class="code" href="classstx_1_1Option.html#aca4ecfffb340613fb8e00b0fb0189c72">expect_none</a>(<span class="stringliteral">&quot;zero dividend&quot;</span>));</div><div class="line">EXPECT_NO_THROW(divide(1.0, 0.0).<a class="code" href="classstx_1_1Option.html#aca4ecfffb340613fb8e00b0fb0189c72">expect_none</a>(<span class="stringliteral">&quot;zero dividend&quot;</span>));</div></div><!-- fragment --> 
@@ -1652,7 +1670,8 @@ template&lt;Swappable T&gt; </div>
           <td class="memname">constexpr auto <a class="el" href="classstx_1_1Option.html">stx::Option</a>&lt; T &gt;::unwrap_or_default </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td> &amp;&amp; -&gt; T requires <a class="el" href="namespacestx.html#a33c4edb845e3f658de071107790b37bc">default_constructible</a>&lt;T&gt; </td>
+          <td> &amp;&amp; -&gt; T
+      requires <a class="el" href="namespacestx.html#a33c4edb845e3f658de071107790b37bc">default_constructible</a>&lt;T&gt; </td>
         </tr>
       </table>
   </td>
@@ -1662,7 +1681,7 @@ template&lt;Swappable T&gt; </div>
 </table>
 </div><div class="memdoc">
 <p>Returns the contained value or a default of T</p>
-<p>Consumes this object and returns its <code><a class="el" href="structstx_1_1Some.html" title="value-variant for Option&lt;T&gt; wrapping the contained value ">Some</a>&lt;T&gt;</code> value if it is a <code><a class="el" href="structstx_1_1Some.html" title="value-variant for Option&lt;T&gt; wrapping the contained value ">Some</a>&lt;T&gt;</code> variant, else if this object is a <code>None</code> variant, returns the default of the value type <code>T</code>.</p>
+<p>Consumes this object and returns its <code><a class="el" href="structstx_1_1Some.html">Some</a>&lt;T&gt;</code> value if it is a <code><a class="el" href="structstx_1_1Some.html">Some</a>&lt;T&gt;</code> variant, else if this object is a <code>None</code> variant, returns the default of the value type <code>T</code>.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
 <div class="fragment"><div class="line"><a class="code" href="classstx_1_1Option.html#a9393450b154680722566eef0236a7765">Option</a> x = Some(<span class="stringliteral">&quot;Ten&quot;</span>s);</div><div class="line">Option&lt;string&gt; y = <a class="code" href="namespacestx.html#a9ba8a760ec020ea9b105ae6060494203">None</a>;</div><div class="line"></div><div class="line">ASSERT_EQ(move(x).<a class="code" href="classstx_1_1Option.html#a7cba1e1ee68ea9b84817707017ab5421">unwrap_or_default</a>(), <span class="stringliteral">&quot;Ten&quot;</span>s);</div><div class="line">ASSERT_EQ(move(y).<a class="code" href="classstx_1_1Option.html#a7cba1e1ee68ea9b84817707017ab5421">unwrap_or_default</a>(), <span class="stringliteral">&quot;&quot;</span>s);</div></div><!-- fragment --> 
@@ -1848,7 +1867,7 @@ template&lt;Swappable T&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Returns whichever one of this object or <code>alt</code> is a <code><a class="el" href="structstx_1_1Some.html" title="value-variant for Option&lt;T&gt; wrapping the contained value ">Some</a>&lt;T&gt;</code> variant, otherwise returns <code>None</code> if neither or both are a <code><a class="el" href="structstx_1_1Some.html" title="value-variant for Option&lt;T&gt; wrapping the contained value ">Some</a>&lt;T&gt;</code> variant.</p>
+<p>Returns whichever one of this object or <code>alt</code> is a <code><a class="el" href="structstx_1_1Some.html">Some</a>&lt;T&gt;</code> variant, otherwise returns <code>None</code> if neither or both are a <code><a class="el" href="structstx_1_1Some.html">Some</a>&lt;T&gt;</code> variant.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
 <div class="fragment"><div class="line"><a class="code" href="classstx_1_1Option.html#a9393450b154680722566eef0236a7765">Option</a> a = Some(2);</div><div class="line">Option&lt;int&gt; b = <a class="code" href="namespacestx.html#a9ba8a760ec020ea9b105ae6060494203">None</a>;</div><div class="line">ASSERT_EQ(move(a).<a class="code" href="classstx_1_1Option.html#a93ab884632f021c095f5a64ebc14b54d">XOR</a>(move(b)), Some(2));</div><div class="line"></div><div class="line">Option&lt;int&gt; c = <a class="code" href="namespacestx.html#a9ba8a760ec020ea9b105ae6060494203">None</a>;</div><div class="line"><a class="code" href="classstx_1_1Option.html#a9393450b154680722566eef0236a7765">Option</a> d = Some(2);</div><div class="line">ASSERT_EQ(move(c).<a class="code" href="classstx_1_1Option.html#a93ab884632f021c095f5a64ebc14b54d">XOR</a>(move(d)), Some(2));</div><div class="line"></div><div class="line"><a class="code" href="classstx_1_1Option.html#a9393450b154680722566eef0236a7765">Option</a> e = Some(2);</div><div class="line"><a class="code" href="classstx_1_1Option.html#a9393450b154680722566eef0236a7765">Option</a> f = Some(2);</div><div class="line">ASSERT_EQ(move(e).<a class="code" href="classstx_1_1Option.html#a93ab884632f021c095f5a64ebc14b54d">XOR</a>(move(f)), <a class="code" href="namespacestx.html#a9ba8a760ec020ea9b105ae6060494203">None</a>);</div><div class="line"></div><div class="line">Option&lt;int&gt; g = <a class="code" href="namespacestx.html#a9ba8a760ec020ea9b105ae6060494203">None</a>;</div><div class="line">Option&lt;int&gt; h = <a class="code" href="namespacestx.html#a9ba8a760ec020ea9b105ae6060494203">None</a>;</div><div class="line">ASSERT_EQ(move(g).<a class="code" href="classstx_1_1Option.html#a93ab884632f021c095f5a64ebc14b54d">XOR</a>(move(h)), <a class="code" href="namespacestx.html#a9ba8a760ec020ea9b105ae6060494203">None</a>);</div></div><!-- fragment --> 
@@ -1879,8 +1898,8 @@ Inheritance diagram for stx::Option&lt; T &gt;:</div>
 <div class="dyncontent">
 <div class="center"><img src="classstx_1_1Option__inherit__graph.png" border="0" usemap="#stx_1_1Option_3_01T_01_4_inherit__map" alt="Inheritance graph"/></div>
 <map name="stx_1_1Option_3_01T_01_4_inherit__map" id="stx_1_1Option_3_01T_01_4_inherit__map">
-<area shape="rect" id="node2" href="classstx_1_1Option.html" title="stx::Option\&lt; stx::backtrace\l::Symbol \&gt;" alt="" coords="5,95,205,136"/>
-<area shape="rect" id="node3" href="classstx_1_1Option.html" title="stx::Option\&lt; uintptr_t \&gt;" alt="" coords="231,102,409,129"/>
+<area shape="rect" id="node2" href="classstx_1_1Option.html" title="stx::Option\&lt; stx::backtrace\l::Symbol \&gt;" alt="" coords="5,95,244,136"/>
+<area shape="rect" id="node3" href="classstx_1_1Option.html" title="stx::Option\&lt; uintptr_t \&gt;" alt="" coords="268,102,483,129"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 </div><!-- contents -->

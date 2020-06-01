@@ -1,6 +1,6 @@
 <map id="include/stx/panic/hook.h" name="include/stx/panic/hook.h">
-<area shape="rect" id="node3" href="$panic_8h.html" title="stx/panic.h" alt="" coords="292,80,385,107"/>
-<area shape="rect" id="node4" href="$report_8h.html" title="stx/report.h" alt="" coords="215,162,313,189"/>
-<area shape="rect" id="node10" href="$common_8h.html" title="stx/common.h" alt="" coords="483,244,597,271"/>
-<area shape="rect" id="node14" href="$config_8h.html" title="stx/config.h" alt="" coords="663,319,761,345"/>
+<area shape="rect" id="node3" href="$panic_8h.html" title="stx/panic.h" alt="" coords="323,80,433,107"/>
+<area shape="rect" id="node4" href="$report_8h.html" title="stx/report.h" alt="" coords="233,162,352,189"/>
+<area shape="rect" id="node10" href="$common_8h.html" title="stx/common.h" alt="" coords="535,244,653,271"/>
+<area shape="rect" id="node14" href="$config_8h.html" title="stx/config.h" alt="" coords="735,319,853,345"/>
 </map>

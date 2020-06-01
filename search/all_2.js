@@ -4,6 +4,8 @@ var searchData=
   ['cfg',['CFG',['../config_8h.html#a3304b18b5fd52d21207a2dda55b3b406',1,'config.h']]],
   ['charspan',['CharSpan',['../structstx_1_1backtrace_1_1CharSpan.html',1,'stx::backtrace::CharSpan'],['../structstx_1_1backtrace_1_1CharSpan.html#a614acbea5559173bb35b9c0e372b39d7',1,'stx::backtrace::CharSpan::CharSpan(char *data_, size_t size_) noexcept'],['../structstx_1_1backtrace_1_1CharSpan.html#a1439babe08a534e28b23c65eb790b722',1,'stx::backtrace::CharSpan::CharSpan(CharSpan const &amp;) noexcept=default'],['../structstx_1_1backtrace_1_1CharSpan.html#ae3ab9699f7840b3086eab72b5227dbb5',1,'stx::backtrace::CharSpan::CharSpan(CharSpan &amp;&amp;) noexcept=default']]],
   ['clone',['clone',['../classstx_1_1Option.html#a16d508c2ae207eb559f44f86da5dc9b4',1,'stx::Option::clone()'],['../classstx_1_1Result.html#a0006cd708c72b1bcb11ff2358c2346ce',1,'stx::Result::clone()']]],
+  ['co_5ftry_5fok',['CO_TRY_OK',['../option__result_8h.html#ae0095cc7535c97eb9940a689cfe83aff',1,'option_result.h']]],
+  ['co_5ftry_5fsome',['CO_TRY_SOME',['../option__result_8h.html#ab522f357d7f010f227567f2bf936fc01',1,'option_result.h']]],
   ['common_2eh',['common.h',['../common_8h.html',1,'']]],
   ['config_2eh',['config.h',['../config_8h.html',1,'']]],
   ['const',['Const',['../namespacestx.html#ab1afd2f750ccc65f9bfe9ce66c3721f3',1,'stx']]],

@@ -118,12 +118,12 @@ $(function() {
 class stx::Result&lt; T, E &gt;</h3>
 
 <h3>Error handling with the <code><a class="el" href="classstx_1_1Result.html">Result</a></code> type.</h3>
-<p><code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;</code> is a type used for returning and propagating errors. It is a class with the variants: <code><a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a>&lt;T&gt;</code>, representing success and containing a value, and <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a>&lt;E&gt;</code>, representing error and containing an error value.</p>
+<p><code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;</code> is a type used for returning and propagating errors. It is a class with the variants: <code><a class="el" href="structstx_1_1Ok.html">Ok</a>&lt;T&gt;</code>, representing success and containing a value, and <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a>&lt;E&gt;</code>, representing error and containing an error value.</p>
 <p>Functions return <code><a class="el" href="classstx_1_1Result.html">Result</a></code> whenever errors are expected and recoverable.</p>
 <p>A simple function returning <code><a class="el" href="classstx_1_1Result.html">Result</a></code> might be defined and used like so:</p>
 <div class="fragment"><div class="line"><span class="keyword">enum class</span> Version { Version1 = 1, Version2 = 2 };</div><div class="line"></div><div class="line"><span class="keyword">auto</span> parse_version =</div><div class="line">     [](array&lt;uint8_t, 5&gt; <span class="keyword">const</span>&amp; header) -&gt; Result&lt;Version, string_view&gt; {</div><div class="line">   <span class="keywordflow">switch</span> (header.at(0)) {</div><div class="line">     <span class="keywordflow">case</span> 1:</div><div class="line">       <span class="keywordflow">return</span> Ok(Version::Version1);</div><div class="line">     <span class="keywordflow">case</span> 2:</div><div class="line">       <span class="keywordflow">return</span> Ok(Version::Version2);</div><div class="line">     <span class="keywordflow">default</span>:</div><div class="line">       <span class="keywordflow">return</span> Err(<span class="stringliteral">&quot;invalid version&quot;</span>sv);</div><div class="line">   }</div><div class="line"> };</div><div class="line"></div><div class="line">parse_version({1u, 2u, 3u, 4u, 5u})</div><div class="line">    .<a class="code" href="classstx_1_1Result.html#a71b44d71b194ffba79f5fadc2b2b85a5">match</a>(</div><div class="line">        [](<span class="keyword">auto</span> value) { fmt::print(<span class="stringliteral">&quot;Working with version: {}\n&quot;</span>, value);</div><div class="line">        },</div><div class="line">        [](<span class="keyword">auto</span> <a class="code" href="classstx_1_1Result.html#a4548a280df6c073e970fb7492e64b738">err</a>) { fmt::print(<span class="stringliteral">&quot;Error parsing header: {}\n&quot;</span>, <a class="code" href="classstx_1_1Result.html#a4548a280df6c073e970fb7492e64b738">err</a>); });</div></div><!-- fragment --><p><code><a class="el" href="classstx_1_1Result.html">Result</a></code> comes with some convenience methods that make working with it more succinct.</p>
-<div class="fragment"><div class="line">Result&lt;int, int&gt; good_result = Ok(10);</div><div class="line">Result&lt;int, int&gt; bad_result = Err(10);</div><div class="line"></div><div class="line"><span class="comment">// The `is_ok` and `is_err` methods do what they say.</span></div><div class="line">ASSERT_TRUE(good_result.is_ok() &amp;&amp; !good_result.is_err());</div><div class="line">ASSERT_TRUE(bad_result.is_err() &amp;&amp; !bad_result.is_ok());</div></div><!-- fragment --><p><code><a class="el" href="classstx_1_1Result.html">Result</a></code> is a type that represents either success (<code><a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a></code>) or failure (<code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a></code>).</p>
-<p><a class="el" href="classstx_1_1Result.html">Result</a> is either in the <a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a> or <a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a> state at any point in time </p>
+<div class="fragment"><div class="line">Result&lt;int, int&gt; good_result = Ok(10);</div><div class="line">Result&lt;int, int&gt; bad_result = Err(10);</div><div class="line"></div><div class="line"><span class="comment">// The `is_ok` and `is_err` methods do what they say.</span></div><div class="line">ASSERT_TRUE(good_result.is_ok() &amp;&amp; !good_result.is_err());</div><div class="line">ASSERT_TRUE(bad_result.is_err() &amp;&amp; !bad_result.is_ok());</div></div><!-- fragment --><p><code><a class="el" href="classstx_1_1Result.html">Result</a></code> is a type that represents either success (<code><a class="el" href="structstx_1_1Ok.html">Ok</a></code>) or failure (<code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a></code>).</p>
+<p><a class="el" href="classstx_1_1Result.html">Result</a> is either in the <a class="el" href="structstx_1_1Ok.html">Ok</a> or <a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a> state at any point in time </p>
 </div><div class="dynheader">
 Collaboration diagram for stx::Result&lt; T, E &gt;:</div>
 <div class="dyncontent">
@@ -359,7 +359,7 @@ template&lt;typename U , typename F &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Returns <code>res</code> if the result is <code><a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a></code>, otherwise returns the <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a></code> value of itself.</p>
+<p>Returns <code>res</code> if the result is <code><a class="el" href="structstx_1_1Ok.html">Ok</a></code>, otherwise returns the <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a></code> value of itself.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
 <div class="fragment"><div class="line">Result&lt;int, string_view&gt; a = Ok(2);</div><div class="line">Result&lt;string_view, string_view&gt; b = Err(<span class="stringliteral">&quot;late error&quot;</span>sv);</div><div class="line">ASSERT_EQ(move(a).<a class="code" href="classstx_1_1Result.html#ae1cae4945f3fd21dce53fc179e9ea4df">AND</a>(move(b)), Err(<span class="stringliteral">&quot;late error&quot;</span>sv));</div><div class="line"></div><div class="line">Result&lt;int, string_view&gt; c = Err(<span class="stringliteral">&quot;early error&quot;</span>sv);</div><div class="line">Result&lt;string_view, string_view&gt; d = Ok(<span class="stringliteral">&quot;foo&quot;</span>sv);</div><div class="line">ASSERT_EQ(move(c).<a class="code" href="classstx_1_1Result.html#ae1cae4945f3fd21dce53fc179e9ea4df">AND</a>(move(d)), Err(<span class="stringliteral">&quot;early error&quot;</span>sv));</div><div class="line"></div><div class="line">Result&lt;int, string_view&gt; e = Err(<span class="stringliteral">&quot;not a 2&quot;</span>sv);</div><div class="line">Result&lt;string_view, string_view&gt; f = Err(<span class="stringliteral">&quot;late error&quot;</span>sv);</div><div class="line">ASSERT_EQ(move(e).<a class="code" href="classstx_1_1Result.html#ae1cae4945f3fd21dce53fc179e9ea4df">AND</a>(move(f)), Err(<span class="stringliteral">&quot;not a 2&quot;</span>sv));</div><div class="line"></div><div class="line">Result&lt;int, string_view&gt; g = Ok(2);</div><div class="line">Result&lt;string_view, string_view&gt; h = Ok(<span class="stringliteral">&quot;different result type&quot;</span>sv);</div><div class="line">ASSERT_EQ(move(g).<a class="code" href="classstx_1_1Result.html#ae1cae4945f3fd21dce53fc179e9ea4df">AND</a>(move(h)), Ok(<span class="stringliteral">&quot;different result type&quot;</span>sv));</div></div><!-- fragment --> 
@@ -392,7 +392,7 @@ template&lt;typename Fn &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Calls <code>op</code> if the result is <code><a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a></code>, otherwise returns the <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a></code> value of itself.</p>
+<p>Calls <code>op</code> if the result is <code><a class="el" href="structstx_1_1Ok.html">Ok</a></code>, otherwise returns the <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a></code> value of itself.</p>
 <p>This function can be used for control flow based on <code><a class="el" href="classstx_1_1Result.html">Result</a></code> values.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
@@ -818,7 +818,7 @@ template&lt;typename CmpType &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Returns <code>true</code> if the result is an <code><a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a>&lt;T&gt;</code> variant and contains the given value.</p>
+<p>Returns <code>true</code> if the result is an <code><a class="el" href="structstx_1_1Ok.html">Ok</a>&lt;T&gt;</code> variant and contains the given value.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
 <div class="fragment"><div class="line">Result&lt;int, string&gt; x = Ok(2);</div><div class="line">ASSERT_TRUE(x.contains(2));</div><div class="line"></div><div class="line">Result&lt;int, string&gt; y = Ok(3);</div><div class="line">ASSERT_FALSE(y.contains(2));</div><div class="line"></div><div class="line">Result&lt;int, string&gt; z = Err(<span class="stringliteral">&quot;Some error message&quot;</span>s);</div><div class="line">ASSERT_FALSE(z.contains(2));</div></div><!-- fragment --> 
@@ -915,7 +915,7 @@ template&lt;typename UnaryPredicate &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Returns the value of evaluating the <code>predicate</code> on the contained value if the <code><a class="el" href="classstx_1_1Option.html">Option</a></code> is a <code><a class="el" href="structstx_1_1Some.html" title="value-variant for Option&lt;T&gt; wrapping the contained value ">Some</a></code>, else returns <code>false</code>.</p>
+<p>Returns the value of evaluating the <code>predicate</code> on the contained value if the <code><a class="el" href="classstx_1_1Option.html">Option</a></code> is a <code><a class="el" href="structstx_1_1Some.html">Some</a></code>, else returns <code>false</code>.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
 <div class="fragment"><div class="line">Result&lt;int, string&gt; x = Err(<span class="stringliteral">&quot;invalid&quot;</span>s);</div><div class="line"><span class="keyword">auto</span> invalid = [](<span class="keyword">auto</span> x) { <span class="keywordflow">return</span> x == <span class="stringliteral">&quot;invalid&quot;</span>; };</div><div class="line"></div><div class="line">ASSERT_TRUE(x.err_exists(invalid));</div></div><!-- fragment --> 
@@ -947,7 +947,7 @@ template&lt;Swappable T, Swappable E&gt; </div>
 </div><div class="memdoc">
 <p>Returns an l-value reference to the contained error value. Note that no copying occurs here.</p>
 <h1>Panics</h1>
-<p>Panics if the value is an <code><a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a></code></p>
+<p>Panics if the value is an <code><a class="el" href="structstx_1_1Ok.html">Ok</a></code></p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
 <div class="fragment"><div class="line"><span class="keyword">auto</span> result = make_err&lt;int, int&gt;(9);</div><div class="line"><span class="keywordtype">int</span>&amp; <a class="code" href="classstx_1_1Result.html#a4548a280df6c073e970fb7492e64b738">err</a> = result.err_value();</div><div class="line">err = 46;</div><div class="line"></div><div class="line">ASSERT_EQ(result, Err(46));</div></div><!-- fragment --> 
@@ -979,7 +979,7 @@ template&lt;Swappable T, Swappable E&gt; </div>
 </div><div class="memdoc">
 <p>Returns a const l-value reference to the contained error value. Note that no copying occurs here.</p>
 <h1>Panics</h1>
-<p>Panics if the value is an <code><a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a></code></p>
+<p>Panics if the value is an <code><a class="el" href="structstx_1_1Ok.html">Ok</a></code></p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
 <div class="fragment"><div class="line"><span class="keyword">auto</span> <span class="keyword">const</span> result = make_err&lt;int, int&gt;(9);</div><div class="line"><span class="keywordtype">int</span> <span class="keyword">const</span>&amp; err = result.err_value();</div><div class="line"></div><div class="line">ASSERT_EQ(err, 9);</div></div><!-- fragment --> 
@@ -1070,7 +1070,7 @@ template&lt;typename UnaryPredicate &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Returns the value of evaluating the <code>predicate</code> on the contained value if the <code><a class="el" href="classstx_1_1Option.html">Option</a></code> is a <code><a class="el" href="structstx_1_1Some.html" title="value-variant for Option&lt;T&gt; wrapping the contained value ">Some</a></code>, else returns <code>false</code>.</p>
+<p>Returns the value of evaluating the <code>predicate</code> on the contained value if the <code><a class="el" href="classstx_1_1Option.html">Option</a></code> is a <code><a class="el" href="structstx_1_1Some.html">Some</a></code>, else returns <code>false</code>.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
 <div class="fragment"><div class="line">Result&lt;int, string&gt; x = Ok(2);</div><div class="line"><span class="keyword">auto</span> even = [](<span class="keyword">auto</span> x) { <span class="keywordflow">return</span> x == 2; };</div><div class="line"></div><div class="line">ASSERT_TRUE(x.exists(even));</div></div><!-- fragment --> 
@@ -1101,7 +1101,7 @@ template&lt;Swappable T, Swappable E&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Unwraps a result, yielding the content of an <code><a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a></code>.</p>
+<p>Unwraps a result, yielding the content of an <code><a class="el" href="structstx_1_1Ok.html">Ok</a></code>.</p>
 <h1>Panics</h1>
 <p>Panics if the value is an <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a></code>, with a panic message including the passed message, and the content of the <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a></code>.</p>
 <h1>Examples</h1>
@@ -1136,7 +1136,7 @@ template&lt;Swappable T, Swappable E&gt; </div>
 </div><div class="memdoc">
 <p>Unwraps a result, yielding the content of an <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a></code>.</p>
 <h1>Panics</h1>
-<p>Panics if the value is an <code><a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a></code>, with a panic message including the passed message, and the content of the <code><a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a></code>.</p>
+<p>Panics if the value is an <code><a class="el" href="structstx_1_1Ok.html">Ok</a></code>, with a panic message including the passed message, and the content of the <code><a class="el" href="structstx_1_1Ok.html">Ok</a></code>.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
 <div class="fragment"><div class="line">Result&lt;int, string_view&gt; x = Ok(10);</div><div class="line">ASSERT_ANY_THROW(move(x).<a class="code" href="classstx_1_1Result.html#a1eb60223b23d0276df7e2e0b56a81005">expect_err</a>(<span class="stringliteral">&quot;Testing expect_err&quot;</span>)); <span class="comment">// panics with</span></div><div class="line">                                                            <span class="comment">// &quot;Testing</span></div><div class="line">                                                            <span class="comment">// expect_err:</span></div><div class="line">                                                            <span class="comment">// 10&quot;</span></div></div><!-- fragment --> 
@@ -1196,7 +1196,7 @@ template&lt;Swappable T, Swappable E&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Returns <code>true</code> if the result is an <code><a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a>&lt;T&gt;</code> variant.</p>
+<p>Returns <code>true</code> if the result is an <code><a class="el" href="structstx_1_1Ok.html">Ok</a>&lt;T&gt;</code> variant.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
 <div class="fragment"><div class="line">Result&lt;int, string_view&gt; x = Ok(-3);</div><div class="line">ASSERT_TRUE(x.is_ok());</div><div class="line"></div><div class="line">Result&lt;int, string_view&gt; y = Err(<span class="stringliteral">&quot;Some error message&quot;</span>sv);</div><div class="line">ASSERT_FALSE(y.is_ok());</div></div><!-- fragment --> 
@@ -1229,7 +1229,7 @@ template&lt;typename Fn &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Maps a <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;</code> to <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;U, E&gt;</code> by applying the function <code>op</code> to the contained <code><a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a>&lt;T&gt;</code> value, leaving an <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a>&lt;E&gt;</code> value untouched.</p>
+<p>Maps a <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;</code> to <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;U, E&gt;</code> by applying the function <code>op</code> to the contained <code><a class="el" href="structstx_1_1Ok.html">Ok</a>&lt;T&gt;</code> value, leaving an <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a>&lt;E&gt;</code> value untouched.</p>
 <p>This function can be used to compose the results of two functions.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
@@ -1264,7 +1264,7 @@ template&lt;typename Fn &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Maps a <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;</code> to <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, F&gt;</code> by applying a function to a contained <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a></code> value, leaving an <code><a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a></code> value untouched.</p>
+<p>Maps a <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;</code> to <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, F&gt;</code> by applying a function to a contained <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a></code> value, leaving an <code><a class="el" href="structstx_1_1Ok.html">Ok</a></code> value untouched.</p>
 <p>This function can be used to pass through a successful result while handling an error.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
@@ -1351,7 +1351,7 @@ template&lt;typename Fn , typename A &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Maps a <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;</code> to <code>U</code> by applying a function to a contained <code><a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a></code> value, or a fallback function to a contained <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a></code> value.</p>
+<p>Maps a <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;</code> to <code>U</code> by applying a function to a contained <code><a class="el" href="structstx_1_1Ok.html">Ok</a></code> value, or a fallback function to a contained <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a></code> value.</p>
 <p>This function can be used to unpack a successful result while handling an error.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
@@ -1395,7 +1395,7 @@ template&lt;typename OkFn , typename ErrFn &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Calls the parameter <code>ok_fn</code> with the value if this result is an <code><a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a>&lt;T&gt;</code>, else calls <code>err_fn</code> with the error. This result is consumed afterward.</p>
+<p>Calls the parameter <code>ok_fn</code> with the value if this result is an <code><a class="el" href="structstx_1_1Ok.html">Ok</a>&lt;T&gt;</code>, else calls <code>err_fn</code> with the error. This result is consumed afterward.</p>
 <p>The return type of both parameters must be same (without expecting implicit conversions). They can also both return nothing <code>void</code>.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
@@ -1824,7 +1824,7 @@ template&lt;typename U , typename F &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Returns <code>res</code> if the result is <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a></code>, otherwise returns the <code><a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a></code> value of itself.</p>
+<p>Returns <code>res</code> if the result is <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a></code>, otherwise returns the <code><a class="el" href="structstx_1_1Ok.html">Ok</a></code> value of itself.</p>
 <p>Arguments passed to <code>or</code> are eagerly evaluated; if you are passing the result of a function call, it is recommended to use <code>or_else</code>, which is lazily evaluated.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
@@ -1858,7 +1858,7 @@ template&lt;typename Fn &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Calls <code>op</code> if the result is <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a></code>, otherwise returns the <code><a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a></code> value of itself.</p>
+<p>Calls <code>op</code> if the result is <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a></code>, otherwise returns the <code><a class="el" href="structstx_1_1Ok.html">Ok</a></code> value of itself.</p>
 <p>This function can be used for control flow based on result values.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
@@ -1889,7 +1889,7 @@ template&lt;Swappable T, Swappable E&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Unwraps a result, yielding the content of an <code><a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a></code>.</p>
+<p>Unwraps a result, yielding the content of an <code><a class="el" href="structstx_1_1Ok.html">Ok</a></code>.</p>
 <h1>Panics</h1>
 <p>Panics if the value is an <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a></code>, with a panic message provided by the <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a></code>'s value.</p>
 <h1>Examples</h1>
@@ -1923,7 +1923,7 @@ template&lt;Swappable T, Swappable E&gt; </div>
 </div><div class="memdoc">
 <p>Unwraps a result, yielding the content of an <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a></code>.</p>
 <h1>Panics</h1>
-<p>Panics if the value is an <code><a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a></code>, with a custom panic message provided by the <code><a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a></code>'s value.</p>
+<p>Panics if the value is an <code><a class="el" href="structstx_1_1Ok.html">Ok</a></code>, with a custom panic message provided by the <code><a class="el" href="structstx_1_1Ok.html">Ok</a></code>'s value.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
 <div class="fragment"><div class="line">Result&lt;int, string_view&gt; x = Ok(2);</div><div class="line">ASSERT_ANY_THROW(move(x).<a class="code" href="classstx_1_1Result.html#afe3376a66e7cf9cb15728ba5f4605753">unwrap_err</a>()); <span class="comment">// panics</span></div><div class="line"></div><div class="line">Result&lt;int, string_view&gt; y = Err(<span class="stringliteral">&quot;emergency failure&quot;</span>sv);</div><div class="line">ASSERT_EQ(move(y).<a class="code" href="classstx_1_1Result.html#afe3376a66e7cf9cb15728ba5f4605753">unwrap_err</a>(), <span class="stringliteral">&quot;emergency failure&quot;</span>);</div></div><!-- fragment --> 
@@ -1954,7 +1954,7 @@ template&lt;Swappable T, Swappable E&gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Unwraps a result, yielding the content of an <code><a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a>&lt;T&gt;</code> variant. Else, it returns the parameter <code>alt</code>.</p>
+<p>Unwraps a result, yielding the content of an <code><a class="el" href="structstx_1_1Ok.html">Ok</a>&lt;T&gt;</code> variant. Else, it returns the parameter <code>alt</code>.</p>
 <p>Arguments passed to <code>unwrap_or</code> are eagerly evaluated; if you are passing the result of a function call, it is recommended to use <code>unwrap_or_else</code>, which is lazily evaluated.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
@@ -1976,7 +1976,8 @@ template&lt;Swappable T, Swappable E&gt; </div>
           <td class="memname">constexpr auto <a class="el" href="classstx_1_1Result.html">stx::Result</a>&lt; T, E &gt;::unwrap_or_default </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td> &amp;&amp; -&gt; T requires <a class="el" href="namespacestx.html#a33c4edb845e3f658de071107790b37bc">default_constructible</a>&lt;T&gt; </td>
+          <td> &amp;&amp; -&gt; T
+      requires <a class="el" href="namespacestx.html#a33c4edb845e3f658de071107790b37bc">default_constructible</a>&lt;T&gt; </td>
         </tr>
       </table>
   </td>
@@ -1986,7 +1987,7 @@ template&lt;Swappable T, Swappable E&gt; </div>
 </table>
 </div><div class="memdoc">
 <p>Returns the contained value or a default</p>
-<p>Consumes itself then, if <code><a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a></code>, returns the contained value, otherwise if <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a></code>, returns the default value for that type.</p>
+<p>Consumes itself then, if <code><a class="el" href="structstx_1_1Ok.html">Ok</a></code>, returns the contained value, otherwise if <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a></code>, returns the default value for that type.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
 <div class="fragment"><div class="line">Result&lt;string, int&gt; good_year = Ok(<span class="stringliteral">&quot;1909&quot;</span>s);</div><div class="line">Result&lt;string, int&gt; bad_year = Err(-1);</div><div class="line"></div><div class="line">ASSERT_EQ(move(good_year).<a class="code" href="classstx_1_1Result.html#ae16d2de5c4bf672a51ec7a6c85f70b08">unwrap_or_default</a>(), <span class="stringliteral">&quot;1909&quot;</span>s);</div><div class="line">ASSERT_EQ(move(bad_year).<a class="code" href="classstx_1_1Result.html#ae16d2de5c4bf672a51ec7a6c85f70b08">unwrap_or_default</a>(), <span class="stringliteral">&quot;&quot;</span>s); <span class="comment">// empty string (&quot;&quot;s)</span></div><div class="line">                                                    <span class="comment">// is the default</span></div><div class="line">                                                    <span class="comment">// value</span></div><div class="line">                                                    <span class="comment">// for a C++ string</span></div></div><!-- fragment --> 
@@ -2019,7 +2020,7 @@ template&lt;typename Fn &gt; </div>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Unwraps a result, yielding the content of an <code><a class="el" href="structstx_1_1Ok.html" title="value-variant for Result&lt;T, E&gt; wrapping the contained value ">Ok</a></code>. If the value is an <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a></code> then it calls <code>op</code> with its value.</p>
+<p>Unwraps a result, yielding the content of an <code><a class="el" href="structstx_1_1Ok.html">Ok</a></code>. If the value is an <code><a class="el" href="structstx_1_1Err.html" title="error-value variant for Result&lt;T, E&gt; wrapping the contained error ">Err</a></code> then it calls <code>op</code> with its value.</p>
 <h1>Examples</h1>
 <p>Basic usage:</p>
 <div class="fragment"><div class="line"><span class="keyword">auto</span> count = [] (string_view <a class="code" href="classstx_1_1Result.html#a4548a280df6c073e970fb7492e64b738">err</a>)  { <span class="keywordflow">return</span> err.size(); };</div><div class="line"></div><div class="line">ASSERT_EQ(make_ok&lt;size_t,string_view&gt;(2UL).<a class="code" href="classstx_1_1Result.html#a612bf80b79e2ea742aae33f7e5add3b0">unwrap_or_else</a>(count), 2);</div><div class="line">ASSERT_EQ(make_err&lt;size_t,string_view&gt;(<span class="stringliteral">&quot;booo&quot;</span>sv).<a class="code" href="classstx_1_1Result.html#a612bf80b79e2ea742aae33f7e5add3b0">unwrap_or_else</a>(count),</div><div class="line">4);</div></div><!-- fragment --> 

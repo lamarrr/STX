@@ -1,10 +1,10 @@
 <map id="include/stx/panic.h" name="include/stx/panic.h">
-<area shape="rect" id="node2" href="$panic__helpers_8h.html" title="include/stx/internal\l/panic_helpers.h" alt="" coords="205,80,352,121"/>
-<area shape="rect" id="node7" href="$abort_8h.html" title="include/stx/panic/handlers\l/abort/abort.h" alt="" coords="376,80,568,121"/>
-<area shape="rect" id="node8" href="$halt_8h.html" title="include/stx/panic/handlers\l/halt/halt.h" alt="" coords="592,80,784,121"/>
-<area shape="rect" id="node9" href="$hook_8h.html" title="include/stx/panic/hook.h" alt="" coords="809,87,989,114"/>
-<area shape="rect" id="node3" href="$option__result_8h.html" title="include/stx/internal\l/option_result.h" alt="" coords="205,169,352,211"/>
-<area shape="rect" id="node4" href="$backtrace_8h.html" title="include/stx/backtrace.h" alt="" coords="5,259,179,285"/>
-<area shape="rect" id="node5" href="$option_8h.html" title="include/stx/option.h" alt="" coords="203,259,354,285"/>
-<area shape="rect" id="node6" href="$result_8h.html" title="include/stx/result.h" alt="" coords="379,259,525,285"/>
+<area shape="rect" id="node2" href="$panic__helpers_8h.html" title="include/stx/internal\l/panic_helpers.h" alt="" coords="236,80,419,121"/>
+<area shape="rect" id="node7" href="$abort_8h.html" title="include/stx/panic/handlers\l/abort/abort.h" alt="" coords="443,80,673,121"/>
+<area shape="rect" id="node8" href="$halt_8h.html" title="include/stx/panic/handlers\l/halt/halt.h" alt="" coords="697,80,928,121"/>
+<area shape="rect" id="node9" href="$hook_8h.html" title="include/stx/panic/hook.h" alt="" coords="952,87,1167,114"/>
+<area shape="rect" id="node3" href="$option__result_8h.html" title="include/stx/internal\l/option_result.h" alt="" coords="236,169,419,211"/>
+<area shape="rect" id="node4" href="$backtrace_8h.html" title="include/stx/backtrace.h" alt="" coords="5,259,212,285"/>
+<area shape="rect" id="node5" href="$option_8h.html" title="include/stx/option.h" alt="" coords="236,259,419,285"/>
+<area shape="rect" id="node6" href="$result_8h.html" title="include/stx/result.h" alt="" coords="443,259,625,285"/>
 </map>

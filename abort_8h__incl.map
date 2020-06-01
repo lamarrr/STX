@@ -1,6 +1,6 @@
 <map id="include/stx/panic/handlers/abort/abort.h" name="include/stx/panic/handlers/abort/abort.h">
-<area shape="rect" id="node3" href="$panic_8h.html" title="stx/panic.h" alt="" coords="292,95,385,121"/>
-<area shape="rect" id="node4" href="$report_8h.html" title="stx/report.h" alt="" coords="215,177,313,203"/>
-<area shape="rect" id="node10" href="$common_8h.html" title="stx/common.h" alt="" coords="483,259,597,285"/>
-<area shape="rect" id="node14" href="$config_8h.html" title="stx/config.h" alt="" coords="663,333,761,360"/>
+<area shape="rect" id="node3" href="$panic_8h.html" title="stx/panic.h" alt="" coords="323,95,433,121"/>
+<area shape="rect" id="node4" href="$report_8h.html" title="stx/report.h" alt="" coords="233,177,352,203"/>
+<area shape="rect" id="node10" href="$common_8h.html" title="stx/common.h" alt="" coords="535,259,653,285"/>
+<area shape="rect" id="node14" href="$config_8h.html" title="stx/config.h" alt="" coords="735,333,853,360"/>
 </map>
