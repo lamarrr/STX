@@ -114,7 +114,7 @@ int main() {
 
 ```
 
-### Result with TRY_OK
+### Propagating Errors with `TRY_OK` 
 
 `TRY_OK` assigns the successful value to its first parameter `version` if `parse_version` returned an `Ok` , else propagates the error value.
 
@@ -178,7 +178,7 @@ float result  = std::move(option).unwrap(); // will compile, the value is moved 
 
 ```
 
-<span style="color:red"><b>NOTE</b></span>: Just as any moved-from object, `Option` and `Result` are not to be used after a `std::move` ! (as the objects will be left in an unspecified state).
+<b>NOTE</b>: Just as any moved-from object, `Option` and `Result` are not to be used after a `std::move` ! (as the objects will be left in an unspecified state).
 
 * `Option` and `Result` do not perform any implicit copies of the contained object as they are designed as purely forwarding types, this is especially due to their primary purpose as return channels in which we do not want duplication or implicit copies of the returned values.
 
@@ -206,7 +206,7 @@ float result = safe_divide(n, d).value(); // this won't compile as 'value' alway
 
 ```
 
-## Benchmarks
+## [Benchmarks](benchmarks)
 
 ### Release Mode ( `-O3` )
 
