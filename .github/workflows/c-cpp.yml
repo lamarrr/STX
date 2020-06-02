@@ -18,7 +18,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-
+      
+      - name: Upgrade Bazel apt-key
+        run: curl https://bazel.build/bazel-release.pub.gpg | sudo apt-key add -
+        
       - name: apt-update (1)
         run: sudo apt --allow-unauthenticated update
 
