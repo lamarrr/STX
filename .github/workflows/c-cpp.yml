@@ -21,6 +21,10 @@ jobs:
       
       - name: Upgrade Bazel apt-key
         run: curl https://bazel.build/bazel-release.pub.gpg | sudo apt-key add -
+      
+      - name: Upgrade Opensuse apt-key
+        run: wget -qO - https://download.opensuse.org/repositories/home:/strycore/xUbuntu_18.04/Release.key | sudo apt-key add -
+
         
       - name: apt-update (1)
         run: sudo apt --allow-unauthenticated update --allow-insecure-repositories
