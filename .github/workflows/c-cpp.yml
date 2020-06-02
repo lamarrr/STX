@@ -23,16 +23,16 @@ jobs:
         run: curl https://bazel.build/bazel-release.pub.gpg | sudo apt-key add -
         
       - name: apt-update (1)
-        run: sudo apt --allow-unauthenticated update
+        run: sudo apt --allow-unauthenticated --allow-insecure-repositories update
 
       - name: Install add-apt-repository
-        run: sudo apt --allow-unauthenticated install software-properties-common
+        run: sudo apt --allow-unauthenticated --allow-insecure-repositories install software-properties-common
 
       - name: Add LLVM apt-sources
         run: sudo add-apt-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main" # &&  sudo add-apt-repository "deb-src http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main"
 
       - name: apt-update (2)
-        run: sudo apt --allow-unauthenticated update
+        run: sudo apt --allow-unauthenticated --allow-insecure-repositories update
 
       - name: Install LLVM tools and Ninja-Build
         run: sudo apt install ninja-build clang-format-10 clang-tidy-10 clang-tools-10 clang-10 clangd-10 libc++-10-dev libc++1-10 libc++abi-10-dev libc++abi1-10 libclang-10-dev libclang1-10 liblldb-10-dev lld-10 lldb-10 llvm-10-dev llvm-runtime llvm-10
