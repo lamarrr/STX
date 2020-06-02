@@ -210,7 +210,7 @@ float result = safe_divide(n, d).value(); // this won't compile as 'value' alway
 
 ### Release Mode ( `-O3` )
 
-| Target | Real Time (ns) | CPU Time (ns) | Iterations |
+| Target | Real Time | CPU Time | Iterations |
 |--------|----------------|---------------|------------|
 Variant/SuccessPath   |     0.392 ns  |      0.392 ns |  1000000000
 Exception/SuccessPath |     0.386 ns  |      0.386 ns |  1000000000
