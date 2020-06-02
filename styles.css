@@ -568,10 +568,22 @@ span.vhdllogic {
 }
 
 blockquote {
-	background-color: #F7F8FB;
-	border-left: 2px solid #9CAFD4;
-	margin: 0 24px 0 4px;
-	padding: 0 12px 0 16px;
+	margin: 25px;
+	padding-left: 50px;
+	quotes: "\201C""\201D"
+}
+
+blockquote::before {
+	color: #ccc;
+	content: open-quote;
+	font-size: 4em;
+	line-height: .1em;
+	margin-right: .25em;
+	vertical-align: -.4em;
+}
+
+blockquote p {
+	display: inline;
 }
 
 /* @end */
