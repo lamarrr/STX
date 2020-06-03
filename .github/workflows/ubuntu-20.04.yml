@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v2
       
       - name: Install Ninja-Build
-        run: sudo apt install -f ninja-build
+        run: sudo apt update && sudo apt install -f ninja-build clang-10
 
       - name: Configure Build Directory
         run: mkdir build
