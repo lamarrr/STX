@@ -1,4 +1,4 @@
-name: tests:ubuntu
+name: tests:ubuntu-18.04
 
 on:
   push:
@@ -8,11 +8,10 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-18.04
 
     strategy:
       matrix:
-        os: ["ubuntu-18.04"] # "ubuntu-20.04" 
         build_mode: ["Release", "Debug"]
         panic_backtrace: ["ON", "OFF"]
         backtrace: ["ON", "OFF"]
