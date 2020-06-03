@@ -19,8 +19,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       
-      - name: Install Ninja-Build & Clang
-        run: brew update && brew install ninja llvm
+      - name: Install Ninja-Build, GCC & Clang
+        run: brew update && brew install ninja gcc llvm
 
       - name: Configure Build Directory
         run: mkdir build
