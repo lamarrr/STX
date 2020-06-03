@@ -26,7 +26,7 @@ jobs:
         run: mkdir build
 
       - name: Initialize CMake
-        run: cd build && export CC=clang CXX=clang++ && cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_mode }} -DSTX_BUILD_TESTS=ON -DSTX_ENABLE_BACKTRACE=${{ matrix.backtrace }} -DSTX_ENABLE_PANIC_BACKTRACE=${{ matrix.panic_backtrace }} -DSTX_SANITIZE_TESTS=ON -GNinja
+        run: cd build && export CC=clang-10 CXX=clang++-10 && cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_mode }} -DSTX_BUILD_TESTS=ON -DSTX_ENABLE_BACKTRACE=${{ matrix.backtrace }} -DSTX_ENABLE_PANIC_BACKTRACE=${{ matrix.panic_backtrace }} -DSTX_SANITIZE_TESTS=ON -GNinja
 
       - name: Run Unsanitized Tests
         run: cd build && ninja run_tests
