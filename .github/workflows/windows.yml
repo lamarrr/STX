@@ -1,11 +1,7 @@
 name: tests:windows
 
 
-on:
-  push:
-    branches: [master]
-  pull_request:
-    branches: [master]
+on: []
 
 jobs:
   build:
