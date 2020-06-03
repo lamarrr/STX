@@ -1,4 +1,4 @@
-name: tests_ubuntu
+name: tests:ubuntu
 
 on:
   push:
