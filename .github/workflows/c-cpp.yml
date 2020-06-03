@@ -40,7 +40,7 @@ jobs:
         run: sudo apt --allow-unauthenticated update --allow-insecure-repositories
 
       - name: Install LLVM tools and Ninja-Build
-        run: sudo apt install ninja-build clang-format-10 clang-tidy-10 clang-tools-10 clang-10 clangd-10 libc++-10-dev libc++1-10 libc++abi-10-dev libc++abi1-10 libclang-10-dev libclang1-10 liblldb-10-dev lld-10 lldb-10 llvm-10-dev llvm-runtime llvm-10
+        run: sudo apt install -f ninja-build clang-format-10 clang-tidy-10 clang-tools-10 clang-10 clangd-10 libc++-10-dev libc++1-10 libc++abi-10-dev libc++abi1-10 libclang-10-dev libclang1-10 liblldb-10-dev lld-10 lldb-10 llvm-10-dev llvm-runtime llvm-10
 
       - name: Configure Build Directory
         run: mkdir build
