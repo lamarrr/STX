@@ -29,5 +29,5 @@ jobs:
         run: cd build && cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_mode }} -DSTX_BUILD_TESTS=ON -DSTX_ENABLE_BACKTRACE=${{ matrix.backtrace }} -DSTX_ENABLE_PANIC_BACKTRACE=${{ matrix.panic_backtrace }} -DSTX_SANITIZE_TESTS=OFF
 
       - name: Run Unsanitized Tests
-        run: cd build && make stx_tests &&  .\stx_tests
+        run: cd build && make -j16 &&  .\stx_tests
 
