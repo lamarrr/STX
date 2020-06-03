@@ -1,1 +1,26 @@
 name: tests:windows
+
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }} 
+
+    strategy:
+
+      matrix:
+        build_mode: ["Release", "Debug"]
+        panic_backtrace: ["ON", "OFF"]
+        backtrace: ["ON", "OFF"]
+        os: ["windows-2019"]
+
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Hello
+        run: echo %PATH%
