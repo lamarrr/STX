@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       
-      - name: Install Ninja-Build
+      - name: Install Ninja-Build & Clang-10
         run: sudo apt update && sudo apt install -f ninja-build clang-10
 
       - name: Configure Build Directory
