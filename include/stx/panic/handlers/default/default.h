@@ -68,19 +68,11 @@ inline void panic_default(
 
   std::fputs(" at function: '", stderr);
 
-  if (location.function_name() != nullptr) {
-    std::fputs(location.function_name(), stderr);
-  } else {
-    std::fputs("<unknown>", stderr);
-  }
+  std::fputs(location.function_name(), stderr);
 
   std::fputs("' [", stderr);
 
-  if (location.file_name() != nullptr) {
-    std::fputs(location.file_name(), stderr);
-  } else {
-    std::fputs("<unknown>", stderr);
-  }
+  std::fputs(location.file_name(), stderr);
 
   std::fputc(':', stderr);
 
@@ -88,7 +80,7 @@ inline void panic_default(
     std::snprintf(log_buffer, kFormatBufferSize, "%d", location.line());
     std::fputs(log_buffer, stderr);
   } else {
-    std::fputs("<unknown>", stderr);
+    std::fputs("unknown", stderr);
   }
 
   std::fputc(':', stderr);
@@ -97,7 +89,7 @@ inline void panic_default(
     std::snprintf(log_buffer, kFormatBufferSize, "%d", location.column());
     std::fputs(log_buffer, stderr);
   } else {
-    std::fputs("<unknown>", stderr);
+    std::fputs("unknown", stderr);
   }
 
   std::fputs("]\n", stderr);
