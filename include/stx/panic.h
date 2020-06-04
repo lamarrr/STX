@@ -52,4 +52,4 @@ template <typename T = void>
   begin_panic(std::move(info), ReportPayload(Report("")), std::move(location));
 }
 
-};  // namespace stx
+}  // namespace stx

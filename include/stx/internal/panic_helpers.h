@@ -58,7 +58,7 @@ template <typename T>
              std::move(location));
 }
 
-};  // namespace option
+}  // namespace option
 
 namespace result {
 using namespace std::string_view_literals;  // NOLINT
@@ -115,6 +115,6 @@ template <typename T>
              std::move(location));
 }
 
-};  // namespace result
-};  // namespace internal
-};  // namespace stx
+}  // namespace result
+}  // namespace internal
+}  // namespace stx

@@ -27,8 +27,8 @@ namespace internal {
 namespace panic_util {
 constexpr int kFormatBufferSize = 256;
 constexpr auto kThreadIdHash = std::hash<std::thread::id>{};
-};  // namespace panic_util
-};  // namespace internal
+}  // namespace panic_util
+}  // namespace internal
 
 // this should be made thread-safe.
 inline void panic_default(

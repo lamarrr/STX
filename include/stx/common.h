@@ -59,4 +59,4 @@ concept Impl = std::is_base_of_v<Base, T>;
 #endif
 #endif
 
-};  // namespace stx
+}  // namespace stx
