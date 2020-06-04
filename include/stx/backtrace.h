@@ -153,5 +153,5 @@ size_t trace(Callback callback);
 /// successful, else returns the error.
 auto handle_signal(int signal) noexcept -> Result<void (*)(int), SignalError>;
 
-};  // namespace backtrace
-};  // namespace stx
+}  // namespace backtrace
+}  // namespace stx
