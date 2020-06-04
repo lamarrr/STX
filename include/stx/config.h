@@ -192,18 +192,10 @@
 
 /************ FEATURE AND LIBRARY REQUIREMENTS ************/
 
-#if __has_include(<source_location>)
-#define STX_STABLE_LIB_SOURCE_LOCATION
+#if defined __has_builtin
+#define STX_HAS_BUILTIN(feature) __has_builtin(__builtin_##feature)
 #else
-#if __has_include(<experimental/source_location>)
-// ok
-#else
-#error C++20 Source location library is not available on this toolchain.  Please upgrade to a newer version.
-#endif
-#endif
-
-#if !defined(__cpp_concepts) || (__cpp_concepts < 201907L)
-#error 2019/07 version of concepts is not supported on this compiler.  Please upgrade to a newer version.
+#define STX_HAS_BUILTIN(feature) 0
 #endif
 
 /*********************** UTILITY MACROS ***********************/
