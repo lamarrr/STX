@@ -11,6 +11,8 @@
 
 #pragma once
 
+// Symmetry
+
 #include "stx/internal/panic_helpers.h"
 
 // Why so long? Option and Result depend on each other. I don't know of a
@@ -62,10 +64,18 @@ class [[nodiscard]] NoneType {
   [[nodiscard]] constexpr NoneType(NoneType&&) noexcept = default;
   constexpr NoneType& operator=(NoneType const&) noexcept = default;
   constexpr NoneType& operator=(NoneType&&) noexcept = default;
-  constexpr ~NoneType() noexcept = default;
+  ~NoneType() noexcept = default;
 
   [[nodiscard]] constexpr bool operator==(NoneType const&) const noexcept {
     return true;
+  }
+
+  [[nodiscard]] constexpr bool operator==(NoneType const&) const noexcept {
+    return true;
+  }
+
+  [[nodiscard]] constexpr bool operator!=(NoneType const&) const noexcept {
+    return false;
   }
 };
 
@@ -98,8 +108,9 @@ constexpr const NoneType None = NoneType{};
 /// vector<int> x {1, 2, 3, 4};
 /// Option a = Some(std::move(x));
 /// ```
-template <Swappable T>
+template <typename T>
 struct [[nodiscard]] Some {
+  static_assert(std::is_swappable_v<T>, "Type must be swappable");
   static_assert(!std::is_reference_v<T>,
                 "Cannot use T& nor T&& for type, To prevent subtleties use "
                 "type wrappers like std::reference_wrapper or any of the "
@@ -117,57 +128,135 @@ struct [[nodiscard]] Some {
   constexpr Some(Some const&) = delete;
   constexpr Some& operator=(Some const&) = delete;
 
-  constexpr ~Some() = default;
+  ~Some() = default;
 
   [[nodiscard]] constexpr T const& value() const& noexcept { return value_; }
   [[nodiscard]] constexpr T& value() & noexcept { return value_; }
   [[nodiscard]] constexpr T const value() const&& { return std::move(value_); }
   [[nodiscard]] constexpr T value() && { return std::move(value_); }
 
-  [[nodiscard]] constexpr bool operator==(Some const& cmp) const
-      requires equality_comparable<T> {
+  [[nodiscard]] constexpr bool operator==(Some const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
     return value() == cmp.value();
   }
 
-  [[nodiscard]] constexpr bool operator==(Some<MutRef<T>> const& cmp) const
-      requires equality_comparable<T> {
+  [[nodiscard]] constexpr bool operator!=(Some const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
+    return value() != cmp.value();
+  }
+
+  [[nodiscard]] constexpr bool operator==(Some<MutRef<T>> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
     return value() == cmp.value().get();
   }
 
-  [[nodiscard]] constexpr bool operator==(Some<ConstRef<T>> const& cmp) const
-      requires equality_comparable<T> {
+  [[nodiscard]] constexpr bool operator!=(Some<MutRef<T>> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
+    return value() != cmp.value().get();
+  }
+
+  [[nodiscard]] constexpr bool operator==(Some<ConstRef<T>> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
     return value() == cmp.value().get();
   }
 
-  [[nodiscard]] constexpr bool operator==(Some<T*> const& cmp) const
-      requires equality_comparable<T> {
+  [[nodiscard]] constexpr bool operator!=(Some<ConstRef<T>> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
+    return value() != cmp.value().get();
+  }
+
+  [[nodiscard]] constexpr bool operator==(Some<T*> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
     return value() == *cmp.value();
   }
 
-  [[nodiscard]] constexpr bool operator==(Some<T const*> const& cmp) const
-      requires equality_comparable<T> {
+  [[nodiscard]] constexpr bool operator!=(Some<T*> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
+    return value() != *cmp.value();
+  }
+
+  [[nodiscard]] constexpr bool operator==(Some<T const*> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
     return value() == *cmp.value();
+  }
+
+  [[nodiscard]] constexpr bool operator!=(Some<T const*> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
+    return value() != *cmp.value();
   }
 
   [[nodiscard]] constexpr bool operator==(NoneType const&) const noexcept {
     return false;
   }
 
+  [[nodiscard]] constexpr bool operator!=(NoneType const&) const noexcept {
+    return true;
+  }
+
  private:
   T value_;
 
-  template <Swappable Tp>
+  template <typename Tp>
   friend class Option;
 };
 
-template <Swappable E>
+template <typename T>
+[[nodiscard]] constexpr bool operator==(Some<MutRef<T>> const& cmp,
+                                        Some<T> const& some) {
+  return some == cmp;
+}
+
+template <typename T>
+[[nodiscard]] constexpr bool operator!=(Some<MutRef<T>> const& cmp,
+                                        Some<T> const& some) {
+  return some != cmp;
+}
+
+template <typename T>
+[[nodiscard]] constexpr bool operator==(Some<ConstRef<T>> const& cmp,
+                                        Some<T> const& some) {
+  return some == cmp;
+}
+
+template <typename T>
+[[nodiscard]] constexpr bool operator!=(Some<ConstRef<T>> const& cmp,
+                                        Some<T> const& some) {
+  return some != cmp;
+}
+
+template <typename T>
+[[nodiscard]] constexpr bool operator==(Some<T*> const& cmp,
+                                        Some<T> const& some) {
+  return some == cmp;
+}
+
+template <typename T>
+[[nodiscard]] constexpr bool operator!=(Some<T*> const& cmp,
+                                        Some<T> const& some) {
+  return some != cmp;
+}
+
+template <typename T>
+[[nodiscard]] constexpr bool operator==(Some<T const*> const& cmp,
+                                        Some<T> const& some) {
+  return some == cmp;
+}
+
+template <typename T>
+[[nodiscard]] constexpr bool operator!=(Some<T const*> const& cmp,
+                                        Some<T> const& some) {
+  return some != cmp;
+}
+
+template <typename E>
 struct Err;
 
 /// value-variant for `Result<T, E>` wrapping the contained value
 ///
 ///
-template <Swappable T>
+template <typename T>
 struct [[nodiscard]] Ok {
+  static_assert(std::is_swappable_v<T>, "Type must be swappable");
   static_assert(!std::is_reference_v<T>,
                 "Cannot use T& nor T&& for type, To prevent subtleties use "
                 "type wrappers like std::reference_wrapper or any of the "
@@ -184,36 +273,66 @@ struct [[nodiscard]] Ok {
   constexpr Ok(Ok const&) = delete;
   constexpr Ok& operator=(Ok const&) = delete;
 
-  constexpr ~Ok() = default;
+  ~Ok() = default;
 
-  [[nodiscard]] constexpr bool operator==(Ok const& cmp) const
-      requires equality_comparable<T> {
+  [[nodiscard]] constexpr bool operator==(Ok const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
     return value() == cmp.value();
   }
 
-  [[nodiscard]] constexpr bool operator==(Ok<ConstRef<T>> const& cmp) const
-      requires equality_comparable<T> {
+  [[nodiscard]] constexpr bool operator!=(Ok const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
+    return value() != cmp.value();
+  }
+
+  [[nodiscard]] constexpr bool operator==(Ok<ConstRef<T>> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
     return value() == cmp.value().get();
   }
 
-  [[nodiscard]] constexpr bool operator==(Ok<MutRef<T>> const& cmp) const
-      requires equality_comparable<T> {
+  [[nodiscard]] constexpr bool operator!=(Ok<ConstRef<T>> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
+    return value() != cmp.value().get();
+  }
+
+  [[nodiscard]] constexpr bool operator==(Ok<MutRef<T>> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
     return value() == cmp.value().get();
   }
 
-  [[nodiscard]] constexpr bool operator==(Ok<T*> const& cmp) const
-      requires equality_comparable<T> {
+  [[nodiscard]] constexpr bool operator!=(Ok<MutRef<T>> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
+    return value() != cmp.value().get();
+  }
+
+  [[nodiscard]] constexpr bool operator==(Ok<T*> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
     return value() == *cmp.value();
   }
 
-  [[nodiscard]] constexpr bool operator==(Ok<const T*> const& cmp) const
-      requires equality_comparable<T> {
+  [[nodiscard]] constexpr bool operator!=(Ok<T*> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
+    return value() != *cmp.value();
+  }
+
+  [[nodiscard]] constexpr bool operator==(Ok<const T*> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
     return value() == *cmp.value();
+  }
+
+  [[nodiscard]] constexpr bool operator!=(Ok<const T*> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
+    return value() != *cmp.value();
   }
 
   template <typename U>
   [[nodiscard]] constexpr bool operator==(Err<U> const&) const noexcept {
     return false;
+  }
+
+  template <typename U>
+  [[nodiscard]] constexpr bool operator!=(Err<U> const&) const noexcept {
+    return true;
   }
 
   [[nodiscard]] constexpr T const& value() const& noexcept { return value_; }
@@ -224,13 +343,14 @@ struct [[nodiscard]] Ok {
  private:
   T value_;
 
-  template <Swappable Tp, Swappable Err>
+  template <typename Tp, typename Err>
   friend class Result;
 };
 
 /// error-value variant for `Result<T, E>` wrapping the contained error
-template <Swappable E>
+template <typename E>
 struct [[nodiscard]] Err {
+  static_assert(std::is_swappable_v<E>, "Type must be swappable");
   static_assert(!std::is_reference_v<E>,
                 "Cannot use E& nor E&& for type, To prevent subtleties use "
                 "type wrappers like std::reference_wrapper or any of the "
@@ -247,31 +367,66 @@ struct [[nodiscard]] Err {
   constexpr Err(Err const&) = delete;
   constexpr Err& operator=(Err const&) = delete;
 
-  constexpr ~Err() = default;
+  ~Err() = default;
 
-  [[nodiscard]] constexpr bool operator==(Err const& cmp) const
-      requires equality_comparable<E> {
+  [[nodiscard]] constexpr bool operator==(Err const& cmp) const {
+    static_assert(is_equality_comparable_v<E>);
     return value() == cmp.value();
   }
 
-  [[nodiscard]] constexpr bool operator==(Err<ConstRef<E>> const& cmp) const
-      requires equality_comparable<E> {
+  [[nodiscard]] constexpr bool operator!=(Err const& cmp) const {
+    static_assert(is_equality_comparable_v<E>);
+    return value() != cmp.value();
+  }
+
+  [[nodiscard]] constexpr bool operator==(Err<ConstRef<E>> const& cmp) const {
+    static_assert(is_equality_comparable_v<E>);
     return value() == cmp.value().get();
   }
 
-  [[nodiscard]] constexpr bool operator==(Err<MutRef<E>> const& cmp) const
-      requires equality_comparable<E> {
+  [[nodiscard]] constexpr bool operator!=(Err<ConstRef<E>> const& cmp) const {
+    static_assert(is_equality_comparable_v<E>);
+    return value() != cmp.value().get();
+  }
+
+  [[nodiscard]] constexpr bool operator==(Err<MutRef<E>> const& cmp) const {
+    static_assert(is_equality_comparable_v<E>);
     return value() == cmp.value().get();
   }
 
-  [[nodiscard]] constexpr bool operator==(Err<E*> const& cmp) const
-      requires equality_comparable<E> {
+  [[nodiscard]] constexpr bool operator!=(Err<MutRef<E>> const& cmp) const {
+    static_assert(is_equality_comparable_v<E>);
+    return value() != cmp.value().get();
+  }
+
+  [[nodiscard]] constexpr bool operator==(Err<E*> const& cmp) const {
+    static_assert(is_equality_comparable_v<E>);
     return value() == *cmp.value();
   }
 
-  [[nodiscard]] constexpr bool operator==(Err<E const*> const& cmp) const
-      requires equality_comparable<E> {
+  [[nodiscard]] constexpr bool operator!=(Err<E*> const& cmp) const {
+    static_assert(is_equality_comparable_v<E>);
+    return value() != *cmp.value();
+  }
+
+  [[nodiscard]] constexpr bool operator==(Err<E const*> const& cmp) const {
+    static_assert(is_equality_comparable_v<E>);
     return value() == *cmp.value();
+  }
+
+  [[nodiscard]] constexpr bool operator!=(Err<E const*> const& cmp) const {
+    static_assert(is_equality_comparable_v<E>);
+    return value() != *cmp.value();
+  }
+
+  template <typename U>
+  [[nodiscard]] constexpr bool operator==(Ok<U> const&) const noexcept {
+    return false;
+  }
+
+  template <typename U>
+  [[nodiscard]] constexpr bool operator!=(Ok<U> const&) const noexcept {
+    return true;
   }
 
   [[nodiscard]] constexpr E const& value() const& noexcept { return value_; }
@@ -282,11 +437,67 @@ struct [[nodiscard]] Err {
  private:
   E value_;
 
-  template <Swappable Tp, Swappable Err>
+  template <typename Tp, typename Err>
   friend class Result;
 };
 
-template <Swappable T, Swappable E>
+template <typename E, typename T>
+[[nodiscard]] constexpr bool operator==(Err<ConstRef<E>> const& cmp,
+                                        Err<T> const& err) {
+  return err == cmp;
+}
+
+template <typename E, typename T>
+[[nodiscard]] constexpr bool operator!=(Err<ConstRef<E>> const& cmp,
+                                        Err<T> const& err) {
+  return err != cmp;
+}
+
+template <typename E, typename T>
+[[nodiscard]] constexpr bool operator==(Err<MutRef<E>> const& cmp,
+                                        Err<T> const& err) {
+  return err == cmp;
+}
+
+template <typename E, typename T>
+[[nodiscard]] constexpr bool operator!=(Err<MutRef<E>> const& cmp,
+                                        Err<T> const& err) {
+  return err != cmp;
+}
+
+template <typename E, typename T>
+[[nodiscard]] constexpr bool operator==(Err<E*> const& cmp, Err<T> const& err) {
+  return err == cmp;
+}
+
+template <typename E, typename T>
+[[nodiscard]] constexpr bool operator!=(Err<E*> const& cmp, Err<T> const& err) {
+  return err != cmp;
+}
+
+template <typename E, typename T>
+[[nodiscard]] constexpr bool operator==(Err<E const*> const& cmp,
+                                        Err<T> const& err) {
+  return err == cmp;
+}
+
+template <typename E, typename T>
+[[nodiscard]] constexpr bool operator!=(Err<E const*> const& cmp,
+                                        Err<T> const& err) {
+  return err != cmp;
+}
+
+template <typename U, typename T>
+[[nodiscard]] constexpr bool operator==(Ok<U> const&, Err<T> const&) noexcept {
+  return false;
+}
+
+template <typename U, typename T>
+[[nodiscard]] constexpr bool operator!=(Ok<U> const&, Err<T> const&) noexcept {
+  return true;
+}
+
+template <typename T, typename E>
 class [[nodiscard]] Result;
 
 //! Optional values.
@@ -327,11 +538,12 @@ class [[nodiscard]] Result;
 //! ```
 //!
 //!
-template <Swappable T>
+template <typename T>
 class [[nodiscard]] Option {
  public:
   using value_type = T;
 
+  static_assert(std::is_swappable_v<T>, "Type must be swappable");
   static_assert(!std::is_reference_v<T>,
                 "Cannot use T& nor T&& for type, To prevent subtleties use "
                 "type wrappers like std::reference_wrapper or any of the "
@@ -376,14 +588,14 @@ class [[nodiscard]] Option {
   constexpr Option(Option const&) = delete;
   constexpr Option& operator=(Option const&) = delete;
 
-  constexpr ~Option() noexcept {
+  ~Option() noexcept {
     if (is_some()) {
       storage_value_.~T();
     }
   }
 
-  [[nodiscard]] constexpr bool operator==(Option const& cmp) const
-      requires equality_comparable<T> {
+  [[nodiscard]] constexpr bool operator==(Option const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
     if (is_some() && cmp.is_some()) {
       return value_cref_() == cmp.value_cref_();
     } else if (is_none() && cmp.is_none()) {
@@ -393,8 +605,19 @@ class [[nodiscard]] Option {
     }
   }
 
-  [[nodiscard]] constexpr bool operator==(Some<T> const& cmp) const
-      requires equality_comparable<T> {
+  [[nodiscard]] constexpr bool operator!=(Option const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
+    if (is_some() && cmp.is_some()) {
+      return value_cref_() != cmp.value_cref_();
+    } else if (is_none() && cmp.is_none()) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  [[nodiscard]] constexpr bool operator==(Some<T> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
     if (is_some()) {
       return value_cref_() == cmp.value();
     } else {
@@ -402,8 +625,17 @@ class [[nodiscard]] Option {
     }
   }
 
-  [[nodiscard]] constexpr bool operator==(Some<ConstRef<T>> const& cmp) const
-      requires equality_comparable<T> {
+  [[nodiscard]] constexpr bool operator!=(Some<T> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
+    if (is_some()) {
+      return value_cref_() != cmp.value();
+    } else {
+      return true;
+    }
+  }
+
+  [[nodiscard]] constexpr bool operator==(Some<ConstRef<T>> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
     if (is_some()) {
       return value_cref_() == cmp.value().get();
     } else {
@@ -411,8 +643,17 @@ class [[nodiscard]] Option {
     }
   }
 
-  [[nodiscard]] constexpr bool operator==(Some<MutRef<T>> const& cmp) const
-      requires equality_comparable<T> {
+  [[nodiscard]] constexpr bool operator!=(Some<ConstRef<T>> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
+    if (is_some()) {
+      return value_cref_() != cmp.value().get();
+    } else {
+      return true;
+    }
+  }
+
+  [[nodiscard]] constexpr bool operator==(Some<MutRef<T>> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
     if (is_some()) {
       return value_cref_() == cmp.value().get();
     } else {
@@ -420,8 +661,17 @@ class [[nodiscard]] Option {
     }
   }
 
-  [[nodiscard]] constexpr bool operator==(Some<const T*> const& cmp) const
-      requires equality_comparable<T> {
+  [[nodiscard]] constexpr bool operator!=(Some<MutRef<T>> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
+    if (is_some()) {
+      return value_cref_() != cmp.value().get();
+    } else {
+      return true;
+    }
+  }
+
+  [[nodiscard]] constexpr bool operator==(Some<const T*> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
     if (is_some()) {
       return value_cref_() == *cmp.value();
     } else {
@@ -429,17 +679,39 @@ class [[nodiscard]] Option {
     }
   }
 
-  [[nodiscard]] constexpr bool operator==(Some<T*> const& cmp) const
-      requires equality_comparable<T> {
+  [[nodiscard]] constexpr bool operator!=(Some<const T*> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
+    if (is_some()) {
+      return value_cref_() != *cmp.value();
+    } else {
+      return true;
+    }
+  }
+
+  [[nodiscard]] constexpr bool operator==(Some<T*> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
     if (is_some()) {
       return value_cref_() == *cmp.value();
     } else {
       return false;
+    }
+  }
+
+  [[nodiscard]] constexpr bool operator!=(Some<T*> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
+    if (is_some()) {
+      return value_cref_() != *cmp.value();
+    } else {
+      return true;
     }
   }
 
   [[nodiscard]] constexpr bool operator==(NoneType const&) const noexcept {
     return is_none();
+  }
+
+  [[nodiscard]] constexpr bool operator!=(NoneType const&) const noexcept {
+    return is_some();
   }
 
   /// Returns `true` if this Option is a `Some` value.
@@ -491,8 +763,8 @@ class [[nodiscard]] Option {
   /// ASSERT_FALSE(z.contains(2));
   /// ```
   template <typename CmpType>
-  requires equality_comparable<CmpType const&, T const&>  //
-      [[nodiscard]] constexpr bool contains(CmpType const& cmp) const {
+  [[nodiscard]] constexpr bool contains(CmpType const& cmp) const {
+    static_assert(is_equality_comparable_v<CmpType const&, T const&>);
     if (is_some()) {
       return value_cref_() == cmp;
     } else {
@@ -514,10 +786,10 @@ class [[nodiscard]] Option {
   ///
   /// ```
   template <typename UnaryPredicate>
-  requires invocable<UnaryPredicate&&, T const&>&&
-      convertible_to<invoke_result<UnaryPredicate&&, T const&>,
-                     bool>  //
-      [[nodiscard]] constexpr bool exists(UnaryPredicate&& predicate) const {
+  [[nodiscard]] constexpr bool exists(UnaryPredicate&& predicate) const {
+    static_assert(std::is_invocable_v<UnaryPredicate&&, T const&>);
+    static_assert(
+        std::is_convertible_v<invoke_result<UnaryPredicate&&, T const&>, bool>);
     if (is_some()) {
       return std::forward<UnaryPredicate&&>(predicate)(value_cref_());
     } else {
@@ -726,8 +998,8 @@ class [[nodiscard]] Option {
   /// ASSERT_EQ(make_none<int>().unwrap_or_else(alt), 20);
   /// ```
   template <typename Fn>
-  requires invocable<Fn&&>  //
-      [[nodiscard]] constexpr auto unwrap_or_else(Fn&& op) && -> T {
+  [[nodiscard]] constexpr auto unwrap_or_else(Fn&& op) && -> T {
+    static_assert(std::is_invocable_v<Fn&&>);
     if (is_some()) {
       return std::move(value_ref_());
     } else {
@@ -758,9 +1030,9 @@ class [[nodiscard]] Option {
   /// ASSERT_EQ(maybe_len, Some<size_t>(13));
   /// ```
   template <typename Fn>
-  requires invocable<Fn&&, T&&>  //
-      [[nodiscard]] constexpr auto map(
-          Fn&& op) && -> Option<invoke_result<Fn&&, T&&>> {
+  [[nodiscard]] constexpr auto map(
+      Fn&& op) && -> Option<invoke_result<Fn&&, T&&>> {
+    static_assert(std::is_invocable_v<Fn&&, T&&>);
     if (is_some()) {
       return Some<invoke_result<Fn&&, T&&>>(
           std::forward<Fn&&>(op)(std::move(value_ref_())));
@@ -785,9 +1057,9 @@ class [[nodiscard]] Option {
   /// ASSERT_EQ(move(y).map_or(alt_fn, 42UL), 42UL);
   /// ```
   template <typename Fn, typename A>
-  requires invocable<Fn&&, T&&>  //
-      [[nodiscard]] constexpr auto map_or(
-          Fn&& op, A&& alt) && -> invoke_result<Fn&&, T&&> {
+  [[nodiscard]] constexpr auto map_or(Fn&& op,
+                                      A&& alt) && -> invoke_result<Fn&&, T&&> {
+    static_assert(std::is_invocable_v<Fn&&, T&&>);
     if (is_some()) {
       return std::forward<Fn&&>(op)(std::move(value_ref_()));
     } else {
@@ -814,9 +1086,10 @@ class [[nodiscard]] Option {
   /// ASSERT_EQ(move(y).map_or_else(map_fn, alt_fn), 42);
   /// ```
   template <typename Fn, typename AltFn>
-  requires invocable<Fn&&, T&&>&& invocable<AltFn&&>  //
-      [[nodiscard]] constexpr auto map_or_else(
-          Fn&& op, AltFn&& alt) && -> invoke_result<Fn&&, T&&> {
+  [[nodiscard]] constexpr auto map_or_else(
+      Fn&& op, AltFn&& alt) && -> invoke_result<Fn&&, T&&> {
+    static_assert(std::is_invocable_v<Fn&&, T&&>);
+    static_assert(std::is_invocable_v<AltFn&&>);
     if (is_some()) {
       return std::forward<Fn&&>(op)(std::move(value_ref_()));
     } else {
@@ -871,9 +1144,9 @@ class [[nodiscard]] Option {
   /// ```
   // can return reference but the user will get the error
   template <typename Fn>
-  requires invocable<Fn&&>  //
-      [[nodiscard]] constexpr auto ok_or_else(
-          Fn&& op) && -> Result<T, invoke_result<Fn&&>> {
+  [[nodiscard]] constexpr auto ok_or_else(
+      Fn&& op) && -> Result<T, invoke_result<Fn&&>> {
+    static_assert(std::is_invocable_v<Fn&&>);
     if (is_some()) {
       return Ok<T>(std::move(value_ref_()));
     } else {
@@ -935,9 +1208,9 @@ class [[nodiscard]] Option {
   /// ASSERT_EQ(make_none<int>().and_then(sq).and_then(sq), None);
   /// ```
   template <typename Fn>
-  requires invocable<Fn&&, T&&>  //
-      [[nodiscard]] constexpr auto and_then(
-          Fn&& op) && -> invoke_result<Fn&&, T&&> {
+  [[nodiscard]] constexpr auto and_then(
+      Fn&& op) && -> invoke_result<Fn&&, T&&> {
+    static_assert(std::is_invocable_v<Fn&&, T&&>);
     if (is_some()) {
       return std::forward<Fn&&>(op)(std::move(value_ref_()));
     } else {
@@ -965,11 +1238,10 @@ class [[nodiscard]] Option {
   /// ASSERT_EQ(make_some(4).filter(is_even), Some(4));
   /// ```
   template <typename UnaryPredicate>
-  requires invocable<UnaryPredicate&&, T const&>&&
-      convertible_to<invoke_result<UnaryPredicate&&, T const&>,
-                     bool>  //
-      [[nodiscard]] constexpr auto filter(
-          UnaryPredicate&& predicate) && -> Option {
+  [[nodiscard]] constexpr auto filter(UnaryPredicate&& predicate) && -> Option {
+    static_assert(std::is_invocable_v<UnaryPredicate&&, T const&>);
+    static_assert(
+        std::is_convertible_v<invoke_result<UnaryPredicate&&, T const&>, bool>);
     if (is_some() && std::forward<UnaryPredicate&&>(predicate)(value_cref_())) {
       return std::move(*this);
     } else {
@@ -997,11 +1269,11 @@ class [[nodiscard]] Option {
   /// ASSERT_EQ(make_some(4).filter_not(is_even), None);
   /// ```
   template <typename UnaryPredicate>
-  requires invocable<UnaryPredicate&&, T const&>&&
-      convertible_to<invoke_result<UnaryPredicate&&, T const&>,
-                     bool>  //
-      [[nodiscard]] constexpr auto filter_not(
-          UnaryPredicate&& predicate) && -> Option {
+  [[nodiscard]] constexpr auto filter_not(
+      UnaryPredicate&& predicate) && -> Option {
+    static_assert(std::is_invocable_v<UnaryPredicate&&, T const&>);
+    static_assert(
+        std::is_convertible_v<invoke_result<UnaryPredicate&&, T const&>, bool>);
     if (is_some() &&
         !std::forward<UnaryPredicate&&>(predicate)(value_cref_())) {
       return std::move(*this);
@@ -1063,8 +1335,8 @@ class [[nodiscard]] Option {
   /// ASSERT_EQ(make_none<string>().or_else(nobody), None);
   /// ```
   template <typename Fn>
-  requires invocable<Fn&&>  //
-      [[nodiscard]] constexpr auto or_else(Fn&& op) && -> Option {
+  [[nodiscard]] constexpr auto or_else(Fn&& op) && -> Option {
+    static_assert(std::is_invocable_v<Fn&&>);
     if (is_some()) {
       return std::move(*this);
     } else {
@@ -1210,8 +1482,8 @@ class [[nodiscard]] Option {
   ///
   /// ASSERT_EQ(x, x.clone());
   /// ```
-  [[nodiscard]] constexpr auto clone() const -> Option
-      requires copy_constructible<T> {
+  [[nodiscard]] constexpr auto clone() const -> Option {
+    static_assert(std::is_copy_constructible_v<T>);
     if (is_some()) {
       return Some<T>(T(value_cref_()));
     } else {
@@ -1291,85 +1563,14 @@ class [[nodiscard]] Option {
   /// ASSERT_EQ(move(x).unwrap_or_default(), "Ten"s);
   /// ASSERT_EQ(move(y).unwrap_or_default(), ""s);
   /// ```
-  [[nodiscard]] constexpr auto unwrap_or_default() && -> T
-      requires default_constructible<T> {
+  [[nodiscard]] constexpr auto unwrap_or_default() && -> T {
+    static_assert(std::is_default_constructible_v<T>);
     if (is_some()) {
       return std::move(value_ref_());
     } else {
       return T();
     }
   }
-
-  /// Dereferences the pointer or iterator, therefore returning a const
-  /// reference to the pointed-to value (`Option<ConstRef<V>>`).
-  ///
-  /// Leaves the original Option in-place, creating a new one with an l-value
-  /// reference to the original one.
-  ///
-  /// # Examples
-  ///
-  /// Basic usage:
-  ///
-  /// ``` cpp
-  /// auto str = "Hello"s;
-  /// Option x = Some(&str);
-  /// ASSERT_EQ(x.as_const_deref().unwrap().get(), "Hello"s);
-  ///
-  /// Option<string*> y = None;
-  /// ASSERT_EQ(y.as_const_deref(), None);
-  /// ```
-  [[nodiscard]] constexpr auto as_const_deref()
-      const& requires ConstDerefable<T> {
-    if (is_some()) {
-      return Option<ConstDeref<T>>(
-          Some<ConstDeref<T>>(ConstDeref<T>(*value_cref_())));
-    } else {
-      return Option<ConstDeref<T>>(None);
-    }
-  }
-
-  [[deprecated(
-      "calling Result::as_const_deref() on an r-value, therefore binding a "
-      "reference to an object that is marked to be moved")]]  //
-  [[nodiscard]] constexpr auto
-  as_const_deref() const&& requires ConstDerefable<T> = delete;
-
-  /// Dereferences the pointer or iterator, therefore returning a mutable
-  /// reference to the pointed-to value (`Option<MutRef<V>>`).
-  ///
-  /// Leaves the original `Option` in-place, creating a new one containing a
-  /// mutable reference to the inner pointer's dereference value type.
-  ///
-  /// # Examples
-  ///
-  /// Basic usage:
-  ///
-  /// ``` cpp
-  /// auto str = "Hello"s;
-  /// Option x = Some(&str);
-  /// x.as_mut_deref().unwrap().get() = "World"s;
-  ///
-  /// ASSERT_EQ(str, "World"s);
-  ///
-  /// Option<string*> z = None;
-  /// ASSERT_EQ(z.as_mut_deref(), None);
-  /// ```
-  [[nodiscard]] constexpr auto as_mut_deref() & requires MutDerefable<T> {
-    if (is_some()) {
-      // the value it points to is not const lets assume the class's state is
-      // mutated through the pointer and not make this a const op
-      return Option<MutDeref<T>>(Some<MutDeref<T>>(MutDeref<T>(*value_ref_())));
-    } else {
-      return Option<MutDeref<T>>(None);
-    }
-  }
-
-  [[deprecated(
-      "calling Result::as_mut_deref() on an r-value, and therefore binding a "
-      "reference to an object that is marked to be moved")]]  //
-      [[nodiscard]] constexpr auto
-      as_mut_deref() &&
-      requires MutDerefable<T> = delete;
 
   /// Calls the parameter `some_fn` with the value if this `Option` is a
   /// `Some<T>` variant, else calls `none_fn`. This `Option` is consumed
@@ -1393,10 +1594,10 @@ class [[nodiscard]] Option {
   /// ASSERT_EQ(k, "<unidentified>"s);
   /// ```
   template <typename SomeFn, typename NoneFn>
-  requires invocable<SomeFn&&, T&&>&& invocable<NoneFn&&>  //
-      [[nodiscard]] constexpr auto match(
-          SomeFn&& some_fn,
-          NoneFn&& none_fn) && -> invoke_result<SomeFn&&, T&&> {
+  [[nodiscard]] constexpr auto match(
+      SomeFn&& some_fn, NoneFn&& none_fn) && -> invoke_result<SomeFn&&, T&&> {
+    static_assert(std::is_invocable_v<SomeFn&&, T&&>);
+    static_assert(std::is_invocable_v<NoneFn&&>);
     if (is_some()) {
       return std::forward<SomeFn&&>(some_fn)(std::move(value_ref_()));
     } else {
@@ -1470,9 +1671,11 @@ class [[nodiscard]] Option {
 //!
 //! Result is either in the Ok or Err state at any point in time
 //!
-template <Swappable T, Swappable E>
+template <typename T, typename E>
 class [[nodiscard]] Result {
  public:
+  static_assert(std::is_swappable_v<T>, "Type must be swappable");
+  static_assert(std::is_swappable_v<E>, "Type must be swappable");
   static_assert(!std::is_reference_v<T>,
                 "Cannot use T& nor T&& for type, To prevent subtleties use "
                 "type wrappers like std::reference_wrapper or any of the "
@@ -1528,7 +1731,7 @@ class [[nodiscard]] Result {
   Result(Result const& rhs) = delete;
   Result& operator=(Result const& rhs) = delete;
 
-  constexpr ~Result() noexcept {
+  ~Result() noexcept {
     if (is_ok()) {
       storage_value_.~T();
     } else {
@@ -1536,8 +1739,8 @@ class [[nodiscard]] Result {
     }
   };
 
-  [[nodiscard]] constexpr bool operator==(Ok<T> const& cmp) const
-      requires equality_comparable<T> {
+  [[nodiscard]] constexpr bool operator==(Ok<T> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
     if (is_ok()) {
       return value_cref_() == cmp.value();
     } else {
@@ -1545,8 +1748,17 @@ class [[nodiscard]] Result {
     }
   }
 
-  [[nodiscard]] constexpr bool operator==(Ok<ConstRef<T>> const& cmp) const
-      requires equality_comparable<T> {
+  [[nodiscard]] constexpr bool operator!=(Ok<T> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
+    if (is_ok()) {
+      return value_cref_() != cmp.value();
+    } else {
+      return true;
+    }
+  }
+
+  [[nodiscard]] constexpr bool operator==(Ok<ConstRef<T>> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
     if (is_ok()) {
       return value_cref_() == cmp.value();
     } else {
@@ -1554,8 +1766,17 @@ class [[nodiscard]] Result {
     }
   }
 
-  [[nodiscard]] constexpr bool operator==(Ok<MutRef<T>> const& cmp) const
-      requires equality_comparable<T> {
+  [[nodiscard]] constexpr bool operator!=(Ok<ConstRef<T>> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
+    if (is_ok()) {
+      return value_cref_() != cmp.value();
+    } else {
+      return true;
+    }
+  }
+
+  [[nodiscard]] constexpr bool operator==(Ok<MutRef<T>> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
     if (is_ok()) {
       return value_cref_() == cmp.value();
     } else {
@@ -1563,8 +1784,17 @@ class [[nodiscard]] Result {
     }
   }
 
-  [[nodiscard]] constexpr bool operator==(Ok<T const*> const& cmp) const
-      requires equality_comparable<T> {
+  [[nodiscard]] constexpr bool operator!=(Ok<MutRef<T>> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
+    if (is_ok()) {
+      return value_cref_() != cmp.value();
+    } else {
+      return true;
+    }
+  }
+
+  [[nodiscard]] constexpr bool operator==(Ok<T const*> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
     if (is_ok()) {
       return value_cref_() == *cmp.value();
     } else {
@@ -1572,8 +1802,17 @@ class [[nodiscard]] Result {
     }
   }
 
-  [[nodiscard]] constexpr bool operator==(Ok<T*> const& cmp) const
-      requires equality_comparable<T> {
+  [[nodiscard]] constexpr bool operator!=(Ok<T const*> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
+    if (is_ok()) {
+      return value_cref_() != *cmp.value();
+    } else {
+      return true;
+    }
+  }
+
+  [[nodiscard]] constexpr bool operator==(Ok<T*> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
     if (is_ok()) {
       return value_cref_() == *cmp.value();
     } else {
@@ -1581,8 +1820,17 @@ class [[nodiscard]] Result {
     }
   }
 
-  [[nodiscard]] constexpr bool operator==(Err<E> const& cmp) const
-      requires equality_comparable<E> {
+  [[nodiscard]] constexpr bool operator!=(Ok<T*> const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
+    if (is_ok()) {
+      return value_cref_() != *cmp.value();
+    } else {
+      return true;
+    }
+  }
+
+  [[nodiscard]] constexpr bool operator==(Err<E> const& cmp) const {
+    static_assert(is_equality_comparable_v<E>);
     if (is_ok()) {
       return false;
     } else {
@@ -1590,8 +1838,17 @@ class [[nodiscard]] Result {
     }
   }
 
-  [[nodiscard]] constexpr bool operator==(Err<ConstRef<E>> const& cmp) const
-      requires equality_comparable<E> {
+  [[nodiscard]] constexpr bool operator!=(Err<E> const& cmp) const {
+    static_assert(is_equality_comparable_v<E>);
+    if (is_ok()) {
+      return true;
+    } else {
+      return err_cref_() != cmp.value();
+    }
+  }
+
+  [[nodiscard]] constexpr bool operator==(Err<ConstRef<E>> const& cmp) const {
+    static_assert(is_equality_comparable_v<E>);
     if (is_ok()) {
       return false;
     } else {
@@ -1599,8 +1856,17 @@ class [[nodiscard]] Result {
     }
   }
 
-  [[nodiscard]] constexpr bool operator==(Err<MutRef<E>> const& cmp) const
-      requires equality_comparable<E> {
+  [[nodiscard]] constexpr bool operator!=(Err<ConstRef<E>> const& cmp) const {
+    static_assert(is_equality_comparable_v<E>);
+    if (is_ok()) {
+      return true;
+    } else {
+      return err_cref_() != cmp.value();
+    }
+  }
+
+  [[nodiscard]] constexpr bool operator==(Err<MutRef<E>> const& cmp) const {
+    static_assert(is_equality_comparable_v<E>);
     if (is_ok()) {
       return false;
     } else {
@@ -1608,8 +1874,17 @@ class [[nodiscard]] Result {
     }
   }
 
-  [[nodiscard]] constexpr bool operator==(Err<E const*> const& cmp) const
-      requires equality_comparable<E> {
+  [[nodiscard]] constexpr bool operator!=(Err<MutRef<E>> const& cmp) const {
+    static_assert(is_equality_comparable_v<E>);
+    if (is_ok()) {
+      return true;
+    } else {
+      return err_cref_() != cmp.value();
+    }
+  }
+
+  [[nodiscard]] constexpr bool operator==(Err<E const*> const& cmp) const {
+    static_assert(is_equality_comparable_v<E>);
     if (is_ok()) {
       return false;
     } else {
@@ -1617,8 +1892,17 @@ class [[nodiscard]] Result {
     }
   }
 
-  [[nodiscard]] constexpr bool operator==(Err<E*> const& cmp) const
-      requires equality_comparable<E> {
+  [[nodiscard]] constexpr bool operator!=(Err<E const*> const& cmp) const {
+    static_assert(is_equality_comparable_v<E>);
+    if (is_ok()) {
+      return true;
+    } else {
+      return err_cref_() != *cmp.value();
+    }
+  }
+
+  [[nodiscard]] constexpr bool operator==(Err<E*> const& cmp) const {
+    static_assert(is_equality_comparable_v<E>);
     if (is_ok()) {
       return false;
     } else {
@@ -1626,14 +1910,36 @@ class [[nodiscard]] Result {
     }
   }
 
-  [[nodiscard]] constexpr bool operator==(Result const& cmp) const
-      requires equality_comparable<T>&& equality_comparable<E> {
+  [[nodiscard]] constexpr bool operator!=(Err<E*> const& cmp) const {
+    static_assert(is_equality_comparable_v<E>);
+    if (is_ok()) {
+      return true;
+    } else {
+      return err_cref_() != *cmp.value();
+    }
+  }
+
+  [[nodiscard]] constexpr bool operator==(Result const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
+    static_assert(is_equality_comparable_v<E>);
     if (is_ok() && cmp.is_ok()) {
       return value_cref_() == cmp.value_cref_();
     } else if (is_err() && cmp.is_err()) {
       return err_cref_() == cmp.err_cref_();
     } else {
       return false;
+    }
+  }
+
+  [[nodiscard]] constexpr bool operator!=(Result const& cmp) const {
+    static_assert(is_equality_comparable_v<T>);
+    static_assert(is_equality_comparable_v<E>);
+    if (is_ok() && cmp.is_ok()) {
+      return value_cref_() != cmp.value_cref_();
+    } else if (is_err() && cmp.is_err()) {
+      return err_cref_() != cmp.err_cref_();
+    } else {
+      return true;
     }
   }
 
@@ -1687,8 +1993,8 @@ class [[nodiscard]] Result {
   /// ASSERT_FALSE(z.contains(2));
   /// ```
   template <typename CmpType>
-  requires equality_comparable<T const&, CmpType const&>  //
-      [[nodiscard]] constexpr bool contains(CmpType const& cmp) const {
+  [[nodiscard]] constexpr bool contains(CmpType const& cmp) const {
+    static_assert(is_equality_comparable_v<T const&, CmpType const&>);
     if (is_ok()) {
       return value_cref_() == cmp;
     } else {
@@ -1715,8 +2021,8 @@ class [[nodiscard]] Result {
   /// ASSERT_FALSE(z.contains_err("Some error message"s));
   /// ```
   template <typename ErrCmp>
-  requires equality_comparable<E const&, ErrCmp const&>  //
-      [[nodiscard]] constexpr bool contains_err(ErrCmp const& cmp) const {
+  [[nodiscard]] constexpr bool contains_err(ErrCmp const& cmp) const {
+    static_assert(is_equality_comparable_v<E const&, ErrCmp const&>);
     if (is_ok()) {
       return false;
     } else {
@@ -1739,10 +2045,10 @@ class [[nodiscard]] Result {
   ///
   /// ```
   template <typename UnaryPredicate>
-  requires invocable<UnaryPredicate&&, T const&>&&
-      convertible_to<invoke_result<UnaryPredicate&&, T const&>,
-                     bool>  //
-      [[nodiscard]] constexpr bool exists(UnaryPredicate&& predicate) const {
+  [[nodiscard]] constexpr bool exists(UnaryPredicate&& predicate) const {
+    static_assert(std::is_invocable_v<UnaryPredicate&&, T const&>);
+    static_assert(
+        std::is_convertible_v<invoke_result<UnaryPredicate&&, T const&>, bool>);
     if (is_ok()) {
       return std::forward<UnaryPredicate&&>(predicate)(value_cref_());
     } else {
@@ -1765,11 +2071,10 @@ class [[nodiscard]] Result {
   ///
   /// ```
   template <typename UnaryPredicate>
-  requires invocable<UnaryPredicate&&, E const&>&&
-      convertible_to<invoke_result<UnaryPredicate&&, E const&>,
-                     bool>  //
-      [[nodiscard]] constexpr bool err_exists(
-          UnaryPredicate&& predicate) const {
+  [[nodiscard]] constexpr bool err_exists(UnaryPredicate&& predicate) const {
+    static_assert(std::is_invocable_v<UnaryPredicate&&, E const&>);
+    static_assert(
+        std::is_convertible_v<invoke_result<UnaryPredicate&&, E const&>, bool>);
     if (is_err()) {
       return std::forward<UnaryPredicate&&>(predicate)(err_cref_());
     } else {
@@ -2019,9 +2324,9 @@ class [[nodiscard]] Result {
   /// ASSERT_EQ(content_type, Ok("multipart/form-data"sv));
   /// ```
   template <typename Fn>
-  requires invocable<Fn&&, T&&>  //
-      [[nodiscard]] constexpr auto map(
-          Fn&& op) && -> Result<invoke_result<Fn&&, T&&>, E> {
+  [[nodiscard]] constexpr auto map(
+      Fn&& op) && -> Result<invoke_result<Fn&&, T&&>, E> {
+    static_assert(std::is_invocable_v<Fn&&, T&&>);
     if (is_ok()) {
       return Ok<invoke_result<Fn&&, T&&>>(
           std::forward<Fn&&>(op)(std::move(value_ref_())));
@@ -2046,9 +2351,9 @@ class [[nodiscard]] Result {
   /// ASSERT_EQ(move(y).map_or(map_fn, 42UL), 42UL);
   /// ```
   template <typename Fn, typename AltType>
-  requires invocable<Fn&&, T&&>  //
-      [[nodiscard]] constexpr auto map_or(
-          Fn&& op, AltType&& alt) && -> invoke_result<Fn&&, T&&> {
+  [[nodiscard]] constexpr auto map_or(
+      Fn&& op, AltType&& alt) && -> invoke_result<Fn&&, T&&> {
+    static_assert(std::is_invocable_v<Fn&&, T&&>);
     if (is_ok()) {
       return std::forward<Fn&&>(op)(std::move(value_ref_()));
     } else {
@@ -2079,9 +2384,10 @@ class [[nodiscard]] Result {
   /// ASSERT_EQ(move(y).map_or_else(map_fn, else_fn), 42);
   /// ```
   template <typename Fn, typename A>
-  requires invocable<Fn&&, T&&>&& invocable<A&&, E&&>  //
-      [[nodiscard]] constexpr auto map_or_else(
-          Fn&& op, A&& alt_op) && -> invoke_result<Fn&&, T&&> {
+  [[nodiscard]] constexpr auto map_or_else(
+      Fn&& op, A&& alt_op) && -> invoke_result<Fn&&, T&&> {
+    static_assert(std::is_invocable_v<Fn&&, T&&>);
+    static_assert(std::is_invocable_v<A&&, E&&>);
     if (is_ok()) {
       return std::forward<Fn&&>(op)(std::move(value_ref_()));
     } else {
@@ -2110,9 +2416,9 @@ class [[nodiscard]] Result {
   /// ASSERT_EQ(move(y).map_err(stringify), Err("error code: 404"s));
   /// ```
   template <typename Fn>
-  requires invocable<Fn&&, E&&>  //
-      [[nodiscard]] constexpr auto map_err(
-          Fn&& op) && -> Result<T, invoke_result<Fn&&, E&&>> {
+  [[nodiscard]] constexpr auto map_err(
+      Fn&& op) && -> Result<T, invoke_result<Fn&&, E&&>> {
+    static_assert(std::is_invocable_v<Fn&&, E&&>);
     if (is_ok()) {
       return Ok<T>(std::move(value_ref_()));
     } else {
@@ -2147,8 +2453,8 @@ class [[nodiscard]] Result {
   /// ```
   // a copy attempt like passing a const could cause an error
   template <typename U, typename F>
-  requires convertible_to<E, F>  //
-      [[nodiscard]] constexpr auto AND(Result<U, F>&& res) && -> Result<U, F> {
+  [[nodiscard]] constexpr auto AND(Result<U, F>&& res) && -> Result<U, F> {
+    static_assert(std::is_convertible_v<E, F>);
     if (is_ok()) {
       return std::forward<Result<U, F>&&>(res);
     } else {
@@ -2175,9 +2481,9 @@ class [[nodiscard]] Result {
   /// ASSERT_EQ(make_err(3).and_then(sq).and_then(sq), Err(3));
   /// ```
   template <typename Fn>
-  requires invocable<Fn&&, T&&>  //
-      [[nodiscard]] constexpr auto and_then(
-          Fn&& op) && -> Result<invoke_result<Fn&&, T&&>, E> {
+  [[nodiscard]] constexpr auto and_then(
+      Fn&& op) && -> Result<invoke_result<Fn&&, T&&>, E> {
+    static_assert(std::is_invocable_v<Fn&&, T&&>);
     if (is_ok()) {
       return Ok<invoke_result<Fn&&, T&&>>(
           std::forward<Fn&&>(op)(std::move(value_ref_())));
@@ -2216,8 +2522,8 @@ class [[nodiscard]] Result {
   /// ```
   // passing a const ref will cause an error
   template <typename U, typename F>
-  requires convertible_to<T&&, U>  //
-      [[nodiscard]] constexpr auto OR(Result<U, F>&& alt) && -> Result<U, F> {
+  [[nodiscard]] constexpr auto OR(Result<U, F>&& alt) && -> Result<U, F> {
+    static_assert(std::is_convertible_v<T&&, U>);
     if (is_ok()) {
       return Ok<U>(static_cast<U>(std::move(value_ref_())));
     } else {
@@ -2246,9 +2552,8 @@ class [[nodiscard]] Result {
   /// ASSERT_EQ(make_err(3).or_else(err).or_else(err), Err(3));
   /// ```
   template <typename Fn>
-  requires invocable<Fn&&, E&&>  //
-      [[nodiscard]] constexpr auto or_else(
-          Fn&& op) && -> invoke_result<Fn&&, E&&> {
+  [[nodiscard]] constexpr auto or_else(Fn&& op) && -> invoke_result<Fn&&, E&&> {
+    static_assert(std::is_invocable_v<Fn&&, E&&>);
     if (is_ok()) {
       return Ok<T>(std::move(value_ref_()));
     } else {
@@ -2300,8 +2605,8 @@ class [[nodiscard]] Result {
   /// 4);
   /// ```
   template <typename Fn>
-  requires invocable<Fn&&, E&&>  //
-      [[nodiscard]] constexpr auto unwrap_or_else(Fn&& op) && -> T {
+  [[nodiscard]] constexpr auto unwrap_or_else(Fn&& op) && -> T {
+    static_assert(std::is_invocable_v<Fn&&, E&&>);
     if (is_ok()) {
       return std::move(value_ref_());
     } else {
@@ -2425,254 +2730,14 @@ class [[nodiscard]] Result {
   ///                                                     // value
   ///                                                     // for a C++ string
   /// ```
-  [[nodiscard]] constexpr auto unwrap_or_default() && -> T
-      requires default_constructible<T> {
+  [[nodiscard]] constexpr auto unwrap_or_default() && -> T {
+    static_assert(std::is_default_constructible_v<T>);
     if (is_ok()) {
       return std::move(value_ref_());
     } else {
       return T();
     }
   }
-
-  /// Performs a constant dereference on `T`. if `T` is a pointer, C++-style
-  /// iterator or smart-pointer. i.e. Converts `Result<T, E>` to
-  /// `Result<ConstRef<U>, ConstRef<E>>`
-  /// Where:
-  /// -  `U` represents the value obtained from dereferencing `T` and
-  /// `ConstRef<U>` is a constant reference to a value pointed to by the value's
-  /// pointer-type `T`
-  ///
-  ///
-  /// # NOTE
-  /// `ConstRef<U>` is an alias for `std::reference_wrapper<U const>`, but
-  /// that's too long :)
-  /// # NOTE
-  /// If `T` is an owning pointer/iterator/object, This result
-  /// should live just as long as the dereference result obtained by calling
-  /// this method.
-  ///
-  ///
-  /// # Examples
-  ///
-  /// Basic usage:
-  ///
-  /// ``` cpp
-  /// int v = 98;
-  ///
-  /// Result<int*, string_view> x = Ok(&v);
-  /// ConstRef<int> v_ref = x.as_const_deref().unwrap();
-  ///
-  /// ASSERT_EQ(v_ref.get(), 98);    // check the values
-  /// ASSERT_EQ(&v_ref.get(), &v);  // check their addresses
-  ///
-  /// Result<int*, string_view> y = Err("Errrr...."sv);
-  /// ConstRef<string_view> y_err_ref = y.as_const_deref().unwrap_err();
-  /// ASSERT_EQ(y_err_ref.get(), "Errrr...."sv);  // check the string-view's
-  ///                                             // value
-  /// ```
-  [[nodiscard]] constexpr auto as_const_deref()
-      const& requires ConstDerefable<T> {
-    using result_t = Result<ConstDeref<T>, ConstRef<E>>;
-
-    if (is_ok()) {
-      return result_t(Ok<ConstDeref<T>>(ConstDeref<T>(*value_cref_())));
-    } else {
-      return result_t(Err<ConstRef<E>>(ConstRef<E>(err_cref_())));
-    }
-  }
-
-  [[deprecated(
-      "calling Result::as_const_deref() on an r-value, and therefore binding a "
-      "reference to an object that is marked to be moved")]]  //
-  [[nodiscard]] constexpr auto
-  as_const_deref() const&& requires ConstDerefable<T> = delete;
-
-  /// Performs a constant dereference on `E`. if `E` is a pointer, C++-style
-  /// iterator or smart-pointer. i.e. Converts `Result<T, E>` to
-  /// `Result<ConstRef<T>, ConstRef<F>>`
-  /// Where:
-  /// -  `F` represents the value obtained from dereferencing `E` and
-  /// `ConstRef<F>` is a constant reference to a value pointed to by the error's
-  /// pointer-type `E`
-  ///
-  ///
-  /// # NOTE
-  ///
-  /// `ConstRef<F>` is an alias for `std::reference_wrapper<F const>`, but
-  /// that's too long :)
-  ///
-  /// # NOTE
-  ///
-  /// If `E` is an owning pointer/iterator/object, This result
-  /// should live just as long as the dereference result obtained by calling
-  /// this method.
-  ///
-  ///
-  /// # Examples
-  ///
-  /// Basic usage:
-  ///
-  /// ``` cpp
-  /// Result<int, string_view*> x = Ok(2);
-  /// ConstRef<int> x_value_ref = x.as_const_deref_err().unwrap();
-  /// ASSERT_EQ(x_value_ref.get(), 2);  // check their values
-  ///
-  /// string_view e = "Errrr...."sv;
-  ///
-  /// Result<int, string_view*> y = Err(&e);
-  /// ConstRef<string_view> y_err_ref = y.as_const_deref_err().unwrap_err();
-  ///
-  /// ASSERT_EQ(y_err_ref.get(), e);    // check their values
-  /// ASSERT_EQ(&y_err_ref.get(), &e);  // check their addresses
-  /// ```
-  [[nodiscard]] constexpr auto as_const_deref_err()
-      const& requires ConstDerefable<E> {
-    using result_t = Result<ConstRef<T>, ConstDeref<E>>;
-
-    if (is_ok()) {
-      return result_t(Ok<ConstRef<T>>(ConstRef<T>(value_cref_())));
-    } else {
-      return result_t(Err<ConstDeref<E>>(ConstDeref<E>(*err_cref_())));
-    }
-  }
-
-  [[deprecated(
-      "calling Result::as_const_deref_err() on an r-value, and therefore "
-      "binding an l-value reference to an object that is marked to be "
-      "moved")]]  //
-  [[nodiscard]] constexpr auto
-  as_const_deref_err() const&& requires ConstDerefable<E> = delete;
-
-  /// Performs a mutable dereference on `T`, if `T` is a pointer, C++-style
-  /// iterator or smart-pointer. i.e. Converts `Result<T, E>` to
-  /// `Result<MutRef<U>, MutRef<E>>`
-  /// Where:
-  /// -  `U` represents the value obtained from dereferencing `T` and
-  /// `MutRef<U>` is a mutable reference to a value pointed to by the value's
-  /// pointer-type `T`
-  ///
-  ///
-  /// # NOTE
-  ///
-  /// `MutRef<U>` is an alias for std::reference_wrapper<U>, but
-  /// that's too long :)
-  /// # NOTE
-  ///
-  /// If `T` is an owning pointer/iterator/object, This result
-  /// should live just as long as the dereference result obtained by calling
-  /// this method.
-  ///
-  ///
-  /// # Examples
-  ///
-  /// Basic usage:
-  ///
-  /// ``` cpp
-  /// int v = 98;
-  ///
-  /// Result<int*, string_view> x = Ok(&v);
-  /// MutRef<int> v_ref = x.as_mut_deref().unwrap();
-  ///
-  /// ASSERT_EQ(v_ref.get(), 98);   // check the values
-  /// ASSERT_EQ(&v_ref.get(), &v);  // check their addresses
-  ///
-  /// v_ref.get() = -404;  // change v's value via the mutable reference
-  ///
-  /// ASSERT_EQ(v_ref.get(), -404);  // check that the reference's value changed
-  /// ASSERT_EQ(v, -404);            // check that v's value changed
-  /// ASSERT_EQ(v_ref.get(), v);     // check that both v and v_ref are equal
-  /// ASSERT_EQ(&v_ref.get(), &v);   // check that v_ref references v
-  ///
-  /// Result<int*, string_view> y = Err("Errrr...."sv);
-  /// MutRef<string_view> y_err_ref = y.as_mut_deref().unwrap_err();
-  /// ASSERT_EQ(y_err_ref.get(), "Errrr...."sv);
-  ///
-  /// y_err_ref.get() = "Omoshiroi!..."sv;  // change the error's value
-  ///
-  /// ASSERT_EQ(y, Err("Omoshiroi!..."sv));  // check that the error's value was
-  ///                                        // actually changed
-  /// ```
-  [[nodiscard]] constexpr auto as_mut_deref() & requires MutDerefable<T> {
-    using result_t = Result<MutDeref<T>, MutRef<E>>;
-    if (is_ok()) {
-      return result_t(Ok<MutDeref<T>>(MutDeref<T>(*value_ref_())));
-    } else {
-      return result_t(Err<MutRef<E>>(MutRef<E>(err_ref_())));
-    }
-  }
-
-  [[deprecated(
-      "calling Result::as_mut_deref() on an r-value, and therefore binding a "
-      "reference to an object that is marked to be moved")]]  //
-      [[nodiscard]] constexpr auto
-      as_mut_deref() &&
-      requires MutDerefable<T> = delete;
-
-  /// Performs a mutable dereference on `E`, if `E` is a pointer, C++-style
-  /// iterator or smart-pointer. i.e. Converts `Result<T, E>` to
-  /// `Result<MutRef<T>, MutRef<F>>`
-  /// Where:
-  /// -  `F` represents the value obtained from dereferencing `E` and
-  /// `MutRef<F>` is a mutable reference to a value pointed to by the value's
-  /// pointer-type `T`
-  ///
-  ///
-  /// # NOTE
-  ///
-  /// `MutRef<F>` is an alias for std::reference_wrapper<F>, but
-  /// that's too long :)
-  ///
-  /// # NOTE
-  ///
-  /// If `E` is an owning pointer/iterator/object, This result
-  /// should live just as long as the dereference result obtained by calling
-  /// this method.
-  ///
-  ///
-  /// # Examples
-  ///
-  /// Basic usage:
-  ///
-  /// ``` cpp
-  /// int e = 98;
-  ///
-  /// Result<string_view, int*> x = Err(&e);
-  /// MutRef<int> e_ref = x.as_mut_deref_err().unwrap_err();
-  ///
-  /// ASSERT_EQ(e_ref.get(), 98);   // check the values
-  /// ASSERT_EQ(&e_ref.get(), &e);  // check their addresses
-  ///
-  /// e_ref.get() = -404;  // change e's value via the mutable reference
-  ///
-  /// ASSERT_EQ(e_ref.get(), -404);  // check that the reference's value changed
-  /// ASSERT_EQ(e, -404);            // check that v's value changed
-  /// ASSERT_EQ(e_ref.get(), e);     // check that both v and v_ref are equal
-  /// ASSERT_EQ(&e_ref.get(), &e);   // check that v_ref references v
-  ///
-  /// Result<string_view, int*> y = Ok("Errrr...."sv);
-  /// MutRef<string_view> y_err_ref = y.as_mut_deref_err().unwrap();
-  /// ASSERT_EQ(y_err_ref.get(), "Errrr...."sv);
-  ///
-  /// y_err_ref.get() = "Omoshiroi!..."sv;  // change the error's value
-  ///
-  /// ASSERT_EQ(y, Ok("Omoshiroi!..."sv));  // check that the error's value was
-  ///                                       // actually changed
-  /// ```
-  [[nodiscard]] constexpr auto as_mut_deref_err() & requires MutDerefable<E> {
-    using result_t = Result<MutRef<T>, MutDeref<E>>;
-    if (is_ok()) {
-      return result_t(Ok<MutRef<T>>(MutRef<T>(value_ref_())));
-    } else {
-      return result_t(Err<MutDeref<E>>(MutDeref<E>(*err_ref_())));
-    }
-  }
-
-  [[deprecated(
-      "calling Result::as_mut_deref_err() on an r-value, and therefore binding "
-      "an l-value reference to an object that is marked to be moved")]]  //
-      [[nodiscard]] constexpr auto
-      as_mut_deref_err() &&
-      requires MutDerefable<E> = delete;
 
   /// Calls the parameter `ok_fn` with the value if this result is an `Ok<T>`,
   /// else calls `err_fn` with the error. This result is consumed afterward.
@@ -2699,9 +2764,11 @@ class [[nodiscard]] Result {
   ///               [](string_view s) { fmt::print("Error: {}\n", s); });
   /// ```
   template <typename OkFn, typename ErrFn>
-  requires invocable<OkFn&&, T&&>&& invocable<ErrFn&&, E&&>  //
-      [[nodiscard]] constexpr auto match(
-          OkFn&& ok_fn, ErrFn&& err_fn) && -> invoke_result<OkFn&&, T&&> {
+  [[nodiscard]] constexpr auto match(
+      OkFn&& ok_fn, ErrFn&& err_fn) && -> invoke_result<OkFn&&, T&&> {
+    static_assert(std::is_invocable_v<OkFn&&, T&&>);
+    static_assert(std::is_invocable_v<ErrFn&&, E&&>);
+
     if (is_ok()) {
       return std::forward<OkFn&&>(ok_fn)(std::move(value_ref_()));
     } else {
@@ -2709,8 +2776,9 @@ class [[nodiscard]] Result {
     }
   }
 
-  [[nodiscard]] constexpr auto clone() const
-      -> Result<T, E> requires copy_constructible<T>&& copy_constructible<E> {
+  [[nodiscard]] constexpr auto clone() const -> Result<T, E> {
+    static_assert(std::is_copy_constructible_v<T>);
+    static_assert(std::is_copy_constructible_v<E>);
     if (is_ok()) {
       return Ok<T>(T(value_cref_()));
     } else {
