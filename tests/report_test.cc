@@ -9,7 +9,14 @@ enum class Dummy {};
 
 using namespace stx;
 
-Report operator>>(ReportQuery, exact<IoError> auto const& v) {
+STX_FORCE_INLINE bool ends_with(std::string_view const& str,
+                                std::string_view const& sv) {
+  return str.size() >= sv.size() &&
+         str.compare(str.size() - sv.size(), std::string_view::npos, sv) == 0;
+}
+
+template <>
+Report stx::operator>>(ReportQuery, IoError const& v) noexcept {
   switch (v) {
     case IoError::EoF:
       return Report("End of File");
@@ -21,14 +28,6 @@ Report operator>>(ReportQuery, exact<IoError> auto const& v) {
       return Report("Unknown Error");
   }
 }
-
-static_assert(Reportable<int8_t>);
-static_assert(Reportable<uint8_t>);
-static_assert(Reportable<int16_t>);
-static_assert(Reportable<uint16_t>);
-
-static_assert(Reportable<IoError>);
-static_assert(!Reportable<Dummy>);
 
 static constexpr auto query = ReportQuery{};
 
@@ -43,6 +42,8 @@ TEST(ReportTest, FormatUInt8) {
 TEST(ReportTest, FormatInt8) {
   int8_t a = 127;
   EXPECT_EQ((query >> a).what(), "127");
+
+  EXPECT_EQ((query >> (int*)0x028e7).what(), "Hello");
 
   int8_t b = -128;
   EXPECT_EQ((query >> b).what(), "-128");
@@ -70,8 +71,8 @@ TEST(ReportTest, FormatEnum) {
     b += "H";
   }
 
-  EXPECT_FALSE((query >> a).what().ends_with(kReportTruncationMessage));
-  EXPECT_TRUE((query >> b).what().ends_with(kReportTruncationMessage));
+  EXPECT_FALSE(ends_with((query >> a).what(), kReportTruncationMessage));
+  EXPECT_TRUE(ends_with((query >> b).what(), kReportTruncationMessage));
 
   EXPECT_EQ((query >> "Hello"sv).what(), "Hello");
 

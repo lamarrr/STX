@@ -44,6 +44,7 @@ struct MoveOnly {
   }
 
   bool operator==(MoveOnly const&) const { return true; }
+  bool operator!=(MoveOnly const&) const { return false; }
 };
 
 template <size_t id>
@@ -51,8 +52,8 @@ MoveOnly<id> make_mv() {
   return MoveOnly<id>(id);
 }
 
-static_assert(Swappable<MoveOnly<0>>);
-static_assert(equality_comparable<MoveOnly<0>>);
+static_assert(std::is_swappable_v<MoveOnly<0>>);
+static_assert(is_equality_comparable_v<MoveOnly<0>>);
 
 struct FnMut {
   int call_times;
@@ -631,58 +632,6 @@ TEST(OptionTest, UnwrapOrDefault) {
   EXPECT_EQ(Option(Some(vector{1, 2, 3, 4, 5})).unwrap_or_default(),
             (vector{1, 2, 3, 4, 5}));
   EXPECT_EQ(Option<vector<int>>(None).unwrap_or_default(), (vector<int>{}));
-}
-
-TEST(OptionTest, AsConstDeref) {
-  int const x = 98;
-  auto const a = Option(Some(&x));
-  EXPECT_EQ(a.as_const_deref().unwrap().get(), 98);
-  EXPECT_EQ(&a.as_const_deref().unwrap().get(), &x);
-
-  auto const b = Option<int*>(None);
-  EXPECT_EQ(b.as_const_deref(), None);
-
-  auto const y = vector{1, 2, 3, 4, 5};
-  auto const c = Option(Some(&y));
-  EXPECT_EQ(c.as_const_deref().unwrap().get(), (vector{1, 2, 3, 4, 5}));
-  EXPECT_EQ(&c.as_const_deref().unwrap().get(), &y);
-
-  auto const d = Option<vector<int>*>(None);
-  EXPECT_EQ(d.as_const_deref(), None);
-
-  // works with standard vector iterators
-  auto const z = vector{1, 2, 3, 4, 5};
-  auto e = Option(Some(z.begin()));
-  EXPECT_EQ(e.as_const_deref().unwrap().get(), 1);
-  EXPECT_EQ(&e.as_const_deref().unwrap().get(), &z.front());
-}
-
-TEST(OptionTest, AsMutDeref) {
-  int x = 98;
-  auto a = Option(Some(&x));
-  a.as_mut_deref().unwrap().get() = 77;
-  EXPECT_EQ(a.as_mut_deref().unwrap().get(), 77);
-
-  auto b = Option<int*>(None);
-  EXPECT_EQ(b.as_mut_deref(), None);
-
-  auto vec = vector{1, 2, 3, 4, 5};
-  auto c = Option(Some(&vec));
-  c.as_mut_deref().unwrap().get() = vector{6, 7, 8, 9, 10};
-  EXPECT_EQ(c.as_mut_deref().unwrap().get(), (vector{6, 7, 8, 9, 10}));
-
-  auto d = Option<vector<int>*>(None);
-  EXPECT_EQ(d.as_mut_deref(), None);
-
-  auto vec_b = vector{1, 2, 3, 4, 5};
-  auto e = Option(Some(vec_b.begin()));
-  e.as_mut_deref().unwrap().get() = -1;
-  EXPECT_EQ(vec_b, (vector{-1, 2, 3, 4, 5}));
-
-  auto vec_c = vector{1, 2, 3, 4, 5};
-  auto f = Option(Some(vec_c.end() - 1));
-  f.as_mut_deref().unwrap().get() = -1;
-  EXPECT_EQ(vec_c, (vector{1, 2, 3, 4, -1}));
 }
 
 TEST(OptionTest, Match) {
