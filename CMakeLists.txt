@@ -12,7 +12,7 @@ include(CMakeDependentOption)
 include(CheckIncludeFileCXX)
 include(HandleFlags)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # ===============================================
@@ -185,7 +185,7 @@ else()
 endif()
 
 target_include_directories(stx PUBLIC include)
-set_target_properties(stx PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON)
+set_target_properties(stx PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
 target_compile_options(stx PRIVATE ${STX_FLAGS} ${STX_WARNING_FLAGS})
 target_compile_definitions(stx PUBLIC ${STX_COMPILER_DEFS})
 
@@ -293,7 +293,7 @@ if(STX_BUILD_TESTS)
                                            ${STX_TEST_WARNING_FLAGS})
   target_compile_definitions(stx_tests PRIVATE STX_OVERRIDE_PANIC_HANDLER)
   set_target_properties(stx_tests
-                        PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON)
+                        PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
   add_custom_target(
     run_tests
     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/stx_tests
@@ -315,7 +315,7 @@ if(STX_BUILD_TESTS)
       target_link_libraries("stx_tests_${sanitize_mode}_sanitized" stx
                             gtest_main gtest "-fsanitize=${sanitize_mode}")
       set_target_properties("stx_tests_${sanitize_mode}_sanitized"
-                            PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON)
+                            PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
     endif()
   endmacro(add_sanitized_test sanitize_mode)
 
@@ -341,7 +341,7 @@ if(STX_BUILD_BENCHMARKS)
     target_link_libraries("stx_benchmark_${benchmark_name}" stx benchmark
                           benchmark_main)
     set_target_properties("stx_benchmark_${benchmark_name}"
-                          PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON)
+                          PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
     target_compile_options("stx_benchmark_${benchmark_name}"
                            PRIVATE ${STX_WARNING_FLAGS})
   endmacro(add_benchmark benchmark_name)
