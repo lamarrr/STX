@@ -46,7 +46,7 @@ STX_LOCAL
 
 bool stx::attach_panic_hook(stx::PanicHook hook) noexcept {
   if (stx::this_thread::is_panicking()) return false;
-  stx::panic_hook_ref().exchange(hook, std::memory_order::seq_cst);
+  stx::panic_hook_ref().exchange(hook, std::memory_order_seq_cst);
   return true;
 }
 
@@ -59,7 +59,7 @@ STX_LOCAL
 bool stx::take_panic_hook(PanicHook* out) noexcept {
   if (stx::this_thread::is_panicking()) return false;
   auto hook =
-      stx::panic_hook_ref().exchange(nullptr, std::memory_order::seq_cst);
+      stx::panic_hook_ref().exchange(nullptr, std::memory_order_seq_cst);
   if (hook == nullptr) {
     *out = stx::default_panic_hook;
   } else {
@@ -83,7 +83,7 @@ bool stx::take_panic_hook(PanicHook* out) noexcept {
   }
 
   // panic hooks, all threads use the same panic hook
-  PanicHook hook = panic_hook_ref().load(std::memory_order::seq_cst);
+  PanicHook hook = panic_hook_ref().load(std::memory_order_seq_cst);
 
   if (hook != nullptr) {
     hook(std::move(info), payload, std::move(location));
