@@ -57,7 +57,7 @@ namespace this_thread {
 /// # THREAD-SAFETY
 /// thread-safe.
 [[nodiscard]] STX_EXPORT bool is_panicking() noexcept;
-};  // namespace this_thread
+}  // namespace this_thread
 
 /// Checks if panic hooks are visible to be attached-to when loaded as a dynamic
 /// library. This should be called before calling any of `attach_panic_hook` or
@@ -109,4 +109,4 @@ STX_LOCAL
     bool
     take_panic_hook(PanicHook* hook) noexcept;
 
-};  // namespace stx
+}  // namespace stx

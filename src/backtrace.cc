@@ -177,4 +177,4 @@ auto backtrace::handle_signal(int signal) noexcept
   return Ok(std::move(err));
 }
 
-};  // namespace stx
+}  // namespace stx

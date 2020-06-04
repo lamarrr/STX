@@ -168,8 +168,9 @@ TEST(OptionLifetimeTest, Contains) {
 TEST(OptionTest, Exists) {
   constexpr auto even = [](int const& x) { return x % 2 == 0; };
 
-  auto const all_even = [=](vector<int> const& x) {
-    return std::all_of(x.begin(), x.end(), even);
+  auto const all_even = [](vector<int> const& x) {
+    return std::all_of(x.begin(), x.end(),
+                       [](int const& x) { return x % 2 == 0; });
   };
 
   EXPECT_TRUE(make_some(8).exists(even));
@@ -612,8 +613,8 @@ TEST(OptionTest, ExpectNone) {
   EXPECT_DEATH(Option(Some(56)).expect_none("===TEST==="), ".*");
   EXPECT_NO_THROW(Option<int>(None).expect_none("===TEST==="));
 
-  EXPECT_DEATH(Option(Some(vector{1, 2, 3, 4, 5})).expect_none("===TEST==="),
-               ".*");
+  EXPECT_DEATH(
+      Option(Some(vector<int>{1, 2, 3, 4, 5})).expect_none("===TEST==="), ".*");
   EXPECT_NO_THROW(Option<vector<int>>(None).expect_none("===TEST==="));
 }
 
@@ -621,7 +622,7 @@ TEST(OptionTest, UnwrapNone) {
   EXPECT_DEATH(Option(Some(56)).unwrap_none(), ".*");
   EXPECT_NO_THROW(Option<int>(None).unwrap_none());
 
-  EXPECT_DEATH(Option(Some(vector{1, 2, 3, 4, 5})).unwrap_none(), ".*");
+  EXPECT_DEATH(Option(Some(vector<int>{1, 2, 3, 4, 5})).unwrap_none(), ".*");
   EXPECT_NO_THROW(Option<vector<int>>(None).unwrap_none());
 }
 
