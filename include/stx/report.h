@@ -44,7 +44,7 @@ class [[nodiscard]] Report {
  public:
   using storage_type = std::array<char, kMaxReportSize>;
 
-  [[nodiscard]] explicit constexpr Report(std::string_view info) noexcept
+  explicit constexpr Report(std::string_view info) noexcept
       : report_{}, used_size_{} {
     // account for truncation
     // check bounds
@@ -68,8 +68,8 @@ class [[nodiscard]] Report {
     used_size_ = i;
   }
 
-  [[nodiscard]] constexpr Report(Report const&) noexcept = default;
-  [[nodiscard]] constexpr Report(Report&&) noexcept = default;
+  constexpr Report(Report const&) noexcept = default;
+  constexpr Report(Report &&) noexcept = default;
   constexpr Report& operator=(Report const&) noexcept = default;
   constexpr Report& operator=(Report&&) noexcept = default;
   ~Report() noexcept = default;
@@ -95,12 +95,11 @@ class [[nodiscard]] Report {
 /// `panic_handler`.
 class [[nodiscard]] ReportPayload {
  public:
-  [[nodiscard]] explicit constexpr ReportPayload(Report const& report) noexcept
+  explicit constexpr ReportPayload(Report const& report) noexcept
       : content_{report.what()} {}
 
-  [[nodiscard]] constexpr ReportPayload(ReportPayload const&) noexcept =
-      default;
-  [[nodiscard]] constexpr ReportPayload(ReportPayload&&) noexcept = default;
+  constexpr ReportPayload(ReportPayload const&) noexcept = default;
+  constexpr ReportPayload(ReportPayload &&) noexcept = default;
   constexpr ReportPayload& operator=(ReportPayload const&) noexcept = default;
   constexpr ReportPayload& operator=(ReportPayload&&) noexcept = default;
   ~ReportPayload() noexcept = default;
@@ -126,7 +125,7 @@ constexpr inline void write_unknown(char* buffer) noexcept {
 constexpr auto query = ReportQuery{};
 }  // namespace report
 
-};  // namespace internal
+}  // namespace internal
 
 // consider integral concept
 
@@ -225,4 +224,4 @@ template <>
   return Report(v);
 }
 
-};  // namespace stx
+}  // namespace stx

@@ -13,4 +13,4 @@
 
 #include "stx/internal/option_result.h"
 
-namespace stx {};  // namespace stx
+namespace stx {}  // namespace stx
