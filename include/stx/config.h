@@ -217,6 +217,18 @@
 #define STX_HAS_BUILTIN(feature) 0
 #endif
 
+/// constexpr destructor is only available on C++ 20, it is needed for
+/// non-trivial constexpr classes
+#if __cpp_constexpr >= 201807L
+#define STX_CXX20_DESTRUCTOR_CONSTEXPR constexpr
+#define STX_RESULT_CONSTEXPR 1
+#define STX_OPTION_CONSTEXPR 1
+#else
+#define STX_CXX20_DESTRUCTOR_CONSTEXPR
+#define STX_RESULT_CONSTEXPR 0
+#define STX_OPTION_CONSTEXPR 0
+#endif
+
 /*********************** UTILITY MACROS ***********************/
 
 // also used for hiding static variables and hookable functions that should not
