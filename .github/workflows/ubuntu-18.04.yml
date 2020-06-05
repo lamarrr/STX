@@ -1,0 +1,63 @@
+name: tests:ubuntu-18.04
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+
+    strategy:
+      matrix:
+        build_mode: ["Release", "Debug"]
+        panic_backtrace: ["ON", "OFF"]
+        backtrace: ["ON", "OFF"]
+
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Upgrade Bazel apt-key
+        run: curl https://bazel.build/bazel-release.pub.gpg | sudo apt-key add -
+      
+      - name: Upgrade Opensuse apt-key
+        run: wget http://download.opensuse.org/repositories/home:/strycore/xUbuntu_18.04/Release.key && sudo apt-key add Release.key
+
+        
+      - name: apt-update (1)
+        run: sudo apt --allow-unauthenticated update --allow-insecure-repositories
+
+      - name: Install add-apt-repository
+        run: sudo apt --allow-unauthenticated install software-properties-common
+
+      - name: Add LLVM apt-sources
+        run: sudo add-apt-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main" # &&  sudo add-apt-repository "deb-src http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main"
+
+      - name: apt-update (2)
+        run: sudo apt --allow-unauthenticated update --allow-insecure-repositories
+
+      - name: Install LLVM tools and Ninja-Build
+        run: sudo apt install -f ninja-build clang-format-10 clang-tidy-10 clang-tools-10 clang-10 clangd-10 libc++-10-dev libc++1-10 libc++abi-10-dev libc++abi1-10 libclang-10-dev libclang1-10 liblldb-10-dev lld-10 lldb-10 llvm-10-dev llvm-runtime llvm-10
+
+      - name: Configure Build Directory
+        run: mkdir build
+
+      - name: Initialize CMake
+        run: cd build && export CC=clang-10 CXX=clang++-10 && cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_mode }} -DSTX_BUILD_TESTS=ON -DSTX_ENABLE_BACKTRACE=${{ matrix.backtrace }} -DSTX_ENABLE_PANIC_BACKTRACE=${{ matrix.panic_backtrace }} -DSTX_SANITIZE_TESTS=ON -GNinja
+
+      - name: Run Unsanitized Tests
+        run: cd build && ninja run_tests
+
+      - name: Run Address-sanitized Tests
+        run: cd build && ninja stx_tests_address_sanitized && ./stx_tests_address_sanitized
+
+      - name: Run Leak-sanitized Tests
+        run: cd build && ninja stx_tests_leak_sanitized && ./stx_tests_leak_sanitized
+
+      - name: Run Thread-sanitized Tests
+        run: cd build && ninja stx_tests_thread_sanitized && ./stx_tests_thread_sanitized
+
+      - name: Run Undefined-sanitized Tests
+        run: cd build && ninja stx_tests_undefined_sanitized && ./stx_tests_undefined_sanitized

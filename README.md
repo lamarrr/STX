@@ -1,4 +1,6 @@
-<img src="https://github.com/lamarrr/STX/workflows/tests_ubuntu/badge.svg">
+<img src="https://github.com/lamarrr/STX/workflows/tests:ubuntu-18.04/badge.svg"> <img src="https://github.com/lamarrr/STX/workflows/tests:ubuntu-20.04/badge.svg">
+
+
 <br/>
 <div align="center"><img src="assets/stx.png"/> </div>
 
