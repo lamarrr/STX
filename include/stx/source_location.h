@@ -30,29 +30,22 @@
 
 #pragma once
 
-#if __has_include(<source_location>)
-#include <source_location>
-#define STX_HAS_SOURCE_LOCATION
-#else
-#if __has_include(<experimental/source_location>)
-#include <experimental/source_location>
-#define STX_HAS_EXPERIMENTAL_SOURCE_LOCATION
-#endif
-
 namespace stx {
 
-#ifdef STX_HAS_SOURCE_LOCATION
-using SourceLocation = std::source_location;
-#else
-#ifdef STX_HAS_EXPERIMENTAL_SOURCE_LOCATION
-using SourceLocation = std::experimental::source_location;
-#else
-
-// we use this if the source location library is not available. It's equivalent
-// to GCC's implementation
-[[nodiscard]] struct SourceLocation {
+///
+/// The source_location class represents certain information about the source
+/// code, such as file names, line numbers, and function names. Previously,
+/// functions that desire to obtain this information about the call site (for
+/// logging, testing, or debugging purposes) must use macros so that predefined
+/// macros like `__LINE__` and `__FILE__` are expanded in the context of the
+/// caller. The source_location class provides a better alternative.
+///
+///
+/// https://en.cppreference.com/w/cpp/utility/source_location
+///
+// It's equivalent to GCC's implementation
+struct [[nodiscard]] SourceLocation {
   static constexpr SourceLocation current(
-
 #if STX_HAS_BUILTIN(FILE)
       const char* file = __builtin_FILE(),
 #else
@@ -102,7 +95,4 @@ using SourceLocation = std::experimental::source_location;
   const char* func_;
 };
 
-#endif
-#endif
-#endif
-}
+}  // namespace stx
