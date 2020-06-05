@@ -80,9 +80,7 @@ cmake_dependent_option(STX_SANITIZE_TESTS "Build sanitized tests" ON
 option(
   STX_OVERRIDE_PANIC_HANDLER
   "Override the default panic behaviour (You can read the docs for more details)"
-  OFF) # this feature replaces the default panic handler, by default it is set
-       # to print the panic report and abort the program. The handler is re-
-       # entrant and thread-safe.
+  OFF)
 
 # the default panic hook calls the provided panic handler. the behaviour can be
 # changed at runtime especially when built as a shared library. Making panic
