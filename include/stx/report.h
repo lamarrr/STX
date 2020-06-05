@@ -158,7 +158,7 @@ template <typename T>
 [[nodiscard]] inline Report operator>>(ReportQuery,
                                        T const* const& ptr) noexcept {
   char buffer[16];  // 128-bit pointer max
-  auto written = std::snprintf(buffer, sizeof(buffer), "0x%" PRIuPTR,
+  auto written = std::snprintf(buffer, sizeof(buffer), "0x%" PRIxPTR,
                                reinterpret_cast<uintptr_t>(ptr));
   if (written == 0) internal::report::write_unknown(buffer);
 
