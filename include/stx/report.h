@@ -149,8 +149,7 @@ constexpr auto query = ReportQuery{};
 // consider integral concept
 
 template <typename T>
-[[nodiscard]] inline Report operator>>(ReportQuery, T const& v) noexcept {
-  (void)v;
+[[nodiscard]] inline Report operator>>(ReportQuery, T const&) noexcept {
   return Report("");
 }
 
