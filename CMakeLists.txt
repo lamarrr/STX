@@ -36,8 +36,24 @@ include(CMakeDependentOption)
 include(CheckIncludeFileCXX)
 include(HandleFlags)
 
+# we have to inform the user of the standards version change, else it'll cause
+# possible compatibility issues
+if(NOT CMAKE_CXX_STANDARD OR CMAKE_CXX_STANDARD LESS 17)
+  if(CMAKE_CXX_STANDARD)
+    message(
+      WARNING
+        "[STX] STX requires at least C++ 17 but 'CMAKE_CXX_STANDARD' was set to ${CMAKE_CXX_STANDARD} (C++ ${CMAKE_CXX_STANDARD}), 'CMAKE_CXX_STANDARD' will be set to 17 (C++ 17). Set 'CMAKE_CXX_STANDARD' to 17 (C++ 17) or later standards to silence this warning"
+    )
+  else()
+    message(
+      WARNING
+        "[STX] STX requires at least C++ 17 but 'CMAKE_CXX_STANDARD' was not set. 'CMAKE_CXX_STANDARD' will be set to 17 (C++ 17). Set 'CMAKE_CXX_STANDARD' to 17 (C++ 17) or later standards to silence this warning"
+    )
+  endif()
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+endif()
 
 # ===============================================
 #
@@ -209,7 +225,6 @@ else()
 endif()
 
 target_include_directories(stx PUBLIC include)
-set_target_properties(stx PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
 target_compile_options(stx PRIVATE ${STX_FLAGS} ${STX_WARNING_FLAGS})
 target_compile_definitions(stx PUBLIC ${STX_COMPILER_DEFS})
 
@@ -330,7 +345,7 @@ if(STX_BUILD_TESTS)
       add_executable("stx_tests_${sanitize_mode}_sanitized" ${STX_TEST_SRCS})
       target_compile_options(
         "stx_tests_${sanitize_mode}_sanitized"
-        PRIVATE "-fsanitize=${sanitize_mode}" ${STX_WARNING_FLAGS}
+        PRIVATE "-fsanitize=${sanitize_mode}" ${STX_FLAGS} ${STX_WARNING_FLAGS}
                 ${STX_TEST_WARNING_FLAGS})
       target_compile_definitions("stx_tests_${sanitize_mode}_sanitized"
                                  PRIVATE STX_OVERRIDE_PANIC_HANDLER)
@@ -338,8 +353,6 @@ if(STX_BUILD_TESTS)
                                  PRIVATE tests)
       target_link_libraries("stx_tests_${sanitize_mode}_sanitized" stx
                             gtest_main gtest "-fsanitize=${sanitize_mode}")
-      set_target_properties("stx_tests_${sanitize_mode}_sanitized"
-                            PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
     endif()
   endmacro(add_sanitized_test sanitize_mode)
 
@@ -364,10 +377,8 @@ if(STX_BUILD_BENCHMARKS)
     add_executable("stx_benchmark_${benchmark_name}" "benchmarks/${file}")
     target_link_libraries("stx_benchmark_${benchmark_name}" stx benchmark
                           benchmark_main)
-    set_target_properties("stx_benchmark_${benchmark_name}"
-                          PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
     target_compile_options("stx_benchmark_${benchmark_name}"
-                           PRIVATE ${STX_WARNING_FLAGS})
+                           PRIVATE ${STX_FLAGS} ${STX_WARNING_FLAGS})
   endmacro(add_benchmark benchmark_name)
 
   add_benchmark(one_op one_op.cc)
