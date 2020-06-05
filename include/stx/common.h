@@ -43,6 +43,19 @@ namespace stx {
 template <typename Fn, typename... Args>
 using invoke_result = typename std::invoke_result_t<Fn, Args...>;
 
+template <typename Fn, typename... Args>
+constexpr bool invocable = std::is_invocable_v<Fn, Args...>;
+
+template <typename T>
+constexpr bool movable = std::is_object_v<T>&& std::is_move_constructible_v<T>&&
+    std::is_assignable_v<T&, T>&& std::is_swappable_v<T>;
+
+template <typename T>
+constexpr bool copy_constructible = std::is_copy_constructible_v<T>;
+
+template <typename From, typename To>
+constexpr bool convertible = std::is_convertible_v<From, To>;
+
 template <typename T, typename Cmp = T, typename = void>
 struct is_equality_comparable : std::false_type {};
 
@@ -58,7 +71,10 @@ struct is_equality_comparable<
                  (void)0)>> : std::true_type {};
 
 template <typename T, typename Cmp = T>
-constexpr bool is_equality_comparable_v = is_equality_comparable<T, Cmp>::value;
+constexpr bool equality_comparable = is_equality_comparable<T, Cmp>::value;
+
+template <typename T>
+constexpr bool is_reference = std::is_reference_v<T>;
 
 template <typename T>
 using Ref = std::reference_wrapper<T>;
