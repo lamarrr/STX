@@ -34,31 +34,35 @@
 #include "stx/option.h"
 #include "stx/panic.h"
 
-using namespace stx;
-using namespace stx::backtrace;
+using namespace stx;             // NOLINT
+using namespace stx::backtrace;  // NOLINT
 
-// you forgetting msvc?
+void fn_d() {
+  backtrace::trace(
+      [](Frame frame, int) {
+        frame.symbol.as_ref().match(
+            [](auto sym) {
+              auto const& s = sym.get().raw();
+              fwrite(s.data(), s.size(), 1, stdout);
+            },
+            []() { fputs("unknown symbol", stdout); });
 
-#define LOG(x) ::std::cout << (x) << ::std::endl
+        puts("");
 
-[[gnu::noinline]] void fn_d() {
-  std::cout << std::hex;
+        frame.ip.as_ref().match(
+            [](auto ip) { printf("ip: 0x%" PRIxPTR, ip.get()); },
+            []() { fputs("unknown pc", stdout); });
 
-  backtrace::trace([](Frame frame, int) {
-    frame.symbol.as_ref().match([](auto sym) { LOG(sym.get().raw()); },
-                                []() { LOG("<unknown>\n"); });
-
-    frame.ip.as_ref().match([](auto ip) { LOG("ip: " + std::to_string(ip)); },
-                            []() {});
-
-    return false;
-  });
+        puts("\n");
+        return false;
+      },
+      1);
 }
 
-[[gnu::noinline]] void fn_c() { fn_d(); }
+void fn_c() { fn_d(); }
 
-[[gnu::noinline]] void fn_b() { fn_c(); }
+void fn_b() { fn_c(); }
 
-[[gnu::noinline]] void fn_a() { fn_b(); }
+void fn_a() { fn_b(); }
 
 TEST(BacktraceTest, Backtrace) { fn_a(); }
