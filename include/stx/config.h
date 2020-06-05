@@ -282,13 +282,13 @@
 
 /*********************** BINARY FORMATS ***********************/
 
-#if defined(__wasm__)
+#if defined(__wasm__)  // Web Assembly
 #define STX_BINARY_WASW 1
 #else
 #define STX_BINARY_WASW 0
 #endif
 
-#if defined(__ELF__)
+#if defined(__ELF__)  // Executable and Linkable Formats
 #define STX_BINARY_ELF 1
 #else
 #define STX_BINARY_ELF 0
