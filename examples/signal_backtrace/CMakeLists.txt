@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.1)
 
 project(Example)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 add_executable(example.bin main.cc)
 
 execute_process(
@@ -15,8 +18,3 @@ set(STX_ENABLE_BACKTRACE
 add_subdirectory(third_party/STX)
 
 target_link_libraries(example.bin stx)
-
-set_target_properties(example.bin
-                      PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON)
-
-target_compile_options(stx PRIVATE "-Wall" "-Wextra" "-Wpedantic")
