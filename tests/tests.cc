@@ -29,7 +29,6 @@
  */
 
 #include "gtest/gtest.h"
-#include "stx/panic.h"
 
 /*******************************
 
