@@ -165,7 +165,7 @@ using Callback = bool (*)(Frame, int);
 ///
 // all memory passed to the callback is cleared after each call. Hence we only
 // use one stack memory for the callback feed-loop.
-size_t trace(Callback callback);
+size_t trace(Callback callback, int skip_count = 0);
 
 /// Installs an handler for the specified signal that prints a backtrace
 /// whenever the signal is raised. It can and will only handle `SIGSEGV`,

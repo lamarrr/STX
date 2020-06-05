@@ -77,28 +77,26 @@ auto backtrace::Symbol::raw() const noexcept -> std::string_view {
   return std::string_view(symbol_.data);
 }
 
-size_t backtrace::trace(Callback callback) {
+size_t backtrace::trace(Callback callback, int skip_count) {
   // size_t stack_head = 0;
   // *static_cast<volatile size_t*>(&stack_head) = 2;
 
   // auto head_sp = static_cast<uintptr_t>(&stack_head);
 
-  int skip_count = 0;
-  void* ips[STX_MAX_STACK_FRAME_DEPTH] = {};
-  uintptr_t sps[STX_MAX_STACK_FRAME_DEPTH] = {};
-  int sizes[STX_MAX_STACK_FRAME_DEPTH] = {};
+  void* ips[STX_MAX_STACK_FRAME_DEPTH];
+  //  uintptr_t sps[STX_MAX_STACK_FRAME_DEPTH];
+  int sizes[STX_MAX_STACK_FRAME_DEPTH];
 
-  int depth = absl::GetStackFrames(ips, sizes, sizeof(ips) / sizeof(ips[0]),
-                                   skip_count);
+  int depth =
+      absl::GetStackFrames(ips, sizes, STX_MAX_STACK_FRAME_DEPTH, skip_count);
 
-  char symbol[STX_SYMBOL_BUFFER_SIZE] = {};
-  auto max_len = sizeof(symbol) / sizeof(symbol[0]);
+  char symbol[STX_SYMBOL_BUFFER_SIZE];
+  int max_len = STX_SYMBOL_BUFFER_SIZE;
 
   // uintptr_t stack_ptr = head_sp;
-  (void)sps;
 
   for (int i = 0; i < depth; i++) {
-    std::memset(symbol, 0, max_len);
+    symbol[0] = '\0';
     Frame frame{};
     if (absl::Symbolize(ips[i], symbol, max_len)) {
       auto span = backtrace::CharSpan(symbol, max_len);
@@ -108,6 +106,7 @@ size_t backtrace::trace(Callback callback) {
     // stack_ptr += static_cast<uintptr_t>(sizes[i]);
 
     frame.ip = Some(reinterpret_cast<uintptr_t>(ips[i]));
+
     // frame.sp = Some(static_cast<uintptr_t>(stack_ptr));
 
     if (callback(std::move(frame), depth - i)) break;
