@@ -2950,34 +2950,9 @@ template <typename T, typename E>
 
 }  // namespace stx
 
-// normal return tries
+// Automatic symmetric comparision is available on C++ 20.
+// we moved it here to prevent obfuscating the code with boilerplate
+#include "stx/internal/symmetry.h"
 
-#define TRY_OK(identifier, result_expr)                                        \
-  decltype(result_expr) stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh = (result_expr); \
-  if (stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh.is_err())                          \
-    return Err<decltype(result_expr)::error_type>(                             \
-        std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap_err());        \
-  decltype(result_expr)::value_type identifier =                               \
-      std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap();
-
-#define TRY_SOME(identifier, option_expr)                                      \
-  decltype(option_expr) stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh = (option_expr); \
-  if (stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh.is_none()) return stx::None;       \
-  decltype(option_expr)::value_type identifier =                               \
-      std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap();
-
-// Coroutines
-
-#define CO_TRY_OK(identifier, result_expr)                                     \
-  decltype(result_expr) stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh = (result_expr); \
-  if (stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh.is_err())                          \
-    co_return Err<decltype(result_expr)::error_type>(                          \
-        std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap_err());        \
-  decltype(result_expr)::value_type identifier =                               \
-      std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap();
-
-#define CO_TRY_SOME(identifier, option_expr)                                   \
-  decltype(option_expr) stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh = (option_expr); \
-  if (stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh.is_none()) co_return stx::None;    \
-  decltype(option_expr)::value_type identifier =                               \
-      std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap();
+// Error propagation macros
+#include "stx/internal/try.h"

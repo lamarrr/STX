@@ -34,3 +34,35 @@
 ///
 ///
 
+#pragma once
+
+#define TRY_OK(identifier, result_expr)                                        \
+  decltype(result_expr) stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh = (result_expr); \
+  if (stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh.is_err())                          \
+    return Err<decltype(result_expr)::error_type>(                             \
+        std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap_err());        \
+  decltype(result_expr)::value_type identifier =                               \
+      std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap();
+
+#define TRY_SOME(identifier, option_expr)                                      \
+  decltype(option_expr) stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh = (option_expr); \
+  if (stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh.is_none()) return stx::None;       \
+  decltype(option_expr)::value_type identifier =                               \
+      std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap();
+
+// Coroutines
+// not tested yet
+
+#define CO_TRY_OK(identifier, result_expr)                                     \
+  decltype(result_expr) stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh = (result_expr); \
+  if (stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh.is_err())                          \
+    co_return Err<decltype(result_expr)::error_type>(                          \
+        std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap_err());        \
+  decltype(result_expr)::value_type identifier =                               \
+      std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap();
+
+#define CO_TRY_SOME(identifier, option_expr)                                   \
+  decltype(option_expr) stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh = (option_expr); \
+  if (stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh.is_none()) co_return stx::None;    \
+  decltype(option_expr)::value_type identifier =                               \
+      std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap();
