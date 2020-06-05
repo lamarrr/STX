@@ -28,48 +28,13 @@
  *
  */
 
-// debug-build assertions
-#if !defined(NDEBUG) && defined(STX_ENABLE_DEBUG_ASSERTIONS)
-#include <cassert>
-#include <string>
+#include "stx/backtrace.h"
 
-using namespace std::literals;
-
-#define LOG(x) \
-  std::cout << "[" << __FILE__ << ":" << __LINE__ << "] " << x << std::endl
-#define ASSERT_UNREACHABLE()        \
-  LOG("Source location reached"sv); \
-  assert(false)
-
-#define ASSERT_NEQ(a, b)                                                    \
-  if (!((a) != (b))) {                                                      \
-    LOG("Assertion: '"s + std::to_string(a) + " != "s + std::to_string(b) + \
-        "' failed"s);                                                       \
-    assert((a) != (b));                                                     \
-  }
-#define ASSERT_EQ(a, b)                                                     \
-  if (!((a) == (b))) {                                                      \
-    LOG("Assertion: '"s + std::to_string(a) + " == "s + std::to_string(b) + \
-        "' failed"s);                                                       \
-    assert((a) == (b));                                                     \
-  }
-#else
-#define LOG(x) (void)0
-#define ASSERT_UNREACHABLE() (void)0
-#define ASSERT_NEQ(a, b) (void)0
-#define ASSERT_EQ(a, b) (void)0
-#endif
-
-#include <stdio.h>
-
-#include <array>
 #include <csignal>
-#include <cstring>
-#include <iostream>
+#include <cstdio>
 
 #include "absl/debugging/stacktrace.h"
 #include "absl/debugging/symbolize.h"
-#include "stx/backtrace.h"
 
 namespace stx {
 
