@@ -824,9 +824,7 @@ class [[nodiscard]] Option {
   /// ```
   template <typename UnaryPredicate>
   [[nodiscard]] constexpr bool exists(UnaryPredicate && predicate) const {
-    static_assert(std::is_invocable_v<UnaryPredicate&&, T const&>);
-    static_assert(
-        std::is_convertible_v<invoke_result<UnaryPredicate&&, T const&>, bool>);
+    static_assert(invocable<UnaryPredicate&&, T const&>);
     if (is_some()) {
       return std::forward<UnaryPredicate&&>(predicate)(value_cref_());
     } else {
@@ -1037,7 +1035,7 @@ class [[nodiscard]] Option {
   /// ```
   template <typename Fn>
   [[nodiscard]] constexpr auto unwrap_or_else(Fn && op)&&->T {
-    static_assert(std::is_invocable_v<Fn&&>);
+    static_assert(invocable<Fn&&>);
     if (is_some()) {
       return std::move(value_ref_());
     } else {
@@ -1070,7 +1068,7 @@ class [[nodiscard]] Option {
   template <typename Fn>
   [[nodiscard]] constexpr auto map(Fn &&
                                    op)&&->Option<invoke_result<Fn&&, T&&>> {
-    static_assert(std::is_invocable_v<Fn&&, T&&>);
+    static_assert(invocable<Fn&&, T&&>);
     if (is_some()) {
       return Some<invoke_result<Fn&&, T&&>>(
           std::forward<Fn&&>(op)(std::move(value_ref_())));
@@ -1097,7 +1095,7 @@ class [[nodiscard]] Option {
   template <typename Fn, typename A>
   [[nodiscard]] constexpr auto map_or(Fn && op,
                                       A && alt)&&->invoke_result<Fn&&, T&&> {
-    static_assert(std::is_invocable_v<Fn&&, T&&>);
+    static_assert(invocable<Fn&&, T&&>);
     if (is_some()) {
       return std::forward<Fn&&>(op)(std::move(value_ref_()));
     } else {
@@ -1126,8 +1124,9 @@ class [[nodiscard]] Option {
   template <typename Fn, typename AltFn>
   [[nodiscard]] constexpr auto map_or_else(
       Fn && op, AltFn && alt)&&->invoke_result<Fn&&, T&&> {
-    static_assert(std::is_invocable_v<Fn&&, T&&>);
-    static_assert(std::is_invocable_v<AltFn&&>);
+    static_assert(invocable<Fn&&, T&&>);
+    static_assert(invocable<AltFn&&>);
+
     if (is_some()) {
       return std::forward<Fn&&>(op)(std::move(value_ref_()));
     } else {
@@ -1184,7 +1183,7 @@ class [[nodiscard]] Option {
   template <typename Fn>
   [[nodiscard]] constexpr auto ok_or_else(
       Fn && op)&&->Result<T, invoke_result<Fn&&>> {
-    static_assert(std::is_invocable_v<Fn&&>);
+    static_assert(invocable<Fn&&>);
     if (is_some()) {
       return Ok<T>(std::move(value_ref_()));
     } else {
@@ -1247,7 +1246,7 @@ class [[nodiscard]] Option {
   /// ```
   template <typename Fn>
   [[nodiscard]] constexpr auto and_then(Fn && op)&&->invoke_result<Fn&&, T&&> {
-    static_assert(std::is_invocable_v<Fn&&, T&&>);
+    static_assert(invocable<Fn&&, T&&>);
     if (is_some()) {
       return std::forward<Fn&&>(op)(std::move(value_ref_()));
     } else {
@@ -1276,9 +1275,7 @@ class [[nodiscard]] Option {
   /// ```
   template <typename UnaryPredicate>
   [[nodiscard]] constexpr auto filter(UnaryPredicate && predicate)&&->Option {
-    static_assert(std::is_invocable_v<UnaryPredicate&&, T const&>);
-    static_assert(
-        std::is_convertible_v<invoke_result<UnaryPredicate&&, T const&>, bool>);
+    static_assert(invocable<UnaryPredicate&&, T const&>);
     if (is_some() && std::forward<UnaryPredicate&&>(predicate)(value_cref_())) {
       return std::move(*this);
     } else {
@@ -1308,9 +1305,7 @@ class [[nodiscard]] Option {
   template <typename UnaryPredicate>
   [[nodiscard]] constexpr auto filter_not(UnaryPredicate &&
                                           predicate)&&->Option {
-    static_assert(std::is_invocable_v<UnaryPredicate&&, T const&>);
-    static_assert(
-        std::is_convertible_v<invoke_result<UnaryPredicate&&, T const&>, bool>);
+    static_assert(invocable<UnaryPredicate&&, T const&>);
     if (is_some() &&
         !std::forward<UnaryPredicate&&>(predicate)(value_cref_())) {
       return std::move(*this);
@@ -1373,7 +1368,7 @@ class [[nodiscard]] Option {
   /// ```
   template <typename Fn>
   [[nodiscard]] constexpr auto or_else(Fn && op)&&->Option {
-    static_assert(std::is_invocable_v<Fn&&>);
+    static_assert(invocable<Fn&&>);
     if (is_some()) {
       return std::move(*this);
     } else {
@@ -1633,8 +1628,9 @@ class [[nodiscard]] Option {
   template <typename SomeFn, typename NoneFn>
   [[nodiscard]] constexpr auto match(
       SomeFn && some_fn, NoneFn && none_fn)&&->invoke_result<SomeFn&&, T&&> {
-    static_assert(std::is_invocable_v<SomeFn&&, T&&>);
-    static_assert(std::is_invocable_v<NoneFn&&>);
+    static_assert(invocable<SomeFn&&, T&&>);
+    static_assert(invocable<NoneFn&&>);
+
     if (is_some()) {
       return std::forward<SomeFn&&>(some_fn)(std::move(value_ref_()));
     } else {
@@ -2089,9 +2085,7 @@ class [[nodiscard]] Result {
   /// ```
   template <typename UnaryPredicate>
   [[nodiscard]] constexpr bool exists(UnaryPredicate && predicate) const {
-    static_assert(std::is_invocable_v<UnaryPredicate&&, T const&>);
-    static_assert(
-        std::is_convertible_v<invoke_result<UnaryPredicate&&, T const&>, bool>);
+    static_assert(invocable<UnaryPredicate&&, T const&>);
     if (is_ok()) {
       return std::forward<UnaryPredicate&&>(predicate)(value_cref_());
     } else {
@@ -2115,9 +2109,7 @@ class [[nodiscard]] Result {
   /// ```
   template <typename UnaryPredicate>
   [[nodiscard]] constexpr bool err_exists(UnaryPredicate && predicate) const {
-    static_assert(std::is_invocable_v<UnaryPredicate&&, E const&>);
-    static_assert(
-        std::is_convertible_v<invoke_result<UnaryPredicate&&, E const&>, bool>);
+    static_assert(invocable<UnaryPredicate&&, E const&>);
     if (is_err()) {
       return std::forward<UnaryPredicate&&>(predicate)(err_cref_());
     } else {
@@ -2371,7 +2363,7 @@ class [[nodiscard]] Result {
   template <typename Fn>
   [[nodiscard]] constexpr auto map(Fn &&
                                    op)&&->Result<invoke_result<Fn&&, T&&>, E> {
-    static_assert(std::is_invocable_v<Fn&&, T&&>);
+    static_assert(invocable<Fn&&, T&&>);
     if (is_ok()) {
       return Ok<invoke_result<Fn&&, T&&>>(
           std::forward<Fn&&>(op)(std::move(value_ref_())));
@@ -2398,7 +2390,7 @@ class [[nodiscard]] Result {
   template <typename Fn, typename AltType>
   [[nodiscard]] constexpr auto map_or(
       Fn && op, AltType && alt)&&->invoke_result<Fn&&, T&&> {
-    static_assert(std::is_invocable_v<Fn&&, T&&>);
+    static_assert(invocable<Fn&&, T&&>);
     if (is_ok()) {
       return std::forward<Fn&&>(op)(std::move(value_ref_()));
     } else {
@@ -2431,8 +2423,9 @@ class [[nodiscard]] Result {
   template <typename Fn, typename A>
   [[nodiscard]] constexpr auto map_or_else(
       Fn && op, A && alt_op)&&->invoke_result<Fn&&, T&&> {
-    static_assert(std::is_invocable_v<Fn&&, T&&>);
-    static_assert(std::is_invocable_v<A&&, E&&>);
+    static_assert(invocable<Fn&&, T&&>);
+    static_assert(invocable<A&&, E&&>);
+
     if (is_ok()) {
       return std::forward<Fn&&>(op)(std::move(value_ref_()));
     } else {
@@ -2463,7 +2456,7 @@ class [[nodiscard]] Result {
   template <typename Fn>
   [[nodiscard]] constexpr auto map_err(
       Fn && op)&&->Result<T, invoke_result<Fn&&, E&&>> {
-    static_assert(std::is_invocable_v<Fn&&, E&&>);
+    static_assert(invocable<Fn&&, E&&>);
     if (is_ok()) {
       return Ok<T>(std::move(value_ref_()));
     } else {
@@ -2528,7 +2521,7 @@ class [[nodiscard]] Result {
   template <typename Fn>
   [[nodiscard]] constexpr auto and_then(
       Fn && op)&&->Result<invoke_result<Fn&&, T&&>, E> {
-    static_assert(std::is_invocable_v<Fn&&, T&&>);
+    static_assert(invocable<Fn&&, T&&>);
     if (is_ok()) {
       return Ok<invoke_result<Fn&&, T&&>>(
           std::forward<Fn&&>(op)(std::move(value_ref_())));
@@ -2598,7 +2591,7 @@ class [[nodiscard]] Result {
   /// ```
   template <typename Fn>
   [[nodiscard]] constexpr auto or_else(Fn && op)&&->invoke_result<Fn&&, E&&> {
-    static_assert(std::is_invocable_v<Fn&&, E&&>);
+    static_assert(invocable<Fn&&, E&&>);
     if (is_ok()) {
       return Ok<T>(std::move(value_ref_()));
     } else {
@@ -2651,7 +2644,7 @@ class [[nodiscard]] Result {
   /// ```
   template <typename Fn>
   [[nodiscard]] constexpr auto unwrap_or_else(Fn && op)&&->T {
-    static_assert(std::is_invocable_v<Fn&&, E&&>);
+    static_assert(invocable<Fn&&, E&&>);
     if (is_ok()) {
       return std::move(value_ref_());
     } else {
@@ -2811,8 +2804,8 @@ class [[nodiscard]] Result {
   template <typename OkFn, typename ErrFn>
   [[nodiscard]] constexpr auto match(
       OkFn && ok_fn, ErrFn && err_fn)&&->invoke_result<OkFn&&, T&&> {
-    static_assert(std::is_invocable_v<OkFn&&, T&&>);
-    static_assert(std::is_invocable_v<ErrFn&&, E&&>);
+    static_assert(invocable<OkFn&&, T&&>);
+    static_assert(invocable<ErrFn&&, E&&>);
 
     if (is_ok()) {
       return std::forward<OkFn&&>(ok_fn)(std::move(value_ref_()));
