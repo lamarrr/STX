@@ -28,16 +28,11 @@
  *
  */
 
-#include <iostream>
-
-//
+#include "stx/panic.h"
 
 #include "gtest/gtest.h"
 
-//
-
-#include "stx/panic.h"
-
-using namespace stx;
-
-TEST(PanicTest, PanicInfo) {}
+TEST(PanicTest, Panics) {
+  EXPECT_DEATH(stx::panic(), "(\n?.*?)*explicit panic(.*?\n?)*");
+  EXPECT_DEATH(stx::panic("hello, world"), "(\n?.*?)*hello, world(.*?\n?)*");
+}
