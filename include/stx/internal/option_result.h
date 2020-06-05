@@ -88,7 +88,8 @@ class [[nodiscard]] NoneType {
   constexpr NoneType(NoneType &&) noexcept = default;
   constexpr NoneType& operator=(NoneType const&) noexcept = default;
   constexpr NoneType& operator=(NoneType&&) noexcept = default;
-  ~NoneType() noexcept = default;
+
+  STX_CXX20_DESTRUCTOR_CONSTEXPR ~NoneType() noexcept = default;
 
   [[nodiscard]] constexpr bool operator==(NoneType const&) const noexcept {
     return true;
@@ -152,7 +153,7 @@ struct [[nodiscard]] Some {
   constexpr Some(Some const&) = delete;
   constexpr Some& operator=(Some const&) = delete;
 
-  ~Some() = default;
+  STX_CXX20_DESTRUCTOR_CONSTEXPR ~Some() = default;
 
   [[nodiscard]] constexpr T const& value() const& noexcept { return value_; }
   [[nodiscard]] constexpr T& value() & noexcept { return value_; }
@@ -300,7 +301,7 @@ struct [[nodiscard]] Ok {
   constexpr Ok(Ok const&) = delete;
   constexpr Ok& operator=(Ok const&) = delete;
 
-  ~Ok() = default;
+  STX_CXX20_DESTRUCTOR_CONSTEXPR ~Ok() = default;
 
   [[nodiscard]] constexpr bool operator==(Ok const& cmp) const {
     static_assert(equality_comparable<T>);
@@ -399,7 +400,7 @@ struct [[nodiscard]] Err {
   constexpr Err(Err const&) = delete;
   constexpr Err& operator=(Err const&) = delete;
 
-  ~Err() = default;
+  STX_CXX20_DESTRUCTOR_CONSTEXPR ~Err() = default;
 
   [[nodiscard]] constexpr bool operator==(Err const& cmp) const {
     static_assert(equality_comparable<E>);
@@ -624,7 +625,7 @@ class [[nodiscard]] Option {
   constexpr Option(Option const&) = delete;
   constexpr Option& operator=(Option const&) = delete;
 
-  ~Option() noexcept {
+  STX_CXX20_DESTRUCTOR_CONSTEXPR ~Option() noexcept {
     if (is_some()) {
       storage_value_.~T();
     }
@@ -1771,7 +1772,7 @@ class [[nodiscard]] Result {
   Result(Result const& rhs) = delete;
   Result& operator=(Result const& rhs) = delete;
 
-  ~Result() noexcept {
+  STX_CXX20_DESTRUCTOR_CONSTEXPR ~Result() noexcept {
     if (is_ok()) {
       storage_value_.~T();
     } else {
