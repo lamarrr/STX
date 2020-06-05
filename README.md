@@ -181,7 +181,7 @@ float result  = std::move(option).unwrap(); // will compile, the value is moved 
 
 <b>NOTE</b>: Just as any moved-from object, `Option` and `Result` are not to be used after a `std::move` ! (as the objects will be left in an unspecified state).
 
-* `Option` and `Result` do not perform any implicit copies of the contained object as they are designed as purely forwarding types, this is especially due to their primary purpose as return channels in which we do not want duplication or implicit copies of the returned values.
+* `Option` and `Result` do not make any implicit copies of the contained object as they are designed as purely forwarding types, this is especially due to their primary purpose as return channels in which we do not want duplication or implicit copies of the returned values.
 
 To make explicit copies:
 
