@@ -142,10 +142,6 @@ list(APPEND STX_TEST_WARNING_FLAGS)
 #
 # ===============================================
 
-if(STX_USE_LIBCPP) # equivalent for MSVC?
-  append_flags_if_supported(STX_FLAGS "-stdlib=libc++")
-endif()
-
 if(MSVC)
   append_flags_if_supported(STX_WARNING_FLAGS "/W3" "/WX")
 else()
