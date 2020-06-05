@@ -28,3 +28,131 @@
  *
  */
 
+// DO NOT INCLUDE!!!
+
+/// @cond
+
+#pragma once
+
+namespace stx {
+
+/// @file
+///
+/// Symmetric Comparisons, Normally automatic on C++20
+///
+///
+
+#define STX_SOME_SYMMETRY(cmp_type)                         \
+  template <typename T>                                     \
+  [[nodiscard]] STX_FORCE_INLINE constexpr bool operator==( \
+      cmp_type const& cmp, Some<T> const& some) {           \
+    return some == cmp;                                     \
+  }                                                         \
+                                                            \
+  template <typename T>                                     \
+  [[nodiscard]] STX_FORCE_INLINE constexpr bool operator!=( \
+      cmp_type const& cmp, Some<T> const& some) {           \
+    return some != cmp;                                     \
+  }
+
+STX_SOME_SYMMETRY(Some<MutRef<T>>)
+STX_SOME_SYMMETRY(Some<ConstRef<T>>)
+STX_SOME_SYMMETRY(Some<T*>)
+STX_SOME_SYMMETRY(Some<T const*>)
+STX_SOME_SYMMETRY(NoneType)
+
+#undef STX_SOME_SYMMETRY
+
+#define STX_OPTION_SYMMETRY(cmp_type)                       \
+  template <typename T>                                     \
+  [[nodiscard]] STX_FORCE_INLINE constexpr bool operator==( \
+      cmp_type const& cmp, Option<T> const& option) {       \
+    return option == cmp;                                   \
+  }                                                         \
+  template <typename T>                                     \
+  [[nodiscard]] STX_FORCE_INLINE constexpr bool operator!=( \
+      cmp_type const& cmp, Option<T> const& option) {       \
+    return option != cmp;                                   \
+  }
+
+STX_OPTION_SYMMETRY(Some<T>)
+STX_OPTION_SYMMETRY(Some<ConstRef<T>>)
+STX_OPTION_SYMMETRY(Some<MutRef<T>>)
+STX_OPTION_SYMMETRY(Some<T const*>)
+STX_OPTION_SYMMETRY(Some<T*>)
+STX_OPTION_SYMMETRY(NoneType)
+
+#undef STX_OPTION_SYMMETRY
+
+// Symmetric Equality, Normally automatic on C++20
+
+#define STX_OK_SYMMETRY(cmp_type)                           \
+  template <typename T>                                     \
+  [[nodiscard]] STX_FORCE_INLINE constexpr bool operator==( \
+      cmp_type const& cmp, Ok<T> const& ok) {               \
+    return ok == cmp;                                       \
+  }                                                         \
+                                                            \
+  template <typename T>                                     \
+  [[nodiscard]] STX_FORCE_INLINE constexpr bool operator!=( \
+      cmp_type const& cmp, Ok<T> const& ok) {               \
+    return ok != cmp;                                       \
+  }
+
+STX_OK_SYMMETRY(Ok<ConstRef<T>>)
+STX_OK_SYMMETRY(Ok<MutRef<T>>)
+STX_OK_SYMMETRY(Ok<T*>)
+STX_OK_SYMMETRY(Ok<T const*>)
+
+template <typename U, typename T>
+[[nodiscard]] STX_FORCE_INLINE constexpr bool operator==(
+    Err<U> const&, Ok<T> const&) noexcept {
+  return false;
+}
+
+template <typename U, typename T>
+[[nodiscard]] STX_FORCE_INLINE constexpr bool operator!=(
+    Err<U> const&, Ok<T> const&) noexcept {
+  return true;
+}
+
+#undef STX_OK_SYMMETRY
+
+// Symmetric Equality, Normally automatic on C++20
+
+#define STX_ERR_SYMMETRY(cmp_type)                          \
+                                                            \
+  template <typename E, typename T>                         \
+  [[nodiscard]] STX_FORCE_INLINE constexpr bool operator==( \
+      cmp_type const& cmp, Err<T> const& err) {             \
+    return err == cmp;                                      \
+  }                                                         \
+                                                            \
+  template <typename E, typename T>                         \
+  [[nodiscard]] STX_FORCE_INLINE constexpr bool operator!=( \
+      cmp_type const& cmp, Err<T> const& err) {             \
+    return err != cmp;                                      \
+  }
+
+STX_ERR_SYMMETRY(Err<ConstRef<E>>)
+STX_ERR_SYMMETRY(Err<MutRef<E>>)
+STX_ERR_SYMMETRY(Err<E*>)
+STX_ERR_SYMMETRY(Err<E const*>)
+
+template <typename U, typename T>
+[[nodiscard]] STX_FORCE_INLINE constexpr bool operator==(
+    Ok<U> const&, Err<T> const&) noexcept {
+  return false;
+}
+
+template <typename U, typename T>
+[[nodiscard]] STX_FORCE_INLINE constexpr bool operator!=(
+    Ok<U> const&, Err<T> const&) noexcept {
+  return true;
+}
+
+#undef STX_ERR_SYMMETRY
+
+}  // namespace stx
+
+/// @endcond
