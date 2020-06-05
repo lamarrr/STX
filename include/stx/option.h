@@ -31,4 +31,3 @@
 #pragma once
 
 #include "stx/internal/option_result.h"
-
