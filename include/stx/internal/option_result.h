@@ -956,7 +956,7 @@ class [[nodiscard]] Option {
   /// ASSERT_EQ(move(x).expect("the world is ending"), "value");
   ///
   /// Option<string> y = None;
-  /// ASSERT_ANY_THROW(move(y).expect("the world is ending")); // panics with
+  /// ASSERT_DEATH(move(y).expect("the world is ending")); // panics with
   ///                                                          // the world is
   ///                                                          // ending
   /// ```
@@ -988,7 +988,7 @@ class [[nodiscard]] Option {
   /// ASSERT_EQ(move(x).unwrap(), "air");
   ///
   /// Option<string> y = None;
-  /// ASSERT_ANY_THROW(move(y).unwrap());
+  /// ASSERT_DEATH(move(y).unwrap());
   /// ```
   [[nodiscard]] auto unwrap()&&->T {
     if (is_some()) {
@@ -1545,8 +1545,8 @@ class [[nodiscard]] Option {
   ///  return Some(num / denom);
   /// };
   ///
-  /// EXPECT_DEATH(divide(0.0, 1.0).unwrap_none());
-  /// EXPECT_NO_THROW(divide(1.0, 0.0).unwrap_none());
+  /// ASSERT_DEATH(divide(0.0, 1.0).unwrap_none());
+  /// ASSERT_NO_THROW(divide(1.0, 0.0).unwrap_none());
   /// ```
   void expect_none(std::string_view msg)&& {
     if (is_some()) {
@@ -1572,8 +1572,8 @@ class [[nodiscard]] Option {
   ///  return Some(num / denom);
   /// };
   ///
-  /// EXPECT_DEATH(divide(0.0, 1.0).expect_none("zero dividend"));
-  /// EXPECT_NO_THROW(divide(1.0, 0.0).expect_none("zero dividend"));
+  /// ASSERT_DEATH(divide(0.0, 1.0).expect_none("zero dividend"));
+  /// ASSERT_NO_THROW(divide(1.0, 0.0).expect_none("zero dividend"));
   /// ```
   void unwrap_none()&& {
     if (is_some()) {
@@ -2670,7 +2670,7 @@ class [[nodiscard]] Result {
   /// ``` cpp
   /// ASSERT_EQ(make_ok<int, string_view>(2).unwrap(), 2);
   /// Result<int, string_view> x = Err("emergency failure"sv);
-  /// ASSERT_ANY_THROW(move(x).unwrap());
+  /// ASSERT_DEATH(move(x).unwrap());
   /// ```
   [[nodiscard]] auto unwrap()&&->T {
     if (is_err()) {
@@ -2692,7 +2692,7 @@ class [[nodiscard]] Result {
   ///
   /// ``` cpp
   /// Result<int, string_view> x = Err("emergency failure"sv);
-  /// ASSERT_ANY_THROW(move(x).expect("Testing expect"));
+  /// ASSERT_DEATH(move(x).expect("Testing expect"));
   /// ```
   [[nodiscard]] auto expect(std::string_view msg)&&->T {
     if (is_err()) {
@@ -2715,7 +2715,7 @@ class [[nodiscard]] Result {
   ///
   /// ``` cpp
   /// Result<int, string_view> x = Ok(2);
-  /// ASSERT_ANY_THROW(move(x).unwrap_err()); // panics
+  /// ASSERT_DEATH(move(x).unwrap_err()); // panics
   ///
   /// Result<int, string_view> y = Err("emergency failure"sv);
   /// ASSERT_EQ(move(y).unwrap_err(), "emergency failure");
@@ -2740,7 +2740,7 @@ class [[nodiscard]] Result {
   ///
   /// ``` cpp
   /// Result<int, string_view> x = Ok(10);
-  /// ASSERT_ANY_THROW(move(x).expect_err("Testing expect_err")); // panics with
+  /// ASSERT_DEATH(move(x).expect_err("Testing expect_err")); // panics with
   ///                                                             // "Testing
   ///                                                             // expect_err:
   ///                                                             // 10"
