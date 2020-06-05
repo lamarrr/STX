@@ -62,8 +62,7 @@ enum class SignalError {
 struct CharSpan {
   char *data;
   size_t size;
-  explicit CharSpan(char *data_, size_t size_) noexcept  // NOLINT
-      : data{data_}, size{size_} {}
+  CharSpan(char *data_, size_t size_) noexcept : data{data_}, size{size_} {}
   CharSpan(CharSpan const &) noexcept = default;
   CharSpan(CharSpan &&) noexcept = default;
   CharSpan &operator=(CharSpan const &) noexcept = default;
