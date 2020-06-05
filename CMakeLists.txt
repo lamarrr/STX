@@ -33,7 +33,6 @@ project(
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
 
 include(CMakeDependentOption)
-include(CheckIncludeFileCXX)
 include(HandleFlags)
 
 # we have to inform the user of the standards version change, else it'll cause
