@@ -1550,7 +1550,7 @@ class [[nodiscard]] Option {
   /// ```
   void expect_none(std::string_view msg)&& {
     if (is_some()) {
-      internal::option::expect_none_failed(std::move(msg), value_cref_());
+      internal::option::expect_none_failed(std::move(msg));
     }
   }
 
@@ -1577,7 +1577,7 @@ class [[nodiscard]] Option {
   /// ```
   void unwrap_none()&& {
     if (is_some()) {
-      internal::option::no_none(value_cref_());
+      internal::option::no_none();
     }
   }
 
@@ -2191,7 +2191,7 @@ class [[nodiscard]] Result {
   /// ASSERT_EQ(result, Err(46));
   /// ```
   [[nodiscard]] E& err_value() & noexcept {
-    if (is_ok_) internal::result::no_err_lref(value_cref_());
+    if (is_ok_) internal::result::no_err_lref();
     return err_ref_();
   }
 
@@ -2213,7 +2213,7 @@ class [[nodiscard]] Result {
   /// ASSERT_EQ(err, 9);
   /// ```
   [[nodiscard]] E const& err_value() const& noexcept {
-    if (is_ok_) internal::result::no_err_lref(value_cref_());
+    if (is_ok_) internal::result::no_err_lref();
     return err_cref_();
   }
 
@@ -2722,7 +2722,7 @@ class [[nodiscard]] Result {
   /// ```
   [[nodiscard]] auto unwrap_err()&&->E {
     if (is_ok()) {
-      internal::result::no_err(value_cref_());
+      internal::result::no_err();
     }
     return std::move(err_ref_());
   }
@@ -2747,7 +2747,7 @@ class [[nodiscard]] Result {
   /// ```
   [[nodiscard]] auto expect_err(std::string_view msg)&&->E {
     if (is_ok()) {
-      internal::result::expect_err_failed(std::move(msg), value_cref_());
+      internal::result::expect_err_failed(std::move(msg));
     }
     return std::move(err_ref_());
   }

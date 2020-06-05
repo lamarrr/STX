@@ -48,32 +48,30 @@ using namespace std::string_view_literals;  // NOLINT
 }
 
 /// panic helper for `Option<T>::expect_none()` when a value is present
-template <typename T>
 [[noreturn]] STX_FORCE_INLINE void expect_none_failed(
-    std::string_view&& msg, T const& value,
+    std::string_view&& msg,
     SourceLocation location = SourceLocation::current()) noexcept {
-  stx::panic(std::forward<std::string_view&&>(msg), value, std::move(location));
+  stx::panic(std::forward<std::string_view&&>(msg), std::move(location));
 }
 
 /// panic helper for `Option<T>::unwrap()` when no value is present
 [[noreturn]] STX_FORCE_INLINE void no_value(
     SourceLocation location = SourceLocation::current()) noexcept {
-  stx::panic("called `Option::unwrap()` on a `None` value",
+  stx::panic("called `Option::unwrap()` on a `None` value"sv,
              std::move(location));
 }
 
 /// panic helper for `Option<T>::value()` when no value is present
 [[noreturn]] STX_FORCE_INLINE void no_lref(
     SourceLocation location = SourceLocation::current()) noexcept {
-  stx::panic("called `Option::value()` on a `None` value", std::move(location));
+  stx::panic("called `Option::value()` on a `None` value"sv,
+             std::move(location));
 }
 
 /// panic helper for `Option<T>::unwrap_none()` when a value is present
-template <typename T>
 [[noreturn]] STX_FORCE_INLINE void no_none(
-    T const& value,
     SourceLocation location = SourceLocation::current()) noexcept {
-  stx::panic("called `Option::unwrap_none()` on a `Some` value", value,
+  stx::panic("called `Option::unwrap_none()` on a `Some` value"sv,
              std::move(location));
 }
 
@@ -91,11 +89,10 @@ template <typename T>
 }
 
 /// panic helper for `Result<T, E>::expect_err()` when a value is present
-template <typename T>
 [[noreturn]] STX_FORCE_INLINE void expect_err_failed(
-    std::string_view&& msg, T const& value,
+    std::string_view&& msg,
     SourceLocation location = SourceLocation::current()) noexcept {
-  stx::panic(std::forward<std::string_view&&>(msg), value, std::move(location));
+  stx::panic(std::forward<std::string_view&&>(msg), std::move(location));
 }
 
 /// panic helper for `Result<T, E>::unwrap()` when no value is present
@@ -117,20 +114,16 @@ template <typename T>
 }
 
 /// panic helper for `Result<T, E>::unwrap_err()` when a value is present
-template <typename T>
 [[noreturn]] STX_FORCE_INLINE void no_err(
-    T const& value,
     SourceLocation location = SourceLocation::current()) noexcept {
-  stx::panic("called `Result::unwrap_err()` on an `Ok` value"sv, value,
+  stx::panic("called `Result::unwrap_err()` on an `Ok` value"sv,
              std::move(location));
 }
 
 /// panic helper for `Result<T, E>::err_value()` when no value is present
-template <typename T>
 [[noreturn]] STX_FORCE_INLINE void no_err_lref(
-    T const& value,
     SourceLocation location = SourceLocation::current()) noexcept {
-  stx::panic("called `Result::err_value()` on an `Ok` value"sv, value,
+  stx::panic("called `Result::err_value()` on an `Ok` value"sv,
              std::move(location));
 }
 
