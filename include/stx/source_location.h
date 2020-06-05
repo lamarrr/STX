@@ -70,7 +70,7 @@ struct [[nodiscard]] SourceLocation {
       uint32_t column = 0
 #endif
           ) noexcept {
-    SourceLocation loc;
+    SourceLocation loc{};
     loc.line_ = line;
     loc.column_ = column;
     loc.file_ = file;
@@ -78,10 +78,16 @@ struct [[nodiscard]] SourceLocation {
     return loc;
   }
 
-  constexpr SourceLocation() noexcept = default;
-  constexpr SourceLocation(const SourceLocation& other) noexcept = default;
-  constexpr SourceLocation(SourceLocation&& other) noexcept = default;
-  constexpr ~SourceLocation() const noexcept = default;
+  // implementation-defined
+  constexpr SourceLocation() noexcept
+      : line_(), column_(), file_("\0"), func_("\0") {}
+  constexpr SourceLocation(SourceLocation const& other) noexcept = default;
+  constexpr SourceLocation(SourceLocation && other) noexcept = default;
+  constexpr SourceLocation& operator=(SourceLocation const& other) noexcept =
+      default;
+  constexpr SourceLocation& operator=(SourceLocation&& other) noexcept =
+      default;
+  ~SourceLocation() noexcept = default;
 
   constexpr uint32_t column() const noexcept { return column_; }
   constexpr uint32_t line() const noexcept { return line_; }
