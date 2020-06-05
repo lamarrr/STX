@@ -73,8 +73,10 @@ namespace this_thread {
 
 /// Checks if the current thread is panicking.
 ///
-/// # THREAD-SAFETY
-/// thread-safe.
+/// # Thread-safe?
+///
+/// Yes
+///
 [[nodiscard]] STX_EXPORT bool is_panicking() noexcept;
 }  // namespace this_thread
 
@@ -82,9 +84,10 @@ namespace this_thread {
 /// library. This should be called before calling any of `attach_panic_hook` or
 /// `take_panic_hook` when loaded as a dynamic library.
 ///
-/// # THREAD-SAFETY
+/// # Thread-safe?
 ///
-/// thread-safe.
+/// Yes
+///
 [[nodiscard]] STX_EXPORT bool panic_hook_visible() noexcept;
 
 /// Attaches a new panic hook, the attached panic hook is called in place of the
@@ -93,10 +96,10 @@ namespace this_thread {
 /// Returns `true` if the thread is not panicking and the panic hook was
 /// successfully attached, else returns `false`.
 ///
-/// # THREAD-SAFETY
+/// # Thread-safe?
 ///
-/// thread-safe.
-
+/// Yes
+///
 [[nodiscard]]
 #if defined(STX_VISIBLE_PANIC_HOOK)
 STX_EXPORT
@@ -114,10 +117,10 @@ STX_LOCAL
 /// Returns `true` if the thread is not panicking and the panic hook was
 /// successfully taken, else returns `false`.
 ///
-/// # THREAD-SAFETY
+/// # Thread-safe?
 ///
-/// thread-safe.
-
+/// Yes
+///
 [[nodiscard]]
 #if defined(STX_VISIBLE_PANIC_HOOK)
 STX_EXPORT
