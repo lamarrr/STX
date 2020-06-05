@@ -97,9 +97,9 @@ bool stx::take_panic_hook(PanicHook* out) noexcept {
   return true;
 }
 
-[[noreturn]] STX_LOCAL void stx::begin_panic(std::string_view info,
-                                             ReportPayload const& payload,
-                                             SourceLocation location) noexcept {
+[[noreturn]] void stx::begin_panic(std::string_view info,
+                                   ReportPayload const& payload,
+                                   SourceLocation location) noexcept {
   // TODO(lamarrr): We probably need a method for stack unwinding, So we can
   // free held resources
 

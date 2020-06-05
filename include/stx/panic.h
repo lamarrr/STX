@@ -39,15 +39,14 @@ namespace stx {
 // therefore deferring the info string and report payload to the callee and can
 // also use a stack allocated string especially in cases where dynamic memory
 // allocation is undesired
-STX_LOCAL void panic_handler(std::string_view info,
-                             ReportPayload const& payload,
-                             SourceLocation location) noexcept;
+void panic_handler(std::string_view info, ReportPayload const& payload,
+                   SourceLocation location) noexcept;
 
 /// Handles and dispatches the panic handler. The debugging breakpoint should be
 /// attached to this function to investigate panics.
-[[noreturn]] STX_LOCAL void begin_panic(std::string_view info,
-                                        ReportPayload const& payload,
-                                        SourceLocation location) noexcept;
+[[noreturn]] void begin_panic(std::string_view info,
+                              ReportPayload const& payload,
+                              SourceLocation location) noexcept;
 
 /// This allows a program to terminate immediately and provide feedback to the
 /// caller of the program. `panic` should be used when a program reaches an
