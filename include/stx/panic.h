@@ -55,7 +55,6 @@ STX_LOCAL void panic_handler(std::string_view info,
 /// in example code and in tests. `panic` is closely tied with the `unwrap` and
 /// `expect` method of both `Option` and `Result`. Both implementations call
 /// `panic` when they are set to `None` or `Err` variants.
-
 template <typename T>
 [[noreturn]] STX_FORCE_INLINE void panic(
     std::string_view info, T const& value,
