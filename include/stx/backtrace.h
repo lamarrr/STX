@@ -155,7 +155,9 @@ using Callback = bool (*)(Frame, int);
 /// ```cpp
 ///
 ///   stx::backtrace::trace([](Frame frame, int) {
-///    std::cout << "IP=" << frame.ip.as_ref().unwrap() << std::endl;
+///    std::cout << "Instruction Pointer="
+///              << frame.ip.clone().unwrap()
+///              << std::endl;
 ///    return false;
 ///  });
 ///
