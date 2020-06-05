@@ -72,7 +72,7 @@ MoveOnly<id> make_mv() {
 }
 
 static_assert(std::is_swappable_v<MoveOnly<0>>);
-static_assert(is_equality_comparable_v<MoveOnly<0>>);
+static_assert(equality_comparable<MoveOnly<0>>);
 
 struct FnMut {
   int call_times;
@@ -145,6 +145,7 @@ TEST(OptionTest, ObjectForwardingTest) {
 TEST(OptionTest, Equality) {
   EXPECT_NE(Some(0), None);
   EXPECT_EQ(Some(90), Some(90));
+  EXPECT_NE(Some(90), Some(70));
   EXPECT_NE(Some<Option<int>>(None), None);
   EXPECT_EQ(None, None);
   EXPECT_EQ(Option(Some(90)), Some(90));
@@ -155,19 +156,32 @@ TEST(OptionTest, Equality) {
   EXPECT_EQ(Option<int>(None), None);
   EXPECT_NE(Option<Option<int>>(Some(Option<int>(None))), None);
 
+  EXPECT_NE(None, Some(0));
+  EXPECT_NE(None, Some<Option<int>>(None));
+  EXPECT_EQ(Some(90), Option(Some(90)));
+  EXPECT_NE(Some(70), Option(Some(90)));
+  EXPECT_NE(None, Option(Some(90)));
+  EXPECT_EQ(None, Option<int>(None));
+  EXPECT_NE(None, Option<Option<int>>(Some(Option<int>(None))));
+
   int const x = 909'909;
   int y = 909'909;
-  EXPECT_EQ(Some(909'909), Some<ConstRef<int>>(x));
-  EXPECT_EQ(Some(909'909), Some(&x));
+
+  EXPECT_EQ(Some<ConstRef<int>>(x), Some(909'909));
+  EXPECT_EQ(Some<MutRef<int>>(y), Some(909'909));
 
   EXPECT_EQ(Some(909'909), Some<ConstRef<int>>(y));
   EXPECT_EQ(Some(909'909), Some<MutRef<int>>(y));
-  EXPECT_EQ(Some(909'909), Some(&y));
 
   EXPECT_EQ(Option(Some(909'909)), Some(&x));
   EXPECT_EQ(Option(Some(909'909)), Some(&y));
   EXPECT_NE(Option(Some(101'101)), Some(&x));
   EXPECT_NE(Option(Some(101'101)), Some(&y));
+
+  EXPECT_EQ(Some(&x), Option(Some(909'909)));
+  EXPECT_EQ(Some(&y), Option(Some(909'909)));
+  EXPECT_NE(Some(&x), Option(Some(101'101)));
+  EXPECT_NE(Some(&y), Option(Some(101'101)));
 }
 
 TEST(OptionTest, Contains) {
