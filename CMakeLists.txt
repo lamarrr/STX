@@ -27,6 +27,7 @@ project(
   Stx
   VERSION 0.0.1
   DESCRIPTION "A set of utility extensions to the C++ Standard Library"
+  HOMEPAGE_URL "https://github.com/lamarrr/STX"
   LANGUAGES CXX)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
