@@ -36,13 +36,14 @@
 
 #define STX_MAX_STACK_FRAME_DEPTH 128
 
-// MSVC and ICC typically have 1024 max symbol length
+// MSVC and ICC typically have 1024 bytes max for a symbol
+// The standard recommends 1024 bytes minimum for an identifier
 #define STX_SYMBOL_BUFFER_SIZE 1024
 
-//!
+//! @file
 //!
 //! - Thread and signal-safe, non-allocating.
-//! - Supports local unwinding only: i.e. within the current process
+//! - Supports local backtracing only: i.e. within the current process
 //!
 //!
 //!
