@@ -38,6 +38,7 @@ enum class IoError { EoF = 1, NotExists = 2, InvalidPath = 4, __Reserved };
 enum class Dummy {};
 
 using namespace stx;
+using namespace std::literals;
 
 STX_FORCE_INLINE bool ends_with(std::string_view const& str,
                                 std::string_view const& sv) {
@@ -73,7 +74,7 @@ TEST(ReportTest, FormatInt8) {
   int8_t a = 127;
   EXPECT_EQ((query >> a).what(), "127");
 
-  EXPECT_EQ((query >> (int*)0x028e7).what(), "Hello");
+  EXPECT_TRUE((query >> (int*)0x28e7).what() == "0x28e7"s);
 
   int8_t b = -128;
   EXPECT_EQ((query >> b).what(), "-128");
