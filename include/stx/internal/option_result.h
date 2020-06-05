@@ -225,54 +225,6 @@ struct [[nodiscard]] Some {
   friend class Option;
 };
 
-template <typename T>
-[[nodiscard]] constexpr bool operator==(Some<MutRef<T>> const& cmp,
-                                        Some<T> const& some) {
-  return some == cmp;
-}
-
-template <typename T>
-[[nodiscard]] constexpr bool operator!=(Some<MutRef<T>> const& cmp,
-                                        Some<T> const& some) {
-  return some != cmp;
-}
-
-template <typename T>
-[[nodiscard]] constexpr bool operator==(Some<ConstRef<T>> const& cmp,
-                                        Some<T> const& some) {
-  return some == cmp;
-}
-
-template <typename T>
-[[nodiscard]] constexpr bool operator!=(Some<ConstRef<T>> const& cmp,
-                                        Some<T> const& some) {
-  return some != cmp;
-}
-
-template <typename T>
-[[nodiscard]] constexpr bool operator==(Some<T*> const& cmp,
-                                        Some<T> const& some) {
-  return some == cmp;
-}
-
-template <typename T>
-[[nodiscard]] constexpr bool operator!=(Some<T*> const& cmp,
-                                        Some<T> const& some) {
-  return some != cmp;
-}
-
-template <typename T>
-[[nodiscard]] constexpr bool operator==(Some<T const*> const& cmp,
-                                        Some<T> const& some) {
-  return some == cmp;
-}
-
-template <typename T>
-[[nodiscard]] constexpr bool operator!=(Some<T const*> const& cmp,
-                                        Some<T> const& some) {
-  return some != cmp;
-}
-
 template <typename E>
 struct Err;
 
@@ -473,62 +425,6 @@ struct [[nodiscard]] Err {
   template <typename Tp, typename Err>
   friend class Result;
 };
-
-template <typename E, typename T>
-[[nodiscard]] constexpr bool operator==(Err<ConstRef<E>> const& cmp,
-                                        Err<T> const& err) {
-  return err == cmp;
-}
-
-template <typename E, typename T>
-[[nodiscard]] constexpr bool operator!=(Err<ConstRef<E>> const& cmp,
-                                        Err<T> const& err) {
-  return err != cmp;
-}
-
-template <typename E, typename T>
-[[nodiscard]] constexpr bool operator==(Err<MutRef<E>> const& cmp,
-                                        Err<T> const& err) {
-  return err == cmp;
-}
-
-template <typename E, typename T>
-[[nodiscard]] constexpr bool operator!=(Err<MutRef<E>> const& cmp,
-                                        Err<T> const& err) {
-  return err != cmp;
-}
-
-template <typename E, typename T>
-[[nodiscard]] constexpr bool operator==(Err<E*> const& cmp, Err<T> const& err) {
-  return err == cmp;
-}
-
-template <typename E, typename T>
-[[nodiscard]] constexpr bool operator!=(Err<E*> const& cmp, Err<T> const& err) {
-  return err != cmp;
-}
-
-template <typename E, typename T>
-[[nodiscard]] constexpr bool operator==(Err<E const*> const& cmp,
-                                        Err<T> const& err) {
-  return err == cmp;
-}
-
-template <typename E, typename T>
-[[nodiscard]] constexpr bool operator!=(Err<E const*> const& cmp,
-                                        Err<T> const& err) {
-  return err != cmp;
-}
-
-template <typename U, typename T>
-[[nodiscard]] constexpr bool operator==(Ok<U> const&, Err<T> const&) noexcept {
-  return false;
-}
-
-template <typename U, typename T>
-[[nodiscard]] constexpr bool operator!=(Ok<U> const&, Err<T> const&) noexcept {
-  return true;
-}
 
 template <typename T, typename E>
 class [[nodiscard]] Result;
