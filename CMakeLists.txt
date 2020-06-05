@@ -50,8 +50,8 @@ if(NOT CMAKE_CXX_STANDARD OR CMAKE_CXX_STANDARD LESS 17)
     )
   endif()
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_STANDARD 17)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif()
 
 # ===============================================
@@ -314,9 +314,9 @@ list(
   tests/common_test.cc
   tests/constexpr_test.cc
   tests/option_test.cc
-         tests/panic_test.cc
+  tests/panic_test.cc
   tests/report_test.cc
-         tests/result_test.cc
+  tests/result_test.cc
   tests/tests.cc)
 
 if(STX_ENABLE_BACKTRACE)
