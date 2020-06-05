@@ -21,9 +21,9 @@ The panic library provides:
 * runtime panic hooks
   + `stx::take_panic_hook` , `stx::attach_panic_hook` , and `stx::panic_hook_visible` 
 
-* panic backtraces
+* panic backtraces (see the [ `panic_backtrace` ](https://github.com/lamarrr/STX/tree/master/examples) example project)
 
-* error reporting
+* error reporting (see `stx::Report`)
 
 * panic handlers:
 
@@ -43,8 +43,8 @@ Monads can be simply thought of as abstract types of actions. Their monadic natu
 
 The backtracing library is useful for manually querying/viewing information of active stack frames. It makes debugging easier by making it easier to get stackframe information programmartically or automatically (via panics) without having to inspect core dumps or step into a debugger in which errors might not be reproducible (especially for embedded systems). The backtrace library is disabled by default as not all platforms support them, It can be enabled by setting `STX_ENABLE_BACKTRACE` to `ON` in the CMakeLists.txt file, this is demonstrated in the [ `panic_backtrace` ](https://github.com/lamarrr/STX/tree/master/examples) example project.
 
-* Fatal signal backtraces for `SIGSEGV` , `SIGFPE` , and `SIGILL` 
-* Manual stack backtraces
+* Fatal signal backtraces for `SIGSEGV` , `SIGFPE` , and `SIGILL` (`stx::backtrace::handle_signal`)
+* Manual stack backtraces (`stx::backtrace::trace`)
 
 # Why STX?
 
@@ -76,20 +76,27 @@ These reasons are a bit biased, but based on my team's experience:
   + Exceptions are really great, but present implementations are not so great for fail-often functions
   + Some embedded systems toolchains don't have a conformant exception implementation and throwing an exception resorts to an immediate abort
   + Currently, Exceptions are not deterministic in both space and time
-  + You never know which function throws which exception. And you never know when the callee code's API changes the exception type
-  + Exceptions are implicitly and automatically propagated up the call stack until it finds a function to handle it
-  + Exceptions aren't great for error-handling, the code gets messy easily
+  + You never know which function throws which exception and you never know when the callee code's API changes the exception type which can have extremely serious effects that'll go unnoticed
+  + Exceptions are implicitly and automatically propagated up the call stack until it finds a function to handle it which you might not want as **error-handling is very very contextual**
+  + Exception-handling code gets messy easily
   + Exceptions are essentially for exceptional cases
   + Exceptions require RTTI
+  + Some custom exception implementations make use of dynamic memory allocation (std::string especially)
+  + There's nothing stopping you from catching exceptions you are not meant to catch
 
 # Some Interesting Reads
 
 * Joe Duffy: [The Error Model](http://joeduffyblog.com/2016/02/07/the-error-model/)
 
-## Relatable Excerpts:
+## Relatable Excerpts
 
 > This problem isn’t theoretical. I’ve encountered numerous bugs caused by ignoring return codes and I’m sure you have too. Indeed, in the development of this very Error Model, my team encountered some fascinating ones. For example, when we ported Microsoft’s Speech Server to Midori, we found that 80% of Taiwan Chinese (zh-tw) requests were failing. Not failing in a way the developers immediately saw, however; instead, clients would get a gibberish response. At first, we thought it was our fault. But then we discovered a silently swallowed HRESULT in the original code. Once we got it over to Midori, the bug was thrown into our faces, found, and fixed immediately after porting. This experience certainly informed our opinion about error codes.
 
 > In the exception model, any function call – and sometimes any statement – can throw an exception, transferring control non-locally somewhere else. Where? Who knows. There are no annotations or type system artifacts to guide your analysis. As a result, it’s difficult for anyone to reason about a program’s state at the time of the throw, the state changes that occur while that exception is propagated up the call stack – and possibly across threads in a concurrent program – and the resulting state by the time it gets caught or goes unhandled.
 
 > Bugs Aren’t Recoverable Errors!
+
+
+* Herb Sutter: [Zero Overhead Deterministic Exceptions](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0709r0.pdf)
+
+## Relatable Excerpts
