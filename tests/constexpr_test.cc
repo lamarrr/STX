@@ -28,3 +28,19 @@
  *
  */
 
+#include "stx/option.h"
+#include "stx/result.h"
+
+#if STX_OPTION_CONSTEXPR || STX_RESULT_CONSTEXPR
+
+using stx::Ok, stx::Err, stx::Result;
+using stx::Some, stx::None, stx::Option;
+
+constexpr auto divide(int x, int y) -> Option<int> {
+  if (y == 0) return None;
+  return Some(x / y);
+}
+
+constexpr auto divide_result = divide(1, 56);
+
+#endif
