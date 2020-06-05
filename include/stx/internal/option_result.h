@@ -75,7 +75,12 @@
 
 namespace stx {
 
-/// value-variant Type for `Option<T>` representing no-value
+//! value-variant Type for `Option<T>` representing no-value
+//!
+//! # Constexpr
+//!
+//! C++ 17 and above
+//!
 class [[nodiscard]] NoneType {
  public:
   constexpr NoneType() noexcept = default;
@@ -94,35 +99,40 @@ class [[nodiscard]] NoneType {
   }
 };
 
-// value-variant for `Option<T>` representing no-value
+/// value-variant for `Option<T>` representing no-value
 constexpr const NoneType None = NoneType{};
 
-/// value-variant for `Option<T>` wrapping the contained value
-///
-/// # Usage
-///
-/// Note that `Some` is only a value-forwarding type. It doesn't make copies of
-/// it's constructor arguments and only accepts r-values.
-///
-/// What does this mean?
-///
-/// For example, You can:
-///
-/// ```cpp
-/// Option a = Some(vector{1, 2, 3, 4});
-/// ```
-/// You can't:
-///
-/// ```cpp
-/// vector<int> x {1, 2, 3, 4};
-/// Option a = Some(x);
-/// ```
-/// But, to explicitly make `a` take ownership, you will:
-///
-/// ```cpp
-/// vector<int> x {1, 2, 3, 4};
-/// Option a = Some(std::move(x));
-/// ```
+//! value-variant for `Option<T>` wrapping the contained value
+//!
+//! # Usage
+//!
+//! Note that `Some` is only a value-forwarding type. It doesn't make copies of
+//! it's constructor arguments and only accepts r-values.
+//!
+//! What does this mean?
+//!
+//! For example, You can:
+//!
+//! ```cpp
+//! Option a = Some(vector{1, 2, 3, 4});
+//! ```
+//! You can't:
+//!
+//! ```cpp
+//! vector<int> x {1, 2, 3, 4};
+//! Option a = Some(x);
+//! ```
+//! But, to explicitly make `a` take ownership, you will:
+//!
+//! ```cpp
+//! vector<int> x {1, 2, 3, 4};
+//! Option a = Some(std::move(x));
+//! ```
+//!
+//! # Constexpr
+//!
+//! C++ 17 and above
+//!
 template <typename T>
 struct [[nodiscard]] Some {
   static_assert(std::is_swappable_v<T>, "Type must be swappable");
@@ -265,9 +275,13 @@ template <typename T>
 template <typename E>
 struct Err;
 
-/// value-variant for `Result<T, E>` wrapping the contained value
-///
-///
+//! value-variant for `Result<T, E>` wrapping the contained successful value of
+//! type `T`
+//!
+//! # Constexpr
+//!
+//! C++ 17 and above
+//!
 template <typename T>
 struct [[nodiscard]] Ok {
   static_assert(std::is_swappable_v<T>, "Type must be swappable");
@@ -360,7 +374,13 @@ struct [[nodiscard]] Ok {
   friend class Result;
 };
 
-/// error-value variant for `Result<T, E>` wrapping the contained error
+//! error-value variant for `Result<T, E>` wrapping the contained error value of
+//! type `E`
+//!
+//! # Constexpr
+//!
+//! C++ 17 and above
+//!
 template <typename E>
 struct [[nodiscard]] Err {
   static_assert(std::is_swappable_v<E>, "Type must be swappable");
@@ -549,6 +569,10 @@ class [[nodiscard]] Result;
 //!                     []() { fmt::print("has no value"); });
 //! ```
 //!
+//!
+//! # Constexpr
+//!
+//! C++ 20 and above
 //!
 template <typename T>
 class [[nodiscard]] Option {
@@ -1682,6 +1706,10 @@ class [[nodiscard]] Option {
 //! `Result` is a type that represents either success (`Ok`) or failure (`Err`).
 //!
 //! Result is either in the Ok or Err state at any point in time
+//!
+//! # Constexpr
+//!
+//! C++ 17 and above
 //!
 template <typename T, typename E>
 class [[nodiscard]] Result {
@@ -2850,6 +2878,11 @@ class [[nodiscard]] Result {
 /// // observe that m is constructed as an Option<int> (=Option<T>) and T (=int)
 /// // is auto-deduced from make_some's parameter type.
 /// ```
+///
+/// # Constexpr
+///
+/// C++ 20 and above
+///
 template <typename T>
 [[nodiscard]] STX_FORCE_INLINE constexpr auto make_some(T value) -> Option<T> {
   return Some<T>(std::forward<T>(value));
@@ -2877,8 +2910,14 @@ template <typename T>
 ///
 /// // observe that m is constructed as an Option<int> (=Option<T>) and T(=int).
 /// ```
+///
+/// # Constexpr
+///
+/// C++ 20 and above
+///
 template <typename T>
-[[nodiscard]] STX_FORCE_INLINE constexpr auto make_none() -> Option<T> {
+[[nodiscard]] STX_FORCE_INLINE constexpr auto make_none() noexcept
+    -> Option<T> {
   return None;
 }
 
@@ -2910,6 +2949,11 @@ template <typename T>
 /// // observe that c is constructed as Result<int, string>
 /// // (=Result<T, E>).
 /// ```
+///
+/// # Constexpr
+///
+/// C++ 20 and above
+///
 template <typename T, typename E>
 [[nodiscard]] STX_FORCE_INLINE constexpr auto make_ok(T value) -> Result<T, E> {
   return Ok<T>(std::forward<T>(value));
@@ -2943,6 +2987,11 @@ template <typename T, typename E>
 /// // (=Result<T, E>).
 ///
 /// ```
+///
+/// # Constexpr
+///
+/// C++ 20 and above
+///
 template <typename T, typename E>
 [[nodiscard]] STX_FORCE_INLINE constexpr auto make_err(E err) -> Result<T, E> {
   return Err<E>(std::forward<E>(err));
