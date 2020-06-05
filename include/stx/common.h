@@ -88,7 +88,7 @@ using MutRef =
     std::reference_wrapper<std::remove_const_t<std::remove_reference_t<T>>>;
 
 #if defined(__cpp_concepts)
-#if __cpp_concepts > 201907L
+#if __cpp_concepts >= 201907L
 template <typename T, typename Base>
 concept Impl = std::is_base_of_v<Base, T>;
 #endif
