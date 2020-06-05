@@ -74,6 +74,9 @@ option(STX_BUILD_BENCHMARKS "Build benchmarks" OFF)
 cmake_dependent_option(STX_SANITIZE_TESTS "Build sanitized tests" ON
                        "STX_BUILD_TESTS" OFF)
 
+# this feature replaces the default panic handler, by default it is set to print
+# the panic report and abort the program. The handler is re- entrant and
+# thread-safe.
 option(
   STX_OVERRIDE_PANIC_HANDLER
   "Override the default panic behaviour (You can read the docs for more details)"
@@ -81,26 +84,25 @@ option(
        # to print the panic report and abort the program. The handler is re-
        # entrant and thread-safe.
 
+# the default panic hook calls the provided panic handler. the behaviour can be
+# changed at runtime especially when built as a shared library. Making panic
+# hooks visible enables you to control the panic behaviour of the dynamically
+# loaded library that depends on STX, i.e. for device drivers you might not want
+# them to cause the whole program to fail on a panic.
 option(STX_VISIBLE_PANIC_HOOK "Make runtime panic hook visible"
-       ${STX_BUILD_SHARED}) # the default panic hook calls the
-# provided panic handler. the behaviour can be changed at runtime especially
-# when built as a shared library. Making panic hooks visible enables you to
-# control the panic behaviour of the dynamically loaded library that depends on
-# STX, i.e. for device drivers you might not want them to cause the whole
-# program to fail on a panic.
+       ${STX_BUILD_SHARED})
 
-option(STX_ENABLE_BACKTRACE "Enables the backtrace feature" OFF) # enables the
-# backtrace library, we won't allow it to work by default when built as a shared
-# library for now until we find a reason to, If you find it inconvenient please
-# drop a PR!.
+# enables the backtrace library, we won't allow it to work by default when built
+# as a shared library for now until we find a reason to, If you find it
+# inconvenient please drop a PR!.
+option(STX_ENABLE_BACKTRACE "Enables the backtrace feature" OFF)
 
+# disables printing backtraces on panic by the default panic handler. This
+# requires that panic backtraces are enabled and that the panic handler is not
+# overriden.
 cmake_dependent_option(
   STX_ENABLE_PANIC_BACKTRACE "Enables the panic backtrace feature" ON
-  "STX_ENABLE_BACKTRACE;NOT STX_OVERRIDE_PANIC_HANDLER" OFF) # disables
-# printing backtraces on panic by the default panic handler. This requires that
-# panic backtraces are enabled and that the panic handler is not overriden.
-
-option(STX_USE_LIBCPP "Use Clang's libc++" OFF)
+  "STX_ENABLE_BACKTRACE;NOT STX_OVERRIDE_PANIC_HANDLER" OFF)
 
 # ===============================================
 #
@@ -120,20 +122,22 @@ message(STATUS "[STX] Make runtime panic hook visible: "
                ${STX_VISIBLE_PANIC_HOOK})
 message(STATUS "[STX] Enable backtrace: " ${STX_ENABLE_BACKTRACE})
 message(STATUS "[STX] Enable panic backtrace: " ${STX_ENABLE_PANIC_BACKTRACE})
-message(STATUS "[STX] Use clang's libc++: " ${STX_USE_LIBCPP})
 
 # ===============================================
 #
 # === Flags and Global Definitions
 #
 # ===============================================
+
 list(APPEND STX_COMPILER_DEFS)
 list(APPEND STX_FLAGS)
 list(APPEND STX_WARNING_FLAGS)
-list(APPEND STX_TEST_WARNING_FLAGS) # tests make use of macros which don't use
-                                    # the result, especially EXPECT_ANY_THROW,
-                                    # the result is thus discarded and
-                                    # [[nodiscard]] will raise warnings
+
+# tests make use of macros which don't use the result, especially
+# EXPECT_ANY_THROW, the result is thus discarded and [[nodiscard]] will raise
+# warnings
+list(APPEND STX_TEST_WARNING_FLAGS)
+
 # ===============================================
 #
 # === Configure Flags
@@ -150,9 +154,9 @@ else()
   append_flags_if_supported(STX_WARNING_FLAGS "-Wpedantic" "-Wall" "-Wextra")
 endif()
 
-append_flags_if_supported(
-  STX_TEST_WARNING_FLAGS "-Wno-unused-result" "-Wno-unused-variable"
-)# if available, add MSVC equivalent
+# if available, add MSVC equivalent
+append_flags_if_supported(STX_TEST_WARNING_FLAGS "-Wno-unused-result"
+                          "-Wno-unused-variable")
 
 # ===============================================
 #
@@ -177,7 +181,7 @@ if(STX_ENABLE_PANIC_BACKTRACE)
 endif()
 
 if(STX_ENABLE_BACKTRACE)
-  # check platform support
+  # TODO(lamarrr): check platform support
 endif()
 
 # ===============================================
@@ -195,6 +199,7 @@ if(STX_ENABLE_BACKTRACE)
   add_subdirectory(third_party/abseil)
 endif()
 
+# the atomics library doesn't automatically link on my Android phone
 if(ANDROID)
   add_link_flags_if_supported(-latomic)
 endif()
@@ -338,9 +343,8 @@ if(STX_BUILD_TESTS)
     DEPENDS stx_tests)
 
   macro(add_sanitized_test sanitize_mode)
-    if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU|Clang") # only known to be
-                                                     # supported on GCC and
-                                                     # Clang
+    # only known to be supported on GCC and Clang
+    if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU|Clang")
       add_executable("stx_tests_${sanitize_mode}_sanitized" ${STX_TEST_SRCS})
       target_compile_options(
         "stx_tests_${sanitize_mode}_sanitized"
