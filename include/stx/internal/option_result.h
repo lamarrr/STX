@@ -136,11 +136,12 @@ constexpr const NoneType None = NoneType{};
 //!
 template <typename T>
 struct [[nodiscard]] Some {
-  static_assert(std::is_swappable_v<T>, "Type must be swappable");
-  static_assert(!std::is_reference_v<T>,
-                "Cannot use T& nor T&& for type, To prevent subtleties use "
-                "type wrappers like std::reference_wrapper or any of the "
-                "`stx::ConstRef` or `stx::MutRef` specialized aliases instead");
+  static_assert(movable<T>, "Type must be movable");
+  static_assert(
+      !is_reference<T>,
+      "Cannot use T& nor T&& for type, To prevent subtleties use "
+      "type wrappers like std::reference_wrapper (stx::Ref) or any of the "
+      "`stx::ConstRef` or `stx::MutRef` specialized aliases instead");
 
   using value_type = T;
 
@@ -237,11 +238,13 @@ struct Err;
 //!
 template <typename T>
 struct [[nodiscard]] Ok {
-  static_assert(std::is_swappable_v<T>, "Type must be swappable");
-  static_assert(!std::is_reference_v<T>,
-                "Cannot use T& nor T&& for type, To prevent subtleties use "
-                "type wrappers like std::reference_wrapper or any of the "
-                "`stx::ConstRef` or `stx::MutRef` specialized aliases instead");
+  static_assert(movable<T>, "Type must be movable");
+  static_assert(
+      !is_reference<T>,
+      "Cannot use T& nor T&& for type, To prevent subtleties use "
+      "type wrappers like std::reference_wrapper (stx::Ref) or any of the "
+      "`stx::ConstRef` or `stx::MutRef` specialized aliases instead");
+
   using value_type = T;
 
   /// an `Ok<T>` can only be constructed with an r-value of type `T`
@@ -336,11 +339,13 @@ struct [[nodiscard]] Ok {
 //!
 template <typename E>
 struct [[nodiscard]] Err {
-  static_assert(std::is_swappable_v<E>, "Type must be swappable");
-  static_assert(!std::is_reference_v<E>,
-                "Cannot use E& nor E&& for type, To prevent subtleties use "
-                "type wrappers like std::reference_wrapper or any of the "
-                "`stx::ConstRef` or `stx::MutRef` specialized aliases instead");
+  static_assert(movable<E>, "Type must be movable");
+  static_assert(
+      !is_reference<E>,
+      "Cannot use E& nor E&& for type, To prevent subtleties use "
+      "type wrappers like std::reference_wrapper (stx::Ref) or any of the "
+      "`stx::ConstRef` or `stx::MutRef` specialized aliases instead");
+
   using value_type = E;
 
   /// an `Err<E>` can only be constructed with an r-value of type `E`
@@ -476,18 +481,19 @@ class [[nodiscard]] Option {
  public:
   using value_type = T;
 
-  static_assert(std::is_swappable_v<T>, "Type must be swappable");
-  static_assert(!std::is_reference_v<T>,
-                "Cannot use T& nor T&& for type, To prevent subtleties use "
-                "type wrappers like std::reference_wrapper or any of the "
-                "`stx::ConstRef` or `stx::MutRef` specialized aliases instead");
+  static_assert(movable<T>, "Type must be movable");
+  static_assert(
+      !is_reference<T>,
+      "Cannot use T& nor T&& for type, To prevent subtleties use "
+      "type wrappers like std::reference_wrapper (stx::Ref) or any of the "
+      "`stx::ConstRef` or `stx::MutRef` specialized aliases instead");
 
   constexpr Option() noexcept : is_none_(true) {}
 
   constexpr Option(Some<T> && some)
       : storage_value_(std::move(some.value_)), is_none_(false) {}
 
-  constexpr Option(NoneType const&) noexcept : is_none_(true) {}  // NOLINT
+  constexpr Option(NoneType const&) noexcept : is_none_(true) {}
 
   // constexpr?
   // placement-new!!
@@ -721,6 +727,8 @@ class [[nodiscard]] Option {
   template <typename UnaryPredicate>
   [[nodiscard]] constexpr bool exists(UnaryPredicate && predicate) const {
     static_assert(invocable<UnaryPredicate&&, T const&>);
+    static_assert(convertible<invoke_result<UnaryPredicate&&, T const&>, bool>);
+
     if (is_some()) {
       return std::forward<UnaryPredicate&&>(predicate)(value_cref_());
     } else {
@@ -827,12 +835,23 @@ class [[nodiscard]] Option {
     }
   }
 
+  [[nodiscard]] constexpr auto as_ref() const & noexcept->Option<ConstRef<T>> {
+    return as_cref();
+  }
+
   [[deprecated(
       "calling Option::as_ref() on an r-value, and therefore binding a "
       "reference to an object that is marked to be moved")]]  //
       [[nodiscard]] constexpr auto
       as_ref() &&
       noexcept->Option<MutRef<T>> = delete;
+
+  [[deprecated(
+      "calling Option::as_ref() on an r-value, and therefore binding a "
+      "reference to an object that is marked to be moved")]]  //
+      [[nodiscard]] constexpr auto
+      as_ref() const &&
+      noexcept->Option<ConstRef<T>> = delete;
 
   /// Unwraps an option, yielding the content of a `Some`.
   ///
@@ -1172,6 +1191,8 @@ class [[nodiscard]] Option {
   template <typename UnaryPredicate>
   [[nodiscard]] constexpr auto filter(UnaryPredicate && predicate)&&->Option {
     static_assert(invocable<UnaryPredicate&&, T const&>);
+    static_assert(convertible<invoke_result<UnaryPredicate&&, T const&>, bool>);
+
     if (is_some() && std::forward<UnaryPredicate&&>(predicate)(value_cref_())) {
       return std::move(*this);
     } else {
@@ -1202,6 +1223,8 @@ class [[nodiscard]] Option {
   [[nodiscard]] constexpr auto filter_not(UnaryPredicate &&
                                           predicate)&&->Option {
     static_assert(invocable<UnaryPredicate&&, T const&>);
+    static_assert(convertible<invoke_result<UnaryPredicate&&, T const&>, bool>);
+
     if (is_some() &&
         !std::forward<UnaryPredicate&&>(predicate)(value_cref_())) {
       return std::move(*this);
@@ -1411,7 +1434,7 @@ class [[nodiscard]] Option {
   /// ASSERT_EQ(x, x.clone());
   /// ```
   [[nodiscard]] constexpr auto clone() const->Option {
-    static_assert(std::is_copy_constructible_v<T>);
+    static_assert(copy_constructible<T>);
     if (is_some()) {
       return Some<T>(T(value_cref_()));
     } else {
@@ -1607,17 +1630,18 @@ class [[nodiscard]] Option {
 template <typename T, typename E>
 class [[nodiscard]] Result {
  public:
-  static_assert(std::is_swappable_v<T>, "Type must be swappable");
-  static_assert(std::is_swappable_v<E>, "Type must be swappable");
-  static_assert(!std::is_reference_v<T>,
-                "Cannot use T& nor T&& for type, To prevent subtleties use "
-                "type wrappers like std::reference_wrapper or any of the "
-                "`stx::ConstRef` or `stx::MutRef` specialized aliases instead");
-
-  static_assert(!std::is_reference_v<E>,
-                "Cannot use E& nor E&& for type, To prevent subtleties use "
-                "type wrappers like std::reference_wrapper or any of the "
-                "`stx::ConstRef` or `stx::MutRef` specialized aliases instead");
+  static_assert(movable<T>, "Type must be movable");
+  static_assert(movable<E>, "Type must be movable");
+  static_assert(
+      !is_reference<T>,
+      "Cannot use T& nor T&& for type, To prevent subtleties use "
+      "type wrappers like std::reference_wrapper (stx::Ref) or any of the "
+      "`stx::ConstRef` or `stx::MutRef` specialized aliases instead");
+  static_assert(
+      !is_reference<E>,
+      "Cannot use E& nor E&& for type, To prevent subtleties use "
+      "type wrappers like std::reference_wrapper (stx::Ref) or any of the "
+      "`stx::ConstRef` or `stx::MutRef` specialized aliases instead");
 
   using value_type = T;
   using error_type = E;
@@ -1982,6 +2006,8 @@ class [[nodiscard]] Result {
   template <typename UnaryPredicate>
   [[nodiscard]] constexpr bool exists(UnaryPredicate && predicate) const {
     static_assert(invocable<UnaryPredicate&&, T const&>);
+    static_assert(convertible<invoke_result<UnaryPredicate&&, T const&>, bool>);
+
     if (is_ok()) {
       return std::forward<UnaryPredicate&&>(predicate)(value_cref_());
     } else {
@@ -2006,6 +2032,8 @@ class [[nodiscard]] Result {
   template <typename UnaryPredicate>
   [[nodiscard]] constexpr bool err_exists(UnaryPredicate && predicate) const {
     static_assert(invocable<UnaryPredicate&&, E const&>);
+    static_assert(convertible<invoke_result<UnaryPredicate&&, E const&>, bool>);
+
     if (is_err()) {
       return std::forward<UnaryPredicate&&>(predicate)(err_cref_());
     } else {
@@ -2224,12 +2252,24 @@ class [[nodiscard]] Result {
     }
   }
 
+  [[nodiscard]] constexpr auto as_ref() const &
+      noexcept->Result<ConstRef<T>, ConstRef<E>> {
+    return as_cref();
+  }
+
   [[deprecated(
       "calling Result::as_ref() on an r-value, and therefore binding a "
       "reference to an object that is marked to be moved")]]  //
       [[nodiscard]] constexpr auto
       as_ref() &&
       noexcept->Result<MutRef<T>, MutRef<E>> = delete;
+
+  [[deprecated(
+      "calling Result::as_ref() on an r-value, and therefore binding a "
+      "reference to an object that is marked to be moved")]]  //
+      [[nodiscard]] constexpr auto
+      as_ref() const &&
+      noexcept->Result<ConstRef<T>, ConstRef<E>> = delete;
 
   /// Maps a `Result<T, E>` to `Result<U, E>` by applying the function `op` to
   /// the contained `Ok<T>` value, leaving an `Err<E>` value untouched.
@@ -2388,7 +2428,7 @@ class [[nodiscard]] Result {
   // a copy attempt like passing a const could cause an error
   template <typename U, typename F>
   [[nodiscard]] constexpr auto AND(Result<U, F> && res)&&->Result<U, F> {
-    static_assert(std::is_convertible_v<E, F>);
+    static_assert(convertible<E, F>);
     if (is_ok()) {
       return std::forward<Result<U, F>&&>(res);
     } else {
@@ -2457,7 +2497,7 @@ class [[nodiscard]] Result {
   // passing a const ref will cause an error
   template <typename U, typename F>
   [[nodiscard]] constexpr auto OR(Result<U, F> && alt)&&->Result<U, F> {
-    static_assert(std::is_convertible_v<T&&, U>);
+    static_assert(convertible<T&&, U>);
     if (is_ok()) {
       return Ok<U>(static_cast<U>(std::move(value_ref_())));
     } else {
@@ -2711,8 +2751,9 @@ class [[nodiscard]] Result {
   }
 
   [[nodiscard]] constexpr auto clone() const->Result<T, E> {
-    static_assert(std::is_copy_constructible_v<T>);
-    static_assert(std::is_copy_constructible_v<E>);
+    static_assert(copy_constructible<T>);
+    static_assert(copy_constructible<E>);
+
     if (is_ok()) {
       return Ok<T>(T(value_cref_()));
     } else {
