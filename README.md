@@ -2,7 +2,7 @@
 <br/>
 <div align="center"><img src="assets/stx.png"/> </div>
 
-<div align="center"><i> C++ 20 error-handling and utility extensions.</i>
+<div align="center"><i> C++ 17 & C++ 20 error-handling and utility extensions.</i>
 </div>
 
 ## Overview
