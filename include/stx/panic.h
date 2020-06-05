@@ -66,7 +66,7 @@ template <typename T>
 
 template <typename T = void>
 [[noreturn]] STX_FORCE_INLINE void panic(
-    std::string_view info,
+    std::string_view info = "explicit panic",
     SourceLocation location = SourceLocation::current()) noexcept {
   begin_panic(std::move(info), ReportPayload(Report("")), std::move(location));
 }
