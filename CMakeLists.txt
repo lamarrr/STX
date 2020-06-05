@@ -332,11 +332,9 @@ if(STX_BUILD_TESTS)
   add_executable(stx_tests ${STX_TEST_SRCS})
   target_link_libraries(stx_tests stx gtest_main gtest)
   target_include_directories(stx_tests PRIVATE tests)
-  target_compile_options(stx_tests PRIVATE ${STX_WARNING_FLAGS}
+  target_compile_options(stx_tests PRIVATE ${STX_FLAGS} ${STX_WARNING_FLAGS}
                                            ${STX_TEST_WARNING_FLAGS})
   target_compile_definitions(stx_tests PRIVATE STX_OVERRIDE_PANIC_HANDLER)
-  set_target_properties(stx_tests
-                        PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
   add_custom_target(
     run_tests
     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/stx_tests
