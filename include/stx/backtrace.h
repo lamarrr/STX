@@ -100,8 +100,7 @@ struct Frame {
   /// function's symbol name. possibly demangled.
   Option<Symbol> symbol;
 
-  explicit Frame() noexcept  // NOLINT
-      : ip{None}, sp{None}, offset{None}, symbol{None} {}
+  constexpr explicit Frame() noexcept = default;
 
   Frame(Frame &&) noexcept = default;
   Frame &operator=(Frame &&) noexcept = default;

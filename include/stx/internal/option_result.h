@@ -561,6 +561,8 @@ class [[nodiscard]] Option {
                 "type wrappers like std::reference_wrapper or any of the "
                 "`stx::ConstRef` or `stx::MutRef` specialized aliases instead");
 
+  constexpr Option() noexcept : is_none_(true) {}
+
   constexpr Option(Some<T> && some)
       : storage_value_(std::move(some.value_)), is_none_(false) {}
 
@@ -595,7 +597,6 @@ class [[nodiscard]] Option {
     return *this;
   }
 
-  constexpr Option() = delete;
   constexpr Option(Option const&) = delete;
   constexpr Option& operator=(Option const&) = delete;
 
