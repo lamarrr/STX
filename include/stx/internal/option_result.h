@@ -30,8 +30,6 @@
 
 #pragma once
 
-// Symmetry
-
 #include "stx/internal/panic_helpers.h"
 
 // Why so long? Option and Result depend on each other. I don't know of a
@@ -47,31 +45,33 @@
 // - Result and Option are perfect-forwarding types. It is unique to an
 // interaction. It functions like a std::unique_ptr, as it doesn't allow
 // implicitly copying its data content. Unless explicitly stated via the
-// .clone() method.
+// .clone() method
 // - We strive to make lifetime paths as visible and predictable as
-// possible.
-//
+// possible
+// - We also try to prevent you from shooting yourself in the foot, especially
+// with references and implicit copies
+// - Most are marked constexpr but won't work in a constexpr context in C++ 17
+// mode. They work in C++ 20 and We don't want macros for that
 //
 
-/// @file
-///
-/// to run tests, use:
-///
-/// ``` cpp
-///
-/// #include <iostream>
-/// #include <string>
-/// #include <string_view>
-///
-/// #include <fmt/format.h>
-///
-///
-/// using std::move, std::string, std::string_view;
-/// using namespace std::string_literals; // makes '"Hello"s' give std::string
-///                                       // directly
-/// using namespace std::string_view_literals;
-///
-/// ```
+//! @file
+//!
+//! to run tests, use:
+//!
+//! ``` cpp
+//!
+//! #include <iostream>
+//! #include <string>
+//! #include <string_view>
+//!
+//! #include <fmt/format.h>
+//!
+//!
+//! using std::move, std::string, std::string_view;
+//! using namespace std::literals; // makes '"Hello"s' give std::string
+//!                                // and '"Hello"sv' give std::string_view
+//!
+//! ```
 
 namespace stx {
 
@@ -390,7 +390,7 @@ struct [[nodiscard]] Err {
                 "`stx::ConstRef` or `stx::MutRef` specialized aliases instead");
   using value_type = E;
 
-  // an `Err<E>` can only be constructed with an r-value of type `E`
+  /// an `Err<E>` can only be constructed with an r-value of type `E`
   explicit constexpr Err(E && value) : value_(std::forward<E&&>(value)) {}
 
   constexpr Err(Err && rhs) = default;
@@ -594,7 +594,7 @@ class [[nodiscard]] Option {
 
   // constexpr?
   // placement-new!!
-  // we can't make this constexpr
+  // we can't make this constexpr as of C++ 20
   Option(Option && rhs) : is_none_(rhs.is_none_) {
     if (rhs.is_some()) {
       new (&storage_value_) T(std::move(rhs.storage_value_));
@@ -1762,7 +1762,7 @@ class [[nodiscard]] Result {
       is_ok_ = true;
     } else {
       // both are errs
-      std::swap(err_ref_(), rhs.err_ref_());  // NOLINT
+      std::swap(err_ref_(), rhs.err_ref_());
     }
     return *this;
   }
@@ -2927,7 +2927,7 @@ template <typename T>
 ///
 /// # NOTE
 ///
-/// The error type `E` must be specified and is the first template
+/// The value type `T` must be specified and is the first template
 /// parameter.
 ///
 /// # Examples
@@ -2942,13 +2942,13 @@ template <typename T>
 /// Result<int, string> b = Ok<int>(8);
 ///
 /// // to make it easier and less verbose:
-/// auto c = make_ok<string, int>(9);
+/// auto c = make_ok<int, string>(9);
 /// ASSERT_EQ(c, Ok(9));
 ///
-/// auto d = make_ok<string, int>(9);
-/// ASSERT_EQ(d, Ok(9));
+/// auto d = make_ok<string, int>("Hello"s);
+/// ASSERT_EQ(d, Ok("Hello"s));
 ///
-/// // observe that c is constructed as Result<int, string>
+/// // observe that c is constructed as Result<string, int>
 /// // (=Result<T, E>).
 /// ```
 ///
