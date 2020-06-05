@@ -313,13 +313,15 @@ endif()
 # ===============================================
 
 list(
-  APPEND STX_TEST_SRCS
-         tests/tests.cc
+  APPEND
+  STX_TEST_SRCS
+  tests/common_test.cc
+  tests/constexpr_test.cc
+  tests/option_test.cc
          tests/panic_test.cc
+  tests/report_test.cc
          tests/result_test.cc
-         tests/common_test.cc
-         tests/option_test.cc
-         tests/report_test.cc)
+  tests/tests.cc)
 
 if(STX_ENABLE_BACKTRACE)
   list(APPEND STX_TEST_SRCS tests/backtrace_test.cc)
