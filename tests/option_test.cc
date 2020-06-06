@@ -180,15 +180,15 @@ TEST(OptionTest, Equality) {
   EXPECT_EQ(Some(909'909), Some<ConstRef<int>>(y));
   EXPECT_EQ(Some(909'909), Some<MutRef<int>>(y));
 
-  EXPECT_EQ(Option(Some(909'909)), Some(&x));
-  EXPECT_EQ(Option(Some(909'909)), Some(&y));
-  EXPECT_NE(Option(Some(101'101)), Some(&x));
-  EXPECT_NE(Option(Some(101'101)), Some(&y));
+  EXPECT_EQ(Option(Some(909'909)), Some<ConstRef<int>>(x));
+  EXPECT_EQ(Option(Some(909'909)), Some<ConstRef<int>>(y));
+  EXPECT_NE(Option(Some(101'101)), Some<ConstRef<int>>(x));
+  EXPECT_NE(Option(Some(101'101)), Some<ConstRef<int>>(y));
 
-  EXPECT_EQ(Some(&x), Option(Some(909'909)));
-  EXPECT_EQ(Some(&y), Option(Some(909'909)));
-  EXPECT_NE(Some(&x), Option(Some(101'101)));
-  EXPECT_NE(Some(&y), Option(Some(101'101)));
+  EXPECT_EQ(Some<ConstRef<int>>(x), Option(Some(909'909)));
+  EXPECT_EQ(Some<ConstRef<int>>(y), Option(Some(909'909)));
+  EXPECT_NE(Some<ConstRef<int>>(x), Option(Some(101'101)));
+  EXPECT_NE(Some<ConstRef<int>>(y), Option(Some(101'101)));
 }
 
 TEST(OptionTest, Contains) {
