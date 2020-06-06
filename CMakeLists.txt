@@ -324,28 +324,49 @@ if(STX_BUILD_TESTS)
     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/stx_tests
     DEPENDS stx_tests)
 
-  macro(add_sanitized_test sanitize_mode)
-    # only known to be supported on GCC and Clang
+  macro(try_add_sanitized_test sanitize_mode)
+    # only known to be supported on GCC and Clang, If otherwise drop a PR!
     if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU|Clang")
-      add_executable("stx_tests_${sanitize_mode}_sanitized" ${STX_TEST_SRCS})
-      target_compile_options(
-        "stx_tests_${sanitize_mode}_sanitized"
-        PRIVATE "-fsanitize=${sanitize_mode}" ${STX_FLAGS} ${STX_WARNING_FLAGS}
-                ${STX_TEST_WARNING_FLAGS})
-      target_compile_definitions("stx_tests_${sanitize_mode}_sanitized"
-                                 PRIVATE STX_OVERRIDE_PANIC_HANDLER)
-      target_include_directories("stx_tests_${sanitize_mode}_sanitized"
-                                 PRIVATE tests)
-      target_link_libraries("stx_tests_${sanitize_mode}_sanitized" stx
-                            gtest_main gtest "-fsanitize=${sanitize_mode}")
+      check_cxx_compiler_flag("-fsanitize=${sanitize_mode}"
+                              STX_HAS_${sanitize_mode}_SANITIZER)
+
+      if(STX_HAS_${sanitize_mode}_SANITIZER)
+
+        add_executable(stx_tests_${sanitize_mode}_sanitized ${STX_TEST_SRCS})
+        target_compile_options(
+          stx_tests_${sanitize_mode}_sanitized
+          PRIVATE "-fsanitize=${sanitize_mode}" ${STX_FLAGS}
+                  ${STX_WARNING_FLAGS} ${STX_TEST_WARNING_FLAGS})
+        target_compile_definitions(stx_tests_${sanitize_mode}_sanitized
+                                   PRIVATE STX_OVERRIDE_PANIC_HANDLER)
+        target_include_directories(stx_tests_${sanitize_mode}_sanitized
+                                   PRIVATE tests)
+        target_link_libraries(stx_tests_${sanitize_mode}_sanitized stx
+                              gtest_main gtest "-fsanitize=${sanitize_mode}")
+
+      else()
+        message(
+          WARNING
+            "[STX] Compiler does not have ${sanitize_mode} sanitizer, ${sanitize_mode}-sanitized tests will not be built"
+        )
+
+      endif()
+
+    else()
+
+      message(
+        WARNING
+          "[STX] Compiler does not have ${sanitize_mode} sanitizer, ${sanitize_mode}-sanitized tests will not be built"
+      )
+
     endif()
-  endmacro(add_sanitized_test sanitize_mode)
+  endmacro(try_add_sanitized_test sanitize_mode)
 
   if(STX_SANITIZE_TESTS)
-    add_sanitized_test(undefined)
-    add_sanitized_test(address)
-    add_sanitized_test(leak)
-    add_sanitized_test(thread)
+    try_add_sanitized_test(undefined)
+    try_add_sanitized_test(address)
+    try_add_sanitized_test(leak)
+    try_add_sanitized_test(thread)
   endif()
 
 endif()
