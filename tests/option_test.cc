@@ -113,6 +113,13 @@ TEST(OptionTest, ObjectConstructionTest) {
   d = Some(make_mv<0>());
 }
 
+
+TEST(OptionTest, CopyConstructionTest) {
+
+  
+}
+
+
 TEST(OptionTest, ObjectForwardingTest) {
   auto fn_a = []() -> Option<MoveOnly<0>> {
     return Some(make_mv<0>());  // NOLINT
