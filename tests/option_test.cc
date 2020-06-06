@@ -96,7 +96,7 @@ TEST(OptionTest, Misc) {
 TEST(OptionTest, ObjectConstructionTest) {
   Option<int> a = None;
   Option b = Some(89);
-  EXPECT_DEATH(move(a).unwrap(), ".*");
+  EXPECT_DEATH_IF_SUPPORTED(move(a).unwrap(), ".*");
   EXPECT_NO_THROW(move(b).unwrap());
   EXPECT_EQ(Option(Some(89)).unwrap(), 89);
 
@@ -260,11 +260,11 @@ TEST(OptionLifeTimeTest, AsRef) {
 
 TEST(OptionTest, Unwrap) {
   EXPECT_EQ(Option(Some(0)).unwrap(), 0);
-  EXPECT_DEATH(Option<int>(None).unwrap(), ".*");
+  EXPECT_DEATH_IF_SUPPORTED(Option<int>(None).unwrap(), ".*");
 
   EXPECT_EQ(Option(Some(vector{1, 2, 3, 4, 5})).unwrap(),
             (vector{1, 2, 3, 4, 5}));
-  EXPECT_DEATH(Option<vector<int>>(None).unwrap(), ".*");
+  EXPECT_DEATH_IF_SUPPORTED(Option<vector<int>>(None).unwrap(), ".*");
 }
 
 TEST(OptionLifetimeTest, Unwrap) {
@@ -275,7 +275,8 @@ TEST(OptionLifetimeTest, Unwrap) {
 TEST(OptionTest, Expect) {
   EXPECT_NO_THROW(Option(Some(0)).expect("No Value Received"));
   // how does it behave with unique_ptr?
-  EXPECT_DEATH(Option<unique_ptr<int>>(None).expect("No Value Received"), ".*");
+  EXPECT_DEATH_IF_SUPPORTED(
+      Option<unique_ptr<int>>(None).expect("No Value Received"), ".*");
 }
 
 TEST(OptionLifetimeTest, Expect) {
@@ -650,19 +651,20 @@ TEST(OptionTest, OrElse) {
 }
 
 TEST(OptionTest, ExpectNone) {
-  EXPECT_DEATH(Option(Some(56)).expect_none("===TEST==="), ".*");
+  EXPECT_DEATH_IF_SUPPORTED(Option(Some(56)).expect_none("===TEST==="), ".*");
   EXPECT_NO_THROW(Option<int>(None).expect_none("===TEST==="));
 
-  EXPECT_DEATH(
+  EXPECT_DEATH_IF_SUPPORTED(
       Option(Some(vector<int>{1, 2, 3, 4, 5})).expect_none("===TEST==="), ".*");
   EXPECT_NO_THROW(Option<vector<int>>(None).expect_none("===TEST==="));
 }
 
 TEST(OptionTest, UnwrapNone) {
-  EXPECT_DEATH(Option(Some(56)).unwrap_none(), ".*");
+  EXPECT_DEATH_IF_SUPPORTED(Option(Some(56)).unwrap_none(), ".*");
   EXPECT_NO_THROW(Option<int>(None).unwrap_none());
 
-  EXPECT_DEATH(Option(Some(vector<int>{1, 2, 3, 4, 5})).unwrap_none(), ".*");
+  EXPECT_DEATH_IF_SUPPORTED(
+      Option(Some(vector<int>{1, 2, 3, 4, 5})).unwrap_none(), ".*");
   EXPECT_NO_THROW(Option<vector<int>>(None).unwrap_none());
 }
 

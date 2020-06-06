@@ -64,8 +64,6 @@
 //! #include <string>
 //! #include <string_view>
 //!
-//! #include <fmt/format.h>
-//!
 //!
 //! using std::move, std::string, std::string_view;
 //! using namespace std::literals; // makes '"Hello"s' give std::string
@@ -85,7 +83,7 @@ class [[nodiscard]] NoneType {
  public:
   constexpr NoneType() noexcept = default;
   constexpr NoneType(NoneType const&) noexcept = default;
-  constexpr NoneType(NoneType &&) noexcept = default;
+  constexpr NoneType(NoneType&&) noexcept = default;
   constexpr NoneType& operator=(NoneType const&) noexcept = default;
   constexpr NoneType& operator=(NoneType&&) noexcept = default;
 
@@ -146,9 +144,9 @@ struct [[nodiscard]] Some {
   using value_type = T;
 
   /// a `Some<T>` can only be constructed with an r-value of type `T`
-  explicit constexpr Some(T && value) : value_(std::forward<T&&>(value)) {}
+  explicit constexpr Some(T&& value) : value_(std::forward<T&&>(value)) {}
 
-  constexpr Some(Some && rhs) = default;
+  constexpr Some(Some&& rhs) = default;
   constexpr Some& operator=(Some&& rhs) = default;
   constexpr Some(Some const&) = default;
   constexpr Some& operator=(Some const&) = default;
@@ -158,7 +156,7 @@ struct [[nodiscard]] Some {
   [[nodiscard]] constexpr T const& value() const& noexcept { return value_; }
   [[nodiscard]] constexpr T& value() & noexcept { return value_; }
   [[nodiscard]] constexpr T const value() const&& { return std::move(value_); }
-  [[nodiscard]] constexpr T value()&& { return std::move(value_); }
+  [[nodiscard]] constexpr T value() && { return std::move(value_); }
 
   [[nodiscard]] constexpr bool operator==(Some const& cmp) const {
     static_assert(equality_comparable<T>);
@@ -247,9 +245,9 @@ struct [[nodiscard]] Ok {
   using value_type = T;
 
   /// an `Ok<T>` can only be constructed with an r-value of type `T`
-  explicit constexpr Ok(T && value) : value_(std::forward<T&&>(value)) {}
+  explicit constexpr Ok(T&& value) : value_(std::forward<T&&>(value)) {}
 
-  constexpr Ok(Ok && rhs) = default;
+  constexpr Ok(Ok&& rhs) = default;
   constexpr Ok& operator=(Ok&& rhs) = default;
   constexpr Ok(Ok const&) = default;
   constexpr Ok& operator=(Ok const&) = default;
@@ -319,7 +317,7 @@ struct [[nodiscard]] Ok {
   [[nodiscard]] constexpr T const& value() const& noexcept { return value_; }
   [[nodiscard]] constexpr T& value() & noexcept { return value_; }
   [[nodiscard]] constexpr T const value() const&& { return std::move(value_); }
-  [[nodiscard]] constexpr T value()&& { return std::move(value_); }
+  [[nodiscard]] constexpr T value() && { return std::move(value_); }
 
  private:
   T value_;
@@ -347,9 +345,9 @@ struct [[nodiscard]] Err {
   using value_type = E;
 
   /// an `Err<E>` can only be constructed with an r-value of type `E`
-  explicit constexpr Err(E && value) : value_(std::forward<E&&>(value)) {}
+  explicit constexpr Err(E&& value) : value_(std::forward<E&&>(value)) {}
 
-  constexpr Err(Err && rhs) = default;
+  constexpr Err(Err&& rhs) = default;
   constexpr Err& operator=(Err&& rhs) = default;
   constexpr Err(Err const&) = default;
   constexpr Err& operator=(Err const&) = default;
@@ -419,7 +417,7 @@ struct [[nodiscard]] Err {
   [[nodiscard]] constexpr E const& value() const& noexcept { return value_; }
   [[nodiscard]] constexpr E& value() & noexcept { return value_; }
   [[nodiscard]] constexpr E const value() const&& { return std::move(value_); }
-  [[nodiscard]] constexpr E value()&& { return std::move(value_); }
+  [[nodiscard]] constexpr E value() && { return std::move(value_); }
 
  private:
   E value_;
@@ -464,8 +462,8 @@ class [[nodiscard]] Result;
 //!
 //! // The return value of the function is an option
 //! auto result = divide(2.0, 3.0);
-//! move(result).match([](double value) { fmt::print("{}\n", value); },
-//!                     []() { fmt::print("has no value"); });
+//! move(result).match([](double value) { std::cout << value << std::endl; },
+//!                    []() { std::cout << "has no value"; });
 //! ```
 //!
 //!
@@ -487,7 +485,7 @@ class [[nodiscard]] Option {
 
   constexpr Option() noexcept : is_none_(true) {}
 
-  constexpr Option(Some<T> && some)
+  constexpr Option(Some<T>&& some)
       : storage_value_(std::move(some.value_)), is_none_(false) {}
 
   constexpr Option(Some<T> const& some)
@@ -500,7 +498,7 @@ class [[nodiscard]] Option {
   // constexpr?
   // placement-new!
   // we can't make this constexpr as of C++ 20
-  Option(Option && rhs) : is_none_(rhs.is_none_) {
+  Option(Option&& rhs) : is_none_(rhs.is_none_) {
     if (rhs.is_some()) {
       new (&storage_value_) T(std::move(rhs.storage_value_));
     }
@@ -747,7 +745,7 @@ class [[nodiscard]] Option {
   ///
   /// ```
   template <typename UnaryPredicate>
-  [[nodiscard]] constexpr bool exists(UnaryPredicate && predicate) const {
+  [[nodiscard]] constexpr bool exists(UnaryPredicate&& predicate) const {
     static_assert(invocable<UnaryPredicate&&, T const&>);
     static_assert(convertible<invoke_result<UnaryPredicate&&, T const&>, bool>);
 
@@ -804,7 +802,7 @@ class [[nodiscard]] Option {
   }
 
   /// Use `unwrap()` instead
-  [[deprecated("Use `unwrap()` instead")]] T value()&& = delete;
+  [[deprecated("Use `unwrap()` instead")]] T value() && = delete;
   /// Use `unwrap()` instead
   [[deprecated("Use `unwrap()` instead")]] T const value() const&& = delete;
 
@@ -814,7 +812,8 @@ class [[nodiscard]] Option {
   /// # NOTE
   /// `ConstRef<T>` is an alias for `std::reference_wrapper<T const>` and
   /// guides against reference-collapsing
-  [[nodiscard]] constexpr auto as_cref() const & noexcept->Option<ConstRef<T>> {
+  [[nodiscard]] constexpr auto as_cref() const& noexcept
+      -> Option<ConstRef<T>> {
     if (is_some()) {
       return Some<ConstRef<T>>(ConstRef<T>(value_cref_()));
     } else {
@@ -825,9 +824,8 @@ class [[nodiscard]] Option {
   [[deprecated(
       "calling Option::as_cref() on an r-value, and therefore binding a "
       "reference to an object that is marked to be moved")]]  //
-      [[nodiscard]] constexpr auto
-      as_cref() const &&
-      noexcept->Option<ConstRef<T>> = delete;
+  [[nodiscard]] constexpr auto
+  as_cref() const&& noexcept -> Option<ConstRef<T>> = delete;
 
   /// Converts from `Option<T>` to `Option<MutRef<T>>`.
   ///
@@ -849,7 +847,7 @@ class [[nodiscard]] Option {
   /// mutate(y);
   /// ASSERT_EQ(y, None);
   /// ```
-  [[nodiscard]] constexpr auto as_ref() & noexcept->Option<MutRef<T>> {
+  [[nodiscard]] constexpr auto as_ref() & noexcept -> Option<MutRef<T>> {
     if (is_some()) {
       return Some<MutRef<T>>(MutRef<T>(value_ref_()));
     } else {
@@ -857,23 +855,21 @@ class [[nodiscard]] Option {
     }
   }
 
-  [[nodiscard]] constexpr auto as_ref() const & noexcept->Option<ConstRef<T>> {
+  [[nodiscard]] constexpr auto as_ref() const& noexcept -> Option<ConstRef<T>> {
     return as_cref();
   }
 
   [[deprecated(
       "calling Option::as_ref() on an r-value, and therefore binding a "
       "reference to an object that is marked to be moved")]]  //
-      [[nodiscard]] constexpr auto
-      as_ref() &&
-      noexcept->Option<MutRef<T>> = delete;
+  [[nodiscard]] constexpr auto
+  as_ref() && noexcept -> Option<MutRef<T>> = delete;
 
   [[deprecated(
       "calling Option::as_ref() on an r-value, and therefore binding a "
       "reference to an object that is marked to be moved")]]  //
-      [[nodiscard]] constexpr auto
-      as_ref() const &&
-      noexcept->Option<ConstRef<T>> = delete;
+  [[nodiscard]] constexpr auto
+  as_ref() const&& noexcept -> Option<ConstRef<T>> = delete;
 
   /// Unwraps an option, yielding the content of a `Some`.
   ///
@@ -896,7 +892,7 @@ class [[nodiscard]] Option {
   ///                                                          // the world is
   ///                                                          // ending
   /// ```
-  [[nodiscard]] auto expect(std::string_view msg)&&->T {
+  [[nodiscard]] auto expect(std::string_view msg) && -> T {
     if (is_some()) {
       return std::move(value_ref_());
     } else {
@@ -926,7 +922,7 @@ class [[nodiscard]] Option {
   /// Option<string> y = None;
   /// ASSERT_DEATH(move(y).unwrap());
   /// ```
-  [[nodiscard]] auto unwrap()&&->T {
+  [[nodiscard]] auto unwrap() && -> T {
     if (is_some()) {
       return std::move(value_ref_());
     } else {
@@ -949,7 +945,7 @@ class [[nodiscard]] Option {
   /// ASSERT_EQ(Option(Some("car"s)).unwrap_or("bike"), "car");
   /// ASSERT_EQ(make_none<string>().unwrap_or("bike"), "bike");
   /// ```
-  [[nodiscard]] constexpr auto unwrap_or(T && alt)&&->T {
+  [[nodiscard]] constexpr auto unwrap_or(T&& alt) && -> T {
     if (is_some()) {
       return std::move(value_ref_());
     } else {
@@ -971,7 +967,7 @@ class [[nodiscard]] Option {
   /// ASSERT_EQ(make_none<int>().unwrap_or_else(alt), 20);
   /// ```
   template <typename Fn>
-  [[nodiscard]] constexpr auto unwrap_or_else(Fn && op)&&->T {
+  [[nodiscard]] constexpr auto unwrap_or_else(Fn&& op) && -> T {
     static_assert(invocable<Fn&&>);
     if (is_some()) {
       return std::move(value_ref_());
@@ -1003,8 +999,8 @@ class [[nodiscard]] Option {
   /// ASSERT_EQ(maybe_len, Some<size_t>(13));
   /// ```
   template <typename Fn>
-  [[nodiscard]] constexpr auto map(Fn &&
-                                   op)&&->Option<invoke_result<Fn&&, T&&>> {
+  [[nodiscard]] constexpr auto map(
+      Fn&& op) && -> Option<invoke_result<Fn&&, T&&>> {
     static_assert(invocable<Fn&&, T&&>);
     if (is_some()) {
       return Some<invoke_result<Fn&&, T&&>>(
@@ -1030,8 +1026,8 @@ class [[nodiscard]] Option {
   /// ASSERT_EQ(move(y).map_or(alt_fn, 42UL), 42UL);
   /// ```
   template <typename Fn, typename A>
-  [[nodiscard]] constexpr auto map_or(Fn && op,
-                                      A && alt)&&->invoke_result<Fn&&, T&&> {
+  [[nodiscard]] constexpr auto map_or(Fn&& op,
+                                      A&& alt) && -> invoke_result<Fn&&, T&&> {
     static_assert(invocable<Fn&&, T&&>);
     if (is_some()) {
       return std::forward<Fn&&>(op)(std::move(value_ref_()));
@@ -1060,7 +1056,7 @@ class [[nodiscard]] Option {
   /// ```
   template <typename Fn, typename AltFn>
   [[nodiscard]] constexpr auto map_or_else(
-      Fn && op, AltFn && alt)&&->invoke_result<Fn&&, T&&> {
+      Fn&& op, AltFn&& alt) && -> invoke_result<Fn&&, T&&> {
     static_assert(invocable<Fn&&, T&&>);
     static_assert(invocable<AltFn&&>);
 
@@ -1091,7 +1087,7 @@ class [[nodiscard]] Option {
   /// ```
   // copies the argument if not an r-value
   template <typename E>
-  [[nodiscard]] constexpr auto ok_or(E error)&&->Result<T, E> {
+  [[nodiscard]] constexpr auto ok_or(E error) && -> Result<T, E> {
     if (is_some()) {
       return Ok<T>(std::move(value_ref_()));
     } else {
@@ -1119,7 +1115,7 @@ class [[nodiscard]] Option {
   // can return reference but the user will get the error
   template <typename Fn>
   [[nodiscard]] constexpr auto ok_or_else(
-      Fn && op)&&->Result<T, invoke_result<Fn&&>> {
+      Fn&& op) && -> Result<T, invoke_result<Fn&&>> {
     static_assert(invocable<Fn&&>);
     if (is_some()) {
       return Ok<T>(std::move(value_ref_()));
@@ -1155,7 +1151,7 @@ class [[nodiscard]] Option {
   // if an rvalue, will pass. We are not forwarding refences here.
   // a requirement here is for it to be constructible with a None
   template <typename U>  //
-  [[nodiscard]] constexpr auto AND(Option<U> && cmp)&&->Option<U> {
+  [[nodiscard]] constexpr auto AND(Option<U>&& cmp) && -> Option<U> {
     if (is_some()) {
       return std::forward<Option<U>&&>(cmp);
     } else {
@@ -1182,7 +1178,8 @@ class [[nodiscard]] Option {
   /// ASSERT_EQ(make_none<int>().and_then(sq).and_then(sq), None);
   /// ```
   template <typename Fn>
-  [[nodiscard]] constexpr auto and_then(Fn && op)&&->invoke_result<Fn&&, T&&> {
+  [[nodiscard]] constexpr auto and_then(
+      Fn&& op) && -> invoke_result<Fn&&, T&&> {
     static_assert(invocable<Fn&&, T&&>);
     if (is_some()) {
       return std::forward<Fn&&>(op)(std::move(value_ref_()));
@@ -1211,7 +1208,7 @@ class [[nodiscard]] Option {
   /// ASSERT_EQ(make_some(4).filter(is_even), Some(4));
   /// ```
   template <typename UnaryPredicate>
-  [[nodiscard]] constexpr auto filter(UnaryPredicate && predicate)&&->Option {
+  [[nodiscard]] constexpr auto filter(UnaryPredicate&& predicate) && -> Option {
     static_assert(invocable<UnaryPredicate&&, T const&>);
     static_assert(convertible<invoke_result<UnaryPredicate&&, T const&>, bool>);
 
@@ -1242,8 +1239,8 @@ class [[nodiscard]] Option {
   /// ASSERT_EQ(make_some(4).filter_not(is_even), None);
   /// ```
   template <typename UnaryPredicate>
-  [[nodiscard]] constexpr auto filter_not(UnaryPredicate &&
-                                          predicate)&&->Option {
+  [[nodiscard]] constexpr auto filter_not(
+      UnaryPredicate&& predicate) && -> Option {
     static_assert(invocable<UnaryPredicate&&, T const&>);
     static_assert(convertible<invoke_result<UnaryPredicate&&, T const&>, bool>);
 
@@ -1283,7 +1280,7 @@ class [[nodiscard]] Option {
   /// Option<int> h = None;
   /// ASSERT_EQ(move(g).OR(move(h)), None);
   /// ```
-  [[nodiscard]] constexpr auto OR(Option && alt)&&->Option {
+  [[nodiscard]] constexpr auto OR(Option&& alt) && -> Option {
     if (is_some()) {
       return std::move(*this);
     } else {
@@ -1308,7 +1305,7 @@ class [[nodiscard]] Option {
   /// ASSERT_EQ(make_none<string>().or_else(nobody), None);
   /// ```
   template <typename Fn>
-  [[nodiscard]] constexpr auto or_else(Fn && op)&&->Option {
+  [[nodiscard]] constexpr auto or_else(Fn&& op) && -> Option {
     static_assert(invocable<Fn&&>);
     if (is_some()) {
       return std::move(*this);
@@ -1342,7 +1339,7 @@ class [[nodiscard]] Option {
   /// Option<int> h = None;
   /// ASSERT_EQ(move(g).XOR(move(h)), None);
   /// ```
-  [[nodiscard]] constexpr auto XOR(Option && alt)&&->Option {
+  [[nodiscard]] constexpr auto XOR(Option&& alt) && -> Option {
     if (is_some() && alt.is_none()) {
       return std::move(*this);
     } else if (is_none() && alt.is_some()) {
@@ -1370,7 +1367,7 @@ class [[nodiscard]] Option {
   /// ASSERT_EQ(c, None);
   /// ASSERT_EQ(d, None);
   /// ```
-  [[nodiscard]] constexpr auto take()->Option {
+  [[nodiscard]] constexpr auto take() -> Option {
     if (is_some()) {
       auto some = Some<T>(std::move(value_ref_()));
       value_ref_().~T();
@@ -1401,7 +1398,7 @@ class [[nodiscard]] Option {
   /// ASSERT_EQ(y, Some(3));
   /// ASSERT_EQ(old_y, None);
   /// ```
-  [[nodiscard]] auto replace(T && replacement)->Option {
+  [[nodiscard]] auto replace(T&& replacement) -> Option {
     if (is_some()) {
       std::swap(replacement, value_ref_());
       return Some<T>(std::move(replacement));
@@ -1432,7 +1429,7 @@ class [[nodiscard]] Option {
   /// ASSERT_EQ(y, Some(3));
   /// ASSERT_EQ(old_y, None);
   /// ```
-  [[nodiscard]] auto replace(T const& replacement)->Option {
+  [[nodiscard]] auto replace(T const& replacement) -> Option {
     if (is_some()) {
       T copy = replacement;
       std::swap(copy, value_ref_());
@@ -1455,7 +1452,7 @@ class [[nodiscard]] Option {
   ///
   /// ASSERT_EQ(x, x.clone());
   /// ```
-  [[nodiscard]] constexpr auto clone() const->Option {
+  [[nodiscard]] constexpr auto clone() const -> Option {
     static_assert(copy_constructible<T>);
     if (is_some()) {
       return Some<T>(T(value_cref_()));
@@ -1485,7 +1482,7 @@ class [[nodiscard]] Option {
   /// ASSERT_DEATH(divide(0.0, 1.0).unwrap_none());
   /// ASSERT_NO_THROW(divide(1.0, 0.0).unwrap_none());
   /// ```
-  void expect_none(std::string_view msg)&& {
+  void expect_none(std::string_view msg) && {
     if (is_some()) {
       internal::option::expect_none_failed(std::move(msg));
     }
@@ -1512,7 +1509,7 @@ class [[nodiscard]] Option {
   /// ASSERT_DEATH(divide(0.0, 1.0).expect_none("zero dividend"));
   /// ASSERT_NO_THROW(divide(1.0, 0.0).expect_none("zero dividend"));
   /// ```
-  void unwrap_none()&& {
+  void unwrap_none() && {
     if (is_some()) {
       internal::option::no_none();
     }
@@ -1536,7 +1533,7 @@ class [[nodiscard]] Option {
   /// ASSERT_EQ(move(x).unwrap_or_default(), "Ten"s);
   /// ASSERT_EQ(move(y).unwrap_or_default(), ""s);
   /// ```
-  [[nodiscard]] constexpr auto unwrap_or_default()&&->T {
+  [[nodiscard]] constexpr auto unwrap_or_default() && -> T {
     static_assert(std::is_default_constructible_v<T>);
     if (is_some()) {
       return std::move(value_ref_());
@@ -1568,7 +1565,7 @@ class [[nodiscard]] Option {
   /// ```
   template <typename SomeFn, typename NoneFn>
   [[nodiscard]] constexpr auto match(
-      SomeFn && some_fn, NoneFn && none_fn)&&->invoke_result<SomeFn&&, T&&> {
+      SomeFn&& some_fn, NoneFn&& none_fn) && -> invoke_result<SomeFn&&, T&&> {
     static_assert(invocable<SomeFn&&, T&&>);
     static_assert(invocable<NoneFn&&>);
 
@@ -1622,10 +1619,13 @@ class [[nodiscard]] Option {
 //!  };
 //!
 //! parse_version({1u, 2u, 3u, 4u, 5u})
-//!     .match(
-//!         [](auto value) { fmt::print("Working with version: {}\n", value);
-//!         },
-//!         [](auto err) { fmt::print("Error parsing header: {}\n", err); });
+//!      .match(
+//!          [](auto value) {
+//!            std::cout << "Working with version: " << value << "\n";
+//!          },
+//!          [](auto err) {
+//!            std::cout << "Error parsing header: " << err << "\n";
+//!          });
 //! ```
 //!
 //!
@@ -1673,17 +1673,17 @@ class [[nodiscard]] Result {
   using value_type = T;
   using error_type = E;
 
-  constexpr Result(Ok<T> && result)
+  constexpr Result(Ok<T>&& result)
       : is_ok_(true), storage_value_(std::forward<T>(result.value_)) {}
 
-  constexpr Result(Err<E> && err)
+  constexpr Result(Err<E>&& err)
       : is_ok_(false), storage_err_(std::forward<E>(err.value_)) {}
 
   // not possible as constexpr yet:
   // 1 - we need to check which variant is present
   // 2 - the union will be default-constructed (empty) and we thus need to call
   // placement-new in the constructor block
-  Result(Result && rhs) : is_ok_(rhs.is_ok_) {
+  Result(Result&& rhs) : is_ok_(rhs.is_ok_) {
     // not correct
     if (rhs.is_ok()) {
       new (&storage_value_) T(std::move(rhs.storage_value_));
@@ -1706,7 +1706,7 @@ class [[nodiscard]] Result {
       is_ok_ = true;
     } else {
       // both are errs
-      std::swap(err_ref_(), rhs.err_ref_());
+      std::swap(err_ref_(), rhs.err_ref_()); // NOLINT
     }
     return *this;
   }
@@ -2031,7 +2031,7 @@ class [[nodiscard]] Result {
   ///
   /// ```
   template <typename UnaryPredicate>
-  [[nodiscard]] constexpr bool exists(UnaryPredicate && predicate) const {
+  [[nodiscard]] constexpr bool exists(UnaryPredicate&& predicate) const {
     static_assert(invocable<UnaryPredicate&&, T const&>);
     static_assert(convertible<invoke_result<UnaryPredicate&&, T const&>, bool>);
 
@@ -2057,7 +2057,7 @@ class [[nodiscard]] Result {
   ///
   /// ```
   template <typename UnaryPredicate>
-  [[nodiscard]] constexpr bool err_exists(UnaryPredicate && predicate) const {
+  [[nodiscard]] constexpr bool err_exists(UnaryPredicate&& predicate) const {
     static_assert(invocable<UnaryPredicate&&, E const&>);
     static_assert(convertible<invoke_result<UnaryPredicate&&, E const&>, bool>);
 
@@ -2114,7 +2114,7 @@ class [[nodiscard]] Result {
   }
 
   /// Use `unwrap()` instead
-  [[deprecated("Use `unwrap()` instead")]] T value()&& = delete;
+  [[deprecated("Use `unwrap()` instead")]] T value() && = delete;
   /// Use `unwrap()` instead
   [[deprecated("Use `unwrap()` instead")]] T const value() const&& = delete;
 
@@ -2164,7 +2164,7 @@ class [[nodiscard]] Result {
   }
 
   /// Use `unwrap_err()` instead
-  [[deprecated("Use `unwrap_err()` instead")]] E err_value()&& = delete;
+  [[deprecated("Use `unwrap_err()` instead")]] E err_value() && = delete;
   /// Use `unwrap_err()` instead
   [[deprecated("Use `unwrap_err()` instead")]] E const err_value() const&& =
       delete;
@@ -2185,7 +2185,7 @@ class [[nodiscard]] Result {
   /// Result<int, string> y = Err("Nothing here"s);
   /// ASSERT_EQ(move(y).ok(), None);
   /// ```
-  [[nodiscard]] constexpr auto ok()&&->Option<T> {
+  [[nodiscard]] constexpr auto ok() && -> Option<T> {
     if (is_ok()) {
       return Some<T>(std::move(value_ref_()));
     } else {
@@ -2209,7 +2209,7 @@ class [[nodiscard]] Result {
   /// Result<int, string> y = Err("Nothing here"s);
   /// ASSERT_EQ(move(y).err(), Some("Nothing here"s));
   /// ```
-  [[nodiscard]] constexpr auto err()&&->Option<E> {
+  [[nodiscard]] constexpr auto err() && -> Option<E> {
     if (is_ok()) {
       return None;
     } else {
@@ -2233,8 +2233,8 @@ class [[nodiscard]] Result {
   /// Result<int, string> y = Err("Error"s);
   /// ASSERT_EQ(y.as_cref().unwrap_err().get(), "Error"s);
   /// ```
-  [[nodiscard]] constexpr auto as_cref() const &
-      noexcept->Result<ConstRef<T>, ConstRef<E>> {
+  [[nodiscard]] constexpr auto as_cref() const& noexcept
+      -> Result<ConstRef<T>, ConstRef<E>> {
     if (is_ok()) {
       return Ok<ConstRef<T>>(ConstRef<T>(value_cref_()));
     } else {
@@ -2246,9 +2246,8 @@ class [[nodiscard]] Result {
       "calling Result::as_cref() on an r-value, and "
       "therefore binding an l-value reference to an object that is marked to "
       "be moved")]]  //
-      [[nodiscard]] constexpr auto
-      as_cref() const &&
-      noexcept->Result<ConstRef<T>, ConstRef<E>> = delete;
+  [[nodiscard]] constexpr auto
+  as_cref() const&& noexcept -> Result<ConstRef<T>, ConstRef<E>> = delete;
 
   /// Converts from `Result<T, E> &` to `Result<MutRef<T>, MutRef<E>>`.
   ///
@@ -2270,8 +2269,8 @@ class [[nodiscard]] Result {
   /// mutate(y);
   /// ASSERT_EQ(y, Err(0));
   /// ```
-  [[nodiscard]] constexpr auto as_ref() &
-      noexcept->Result<MutRef<T>, MutRef<E>> {
+  [[nodiscard]] constexpr auto as_ref() & noexcept
+      -> Result<MutRef<T>, MutRef<E>> {
     if (is_ok()) {
       return Ok<MutRef<T>>(MutRef<T>(value_ref_()));
     } else {
@@ -2279,24 +2278,22 @@ class [[nodiscard]] Result {
     }
   }
 
-  [[nodiscard]] constexpr auto as_ref() const &
-      noexcept->Result<ConstRef<T>, ConstRef<E>> {
+  [[nodiscard]] constexpr auto as_ref() const& noexcept
+      -> Result<ConstRef<T>, ConstRef<E>> {
     return as_cref();
   }
 
   [[deprecated(
       "calling Result::as_ref() on an r-value, and therefore binding a "
       "reference to an object that is marked to be moved")]]  //
-      [[nodiscard]] constexpr auto
-      as_ref() &&
-      noexcept->Result<MutRef<T>, MutRef<E>> = delete;
+  [[nodiscard]] constexpr auto
+  as_ref() && noexcept -> Result<MutRef<T>, MutRef<E>> = delete;
 
   [[deprecated(
       "calling Result::as_ref() on an r-value, and therefore binding a "
       "reference to an object that is marked to be moved")]]  //
-      [[nodiscard]] constexpr auto
-      as_ref() const &&
-      noexcept->Result<ConstRef<T>, ConstRef<E>> = delete;
+  [[nodiscard]] constexpr auto
+  as_ref() const&& noexcept -> Result<ConstRef<T>, ConstRef<E>> = delete;
 
   /// Maps a `Result<T, E>` to `Result<U, E>` by applying the function `op` to
   /// the contained `Ok<T>` value, leaving an `Err<E>` value untouched.
@@ -2324,8 +2321,8 @@ class [[nodiscard]] Result {
   /// ASSERT_EQ(content_type, Ok("multipart/form-data"sv));
   /// ```
   template <typename Fn>
-  [[nodiscard]] constexpr auto map(Fn &&
-                                   op)&&->Result<invoke_result<Fn&&, T&&>, E> {
+  [[nodiscard]] constexpr auto map(
+      Fn&& op) && -> Result<invoke_result<Fn&&, T&&>, E> {
     static_assert(invocable<Fn&&, T&&>);
     if (is_ok()) {
       return Ok<invoke_result<Fn&&, T&&>>(
@@ -2352,7 +2349,7 @@ class [[nodiscard]] Result {
   /// ```
   template <typename Fn, typename AltType>
   [[nodiscard]] constexpr auto map_or(
-      Fn && op, AltType && alt)&&->invoke_result<Fn&&, T&&> {
+      Fn&& op, AltType&& alt) && -> invoke_result<Fn&&, T&&> {
     static_assert(invocable<Fn&&, T&&>);
     if (is_ok()) {
       return std::forward<Fn&&>(op)(std::move(value_ref_()));
@@ -2385,7 +2382,7 @@ class [[nodiscard]] Result {
   /// ```
   template <typename Fn, typename A>
   [[nodiscard]] constexpr auto map_or_else(
-      Fn && op, A && alt_op)&&->invoke_result<Fn&&, T&&> {
+      Fn&& op, A&& alt_op) && -> invoke_result<Fn&&, T&&> {
     static_assert(invocable<Fn&&, T&&>);
     static_assert(invocable<A&&, E&&>);
 
@@ -2418,7 +2415,7 @@ class [[nodiscard]] Result {
   /// ```
   template <typename Fn>
   [[nodiscard]] constexpr auto map_err(
-      Fn && op)&&->Result<T, invoke_result<Fn&&, E&&>> {
+      Fn&& op) && -> Result<T, invoke_result<Fn&&, E&&>> {
     static_assert(invocable<Fn&&, E&&>);
     if (is_ok()) {
       return Ok<T>(std::move(value_ref_()));
@@ -2454,7 +2451,7 @@ class [[nodiscard]] Result {
   /// ```
   // a copy attempt like passing a const could cause an error
   template <typename U, typename F>
-  [[nodiscard]] constexpr auto AND(Result<U, F> && res)&&->Result<U, F> {
+  [[nodiscard]] constexpr auto AND(Result<U, F>&& res) && -> Result<U, F> {
     static_assert(convertible<E, F>);
     if (is_ok()) {
       return std::forward<Result<U, F>&&>(res);
@@ -2483,7 +2480,7 @@ class [[nodiscard]] Result {
   /// ```
   template <typename Fn>
   [[nodiscard]] constexpr auto and_then(
-      Fn && op)&&->Result<invoke_result<Fn&&, T&&>, E> {
+      Fn&& op) && -> Result<invoke_result<Fn&&, T&&>, E> {
     static_assert(invocable<Fn&&, T&&>);
     if (is_ok()) {
       return Ok<invoke_result<Fn&&, T&&>>(
@@ -2523,7 +2520,7 @@ class [[nodiscard]] Result {
   /// ```
   // passing a const ref will cause an error
   template <typename U, typename F>
-  [[nodiscard]] constexpr auto OR(Result<U, F> && alt)&&->Result<U, F> {
+  [[nodiscard]] constexpr auto OR(Result<U, F>&& alt) && -> Result<U, F> {
     static_assert(convertible<T&&, U>);
     if (is_ok()) {
       return Ok<U>(static_cast<U>(std::move(value_ref_())));
@@ -2553,7 +2550,7 @@ class [[nodiscard]] Result {
   /// ASSERT_EQ(make_err(3).or_else(err).or_else(err), Err(3));
   /// ```
   template <typename Fn>
-  [[nodiscard]] constexpr auto or_else(Fn && op)&&->invoke_result<Fn&&, E&&> {
+  [[nodiscard]] constexpr auto or_else(Fn&& op) && -> invoke_result<Fn&&, E&&> {
     static_assert(invocable<Fn&&, E&&>);
     if (is_ok()) {
       return Ok<T>(std::move(value_ref_()));
@@ -2582,7 +2579,7 @@ class [[nodiscard]] Result {
   /// Result<int, string_view> y = Err("error"sv);
   /// ASSERT_EQ(move(y).unwrap_or(move(alt_b)), 2);
   /// ```
-  [[nodiscard]] constexpr auto unwrap_or(T && alt)&&->T {
+  [[nodiscard]] constexpr auto unwrap_or(T&& alt) && -> T {
     if (is_ok()) {
       return std::move(value_ref_());
     } else {
@@ -2606,7 +2603,7 @@ class [[nodiscard]] Result {
   /// 4);
   /// ```
   template <typename Fn>
-  [[nodiscard]] constexpr auto unwrap_or_else(Fn && op)&&->T {
+  [[nodiscard]] constexpr auto unwrap_or_else(Fn&& op) && -> T {
     static_assert(invocable<Fn&&, E&&>);
     if (is_ok()) {
       return std::move(value_ref_());
@@ -2631,7 +2628,7 @@ class [[nodiscard]] Result {
   /// Result<int, string_view> x = Err("emergency failure"sv);
   /// ASSERT_DEATH(move(x).unwrap());
   /// ```
-  [[nodiscard]] auto unwrap()&&->T {
+  [[nodiscard]] auto unwrap() && -> T {
     if (is_err()) {
       internal::result::no_value(err_cref_());
     }
@@ -2653,7 +2650,7 @@ class [[nodiscard]] Result {
   /// Result<int, string_view> x = Err("emergency failure"sv);
   /// ASSERT_DEATH(move(x).expect("Testing expect"));
   /// ```
-  [[nodiscard]] auto expect(std::string_view msg)&&->T {
+  [[nodiscard]] auto expect(std::string_view msg) && -> T {
     if (is_err()) {
       internal::result::expect_value_failed(std::move(msg), err_cref_());
     }
@@ -2679,7 +2676,7 @@ class [[nodiscard]] Result {
   /// Result<int, string_view> y = Err("emergency failure"sv);
   /// ASSERT_EQ(move(y).unwrap_err(), "emergency failure");
   /// ```
-  [[nodiscard]] auto unwrap_err()&&->E {
+  [[nodiscard]] auto unwrap_err() && -> E {
     if (is_ok()) {
       internal::result::no_err();
     }
@@ -2704,7 +2701,7 @@ class [[nodiscard]] Result {
   ///                                                             // expect_err:
   ///                                                             // 10"
   /// ```
-  [[nodiscard]] auto expect_err(std::string_view msg)&&->E {
+  [[nodiscard]] auto expect_err(std::string_view msg) && -> E {
     if (is_ok()) {
       internal::result::expect_err_failed(std::move(msg));
     }
@@ -2731,7 +2728,7 @@ class [[nodiscard]] Result {
   ///                                                     // value
   ///                                                     // for a C++ string
   /// ```
-  [[nodiscard]] constexpr auto unwrap_or_default()&&->T {
+  [[nodiscard]] constexpr auto unwrap_or_default() && -> T {
     static_assert(std::is_default_constructible_v<T>);
     if (is_ok()) {
       return std::move(value_ref_());
@@ -2761,12 +2758,13 @@ class [[nodiscard]] Result {
   ///
   /// auto x = make_err<int, string_view>("404 Not Found"sv);
   /// // you can return nothing
-  /// move(x).match([](int) {  },
-  ///               [](string_view s) { fmt::print("Error: {}\n", s); });
+  /// move(x).match([](int) {},
+  ///               [](string_view s) { std::cout << "Error: " << s << "\n";
+  ///               });
   /// ```
   template <typename OkFn, typename ErrFn>
   [[nodiscard]] constexpr auto match(
-      OkFn && ok_fn, ErrFn && err_fn)&&->invoke_result<OkFn&&, T&&> {
+      OkFn&& ok_fn, ErrFn&& err_fn) && -> invoke_result<OkFn&&, T&&> {
     static_assert(invocable<OkFn&&, T&&>);
     static_assert(invocable<ErrFn&&, E&&>);
 
@@ -2777,7 +2775,7 @@ class [[nodiscard]] Result {
     }
   }
 
-  [[nodiscard]] constexpr auto clone() const->Result<T, E> {
+  [[nodiscard]] constexpr auto clone() const -> Result<T, E> {
     static_assert(copy_constructible<T>);
     static_assert(copy_constructible<E>);
 

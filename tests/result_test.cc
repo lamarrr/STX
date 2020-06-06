@@ -554,70 +554,75 @@ TEST(ResultTest, UnwrapOrElse) {
 
 TEST(ResultTest, Expect) {
   EXPECT_EQ((make_ok<int, int>(10).expect("===TEST ERR MSG===")), 10);
-  EXPECT_DEATH((make_err<int, int>(20).expect("===TEST ERR MSG===")), ".*");
+  EXPECT_DEATH_IF_SUPPORTED(
+      (make_err<int, int>(20).expect("===TEST ERR MSG===")), ".*");
 
   EXPECT_EQ((make_ok<vector<int>, int>(vector{1, 2, 3, 4, 5})
                  .expect("===TEST ERR MSG===")),
             (vector{1, 2, 3, 4, 5}));
-  EXPECT_DEATH((make_err<vector<int>, int>(20).expect("===TEST ERR MSG===")),
-               ".*");
+  EXPECT_DEATH_IF_SUPPORTED(
+      (make_err<vector<int>, int>(20).expect("===TEST ERR MSG===")), ".*");
 
   EXPECT_EQ((make_ok<int, vector<int>>(-1).expect("===TEST ERR MSG===")), -1);
-  EXPECT_DEATH((make_err<int, vector<int>>(vector{-1, -2, -3, -4, -5})
-                    .expect("===TEST ERR MSG===")),
-               ".*");
+  EXPECT_DEATH_IF_SUPPORTED(
+      (make_err<int, vector<int>>(vector{-1, -2, -3, -4, -5})
+           .expect("===TEST ERR MSG===")),
+      ".*");
 
   EXPECT_EQ((make_ok<vector<int>, vector<int>>(vector{1, 2, 3, 4, 5})
                  .expect("===TEST ERR MSG===")),
             (vector{1, 2, 3, 4, 5}));
 
-  EXPECT_DEATH((make_err<vector<int>, vector<int>>(vector{-1, -2, -3, -4, -5})
-                    .expect("===TEST ERR MSG===")),
-               ".*");
+  EXPECT_DEATH_IF_SUPPORTED(
+      (make_err<vector<int>, vector<int>>(vector{-1, -2, -3, -4, -5})
+           .expect("===TEST ERR MSG===")),
+      ".*");
 }
 
 TEST(ResultTest, UnwrapErr) {
   EXPECT_EQ((make_err<int, int>(20).unwrap_err()), 20);
-  EXPECT_DEATH((make_ok<int, int>(10).unwrap_err()), ".*");
+  EXPECT_DEATH_IF_SUPPORTED((make_ok<int, int>(10).unwrap_err()), ".*");
 
   EXPECT_EQ((make_err<vector<int>, int>(-40).unwrap_err()), -40);
-  EXPECT_DEATH((make_ok<vector<int>, int>(vector{10, 20, 30}).unwrap_err()),
-               ".*");
+  EXPECT_DEATH_IF_SUPPORTED(
+      (make_ok<vector<int>, int>(vector{10, 20, 30}).unwrap_err()), ".*");
 
   EXPECT_EQ((make_err<int, vector<int>>(vector{1, 2, 3, 4}).unwrap_err()),
             (vector{1, 2, 3, 4}));
-  EXPECT_DEATH((make_ok<int, vector<int>>(68).unwrap_err()), ".*");
+  EXPECT_DEATH_IF_SUPPORTED((make_ok<int, vector<int>>(68).unwrap_err()), ".*");
 
   EXPECT_EQ(
       (make_err<vector<int>, vector<int>>(vector{1, 2, 3, 4}).unwrap_err()),
       (vector{1, 2, 3, 4}));
-  EXPECT_DEATH(
+  EXPECT_DEATH_IF_SUPPORTED(
       (make_ok<vector<int>, vector<int>>(vector{1, 2, 3, 4}).unwrap_err()),
       ".*");
 }
 
 TEST(ResultTest, ExpectErr) {
   EXPECT_EQ((make_err<int, int>(20).expect_err("===TEST ERR MSG===")), 20);
-  EXPECT_DEATH((make_ok<int, int>(10).expect_err("===TEST ERR MSG===")), ".*");
+  EXPECT_DEATH_IF_SUPPORTED(
+      (make_ok<int, int>(10).expect_err("===TEST ERR MSG===")), ".*");
 
   EXPECT_EQ((make_err<vector<int>, int>(-40).expect_err("===TEST ERR MSG===")),
             -40);
-  EXPECT_DEATH((make_ok<vector<int>, int>(vector{10, 20, 30})
-                    .expect_err("===TEST ERR MSG===")),
-               ".*");
+  EXPECT_DEATH_IF_SUPPORTED((make_ok<vector<int>, int>(vector{10, 20, 30})
+                                 .expect_err("===TEST ERR MSG===")),
+                            ".*");
 
   EXPECT_EQ((make_err<int, vector<int>>(vector{1, 2, 3, 4})
                  .expect_err("===TEST ERR MSG===")),
             (vector{1, 2, 3, 4}));
-  EXPECT_DEATH((make_ok<int, vector<int>>(68).expect_err("===TEST ERR MSG===")),
-               ".*");
+  EXPECT_DEATH_IF_SUPPORTED(
+      (make_ok<int, vector<int>>(68).expect_err("===TEST ERR MSG===")), ".*");
 
   EXPECT_EQ((make_err<vector<int>, vector<int>>(vector{1, 2, 3, 4})
                  .expect_err("===TEST ERR MSG===")),
             (vector{1, 2, 3, 4}));
-  EXPECT_DEATH((make_ok<vector<int>, vector<int>>(vector{1, 2, 3, 4})
-                    .expect_err("===TEST ERR MSG===")),
-               ".*");
+  EXPECT_DEATH_IF_SUPPORTED(
+      (make_ok<vector<int>, vector<int>>(vector{1, 2, 3, 4})
+           .expect_err("===TEST ERR MSG===")),
+      ".*");
 }
 
 TEST(ResultTest, UnwapOrDefault) {

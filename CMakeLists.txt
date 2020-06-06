@@ -33,6 +33,7 @@ project(
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
 
 include(CMakeDependentOption)
+include(CheckCXXCompilerFlag)
 include(HandleFlags)
 
 # we have to inform the user of the standards version change, else it'll cause
@@ -71,12 +72,11 @@ option(STX_BUILD_DOCS "Build documentation" OFF)
 
 option(STX_BUILD_BENCHMARKS "Build benchmarks" OFF)
 
-cmake_dependent_option(STX_SANITIZE_TESTS "Build sanitized tests" ON
+cmake_dependent_option(STX_SANITIZE_TESTS "Build sanitized tests" OFF
                        "STX_BUILD_TESTS" OFF)
 
 # this feature replaces the default panic handler, by default it is set to print
-# the panic report and abort the program. The handler is re- entrant and
-# thread-safe.
+# the panic report and abort the program. The handler is thread-safe.
 option(
   STX_OVERRIDE_PANIC_HANDLER
   "Override the default panic behaviour (You can read the docs for more details)"
@@ -129,6 +129,7 @@ message(STATUS "[STX] Enable panic backtrace: " ${STX_ENABLE_PANIC_BACKTRACE})
 
 list(APPEND STX_COMPILER_DEFS)
 list(APPEND STX_FLAGS)
+list(APPEND STX_LIB_DEPENDENCIES)
 list(APPEND STX_WARNING_FLAGS)
 
 # tests make use of macros which don't use the result, especially
@@ -195,7 +196,8 @@ endif()
 
 # the atomics library doesn't automatically link on my Android phone
 if(ANDROID)
-  add_link_flags_if_supported(-latomic)
+  message(STATUS "[STX] Linking with Android's libatomic")
+  list(APPEND STX_LIB_DEPENDENCIES atomic)
 endif()
 
 # ===============================================
@@ -225,6 +227,7 @@ endif()
 target_include_directories(stx PUBLIC include)
 target_compile_options(stx PRIVATE ${STX_FLAGS} ${STX_WARNING_FLAGS})
 target_compile_definitions(stx PUBLIC ${STX_COMPILER_DEFS})
+target_link_libraries(stx PRIVATE ${STX_LIB_DEPENDENCIES})
 
 if(STX_ENABLE_BACKTRACE)
   target_link_libraries(stx absl::stacktrace absl::symbolize)
@@ -235,20 +238,6 @@ endif()
 # === Test Dependencies
 #
 # ===============================================
-
-if(STX_BUILD_TESTS OR STX_BUILD_BENCHMARKS) # benchmark also uses it
-
-  if(NOT EXISTS third_party/fmt)
-    execute_process(
-      COMMAND git submodule update --init --recursive third_party/fmt
-      WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
-  endif()
-
-  set(FMT_TEST
-      OFF
-      CACHE BOOL "Build FMT tests" FORCE)
-  add_subdirectory(third_party/fmt)
-endif()
 
 if(STX_BUILD_TESTS)
 
@@ -309,15 +298,14 @@ endif()
 # ===============================================
 
 list(
-  APPEND
-  STX_TEST_SRCS
-  tests/common_test.cc
-  tests/constexpr_test.cc
-  tests/option_test.cc
-  tests/panic_test.cc
-  tests/report_test.cc
-  tests/result_test.cc
-  tests/tests.cc)
+  APPEND STX_TEST_SRCS
+         tests/common_test.cc
+         tests/constexpr_test.cc
+         tests/option_test.cc
+         tests/panic_test.cc
+         tests/report_test.cc
+         tests/result_test.cc
+         tests/tests.cc)
 
 if(STX_ENABLE_BACKTRACE)
   list(APPEND STX_TEST_SRCS tests/backtrace_test.cc)
@@ -336,28 +324,49 @@ if(STX_BUILD_TESTS)
     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/stx_tests
     DEPENDS stx_tests)
 
-  macro(add_sanitized_test sanitize_mode)
-    # only known to be supported on GCC and Clang
+  macro(try_add_sanitized_test sanitize_mode)
+    # only known to be supported on GCC and Clang, If otherwise drop a PR!
     if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU|Clang")
-      add_executable("stx_tests_${sanitize_mode}_sanitized" ${STX_TEST_SRCS})
-      target_compile_options(
-        "stx_tests_${sanitize_mode}_sanitized"
-        PRIVATE "-fsanitize=${sanitize_mode}" ${STX_FLAGS} ${STX_WARNING_FLAGS}
-                ${STX_TEST_WARNING_FLAGS})
-      target_compile_definitions("stx_tests_${sanitize_mode}_sanitized"
-                                 PRIVATE STX_OVERRIDE_PANIC_HANDLER)
-      target_include_directories("stx_tests_${sanitize_mode}_sanitized"
-                                 PRIVATE tests)
-      target_link_libraries("stx_tests_${sanitize_mode}_sanitized" stx
-                            gtest_main gtest "-fsanitize=${sanitize_mode}")
+      check_cxx_compiler_flag("-fsanitize=${sanitize_mode}"
+                              STX_HAS_${sanitize_mode}_SANITIZER)
+
+      if(STX_HAS_${sanitize_mode}_SANITIZER)
+
+        add_executable(stx_tests_${sanitize_mode}_sanitized ${STX_TEST_SRCS})
+        target_compile_options(
+          stx_tests_${sanitize_mode}_sanitized
+          PRIVATE "-fsanitize=${sanitize_mode}" ${STX_FLAGS}
+                  ${STX_WARNING_FLAGS} ${STX_TEST_WARNING_FLAGS})
+        target_compile_definitions(stx_tests_${sanitize_mode}_sanitized
+                                   PRIVATE STX_OVERRIDE_PANIC_HANDLER)
+        target_include_directories(stx_tests_${sanitize_mode}_sanitized
+                                   PRIVATE tests)
+        target_link_libraries(stx_tests_${sanitize_mode}_sanitized stx
+                              gtest_main gtest "-fsanitize=${sanitize_mode}")
+
+      else()
+        message(
+          WARNING
+            "[STX] Compiler does not have ${sanitize_mode} sanitizer, ${sanitize_mode}-sanitized tests will not be built"
+        )
+
+      endif()
+
+    else()
+
+      message(
+        WARNING
+          "[STX] Compiler does not have ${sanitize_mode} sanitizer, ${sanitize_mode}-sanitized tests will not be built"
+      )
+
     endif()
-  endmacro(add_sanitized_test sanitize_mode)
+  endmacro(try_add_sanitized_test sanitize_mode)
 
   if(STX_SANITIZE_TESTS)
-    add_sanitized_test(undefined)
-    add_sanitized_test(address)
-    add_sanitized_test(leak)
-    add_sanitized_test(thread)
+    try_add_sanitized_test(undefined)
+    try_add_sanitized_test(address)
+    try_add_sanitized_test(leak)
+    try_add_sanitized_test(thread)
   endif()
 
 endif()
@@ -371,10 +380,10 @@ endif()
 if(STX_BUILD_BENCHMARKS)
 
   macro(add_benchmark benchmark_name file)
-    add_executable("stx_benchmark_${benchmark_name}" "benchmarks/${file}")
-    target_link_libraries("stx_benchmark_${benchmark_name}" stx benchmark
+    add_executable(stx_benchmark_${benchmark_name} "benchmarks/${file}")
+    target_link_libraries(stx_benchmark_${benchmark_name} stx benchmark
                           benchmark_main)
-    target_compile_options("stx_benchmark_${benchmark_name}"
+    target_compile_options(stx_benchmark_${benchmark_name}
                            PRIVATE ${STX_FLAGS} ${STX_WARNING_FLAGS})
   endmacro(add_benchmark benchmark_name)
 
