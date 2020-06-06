@@ -46,10 +46,10 @@ constexpr size_t kMaxReportSize = 512;
 constexpr size_t kMaxReportSize = STX_MAX_REPORT_SIZE;
 #endif
 
-constexpr std::string_view kReportTruncationMessage =
+constexpr char const kReportTruncationMessage[] =
     "... (error report truncated)";
 
-static_assert(kMaxReportSize > sizeof(kReportTruncationMessage),
+static_assert(kMaxReportSize > (sizeof(kReportTruncationMessage) - 1),
               "STX_MAX_REPORT_SIZE must contain truncation message");
 
 /// Tag for dispatching reports from types
@@ -70,8 +70,9 @@ class [[nodiscard]] Report {
     size_t str_size = info.size();
     bool should_truncate = str_size > kMaxReportSize;
     size_t str_clip_size =
-        should_truncate ? (kMaxReportSize - kReportTruncationMessage.size())
-                        : str_size;
+        should_truncate
+            ? (kMaxReportSize - (sizeof(kReportTruncationMessage) - 1))
+            : str_size;
 
     size_t i = 0;
     for (; i < str_clip_size; i++) {
