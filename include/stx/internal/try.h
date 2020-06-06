@@ -36,33 +36,63 @@
 
 #pragma once
 
-#define TRY_OK(identifier, result_expr)                                        \
-  decltype(result_expr) stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh = (result_expr); \
-  if (stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh.is_err())                          \
-    return Err<decltype(result_expr)::error_type>(                             \
-        std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap_err());        \
-  decltype(result_expr)::value_type identifier =                               \
+// Do remember that Result's value type can not be a reference
+
+#define TRY_OK(identifier, result_expr)                                 \
+  static_assert(                                                        \
+      !std::is_lvalue_reference_v<decltype((result_expr))>,             \
+      "'TRY_OK' is for value forwarding of r-values or temporaries, "   \
+      "consider explicitly calling 'std::move' if the l-value "         \
+      "(reference) is no longer needed");                               \
+  decltype((result_expr)) stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh =       \
+      (result_expr);                                                    \
+  if (stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh.is_err())                   \
+    return Err<decltype((result_expr))::error_type>(                    \
+        std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap_err()); \
+  decltype((result_expr))::value_type identifier =                      \
       std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap();
 
-#define TRY_SOME(identifier, option_expr)                                      \
-  decltype(option_expr) stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh = (option_expr); \
-  if (stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh.is_none()) return stx::None;       \
-  decltype(option_expr)::value_type identifier =                               \
+#define TRY_SOME(identifier, option_expr)                                  \
+  static_assert(                                                           \
+      !std::is_lvalue_reference_v<decltype((option_expr))>,                \
+      "'CO_TRY_SOME' is for value forwarding of r-values or temporaries, " \
+      "consider explicitly calling 'std::move' if the l-value "            \
+      "(reference) is no longer needed");                                  \
+  decltype((option_expr)) stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh =          \
+      (option_expr);                                                       \
+  if (stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh.is_none()) return stx::None;   \
+  decltype((option_expr))::value_type identifier =                         \
       std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap();
 
 // Coroutines
 // not tested yet
 
-#define CO_TRY_OK(identifier, result_expr)                                     \
-  decltype(result_expr) stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh = (result_expr); \
-  if (stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh.is_err())                          \
-    co_return Err<decltype(result_expr)::error_type>(                          \
-        std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap_err());        \
-  decltype(result_expr)::value_type identifier =                               \
+#if defined(__cpp_coroutines) || defined(__cpp_lib_coroutine)
+
+#define CO_TRY_OK(identifier, result_expr)                               \
+  static_assert(                                                         \
+      !std::is_lvalue_reference_v<decltype((result_expr))>,              \
+      "'CO_TRY_OK' is for value forwarding of r-values or temporaries, " \
+      "consider explicitly calling 'std::move' if the l-value "          \
+      "(reference) is no longer needed");                                \
+  decltype((result_expr)) stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh =        \
+      (result_expr);                                                     \
+  if (stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh.is_err())                    \
+    co_return Err<decltype((result_expr))::error_type>(                  \
+        std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap_err());  \
+  decltype((result_expr))::value_type identifier =                       \
       std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap();
 
-#define CO_TRY_SOME(identifier, option_expr)                                   \
-  decltype(option_expr) stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh = (option_expr); \
-  if (stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh.is_none()) co_return stx::None;    \
-  decltype(option_expr)::value_type identifier =                               \
+#define CO_TRY_SOME(identifier, option_expr)                                \
+  static_assert(                                                            \
+      !std::is_lvalue_reference_v<decltype((option_expr))>,                 \
+      "'CO_TRY_SOME' is for value forwarding of r-values or temporaries, "  \
+      "consider explicitly calling 'std::move' if the l-value "             \
+      "(reference) is no longer needed");                                   \
+  decltype((option_expr)) stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh =           \
+      (option_expr);                                                        \
+  if (stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh.is_none()) co_return stx::None; \
+  decltype((option_expr))::value_type identifier =                          \
       std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap();
+
+#endif
