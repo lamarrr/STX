@@ -1565,12 +1565,38 @@ class [[nodiscard]] Option {
   /// ```
   template <typename SomeFn, typename NoneFn>
   [[nodiscard]] constexpr auto match(
-      SomeFn&& some_fn, NoneFn&& none_fn) && -> invoke_result<SomeFn&&, T&&> {
+      SomeFn && some_fn, NoneFn && none_fn)&&->invoke_result<SomeFn&&, T&&> {
     static_assert(invocable<SomeFn&&, T&&>);
     static_assert(invocable<NoneFn&&>);
 
     if (is_some()) {
       return std::forward<SomeFn&&>(some_fn)(std::move(value_ref_()));
+    } else {
+      return std::forward<NoneFn&&>(none_fn)();
+    }
+  }
+
+  template <typename SomeFn, typename NoneFn>
+  [[nodiscard]] constexpr auto match(
+      SomeFn && some_fn, NoneFn && none_fn)&->invoke_result<SomeFn&&, T&> {
+    static_assert(invocable<SomeFn&&, T&>);
+    static_assert(invocable<NoneFn&&>);
+
+    if (is_some()) {
+      return std::forward<SomeFn&&>(some_fn)(value_ref_());
+    } else {
+      return std::forward<NoneFn&&>(none_fn)();
+    }
+  }
+
+  template <typename SomeFn, typename NoneFn>
+  [[nodiscard]] constexpr auto match(SomeFn && some_fn, NoneFn && none_fn)
+      const&->invoke_result<SomeFn&&, T const&> {
+    static_assert(invocable<SomeFn&&, T const&>);
+    static_assert(invocable<NoneFn&&>);
+
+    if (is_some()) {
+      return std::forward<SomeFn&&>(some_fn)(value_cref_());
     } else {
       return std::forward<NoneFn&&>(none_fn)();
     }
@@ -2764,7 +2790,7 @@ class [[nodiscard]] Result {
   /// ```
   template <typename OkFn, typename ErrFn>
   [[nodiscard]] constexpr auto match(
-      OkFn&& ok_fn, ErrFn&& err_fn) && -> invoke_result<OkFn&&, T&&> {
+      OkFn && ok_fn, ErrFn && err_fn)&&->invoke_result<OkFn&&, T&&> {
     static_assert(invocable<OkFn&&, T&&>);
     static_assert(invocable<ErrFn&&, E&&>);
 
@@ -2775,7 +2801,33 @@ class [[nodiscard]] Result {
     }
   }
 
-  [[nodiscard]] constexpr auto clone() const -> Result<T, E> {
+  template <typename OkFn, typename ErrFn>
+  [[nodiscard]] constexpr auto match(
+      OkFn && ok_fn, ErrFn && err_fn)&->invoke_result<OkFn&&, T&> {
+    static_assert(invocable<OkFn&&, T&>);
+    static_assert(invocable<ErrFn&&, E&>);
+
+    if (is_ok()) {
+      return std::forward<OkFn&&>(ok_fn)(value_ref_());
+    } else {
+      return std::forward<ErrFn&&>(err_fn)(err_ref_());
+    }
+  }
+
+  template <typename OkFn, typename ErrFn>
+  [[nodiscard]] constexpr auto match(OkFn && ok_fn, ErrFn && err_fn)
+      const&->invoke_result<OkFn&&, T const&> {
+    static_assert(invocable<OkFn&&, T const&>);
+    static_assert(invocable<ErrFn&&, E const&>);
+
+    if (is_ok()) {
+      return std::forward<OkFn&&>(ok_fn)(value_cref_());
+    } else {
+      return std::forward<ErrFn&&>(err_fn)(err_cref_());
+    }
+  }
+
+  [[nodiscard]] constexpr auto clone() const->Result<T, E> {
     static_assert(copy_constructible<T>);
     static_assert(copy_constructible<E>);
 
