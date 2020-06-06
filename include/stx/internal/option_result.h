@@ -150,9 +150,8 @@ struct [[nodiscard]] Some {
 
   constexpr Some(Some && rhs) = default;
   constexpr Some& operator=(Some&& rhs) = default;
-
-  constexpr Some(Some const&) = delete;
-  constexpr Some& operator=(Some const&) = delete;
+  constexpr Some(Some const&) = default;
+  constexpr Some& operator=(Some const&) = default;
 
   STX_CXX20_DESTRUCTOR_CONSTEXPR ~Some() = default;
 
@@ -252,9 +251,8 @@ struct [[nodiscard]] Ok {
 
   constexpr Ok(Ok && rhs) = default;
   constexpr Ok& operator=(Ok&& rhs) = default;
-
-  constexpr Ok(Ok const&) = delete;
-  constexpr Ok& operator=(Ok const&) = delete;
+  constexpr Ok(Ok const&) = default;
+  constexpr Ok& operator=(Ok const&) = default;
 
   STX_CXX20_DESTRUCTOR_CONSTEXPR ~Ok() = default;
 
@@ -353,9 +351,8 @@ struct [[nodiscard]] Err {
 
   constexpr Err(Err && rhs) = default;
   constexpr Err& operator=(Err&& rhs) = default;
-
-  constexpr Err(Err const&) = delete;
-  constexpr Err& operator=(Err const&) = delete;
+  constexpr Err(Err const&) = default;
+  constexpr Err& operator=(Err const&) = default;
 
   STX_CXX20_DESTRUCTOR_CONSTEXPR ~Err() = default;
 
@@ -493,6 +490,11 @@ class [[nodiscard]] Option {
   constexpr Option(Some<T> && some)
       : storage_value_(std::move(some.value_)), is_none_(false) {}
 
+  constexpr Option(Some<T> const& some)
+      : is_none_(false), storage_value_(some.value()) {
+    static_assert(copy_constructible<T>);
+  }
+
   constexpr Option(NoneType const&) noexcept : is_none_(true) {}
 
   // constexpr?
@@ -524,8 +526,28 @@ class [[nodiscard]] Option {
     return *this;
   }
 
-  constexpr Option(Option const&) = delete;
-  constexpr Option& operator=(Option const&) = delete;
+  Option(Option const& rhs) : is_none_(rhs.is_none_) {
+    static_assert(copy_constructible<T>);
+    if (rhs.is_some()) {
+      new (&storage_value_) T(rhs.storage_value_);
+    }
+  }
+
+  Option& operator=(Option const& rhs) {
+    static_assert(copy_constructible<T>);
+
+    if (is_some() && rhs.is_some()) {
+      storage_value_ = rhs.storage_value_;
+    } else if (is_some() && rhs.is_none()) {
+      storage_value_.~T();
+      is_none_ = true;
+    } else if (is_none() && rhs.is_some()) {
+      new (&storage_value_) T(rhs.storage_value_);
+      is_none_ = false;
+    }
+
+    return *this;
+  }
 
   STX_CXX20_DESTRUCTOR_CONSTEXPR ~Option() noexcept {
     if (is_some()) {
