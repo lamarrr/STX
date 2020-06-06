@@ -101,24 +101,10 @@ struct Frame {
   Option<Symbol> symbol;
 
   constexpr explicit Frame() noexcept = default;
-
   Frame(Frame &&) noexcept = default;
   Frame &operator=(Frame &&) noexcept = default;
-
-  Frame(Frame const &cp) noexcept
-      : ip{cp.ip.clone()},
-        sp{cp.sp.clone()},
-        offset{cp.offset.clone()},
-        symbol{cp.symbol.clone()} {}
-
-  Frame &operator=(Frame const &cp) noexcept {
-    ip = cp.ip.clone();
-    sp = cp.sp.clone();
-    offset = cp.offset.clone();
-    symbol = cp.symbol.clone();
-    return *this;
-  }
-
+  Frame(Frame const &cp) noexcept = default;
+  Frame &operator=(Frame const &cp) noexcept = default;
   ~Frame() noexcept = default;
 };
 
