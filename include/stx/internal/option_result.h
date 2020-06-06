@@ -666,8 +666,8 @@ class [[nodiscard]] Option {
   ///
   /// ``` cpp
   /// auto mutate = [](Option<int>& r) {
-  ///  r.as_ref().match([](MutRef<int> ref) { ref.get() = 42; },
-  ///                       []() { });
+  ///  r.match([](int& ref) { ref = 42; },
+  ///          []() { });
   /// };
   ///
   /// auto x = make_some(2);
