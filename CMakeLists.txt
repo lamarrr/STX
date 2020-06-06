@@ -359,10 +359,10 @@ endif()
 if(STX_BUILD_BENCHMARKS)
 
   macro(add_benchmark benchmark_name file)
-    add_executable("stx_benchmark_${benchmark_name}" "benchmarks/${file}")
-    target_link_libraries("stx_benchmark_${benchmark_name}" stx benchmark
+    add_executable(stx_benchmark_${benchmark_name} "benchmarks/${file}")
+    target_link_libraries(stx_benchmark_${benchmark_name} stx benchmark
                           benchmark_main)
-    target_compile_options("stx_benchmark_${benchmark_name}"
+    target_compile_options(stx_benchmark_${benchmark_name}
                            PRIVATE ${STX_FLAGS} ${STX_WARNING_FLAGS})
   endmacro(add_benchmark benchmark_name)
 
