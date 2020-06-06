@@ -1,6 +1,5 @@
 <img src="https://github.com/lamarrr/STX/workflows/tests:ubuntu-18.04/badge.svg"> <img src="https://github.com/lamarrr/STX/workflows/tests:ubuntu-20.04/badge.svg">
 
-
 <br/>
 <div align="center"><img src="assets/stx.png"/> </div>
 
@@ -150,7 +149,7 @@ auto parse_data(array<uint8_t, 6> const& header) -> Result<uint8_t, string_view>
 
 ## Guidelines
 
-* Result and Option will only work in `constexpr` (compile-time) context in C++ 20, to check if you can use it as `constexpr` check if the macros `STX_RESULT_CONSTEXPR` and `STX_OPTION_CONSTEXPR` are set to `1`.
+* Result and Option will only work in `constexpr` (compile-time) context in C++ 20, to check if you can use it as `constexpr` check if the macros `STX_RESULT_CONSTEXPR` and `STX_OPTION_CONSTEXPR` are set to `1` .
 * To ensure you never forget to use the returned errors/results, raise the warning levels for your project ( `-Wall`  `-Wextra`  `-Wpedantic` on GNUC-based compilers, and `/W4` on MSVC)
 * Some methods like `match` , `map` , `unwrap` and most of the `Result` , and `Option` monadic methods **consume** the stored value and thus the `Result` or `Option` has to be destroyed as its lifetime has ended. For example:
 
@@ -227,8 +226,8 @@ C-Style/FailurePath   |     0.384 ns  |      0.383 ns |  1000000000
 
 * CMake
 * Make or Ninja Build
-* C++ 20 Compiler
-* Doxygen and Graphviz (only for documentation)
+* C++ 17 or C++ 20 Compiler
+* Doxygen and Graphviz (for documentation)
 
 ## Tested-on Compiler & Toolchains
 
