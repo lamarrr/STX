@@ -42,7 +42,7 @@
 // from it.
 //
 // Notes:
-// - Result and Option are perfect-forwarding types. It is unique to an
+// - Result is an object-forwarding type. It is unique to an
 // interaction. It functions like a std::unique_ptr, as it doesn't allow
 // implicitly copying its data content. Unless explicitly stated via the
 // .clone() method
@@ -496,7 +496,7 @@ class [[nodiscard]] Option {
   constexpr Option(NoneType const&) noexcept : is_none_(true) {}
 
   // constexpr?
-  // placement-new!!
+  // placement-new!
   // we can't make this constexpr as of C++ 20
   Option(Option && rhs) : is_none_(rhs.is_none_) {
     if (rhs.is_some()) {
@@ -509,11 +509,11 @@ class [[nodiscard]] Option {
     if (is_some() && rhs.is_some()) {
       std::swap(storage_value_, rhs.storage_value_);
     } else if (is_some() && rhs.is_none()) {
+      // we let the ref'd `rhs` destroy the object instead
       new (&rhs.storage_value_) T(std::move(storage_value_));
       storage_value_.~T();
       is_none_ = true;
       rhs.is_none_ = false;
-      // we let the ref'd object destroy the object instead
     } else if (is_none() && rhs.is_some()) {
       new (&storage_value_) T(std::move(rhs.storage_value_));
       rhs.storage_value_.~T();
@@ -1626,6 +1626,11 @@ class [[nodiscard]] Option {
 //! # Constexpr
 //!
 //! C++ 17 and above
+//!
+//! # Note
+//!
+//! `Result` unlike `Option` is a value-forwarding type. It doesn't have copy
+//! constructors of any sort. More like a `unique_ptr`.
 //!
 template <typename T, typename E>
 class [[nodiscard]] Result {
