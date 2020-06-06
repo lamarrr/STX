@@ -44,7 +44,6 @@ STX is a collection of libraries and utilities designed to make working with C++
 * Easy debugging
 * Easy to use and hard to misuse API
 * Exception-free, RTTI-free, and memory allocation free ( `no-std` )
-* SFINAE-free
 * Space and time deterministic error-handling
 * Deterministic value lifetimes
 * Eliminates repitive code and abstractable error-handling logic code via monadic extensions
