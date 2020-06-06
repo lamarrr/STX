@@ -129,7 +129,6 @@ message(STATUS "[STX] Enable panic backtrace: " ${STX_ENABLE_PANIC_BACKTRACE})
 
 list(APPEND STX_COMPILER_DEFS)
 list(APPEND STX_FLAGS)
-list(APPEND STX_LIB_DEPENDENCIES)
 list(APPEND STX_WARNING_FLAGS)
 
 # tests make use of macros which don't use the result, especially
@@ -196,8 +195,12 @@ endif()
 
 # the atomics library doesn't automatically link on my Android phone
 if(ANDROID)
-  message(STATUS "[STX] Linking with Android's libatomic")
-  list(APPEND STX_LIB_DEPENDENCIES atomic)
+  message(STATUS "[STX] Checking for Android's libatomic")
+  find_library(LibAtomic atomic)
+
+  if(NOT LibAtomic)
+    message(WARNING "[STX] Android's libatomic was not found")
+  endif()
 endif()
 
 # ===============================================
@@ -231,6 +234,10 @@ target_link_libraries(stx ${STX_LIB_DEPENDENCIES})
 
 if(STX_ENABLE_BACKTRACE)
   target_link_libraries(stx absl::stacktrace absl::symbolize)
+endif()
+
+if(ANDROID)
+  target_link_libraries(stx ${LibAtomic})
 endif()
 
 # ===============================================
