@@ -103,8 +103,8 @@ struct Frame {
   constexpr explicit Frame() noexcept = default;
   Frame(Frame &&) noexcept = default;
   Frame &operator=(Frame &&) noexcept = default;
-  Frame(Frame const &cp) noexcept = default;
-  Frame &operator=(Frame const &cp) noexcept = default;
+  Frame(Frame const &) noexcept = default;
+  Frame &operator=(Frame const &) noexcept = default;
   ~Frame() noexcept = default;
 };
 
