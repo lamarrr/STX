@@ -239,20 +239,6 @@ endif()
 #
 # ===============================================
 
-if(STX_BUILD_TESTS OR STX_BUILD_BENCHMARKS) # benchmark also uses it
-
-  if(NOT EXISTS third_party/fmt)
-    execute_process(
-      COMMAND git submodule update --init --recursive third_party/fmt
-      WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
-  endif()
-
-  set(FMT_TEST
-      OFF
-      CACHE BOOL "Build FMT tests" FORCE)
-  add_subdirectory(third_party/fmt)
-endif()
-
 if(STX_BUILD_TESTS)
 
   if(NOT EXISTS third_party/googletest)
