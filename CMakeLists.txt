@@ -227,7 +227,7 @@ endif()
 target_include_directories(stx PUBLIC include)
 target_compile_options(stx PRIVATE ${STX_FLAGS} ${STX_WARNING_FLAGS})
 target_compile_definitions(stx PUBLIC ${STX_COMPILER_DEFS})
-target_link_libraries(stx PRIVATE ${STX_LIB_DEPENDENCIES})
+target_link_libraries(stx ${STX_LIB_DEPENDENCIES})
 
 if(STX_ENABLE_BACKTRACE)
   target_link_libraries(stx absl::stacktrace absl::symbolize)
