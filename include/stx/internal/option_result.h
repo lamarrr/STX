@@ -73,6 +73,9 @@
 
 namespace stx {
 
+template <typename T>
+struct Some;
+
 //! value-variant Type for `Option<T>` representing no-value
 //!
 //! # Constexpr
@@ -95,6 +98,16 @@ class [[nodiscard]] NoneType {
 
   [[nodiscard]] constexpr bool operator!=(NoneType const&) const noexcept {
     return false;
+  }
+
+  template <typename T>
+  [[nodiscard]] constexpr bool operator==(Some<T> const&) const noexcept {
+    return false;
+  }
+
+  template <typename T>
+  [[nodiscard]] constexpr bool operator!=(Some<T> const&) const noexcept {
+    return true;
   }
 };
 
@@ -158,54 +171,16 @@ struct [[nodiscard]] Some {
   [[nodiscard]] constexpr T const value() const&& { return std::move(value_); }
   [[nodiscard]] constexpr T value() && { return std::move(value_); }
 
-  [[nodiscard]] constexpr bool operator==(Some const& cmp) const {
-    static_assert(equality_comparable<T>);
+  template <typename U>
+  [[nodiscard]] constexpr bool operator==(Some<U> const& cmp) const {
+    static_assert(equality_comparable<T, U>);
     return value() == cmp.value();
   }
 
-  [[nodiscard]] constexpr bool operator!=(Some const& cmp) const {
-    static_assert(equality_comparable<T>);
+  template <typename U>
+  [[nodiscard]] constexpr bool operator!=(Some<U> const& cmp) const {
+    static_assert(equality_comparable<T, U>);
     return value() != cmp.value();
-  }
-
-  [[nodiscard]] constexpr bool operator==(Some<MutRef<T>> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    return value() == cmp.value().get();
-  }
-
-  [[nodiscard]] constexpr bool operator!=(Some<MutRef<T>> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    return value() != cmp.value().get();
-  }
-
-  [[nodiscard]] constexpr bool operator==(Some<ConstRef<T>> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    return value() == cmp.value().get();
-  }
-
-  [[nodiscard]] constexpr bool operator!=(Some<ConstRef<T>> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    return value() != cmp.value().get();
-  }
-
-  [[nodiscard]] constexpr bool operator==(Some<T*> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    return value() == *cmp.value();
-  }
-
-  [[nodiscard]] constexpr bool operator!=(Some<T*> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    return value() != *cmp.value();
-  }
-
-  [[nodiscard]] constexpr bool operator==(Some<T const*> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    return value() == *cmp.value();
-  }
-
-  [[nodiscard]] constexpr bool operator!=(Some<T const*> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    return value() != *cmp.value();
   }
 
   [[nodiscard]] constexpr bool operator==(NoneType const&) const noexcept {
@@ -254,54 +229,16 @@ struct [[nodiscard]] Ok {
 
   STX_CXX20_DESTRUCTOR_CONSTEXPR ~Ok() = default;
 
-  [[nodiscard]] constexpr bool operator==(Ok const& cmp) const {
-    static_assert(equality_comparable<T>);
+  template <typename U>
+  [[nodiscard]] constexpr bool operator==(Ok<U> const& cmp) const {
+    static_assert(equality_comparable<T, U>);
     return value() == cmp.value();
   }
 
-  [[nodiscard]] constexpr bool operator!=(Ok const& cmp) const {
-    static_assert(equality_comparable<T>);
+  template <typename U>
+  [[nodiscard]] constexpr bool operator!=(Ok<U> const& cmp) const {
+    static_assert(equality_comparable<T, U>);
     return value() != cmp.value();
-  }
-
-  [[nodiscard]] constexpr bool operator==(Ok<ConstRef<T>> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    return value() == cmp.value().get();
-  }
-
-  [[nodiscard]] constexpr bool operator!=(Ok<ConstRef<T>> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    return value() != cmp.value().get();
-  }
-
-  [[nodiscard]] constexpr bool operator==(Ok<MutRef<T>> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    return value() == cmp.value().get();
-  }
-
-  [[nodiscard]] constexpr bool operator!=(Ok<MutRef<T>> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    return value() != cmp.value().get();
-  }
-
-  [[nodiscard]] constexpr bool operator==(Ok<T*> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    return value() == *cmp.value();
-  }
-
-  [[nodiscard]] constexpr bool operator!=(Ok<T*> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    return value() != *cmp.value();
-  }
-
-  [[nodiscard]] constexpr bool operator==(Ok<T const*> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    return value() == *cmp.value();
-  }
-
-  [[nodiscard]] constexpr bool operator!=(Ok<T const*> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    return value() != *cmp.value();
   }
 
   template <typename U>
@@ -354,63 +291,25 @@ struct [[nodiscard]] Err {
 
   STX_CXX20_DESTRUCTOR_CONSTEXPR ~Err() = default;
 
-  [[nodiscard]] constexpr bool operator==(Err const& cmp) const {
-    static_assert(equality_comparable<E>);
+  template <typename F>
+  [[nodiscard]] constexpr bool operator==(Err<F> const& cmp) const {
+    static_assert(equality_comparable<E, F>);
     return value() == cmp.value();
   }
 
-  [[nodiscard]] constexpr bool operator!=(Err const& cmp) const {
-    static_assert(equality_comparable<E>);
+  template <typename F>
+  [[nodiscard]] constexpr bool operator!=(Err<F> const& cmp) const {
+    static_assert(equality_comparable<E, F>);
     return value() != cmp.value();
   }
 
-  [[nodiscard]] constexpr bool operator==(Err<ConstRef<E>> const& cmp) const {
-    static_assert(equality_comparable<E>);
-    return value() == cmp.value().get();
-  }
-
-  [[nodiscard]] constexpr bool operator!=(Err<ConstRef<E>> const& cmp) const {
-    static_assert(equality_comparable<E>);
-    return value() != cmp.value().get();
-  }
-
-  [[nodiscard]] constexpr bool operator==(Err<MutRef<E>> const& cmp) const {
-    static_assert(equality_comparable<E>);
-    return value() == cmp.value().get();
-  }
-
-  [[nodiscard]] constexpr bool operator!=(Err<MutRef<E>> const& cmp) const {
-    static_assert(equality_comparable<E>);
-    return value() != cmp.value().get();
-  }
-
-  [[nodiscard]] constexpr bool operator==(Err<E*> const& cmp) const {
-    static_assert(equality_comparable<E>);
-    return value() == *cmp.value();
-  }
-
-  [[nodiscard]] constexpr bool operator!=(Err<E*> const& cmp) const {
-    static_assert(equality_comparable<E>);
-    return value() != *cmp.value();
-  }
-
-  [[nodiscard]] constexpr bool operator==(Err<E const*> const& cmp) const {
-    static_assert(equality_comparable<E>);
-    return value() == *cmp.value();
-  }
-
-  [[nodiscard]] constexpr bool operator!=(Err<E const*> const& cmp) const {
-    static_assert(equality_comparable<E>);
-    return value() != *cmp.value();
-  }
-
-  template <typename U>
-  [[nodiscard]] constexpr bool operator==(Ok<U> const&) const noexcept {
+  template <typename F>
+  [[nodiscard]] constexpr bool operator==(Ok<F> const&) const noexcept {
     return false;
   }
 
-  template <typename U>
-  [[nodiscard]] constexpr bool operator!=(Ok<U> const&) const noexcept {
+  template <typename F>
+  [[nodiscard]] constexpr bool operator!=(Ok<F> const&) const noexcept {
     return true;
   }
 
@@ -553,8 +452,9 @@ class [[nodiscard]] Option {
     }
   }
 
-  [[nodiscard]] constexpr bool operator==(Option const& cmp) const {
-    static_assert(equality_comparable<T>);
+  template <typename U>
+  [[nodiscard]] constexpr bool operator==(Option<U> const& cmp) const {
+    static_assert(equality_comparable<T, U>);
     if (is_some() && cmp.is_some()) {
       return value_cref_() == cmp.value_cref_();
     } else if (is_none() && cmp.is_none()) {
@@ -564,8 +464,9 @@ class [[nodiscard]] Option {
     }
   }
 
-  [[nodiscard]] constexpr bool operator!=(Option const& cmp) const {
-    static_assert(equality_comparable<T>);
+  template <typename U>
+  [[nodiscard]] constexpr bool operator!=(Option<U> const& cmp) const {
+    static_assert(equality_comparable<T, U>);
     if (is_some() && cmp.is_some()) {
       return value_cref_() != cmp.value_cref_();
     } else if (is_none() && cmp.is_none()) {
@@ -575,8 +476,9 @@ class [[nodiscard]] Option {
     }
   }
 
-  [[nodiscard]] constexpr bool operator==(Some<T> const& cmp) const {
-    static_assert(equality_comparable<T>);
+  template <typename U>
+  [[nodiscard]] constexpr bool operator==(Some<U> const& cmp) const {
+    static_assert(equality_comparable<T, U>);
     if (is_some()) {
       return value_cref_() == cmp.value();
     } else {
@@ -584,82 +486,11 @@ class [[nodiscard]] Option {
     }
   }
 
-  [[nodiscard]] constexpr bool operator!=(Some<T> const& cmp) const {
-    static_assert(equality_comparable<T>);
+  template <typename U>
+  [[nodiscard]] constexpr bool operator!=(Some<U> const& cmp) const {
+    static_assert(equality_comparable<T, U>);
     if (is_some()) {
       return value_cref_() != cmp.value();
-    } else {
-      return true;
-    }
-  }
-
-  [[nodiscard]] constexpr bool operator==(Some<ConstRef<T>> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    if (is_some()) {
-      return value_cref_() == cmp.value().get();
-    } else {
-      return false;
-    }
-  }
-
-  [[nodiscard]] constexpr bool operator!=(Some<ConstRef<T>> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    if (is_some()) {
-      return value_cref_() != cmp.value().get();
-    } else {
-      return true;
-    }
-  }
-
-  [[nodiscard]] constexpr bool operator==(Some<MutRef<T>> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    if (is_some()) {
-      return value_cref_() == cmp.value().get();
-    } else {
-      return false;
-    }
-  }
-
-  [[nodiscard]] constexpr bool operator!=(Some<MutRef<T>> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    if (is_some()) {
-      return value_cref_() != cmp.value().get();
-    } else {
-      return true;
-    }
-  }
-
-  [[nodiscard]] constexpr bool operator==(Some<T const*> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    if (is_some()) {
-      return value_cref_() == *cmp.value();
-    } else {
-      return false;
-    }
-  }
-
-  [[nodiscard]] constexpr bool operator!=(Some<T const*> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    if (is_some()) {
-      return value_cref_() != *cmp.value();
-    } else {
-      return true;
-    }
-  }
-
-  [[nodiscard]] constexpr bool operator==(Some<T*> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    if (is_some()) {
-      return value_cref_() == *cmp.value();
-    } else {
-      return false;
-    }
-  }
-
-  [[nodiscard]] constexpr bool operator!=(Some<T*> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    if (is_some()) {
-      return value_cref_() != *cmp.value();
     } else {
       return true;
     }
@@ -1615,6 +1446,30 @@ class [[nodiscard]] Option {
   }
 };
 
+template <typename U, typename T>
+[[nodiscard]] STX_FORCE_INLINE constexpr bool operator==(
+    Some<U> const& cmp, Option<T> const& option) {
+  return option == cmp;
+}
+
+template <typename U, typename T>
+[[nodiscard]] STX_FORCE_INLINE constexpr bool operator!=(
+    Some<U> const& cmp, Option<T> const& option) {
+  return option != cmp;
+}
+
+template <typename T>
+[[nodiscard]] constexpr bool operator==(NoneType const&,
+                                        Option<T> const& option) noexcept {
+  return option.is_none();
+}
+
+template <typename T>
+[[nodiscard]] constexpr bool operator!=(NoneType const&,
+                                        Option<T> const& option) noexcept {
+  return option.is_some();
+}
+
 //! ### Error handling with the `Result` type.
 //!
 //! `Result<T, E>` is a type used for returning and propagating
@@ -1749,8 +1604,9 @@ class [[nodiscard]] Result {
     }
   };
 
-  [[nodiscard]] constexpr bool operator==(Ok<T> const& cmp) const {
-    static_assert(equality_comparable<T>);
+  template <typename U>
+  [[nodiscard]] constexpr bool operator==(Ok<U> const& cmp) const {
+    static_assert(equality_comparable<T, U>);
     if (is_ok()) {
       return value_cref_() == cmp.value();
     } else {
@@ -1758,8 +1614,9 @@ class [[nodiscard]] Result {
     }
   }
 
-  [[nodiscard]] constexpr bool operator!=(Ok<T> const& cmp) const {
-    static_assert(equality_comparable<T>);
+  template <typename U>
+  [[nodiscard]] constexpr bool operator!=(Ok<U> const& cmp) const {
+    static_assert(equality_comparable<T, U>);
     if (is_ok()) {
       return value_cref_() != cmp.value();
     } else {
@@ -1767,80 +1624,9 @@ class [[nodiscard]] Result {
     }
   }
 
-  [[nodiscard]] constexpr bool operator==(Ok<ConstRef<T>> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    if (is_ok()) {
-      return value_cref_() == cmp.value();
-    } else {
-      return false;
-    }
-  }
-
-  [[nodiscard]] constexpr bool operator!=(Ok<ConstRef<T>> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    if (is_ok()) {
-      return value_cref_() != cmp.value();
-    } else {
-      return true;
-    }
-  }
-
-  [[nodiscard]] constexpr bool operator==(Ok<MutRef<T>> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    if (is_ok()) {
-      return value_cref_() == cmp.value();
-    } else {
-      return false;
-    }
-  }
-
-  [[nodiscard]] constexpr bool operator!=(Ok<MutRef<T>> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    if (is_ok()) {
-      return value_cref_() != cmp.value();
-    } else {
-      return true;
-    }
-  }
-
-  [[nodiscard]] constexpr bool operator==(Ok<T const*> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    if (is_ok()) {
-      return value_cref_() == *cmp.value();
-    } else {
-      return false;
-    }
-  }
-
-  [[nodiscard]] constexpr bool operator!=(Ok<T const*> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    if (is_ok()) {
-      return value_cref_() != *cmp.value();
-    } else {
-      return true;
-    }
-  }
-
-  [[nodiscard]] constexpr bool operator==(Ok<T*> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    if (is_ok()) {
-      return value_cref_() == *cmp.value();
-    } else {
-      return false;
-    }
-  }
-
-  [[nodiscard]] constexpr bool operator!=(Ok<T*> const& cmp) const {
-    static_assert(equality_comparable<T>);
-    if (is_ok()) {
-      return value_cref_() != *cmp.value();
-    } else {
-      return true;
-    }
-  }
-
-  [[nodiscard]] constexpr bool operator==(Err<E> const& cmp) const {
-    static_assert(equality_comparable<E>);
+  template <typename F>
+  [[nodiscard]] constexpr bool operator==(Err<F> const& cmp) const {
+    static_assert(equality_comparable<E, F>);
     if (is_ok()) {
       return false;
     } else {
@@ -1848,8 +1634,9 @@ class [[nodiscard]] Result {
     }
   }
 
-  [[nodiscard]] constexpr bool operator!=(Err<E> const& cmp) const {
-    static_assert(equality_comparable<E>);
+  template <typename F>
+  [[nodiscard]] constexpr bool operator!=(Err<F> const& cmp) const {
+    static_assert(equality_comparable<E, F>);
     if (is_ok()) {
       return true;
     } else {
@@ -1857,81 +1644,10 @@ class [[nodiscard]] Result {
     }
   }
 
-  [[nodiscard]] constexpr bool operator==(Err<ConstRef<E>> const& cmp) const {
-    static_assert(equality_comparable<E>);
-    if (is_ok()) {
-      return false;
-    } else {
-      return err_cref_() == cmp.value();
-    }
-  }
-
-  [[nodiscard]] constexpr bool operator!=(Err<ConstRef<E>> const& cmp) const {
-    static_assert(equality_comparable<E>);
-    if (is_ok()) {
-      return true;
-    } else {
-      return err_cref_() != cmp.value();
-    }
-  }
-
-  [[nodiscard]] constexpr bool operator==(Err<MutRef<E>> const& cmp) const {
-    static_assert(equality_comparable<E>);
-    if (is_ok()) {
-      return false;
-    } else {
-      return err_cref_() == cmp.value();
-    }
-  }
-
-  [[nodiscard]] constexpr bool operator!=(Err<MutRef<E>> const& cmp) const {
-    static_assert(equality_comparable<E>);
-    if (is_ok()) {
-      return true;
-    } else {
-      return err_cref_() != cmp.value();
-    }
-  }
-
-  [[nodiscard]] constexpr bool operator==(Err<E const*> const& cmp) const {
-    static_assert(equality_comparable<E>);
-    if (is_ok()) {
-      return false;
-    } else {
-      return err_cref_() == *cmp.value();
-    }
-  }
-
-  [[nodiscard]] constexpr bool operator!=(Err<E const*> const& cmp) const {
-    static_assert(equality_comparable<E>);
-    if (is_ok()) {
-      return true;
-    } else {
-      return err_cref_() != *cmp.value();
-    }
-  }
-
-  [[nodiscard]] constexpr bool operator==(Err<E*> const& cmp) const {
-    static_assert(equality_comparable<E>);
-    if (is_ok()) {
-      return false;
-    } else {
-      return err_cref_() == *cmp.value();
-    }
-  }
-
-  [[nodiscard]] constexpr bool operator!=(Err<E*> const& cmp) const {
-    static_assert(equality_comparable<E>);
-    if (is_ok()) {
-      return true;
-    } else {
-      return err_cref_() != *cmp.value();
-    }
-  }
-
-  [[nodiscard]] constexpr bool operator==(Result const& cmp) const {
-    static_assert(equality_comparable<T>);
-    static_assert(equality_comparable<E>);
+  template <typename U, typename F>
+  [[nodiscard]] constexpr bool operator==(Result<U, F> const& cmp) const {
+    static_assert(equality_comparable<T, U>);
+    static_assert(equality_comparable<E, F>);
 
     if (is_ok() && cmp.is_ok()) {
       return value_cref_() == cmp.value_cref_();
@@ -1942,9 +1658,10 @@ class [[nodiscard]] Result {
     }
   }
 
-  [[nodiscard]] constexpr bool operator!=(Result const& cmp) const {
-    static_assert(equality_comparable<T>);
-    static_assert(equality_comparable<E>);
+  template <typename U, typename F>
+  [[nodiscard]] constexpr bool operator!=(Result<U, F> const& cmp) const {
+    static_assert(equality_comparable<T, U>);
+    static_assert(equality_comparable<E, F>);
 
     if (is_ok() && cmp.is_ok()) {
       return value_cref_() != cmp.value_cref_();
@@ -2858,6 +2575,30 @@ class [[nodiscard]] Result {
   }
 };
 
+template <typename U, typename T, typename E>
+[[nodiscard]] STX_FORCE_INLINE constexpr bool operator==(
+    Ok<U> const& cmp, Result<T, E> const& result) {
+  return result == cmp;
+}
+
+template <typename U, typename T, typename E>
+[[nodiscard]] STX_FORCE_INLINE constexpr bool operator!=(
+    Ok<U> const& cmp, Result<T, E> const& result) {
+  return result != cmp;
+}
+
+template <typename F, typename T, typename E>
+[[nodiscard]] STX_FORCE_INLINE constexpr bool operator==(
+    Err<F> const& cmp, Result<T, E> const& result) {
+  return result == cmp;
+}
+
+template <typename F, typename T, typename E>
+[[nodiscard]] STX_FORCE_INLINE constexpr bool operator!=(
+    Err<F> const& cmp, Result<T, E> const& result) {
+  return result != cmp;
+}
+
 /// Helper function to construct an `Option<T>` with a `Some<T>` value.
 /// if the template parameter is not specified, it is auto-deduced from the
 /// parameter's value.
@@ -3008,10 +2749,6 @@ template <typename T, typename E>
 }
 
 }  // namespace stx
-
-// Automatic symmetric comparision is available on C++ 20.
-// we moved it here to prevent obfuscating the code with boilerplate
-#include "stx/internal/symmetry.h"
 
 // Error propagation macros
 #include "stx/internal/try.h"
