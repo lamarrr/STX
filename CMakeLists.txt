@@ -75,8 +75,7 @@ cmake_dependent_option(STX_SANITIZE_TESTS "Build sanitized tests" ON
                        "STX_BUILD_TESTS" OFF)
 
 # this feature replaces the default panic handler, by default it is set to print
-# the panic report and abort the program. The handler is re- entrant and
-# thread-safe.
+# the panic report and abort the program. The handler is thread-safe.
 option(
   STX_OVERRIDE_PANIC_HANDLER
   "Override the default panic behaviour (You can read the docs for more details)"
@@ -129,6 +128,7 @@ message(STATUS "[STX] Enable panic backtrace: " ${STX_ENABLE_PANIC_BACKTRACE})
 
 list(APPEND STX_COMPILER_DEFS)
 list(APPEND STX_FLAGS)
+list(APPEND STX_LINK_OPTIONS)
 list(APPEND STX_WARNING_FLAGS)
 
 # tests make use of macros which don't use the result, especially
@@ -195,7 +195,8 @@ endif()
 
 # the atomics library doesn't automatically link on my Android phone
 if(ANDROID)
-  add_link_flags_if_supported(-latomic)
+  message(STATUS "[STX] Linking with Android's libatomic")
+  append_flags_if_supported(STX_LINK_OPTIONS "-latomic")
 endif()
 
 # ===============================================
@@ -225,6 +226,7 @@ endif()
 target_include_directories(stx PUBLIC include)
 target_compile_options(stx PRIVATE ${STX_FLAGS} ${STX_WARNING_FLAGS})
 target_compile_definitions(stx PUBLIC ${STX_COMPILER_DEFS})
+target_link_options(stx PRIVATE ${STX_LINK_OPTIONS})
 
 if(STX_ENABLE_BACKTRACE)
   target_link_libraries(stx absl::stacktrace absl::symbolize)
@@ -309,15 +311,14 @@ endif()
 # ===============================================
 
 list(
-  APPEND
-  STX_TEST_SRCS
-  tests/common_test.cc
-  tests/constexpr_test.cc
-  tests/option_test.cc
-  tests/panic_test.cc
-  tests/report_test.cc
-  tests/result_test.cc
-  tests/tests.cc)
+  APPEND STX_TEST_SRCS
+         tests/common_test.cc
+         tests/constexpr_test.cc
+         tests/option_test.cc
+         tests/panic_test.cc
+         tests/report_test.cc
+         tests/result_test.cc
+         tests/tests.cc)
 
 if(STX_ENABLE_BACKTRACE)
   list(APPEND STX_TEST_SRCS tests/backtrace_test.cc)
