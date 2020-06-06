@@ -30,7 +30,6 @@
 
 #pragma once
 
-#include <array>
 #include <cinttypes>
 #include <cstdio>
 #include <string>
