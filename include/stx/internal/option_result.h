@@ -1706,7 +1706,7 @@ class [[nodiscard]] Result {
       is_ok_ = true;
     } else {
       // both are errs
-      std::swap(err_ref_(), rhs.err_ref_()); // NOLINT
+      std::swap(err_ref_(), rhs.err_ref_());  // NOLINT
     }
     return *this;
   }
