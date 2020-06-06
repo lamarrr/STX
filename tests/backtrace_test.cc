@@ -40,18 +40,17 @@ using namespace stx::backtrace;  // NOLINT
 void fn_d() {
   backtrace::trace(
       [](Frame frame, int) {
-        frame.symbol.as_ref().match(
-            [](auto sym) {
-              auto const& s = sym.get().raw();
+        frame.symbol.match(
+            [](auto const& sym) {
+              auto const& s = sym.raw();
               fwrite(s.data(), s.size(), 1, stdout);
             },
             []() { fputs("unknown symbol", stdout); });
 
         puts("");
 
-        frame.ip.as_ref().match(
-            [](auto ip) { printf("ip: 0x%" PRIxPTR, ip.get()); },
-            []() { fputs("unknown pc", stdout); });
+        frame.ip.match([](auto const& ip) { printf("ip: 0x%" PRIxPTR, ip); },
+                       []() { fputs("unknown pc", stdout); });
 
         puts("\n");
         return false;

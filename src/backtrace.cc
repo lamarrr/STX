@@ -89,16 +89,16 @@ void print_backtrace() {
       stderr);
 
   backtrace::trace([](backtrace::Frame frame, int i) {
-    auto const print_none = []() { fputs("<unknown>", stderr); };
-    auto const print_ptr = [](Ref<uintptr_t> ptr) {
-      fprintf(stderr, "0x%" PRIxPTR, ptr.get());
+    auto const print_none = []() { fputs("unknown", stderr); };
+    auto const print_ptr = [](uintptr_t ptr) {
+      fprintf(stderr, "0x%" PRIxPTR, ptr);
     };
 
     fprintf(stderr, "#%d\t\t", i);
 
-    frame.symbol.as_ref().match(
-        [](Ref<backtrace::Symbol> sym) {
-          for (char c : sym.get().raw()) {
+    frame.symbol.match(
+        [](auto& sym) {
+          for (char c : sym.raw()) {
             fputc(c, stderr);
           }
         },
@@ -106,11 +106,11 @@ void print_backtrace() {
 
     fputs("\t (ip: ", stderr);
 
-    frame.ip.as_ref().match(print_ptr, print_none);
+    frame.ip.match(print_ptr, print_none);
 
     fputs(", sp: ", stderr);
 
-    frame.sp.as_ref().match(print_ptr, print_none);
+    frame.sp.match(print_ptr, print_none);
 
     fputs(")\n", stderr);
 
