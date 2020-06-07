@@ -30,8 +30,6 @@
 
 #pragma once
 
-#include <version>
-
 /// configuration macro
 #define CFG(param, value) STX_##param##_##value
 
@@ -217,15 +215,26 @@
 #define STX_HAS_BUILTIN(feature) 0
 #endif
 
+// From non-trivial constexpr paper
+#if __cpp_constexpr >= 201807L
 /// constexpr destructor is only available on C++ 20, it is needed for
 /// non-trivial constexpr classes
-#if __cpp_constexpr >= 201807L
 #define STX_CXX20_DESTRUCTOR_CONSTEXPR constexpr
+/// some compilers have partial support for C++20 (i.e. flags like gnu++2a), you
+/// can use directly if you're certain your compiler fully supports C++ 20
 #define STX_RESULT_CONSTEXPR 1
+/// some compilers have partial support for C++20 (i.e. flags like gnu++2a), you
+/// can use directly if you're certain your compiler fully supports C++ 20
 #define STX_OPTION_CONSTEXPR 1
 #else
+/// constexpr destructor is only available on C++ 20, it is needed for
+/// non-trivial constexpr classes
 #define STX_CXX20_DESTRUCTOR_CONSTEXPR
+/// some compilers have partial support for C++20 (i.e. flags like gnu++2a), you
+/// can use directly if you're certain your compiler fully supports C++ 20
 #define STX_RESULT_CONSTEXPR 0
+/// some compilers have partial support for C++20 (i.e. flags like gnu++2a), you
+/// can use directly if you're certain your compiler fully supports C++ 20
 #define STX_OPTION_CONSTEXPR 0
 #endif
 
