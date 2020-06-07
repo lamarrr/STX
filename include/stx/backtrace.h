@@ -100,12 +100,12 @@ struct Frame {
   /// function's symbol name. possibly demangled.
   Option<Symbol> symbol;
 
-  constexpr explicit Frame() noexcept = default;
-  Frame(Frame &&) noexcept = default;
-  Frame &operator=(Frame &&) noexcept = default;
-  Frame(Frame const &) noexcept = default;
-  Frame &operator=(Frame const &) noexcept = default;
-  ~Frame() noexcept = default;
+  constexpr explicit Frame() = default;
+  Frame(Frame &&) = default;
+  Frame &operator=(Frame &&) = default;
+  Frame(Frame const &) = default;
+  Frame &operator=(Frame const &) = default;
+  ~Frame() = default;
 };
 
 using Callback = bool (*)(Frame, int);
