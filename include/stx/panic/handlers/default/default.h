@@ -39,21 +39,10 @@
 
 namespace stx {
 
-// probably too much, but enough
-// this will at least hold a formatted uint128_t (40 digits)
-
-namespace internal {
-namespace panic_util {
-constexpr int kFormatBufferSize = 256;
-constexpr auto kThreadIdHash = std::hash<std::thread::id>{};
-}  // namespace panic_util
-}  // namespace internal
-
-// this should be made thread-safe.
-inline void panic_default(
-    std::string_view info, ReportPayload const& payload,
-    SourceLocation location = SourceLocation::current()) noexcept {
-  using namespace internal::panic_util;  // NOLINT
+inline void panic_default(std::string_view const& info,
+                          ReportPayload const& payload,
+                          SourceLocation const& location) noexcept {
+  static constexpr const auto kThreadIdHasher = std::hash<std::thread::id>{};
 
   static std::mutex stderr_lock;
 

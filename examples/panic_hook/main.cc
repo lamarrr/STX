@@ -3,8 +3,8 @@
 #include "stx/panic.h"
 #include "stx/panic/hook.h"
 
-void hook(std::string_view info, stx::ReportPayload const& payload,
-          stx::SourceLocation location) noexcept {
+void hook(std::string_view const& info, stx::ReportPayload const& payload,
+          stx::SourceLocation const& location) noexcept {
   std::cout << "========= panic from custom hook =========\n";
   std::cout << info << '\n';
   std::cout << payload.data() << '\n';

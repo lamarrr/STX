@@ -60,10 +60,10 @@ STX_EXPORT bool stx::this_thread::is_panicking() noexcept {
 
 namespace stx {
 // the panic hook takes higher precedence over the panic handler
-STX_LOCAL void default_panic_hook(std::string_view info,
+STX_LOCAL void default_panic_hook(std::string_view const& info,
                                   ReportPayload const& payload,
-                                  SourceLocation location) noexcept {
-  panic_handler(std::move(info), payload, std::move(location));
+                                  SourceLocation const& location) noexcept {
+  panic_handler(info, payload, location);
 }
 }  // namespace stx
 
@@ -97,9 +97,9 @@ bool stx::take_panic_hook(PanicHook* out) noexcept {
   return true;
 }
 
-[[noreturn]] void stx::begin_panic(std::string_view info,
+[[noreturn]] void stx::begin_panic(std::string_view const& info,
                                    ReportPayload const& payload,
-                                   SourceLocation location) noexcept {
+                                   SourceLocation const& location) noexcept {
   // TODO(lamarrr): We probably need a method for stack unwinding, So we can
   // free held resources
 
@@ -115,9 +115,9 @@ bool stx::take_panic_hook(PanicHook* out) noexcept {
   PanicHook hook = panic_hook_ref().load(std::memory_order_seq_cst);
 
   if (hook != nullptr) {
-    hook(std::move(info), payload, std::move(location));
+    hook(info, payload, location);
   } else {
-    default_panic_hook(std::move(info), payload, std::move(location));
+    default_panic_hook(info, payload, location);
   }
 
   std::abort();

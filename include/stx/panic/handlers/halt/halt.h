@@ -38,9 +38,9 @@ namespace stx {
 /// loop.
 /// You can force the program to continue via a debugger by setting the
 /// `proceed` value to true.
-inline void panic_halt(
-    std::string_view info, ReportPayload const& payload,
-    SourceLocation location = SourceLocation::current()) noexcept {
+inline void panic_halt(std::string_view const& info,
+                       ReportPayload const& payload,
+                       SourceLocation const& location) noexcept {
   (void)info;
   (void)payload;
   (void)location;
