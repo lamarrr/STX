@@ -42,9 +42,7 @@ auto backtrace::Symbol::raw() const noexcept -> std::string_view {
   return std::string_view(symbol_.data);
 }
 
-size_t backtrace::trace(Callback callback, int skip_count) {
-  // size_t stack_head = 0;
-  // *static_cast<volatile size_t*>(&stack_head) = 2;
+int backtrace::trace(Callback callback, int skip_count) {
 
   // auto head_sp = static_cast<uintptr_t>(&stack_head);
 
@@ -54,6 +52,8 @@ size_t backtrace::trace(Callback callback, int skip_count) {
 
   int depth =
       absl::GetStackFrames(ips, sizes, STX_MAX_STACK_FRAME_DEPTH, skip_count);
+
+  if (depth <= 0) return 0;
 
   char symbol[STX_SYMBOL_BUFFER_SIZE];
   int max_len = STX_SYMBOL_BUFFER_SIZE;
@@ -88,9 +88,8 @@ void print_backtrace() {
       "Pointer\n\n",
       stderr);
 
-  backtrace::trace([](backtrace::Frame frame, int i) {
-    auto const print_none = []() { fputs("unknown", stderr); };
-    auto const print_ptr = [](uintptr_t ptr) {
+  int frames = backtrace::trace(
+      [](backtrace::Frame frame, int i) {
       fprintf(stderr, "0x%" PRIxPTR, ptr);
     };
 
@@ -115,7 +114,13 @@ void print_backtrace() {
     fputs(")\n", stderr);
 
     return false;
-  });
+
+  if (frames == 0) {
+    std::fputs(
+        R"(WARNING >> The stack frames couldn't be identified, debug information was possibly stripped, unavailable, or elided by compiler
+)",
+        stderr);
+  }
 
   fputs("\n", stderr);
 }

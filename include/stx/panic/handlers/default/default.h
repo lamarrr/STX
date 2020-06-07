@@ -123,11 +123,7 @@ inline void panic_default(
       "Pointer\n\n",
       stderr);
 
-  stx::backtrace::trace([](backtrace::Frame frame, int i) {
-    auto const print_none = []() { std::fputs("<unknown>", stderr); };
-    auto const print_ptr = [](Ref<uintptr_t> ip) {
-      std::fprintf(stderr, "0x%" PRIxPTR, ip.get());
-    };
+  int frames = backtrace::trace(
 
     std::fprintf(stderr, "#%d\t\t", i);
 
@@ -149,8 +145,16 @@ inline void panic_default(
 
     std::fputs(")\n", stderr);
 
-    return false;
-  });
+        return false;
+      },
+      1);
+
+  if (frames <= 0) {
+    std::fputs(
+        R"(WARNING >> The stack frames couldn't be identified, debug information was possibly stripped, unavailable, or elided by compiler
+)",
+        stderr);
+  }
 
   std::fputs("\n", stderr);
 
