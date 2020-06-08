@@ -23,7 +23,7 @@ The panic library provides:
 
 * panic backtraces (see the [ `panic_backtrace` ](https://github.com/lamarrr/STX/tree/master/examples) example project)
 
-* error reporting (see `stx::Report`)
+* error reporting (see `stx::FixedReport` and `stx::SpanReport`)
 
 * panic handlers:
 
