@@ -41,16 +41,16 @@ void fn_d() {
   backtrace::trace(
       [](Frame frame, int) {
         frame.symbol.match(
-            [](auto const& sym) {
+            [](auto sym) {
               auto const& s = sym.raw();
-              fwrite(s.data(), s.size(), 1, stdout);
+              std::fwrite(s.data(), s.size(), 1, stdout);
             },
-            []() { fputs("unknown symbol", stdout); });
+            []() { std::fputs("unknown symbol", stdout); });
 
-        puts("");
+        std::puts("");
 
-        frame.ip.match([](auto const& ip) { printf("ip: 0x%" PRIxPTR, ip); },
-                       []() { fputs("unknown pc", stdout); });
+        frame.ip.match([](auto ip) { std::printf("ip: 0x%" PRIxPTR, ip); },
+                       []() { std::fputs("unknown pc", stdout); });
 
         puts("\n");
         return false;
