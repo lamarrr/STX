@@ -113,12 +113,27 @@ TEST(OptionTest, ObjectConstructionTest) {
   d = Some(make_mv<0>());
 }
 
-
 TEST(OptionTest, CopyConstructionTest) {
+  Option<int> a = None;
+  Option<int> b = a;
+  EXPECT_EQ(a, b);
 
-  
+  Option<int> c = Some(98);
+  b = c;
+  EXPECT_EQ(b, c);
+  EXPECT_NE(a, c);
+  EXPECT_NE(a, b);
+
+  Option<vector<int>> d = None;
+  Option<vector<int>> e = d;
+  EXPECT_EQ(d, e);
+
+  Option f = Some(vector{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
+  e = f;
+  EXPECT_EQ(e, f);
+  EXPECT_NE(d, e);
+  EXPECT_NE(d, f);
 }
-
 
 TEST(OptionTest, ObjectForwardingTest) {
   auto fn_a = []() -> Option<MoveOnly<0>> {
