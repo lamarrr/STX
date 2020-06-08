@@ -36,63 +36,150 @@
 
 #pragma once
 
-// Do remember that Result's value type can not be a reference
+namespace stx {
+namespace internal {
 
-#define TRY_OK(identifier, result_expr)                                 \
+namespace result {
+
+template <typename Tp, typename Er>
+STX_FORCE_INLINE Tp&& unsafe_value_move(Result<Tp, Er>& result) {
+  return std::move(result.value_ref_());
+}
+
+template <typename Tp, typename Er>
+STX_FORCE_INLINE Er&& unsafe_err_move(Result<Tp, Er>& result) {
+  return std::move(result.err_ref_());
+}
+
+}  // namespace result
+
+namespace option {
+
+template <typename Tp>
+STX_FORCE_INLINE Tp&& unsafe_value_move(Option<Tp>& option) {
+  return std::move(option.value_ref_());
+}
+
+}  // namespace option
+
+}  // namespace internal
+}  // namespace stx
+
+#define STX_TRY__UTIL_JOIN_(x, y) x##_##y
+#define STX_WITH_UNIQUE_SUFFIX_(x, y) STX_TRY__UTIL_JOIN_(x, y)
+
+#define STX_TRY_OK_IMPL_(STX_ARG_UNIQUE_PLACEHOLDER, identifier, result_expr) \
+  static_assert(!std::is_const_v<decltype((result_expr))>,                    \
+                "the expression: ' " #result_expr                             \
+                " ' evaluates to a const and is not mutable");                \
+  static_assert(!std::is_lvalue_reference_v<decltype((result_expr))>,         \
+                "the expression: ' " #result_expr                             \
+                " ' is an l-value reference, 'TRY_OK' only accepts r-values " \
+                "and r-value references ");                                   \
+  decltype((result_expr))&& STX_ARG_UNIQUE_PLACEHOLDER = (result_expr);       \
+                                                                              \
+  if (STX_ARG_UNIQUE_PLACEHOLDER.is_err())                                    \
+    return Err<decltype((result_expr))::error_type>(                          \
+        stx::internal::result::unsafe_err_move(STX_ARG_UNIQUE_PLACEHOLDER));  \
+                                                                              \
+  decltype((result_expr))::value_type&& identifier =                          \
+      stx::internal::result::unsafe_value_move(STX_ARG_UNIQUE_PLACEHOLDER);
+
+#define STX_TRY_SOME_IMPL_(STX_ARG_UNIQUE_PLACEHOLDER, identifier,      \
+                           option_expr)                                 \
+  static_assert(!std::is_const_v<decltype((option_expr))>,              \
+                "the expression: ' " #option_expr                       \
+                " ' evaluates to a const and is not mutable");          \
   static_assert(                                                        \
-      !std::is_lvalue_reference_v<decltype((result_expr))>,             \
-      "'TRY_OK' is for value forwarding of r-values or temporaries, "   \
-      "consider explicitly calling 'std::move' if the l-value "         \
-      "(reference) is no longer needed");                               \
-  decltype((result_expr)) stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh =       \
-      (result_expr);                                                    \
-  if (stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh.is_err())                   \
-    return Err<decltype((result_expr))::error_type>(                    \
-        std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap_err()); \
-  decltype((result_expr))::value_type identifier =                      \
-      std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap();
+      !std::is_lvalue_reference_v<decltype((option_expr))>,             \
+      "the expression: ' " #option_expr                                 \
+      " ' is an l-value reference, 'TRY_SOME' only accepts r-values "   \
+      "and r-value references ");                                       \
+  decltype((option_expr))&& STX_ARG_UNIQUE_PLACEHOLDER = (option_expr); \
+                                                                        \
+  if (STX_ARG_UNIQUE_PLACEHOLDER.is_none()) return None;                \
+                                                                        \
+  decltype((option_expr))::value_type&& identifier =                    \
+      stx::internal::option::unsafe_value_move(STX_ARG_UNIQUE_PLACEHOLDER);
 
-#define TRY_SOME(identifier, option_expr)                                  \
-  static_assert(                                                           \
-      !std::is_lvalue_reference_v<decltype((option_expr))>,                \
-      "'CO_TRY_SOME' is for value forwarding of r-values or temporaries, " \
-      "consider explicitly calling 'std::move' if the l-value "            \
-      "(reference) is no longer needed");                                  \
-  decltype((option_expr)) stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh =          \
-      (option_expr);                                                       \
-  if (stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh.is_none()) return stx::None;   \
-  decltype((option_expr))::value_type identifier =                         \
-      std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap();
+/// if `result_expr` is a `Result` containing an error, `TRY_OK` returns its
+/// `Err` value.
+///
+/// `result_expr` must be an expression yielding an r-value (reference) of type
+/// `Result`
+#define TRY_OK(identifier, result_expr)                             \
+  STX_TRY_OK_IMPL_(                                                 \
+      STX_WITH_UNIQUE_SUFFIX_(STX_TRY_OK_PLACEHOLDER, __COUNTER__), \
+      identifier, result_expr)
+
+/// if `option_expr` is an `Option` containing a `None`, `TRY_SOME` returns its
+/// `None` value.
+///
+/// `option_expr` must be an expression yielding an r-value (reference) of type
+/// `Option`
+#define TRY_SOME(identifier, option_expr)                             \
+  STX_TRY_SOME_IMPL_(                                                 \
+      STX_WITH_UNIQUE_SUFFIX_(STX_TRY_SOME_PLACEHOLDER, __COUNTER__), \
+      identifier, option_expr)
 
 // Coroutines
-// not tested yet
-
+// this feature is experimental and not widely tested yet
 #if defined(__cpp_coroutines) || defined(__cpp_lib_coroutine)
 
-#define CO_TRY_OK(identifier, result_expr)                               \
-  static_assert(                                                         \
-      !std::is_lvalue_reference_v<decltype((result_expr))>,              \
-      "'CO_TRY_OK' is for value forwarding of r-values or temporaries, " \
-      "consider explicitly calling 'std::move' if the l-value "          \
-      "(reference) is no longer needed");                                \
-  decltype((result_expr)) stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh =        \
-      (result_expr);                                                     \
-  if (stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh.is_err())                    \
-    co_return Err<decltype((result_expr))::error_type>(                  \
-        std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap_err());  \
-  decltype((result_expr))::value_type identifier =                       \
-      std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap();
+#define STX_CO_TRY_OK_IMPL_(STX_ARG_UNIQUE_PLACEHOLDER, identifier,          \
+                            result_expr)                                     \
+  static_assert(!std::is_const_v<decltype((result_expr))>,                   \
+                "the expression: ' " #result_expr                            \
+                " ' evaluates to a const and is not mutable");               \
+  static_assert(                                                             \
+      !std::is_lvalue_reference_v<decltype((result_expr))>,                  \
+      "the expression: ' " #result_expr                                      \
+      " ' is an l-value reference, 'CO_TRY_OK' only accepts r-values "       \
+      "and r-value references ");                                            \
+  decltype((result_expr))&& STX_ARG_UNIQUE_PLACEHOLDER = (result_expr);      \
+                                                                             \
+  if (STX_ARG_UNIQUE_PLACEHOLDER.is_err())                                   \
+    co_return Err<decltype((result_expr))::error_type>(                      \
+        stx::internal::result::unsafe_err_move(STX_ARG_UNIQUE_PLACEHOLDER)); \
+                                                                             \
+  decltype((result_expr))::value_type&& identifier =                         \
+      stx::internal::result::unsafe_value_move(STX_ARG_UNIQUE_PLACEHOLDER);
 
-#define CO_TRY_SOME(identifier, option_expr)                                \
-  static_assert(                                                            \
-      !std::is_lvalue_reference_v<decltype((option_expr))>,                 \
-      "'CO_TRY_SOME' is for value forwarding of r-values or temporaries, "  \
-      "consider explicitly calling 'std::move' if the l-value "             \
-      "(reference) is no longer needed");                                   \
-  decltype((option_expr)) stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh =           \
-      (option_expr);                                                        \
-  if (stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh.is_none()) co_return stx::None; \
-  decltype((option_expr))::value_type identifier =                          \
-      std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap();
+#define STX_CO_TRY_SOME_IMPL_(STX_ARG_UNIQUE_PLACEHOLDER, identifier,    \
+                              option_expr)                               \
+  static_assert(!std::is_const_v<decltype((option_expr))>,               \
+                "the expression: ' " #option_expr                        \
+                " ' evaluates to a const and is not mutable");           \
+  static_assert(                                                         \
+      !std::is_lvalue_reference_v<decltype((option_expr))>,              \
+      "the expression: ' " #option_expr                                  \
+      " ' is an l-value reference, 'CO_TRY_SOME' only accepts r-values " \
+      "and r-value references ");                                        \
+  decltype((option_expr))&& STX_ARG_UNIQUE_PLACEHOLDER = (option_expr);  \
+                                                                         \
+  if (STX_ARG_UNIQUE_PLACEHOLDER.is_none()) co_return None;              \
+                                                                         \
+  decltype((option_expr))::value_type&& identifier =                     \
+      stx::internal::option::unsafe_value_move(STX_ARG_UNIQUE_PLACEHOLDER);
+
+/// COROUTINES ONLY. if `result_expr` is `Result` containing an error,
+/// `CO_TRY_OK` co-returns its `Err` value.
+///
+/// `result_expr` must be an expression yielding an r-value (reference) of type
+/// `Result`
+#define CO_TRY_OK(identifier, result_expr)                             \
+  STX_CO_TRY_OK_IMPL_(                                                 \
+      STX_WITH_UNIQUE_SUFFIX_(STX_CO_TRY_OK_PLACEHOLDER, __COUNTER__), \
+      identifier, result_expr)
+
+/// COROUTINES ONLY. if `option_expr` is an `Option` containing a `None`,
+/// `TRY_SOME` co-returns its `None` value.
+///
+/// `option_expr` must be an expression yielding an r-value (reference) of type
+/// `Option`
+#define CO_TRY_SOME(identifier, option_expr)                             \
+  STX_CO_TRY_SOME_IMPL_(                                                 \
+      STX_WITH_UNIQUE_SUFFIX_(STX_CO_TRY_SOME_PLACEHOLDER, __COUNTER__), \
+      identifier, option_expr)
 
 #endif
