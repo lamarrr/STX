@@ -76,14 +76,27 @@ namespace stx {
 template <typename T>
 struct Some;
 
+struct NoneType;
+
+template <typename T>
+struct Option;
+
+template <typename T>
+struct Ok;
+
+template <typename E>
+struct Err;
+
+template <typename T, typename E>
+struct Result;
+
 //! value-variant Type for `Option<T>` representing no-value
 //!
-//! # Constexpr
+//! # Constexpr ?
 //!
 //! C++ 17 and above
 //!
-class [[nodiscard]] NoneType {
- public:
+struct [[nodiscard]] NoneType {
   constexpr NoneType() noexcept = default;
   constexpr NoneType(NoneType const&) noexcept = default;
   constexpr NoneType(NoneType &&) noexcept = default;
@@ -119,7 +132,7 @@ constexpr NoneType const None{};
 //! # Usage
 //!
 //! Note that `Some` is only a value-forwarding type. It doesn't make copies of
-//! it's constructor arguments and only accepts r-values.
+//! its constructor arguments and only accepts r-values.
 //!
 //! What does this mean?
 //!
@@ -141,7 +154,7 @@ constexpr NoneType const None{};
 //! Option a = Some(std::move(x));
 //! ```
 //!
-//! # Constexpr
+//! # Constexpr ?
 //!
 //! C++ 17 and above
 //!
@@ -167,7 +180,7 @@ struct [[nodiscard]] Some {
   STX_CXX20_DESTRUCTOR_CONSTEXPR ~Some() = default;
 
   [[nodiscard]] constexpr T const& value() const& noexcept { return value_; }
-  [[nodiscard]] constexpr T& value() & noexcept { return value_; }
+  [[nodiscard]] constexpr T& value()& noexcept { return value_; }
   [[nodiscard]] constexpr T const value() const&& { return std::move(value_); }
   [[nodiscard]] constexpr T value()&& { return std::move(value_); }
 
@@ -195,16 +208,34 @@ struct [[nodiscard]] Some {
   T value_;
 
   template <typename Tp>
-  friend class Option;
+  friend struct Option;
 };
-
-template <typename E>
-struct Err;
 
 //! value-variant for `Result<T, E>` wrapping the contained successful value of
 //! type `T`
 //!
-//! # Constexpr
+//! Note that `Ok` is only a value-forwarding type.
+//! An `Ok<T>` can only be constructed with an r-value. What does this mean?
+//!
+//! For example, You can:
+//!
+//! ```cpp
+//! Result<vector<int>, int> a = Ok(vector{1, 2, 3, 4});
+//! ```
+//! You can't:
+//!
+//! ```cpp
+//! vector<int> x {1, 2, 3, 4};
+//! Result<vector<int>, int> a = Ok(x);
+//! ```
+//! But, to explicitly make `a` take ownership, you will:
+//!
+//! ```cpp
+//! vector<int> x {1, 2, 3, 4};
+//! Result<vector<int>, int> a = Ok(std::move(x));
+//! ```
+//!
+//! # Constexpr ?
 //!
 //! C++ 17 and above
 //!
@@ -252,21 +283,43 @@ struct [[nodiscard]] Ok {
   }
 
   [[nodiscard]] constexpr T const& value() const& noexcept { return value_; }
-  [[nodiscard]] constexpr T& value() & noexcept { return value_; }
+  [[nodiscard]] constexpr T& value()& noexcept { return value_; }
   [[nodiscard]] constexpr T const value() const&& { return std::move(value_); }
   [[nodiscard]] constexpr T value()&& { return std::move(value_); }
 
  private:
   T value_;
 
-  template <typename Tp, typename Err>
-  friend class Result;
+  template <typename Tp, typename Er>
+  friend struct Result;
 };
 
 //! error-value variant for `Result<T, E>` wrapping the contained error value of
 //! type `E`
 //!
-//! # Constexpr
+//! Note that `Err` is only a value-forwarding type.
+//! An `Err<E>` can only be constructed with an r-value of type `E`. What does
+//! this mean?
+//!
+//! For example, You can:
+//!
+//! ```cpp
+//! Result<int, vector<int>> a = Err(vector{1, 2, 3, 4});
+//! ```
+//! You can't:
+//!
+//! ```cpp
+//! vector<int> x {1, 2, 3, 4};
+//! Result<int, vector<int>> a = Err(x);
+//! ```
+//! But, to explicitly make `a` take ownership, you will:
+//!
+//! ```cpp
+//! vector<int> x {1, 2, 3, 4};
+//! Result<int, vector<int>> a = Err(std::move(x));
+//! ```
+//!
+//! # Constexpr ?
 //!
 //! C++ 17 and above
 //!
@@ -314,19 +367,29 @@ struct [[nodiscard]] Err {
   }
 
   [[nodiscard]] constexpr E const& value() const& noexcept { return value_; }
-  [[nodiscard]] constexpr E& value() & noexcept { return value_; }
+  [[nodiscard]] constexpr E& value()& noexcept { return value_; }
   [[nodiscard]] constexpr E const value() const&& { return std::move(value_); }
   [[nodiscard]] constexpr E value()&& { return std::move(value_); }
 
  private:
   E value_;
 
-  template <typename Tp, typename Err>
-  friend class Result;
+  template <typename Tp, typename Er>
+  friend struct Result;
 };
 
-template <typename T, typename E>
-class [[nodiscard]] Result;
+// JUST LOOK AWAY
+
+namespace internal {
+namespace option {
+// constructs an r-value reference to the option's value directly, without
+// checking if it is in the `Some` or `None` state. This is totally unsafe and
+// user-end code should **never** use this
+template <typename Tp>
+inline Tp&& unsafe_value_move(Option<Tp>&);
+
+}  // namespace option
+}  // namespace internal
 
 //! Optional values.
 //!
@@ -361,17 +424,17 @@ class [[nodiscard]] Result;
 //!
 //! // The return value of the function is an option
 //! auto result = divide(2.0, 3.0);
-//! move(result).match([](double value) { std::cout << value << std::endl; },
-//!                    []() { std::cout << "has no value"; });
+//! result.match([](double& value) { std::cout << value << std::endl; },
+//!              []() { std::cout << "has no value" << std::endl; });
 //! ```
 //!
 //!
-//! # Constexpr
+//! # Constexpr ?
 //!
 //! C++ 20 and above
 //!
 template <typename T>
-class [[nodiscard]] Option {
+struct [[nodiscard]] Option {
  public:
   using value_type = T;
 
@@ -388,7 +451,7 @@ class [[nodiscard]] Option {
       : storage_value_(std::move(some.value_)), is_none_(false) {}
 
   constexpr Option(Some<T> const& some)
-      : is_none_(false), storage_value_(some.value()) {
+      : storage_value_(some.value()), is_none_(false) {
     static_assert(copy_constructible<T>);
   }
 
@@ -535,6 +598,8 @@ class [[nodiscard]] Option {
   /// ```
   [[nodiscard]] constexpr bool is_none() const noexcept { return is_none_; }
 
+  [[nodiscard]] operator bool() const noexcept { return is_some(); }
+
   /// Returns `true` if the option is a `Some` value containing the given
   /// value.
   ///
@@ -605,7 +670,7 @@ class [[nodiscard]] Option {
   ///
   /// ASSERT_EQ(x, Some(2));
   /// ```
-  [[nodiscard]] T& value() & noexcept {
+  [[nodiscard]] T& value()& noexcept {
     if (is_none_) internal::option::no_lref();
     return value_ref_();
   }
@@ -643,7 +708,7 @@ class [[nodiscard]] Option {
   /// # NOTE
   /// `ConstRef<T>` is an alias for `std::reference_wrapper<T const>` and
   /// guides against reference-collapsing
-  [[nodiscard]] constexpr auto as_cref() const & noexcept->Option<ConstRef<T>> {
+  [[nodiscard]] constexpr auto as_cref() const& noexcept->Option<ConstRef<T>> {
     if (is_some()) {
       return Some<ConstRef<T>>(ConstRef<T>(value_cref_()));
     } else {
@@ -654,9 +719,8 @@ class [[nodiscard]] Option {
   [[deprecated(
       "calling Option::as_cref() on an r-value, and therefore binding a "
       "reference to an object that is marked to be moved")]]  //
-      [[nodiscard]] constexpr auto
-      as_cref() const &&
-      noexcept->Option<ConstRef<T>> = delete;
+  [[nodiscard]] constexpr auto
+  as_cref() const&& noexcept->Option<ConstRef<T>> = delete;
 
   /// Converts from `Option<T>` to `Option<MutRef<T>>`.
   ///
@@ -666,8 +730,8 @@ class [[nodiscard]] Option {
   ///
   /// ``` cpp
   /// auto mutate = [](Option<int>& r) {
-  ///  r.match([](int& ref) { ref = 42; },
-  ///          []() { });
+  ///  r.as_ref().match([](Ref<int> ref) { ref.get() = 42; },
+  ///                   []() { });
   /// };
   ///
   /// auto x = make_some(2);
@@ -678,7 +742,7 @@ class [[nodiscard]] Option {
   /// mutate(y);
   /// ASSERT_EQ(y, None);
   /// ```
-  [[nodiscard]] constexpr auto as_ref() & noexcept->Option<MutRef<T>> {
+  [[nodiscard]] constexpr auto as_ref()& noexcept->Option<MutRef<T>> {
     if (is_some()) {
       return Some<MutRef<T>>(MutRef<T>(value_ref_()));
     } else {
@@ -686,23 +750,21 @@ class [[nodiscard]] Option {
     }
   }
 
-  [[nodiscard]] constexpr auto as_ref() const & noexcept->Option<ConstRef<T>> {
+  [[nodiscard]] constexpr auto as_ref() const& noexcept->Option<ConstRef<T>> {
     return as_cref();
   }
 
   [[deprecated(
       "calling Option::as_ref() on an r-value, and therefore binding a "
       "reference to an object that is marked to be moved")]]  //
-      [[nodiscard]] constexpr auto
-      as_ref() &&
-      noexcept->Option<MutRef<T>> = delete;
+  [[nodiscard]] constexpr auto
+  as_ref()&& noexcept->Option<MutRef<T>> = delete;
 
   [[deprecated(
       "calling Option::as_ref() on an r-value, and therefore binding a "
       "reference to an object that is marked to be moved")]]  //
-      [[nodiscard]] constexpr auto
-      as_ref() const &&
-      noexcept->Option<ConstRef<T>> = delete;
+  [[nodiscard]] constexpr auto
+  as_ref() const&& noexcept->Option<ConstRef<T>> = delete;
 
   /// Unwraps an option, yielding the content of a `Some`.
   ///
@@ -786,7 +848,7 @@ class [[nodiscard]] Option {
     }
   }
 
-  /// Returns the contained value or computes it from a closure.
+  /// Returns the contained value or computes it from a function.
   ///
   /// # Examples
   ///
@@ -1298,8 +1360,7 @@ class [[nodiscard]] Option {
   ///
   /// # Panics
   ///
-  /// Panics if the value is a `Some`, with a panic message including the
-  /// passed message, and the content of the `Some`.
+  /// Panics if the value is a `Some`, with a panic message.
   ///
   ///
   /// # Examples
@@ -1325,8 +1386,7 @@ class [[nodiscard]] Option {
   ///
   /// # Panics
   ///
-  /// Panics if the value is a `Some`, with a panic message including the
-  /// passed message, and the content of the `Some`.
+  /// Panics if the value is a `Some`.
   ///
   ///
   /// # Examples
@@ -1339,8 +1399,8 @@ class [[nodiscard]] Option {
   ///  return Some(num / denom);
   /// };
   ///
-  /// ASSERT_DEATH(divide(0.0, 1.0).expect_none("zero dividend"));
-  /// ASSERT_NO_THROW(divide(1.0, 0.0).expect_none("zero dividend"));
+  /// ASSERT_DEATH(divide(0.0, 1.0).unwrap_none());
+  /// ASSERT_NO_THROW(divide(1.0, 0.0).unwrap_none());
   /// ```
   void unwrap_none()&& {
     if (is_some()) {
@@ -1379,8 +1439,8 @@ class [[nodiscard]] Option {
   /// `Some<T>` variant, else calls `none_fn`. This `Option` is consumed
   /// afterward.
   ///
-  /// The return type of both parameters must be same (without expecting
-  /// implicit conversions). They can also both return nothing `void`.
+  /// The return type of both parameters must be convertible. They can also both
+  /// return nothing ( `void` ).
   ///
   ///
   /// # Examples
@@ -1396,6 +1456,13 @@ class [[nodiscard]] Option {
   ///                                    []() { return "<unidentified>"s; });
   /// ASSERT_EQ(k, "<unidentified>"s);
   /// ```
+  ///
+  /// # Notes
+  ///
+  /// - The `Option`'s reference type is passed to the function arguments. i.e.
+  /// If the `Option` is an r-value, r-value references are passed to the
+  /// function arguments `some_fn` and `none_fn`.
+  ///
   template <typename SomeFn, typename NoneFn>
   [[nodiscard]] constexpr auto match(
       SomeFn && some_fn, NoneFn && none_fn)&&->invoke_result<SomeFn&&, T&&> {
@@ -1527,8 +1594,9 @@ inline Er&& unsafe_err_move(Result<Tp, Er>&);
 //!
 //! parse_version({1u, 2u, 3u, 4u, 5u})
 //!      .match(
-//!          [](auto value) {
-//!            std::cout << "Working with version: " << value << "\n";
+//!          [](auto version) {
+//!            std::cout << "Working with version: "
+//!                      << static_cast<int>(version) << "\n";
 //!          },
 //!          [](auto err) {
 //!            std::cout << "Error parsing header: " << err << "\n";
@@ -1552,17 +1620,20 @@ inline Er&& unsafe_err_move(Result<Tp, Er>&);
 //!
 //! Result is either in the Ok or Err state at any point in time
 //!
-//! # Constexpr
+//! # Constexpr ?
 //!
-//! C++ 17 and above
+//! C++ 20 and above
 //!
 //! # Note
 //!
 //! `Result` unlike `Option` is a value-forwarding type. It doesn't have copy
 //! constructors of any sort. More like a `unique_ptr`.
 //!
+//! `Result` should be seen as a channel (for returning from functions) and not
+//! an object.
+//!
 template <typename T, typename E>
-class [[nodiscard]] Result {
+struct [[nodiscard]] Result {
  public:
   static_assert(movable<T>, "Type must be movable");
   static_assert(movable<E>, "Type must be movable");
@@ -1581,10 +1652,10 @@ class [[nodiscard]] Result {
   using error_type = E;
 
   constexpr Result(Ok<T> && result)
-      : is_ok_(true), storage_value_(std::forward<T>(result.value_)) {}
+      : storage_value_(std::forward<T>(result.value_)), is_ok_(true) {}
 
   constexpr Result(Err<E> && err)
-      : is_ok_(false), storage_err_(std::forward<E>(err.value_)) {}
+      : storage_err_(std::forward<E>(err.value_)), is_ok_(false) {}
 
   // not possible as constexpr yet:
   // 1 - we need to check which variant is present
@@ -1729,6 +1800,8 @@ class [[nodiscard]] Result {
   /// ```
   [[nodiscard]] constexpr bool is_err() const noexcept { return !is_ok(); }
 
+  [[nodiscard]] operator bool() const noexcept { return is_ok(); }
+
   /// Returns `true` if the result is an `Ok<T>` variant and contains the given
   /// value.
   ///
@@ -1855,7 +1928,7 @@ class [[nodiscard]] Result {
   ///
   /// ASSERT_EQ(result, Ok(97));
   /// ```
-  [[nodiscard]] T& value() & noexcept {
+  [[nodiscard]] T& value()& noexcept {
     if (is_err()) internal::result::no_lref(err_cref_());
     return value_ref_();
   }
@@ -1905,7 +1978,7 @@ class [[nodiscard]] Result {
   ///
   /// ASSERT_EQ(result, Err(46));
   /// ```
-  [[nodiscard]] E& err_value() & noexcept {
+  [[nodiscard]] E& err_value()& noexcept {
     if (is_ok_) internal::result::no_err_lref();
     return err_ref_();
   }
@@ -2002,8 +2075,8 @@ class [[nodiscard]] Result {
   /// Result<int, string> y = Err("Error"s);
   /// ASSERT_EQ(y.as_cref().unwrap_err().get(), "Error"s);
   /// ```
-  [[nodiscard]] constexpr auto as_cref() const &
-      noexcept->Result<ConstRef<T>, ConstRef<E>> {
+  [[nodiscard]] constexpr auto as_cref()
+      const& noexcept->Result<ConstRef<T>, ConstRef<E>> {
     if (is_ok()) {
       return Ok<ConstRef<T>>(ConstRef<T>(value_cref_()));
     } else {
@@ -2015,9 +2088,8 @@ class [[nodiscard]] Result {
       "calling Result::as_cref() on an r-value, and "
       "therefore binding an l-value reference to an object that is marked to "
       "be moved")]]  //
-      [[nodiscard]] constexpr auto
-      as_cref() const &&
-      noexcept->Result<ConstRef<T>, ConstRef<E>> = delete;
+  [[nodiscard]] constexpr auto
+  as_cref() const&& noexcept->Result<ConstRef<T>, ConstRef<E>> = delete;
 
   /// Converts from `Result<T, E> &` to `Result<MutRef<T>, MutRef<E>>`.
   ///
@@ -2028,7 +2100,7 @@ class [[nodiscard]] Result {
   /// ``` cpp
   /// auto mutate = [](Result<int, int>& r) {
   ///  r.as_ref().match([](auto ok) { ok.get() = 42; },
-  ///                       [](auto err) { err.get() = 0; });
+  ///                   [](auto err) { err.get() = 0; });
   /// };
   ///
   /// Result<int, int> x = Ok(2);
@@ -2039,8 +2111,8 @@ class [[nodiscard]] Result {
   /// mutate(y);
   /// ASSERT_EQ(y, Err(0));
   /// ```
-  [[nodiscard]] constexpr auto as_ref() &
-      noexcept->Result<MutRef<T>, MutRef<E>> {
+  [[nodiscard]] constexpr auto as_ref()& noexcept
+      ->Result<MutRef<T>, MutRef<E>> {
     if (is_ok()) {
       return Ok<MutRef<T>>(MutRef<T>(value_ref_()));
     } else {
@@ -2048,24 +2120,22 @@ class [[nodiscard]] Result {
     }
   }
 
-  [[nodiscard]] constexpr auto as_ref() const &
-      noexcept->Result<ConstRef<T>, ConstRef<E>> {
+  [[nodiscard]] constexpr auto as_ref()
+      const& noexcept->Result<ConstRef<T>, ConstRef<E>> {
     return as_cref();
   }
 
   [[deprecated(
       "calling Result::as_ref() on an r-value, and therefore binding a "
       "reference to an object that is marked to be moved")]]  //
-      [[nodiscard]] constexpr auto
-      as_ref() &&
-      noexcept->Result<MutRef<T>, MutRef<E>> = delete;
+  [[nodiscard]] constexpr auto
+  as_ref()&& noexcept->Result<MutRef<T>, MutRef<E>> = delete;
 
   [[deprecated(
       "calling Result::as_ref() on an r-value, and therefore binding a "
       "reference to an object that is marked to be moved")]]  //
-      [[nodiscard]] constexpr auto
-      as_ref() const &&
-      noexcept->Result<ConstRef<T>, ConstRef<E>> = delete;
+  [[nodiscard]] constexpr auto
+  as_ref() const&& noexcept->Result<ConstRef<T>, ConstRef<E>> = delete;
 
   /// Maps a `Result<T, E>` to `Result<U, E>` by applying the function `op` to
   /// the contained `Ok<T>` value, leaving an `Err<E>` value untouched.
@@ -2512,8 +2582,8 @@ class [[nodiscard]] Result {
   /// Calls the parameter `ok_fn` with the value if this result is an `Ok<T>`,
   /// else calls `err_fn` with the error. This result is consumed afterward.
   ///
-  /// The return type of both parameters must be same (without expecting
-  /// implicit conversions). They can also both return nothing `void`.
+  /// The return type of both parameters must be convertible. They can also both
+  /// return nothing ( `void` ).
   ///
   ///
   /// # Examples
@@ -2529,11 +2599,17 @@ class [[nodiscard]] Result {
   ///
   ///
   /// auto x = make_err<int, string_view>("404 Not Found"sv);
-  /// // you can return nothing
-  /// move(x).match([](int) {},
-  ///               [](string_view s) { std::cout << "Error: " << s << "\n";
-  ///               });
+  /// // you can return nothing (void)
+  /// x.match([](int&) {},
+  ///         [](string_view& s) { std::cout << "Error: " << s << "\n"; });
   /// ```
+  ///
+  /// # Notes
+  ///
+  /// - The `Result`'s reference type is passed to the function arguments. i.e.
+  /// If the `Result` is an r-value, r-value references are passed to the
+  /// function arguments `some_fn` and `none_fn`.
+  ///
   template <typename OkFn, typename ErrFn>
   [[nodiscard]] constexpr auto match(
       OkFn && ok_fn, ErrFn && err_fn)&&->invoke_result<OkFn&&, T&&> {
@@ -2573,6 +2649,17 @@ class [[nodiscard]] Result {
     }
   }
 
+  /// Returns a copy of the result and its contents.
+  ///
+  /// # Examples
+  ///
+  /// Basic usage:
+  ///
+  /// ``` cpp
+  /// Result<int, int> x  = Ok(8);
+  ///
+  /// ASSERT_EQ(x, x.clone());
+  /// ```
   [[nodiscard]] constexpr auto clone() const->Result<T, E> {
     static_assert(copy_constructible<T>);
     static_assert(copy_constructible<E>);
@@ -2585,11 +2672,12 @@ class [[nodiscard]] Result {
   }
 
  private:
-  bool is_ok_;
   union {
     T storage_value_;
     E storage_err_;
   };
+
+  bool is_ok_;
 
   [[nodiscard]] constexpr T& value_ref_() noexcept { return storage_value_; }
 
@@ -2602,6 +2690,12 @@ class [[nodiscard]] Result {
   [[nodiscard]] constexpr E const& err_cref_() const noexcept {
     return storage_err_;
   }
+
+  template <typename Tp, typename Er>
+  friend Tp&& internal::result::unsafe_value_move(Result<Tp, Er>&);
+
+  template <typename Tp, typename Er>
+  friend Er&& internal::result::unsafe_err_move(Result<Tp, Er>&);
 };
 
 template <typename U, typename T, typename E>
@@ -2643,7 +2737,7 @@ template <typename F, typename T, typename E>
 /// Option g = Some(9);
 /// Option h = Some<int>(9);
 /// Option<int> i = Some(9);
-/// auto j = make_some(9);
+/// auto j = Option(Some(9));
 /// auto k = Option<int>(Some<int>(9));
 /// auto l = Option<int>(Some(9));
 /// // ... and a few more
@@ -2659,7 +2753,7 @@ template <typename F, typename T, typename E>
 /// // is auto-deduced from make_some's parameter type.
 /// ```
 ///
-/// # Constexpr
+/// # Constexpr ?
 ///
 /// C++ 20 and above
 ///
@@ -2680,8 +2774,8 @@ template <typename T>
 /// // these are some of the various ways to construct on Option<T> with
 /// // a None value
 /// Option<int> h = None;
-/// auto i = make_none<int>();
-/// Option j = make_none<int>();
+/// auto i = Option<int>(None);
+/// Option j = Option<int>(None);
 /// Option<int> k = make_none<int>();
 ///
 /// // to make it easier and less verbose:
@@ -2691,7 +2785,7 @@ template <typename T>
 /// // observe that m is constructed as an Option<int> (=Option<T>) and T(=int).
 /// ```
 ///
-/// # Constexpr
+/// # Constexpr ?
 ///
 /// C++ 20 and above
 ///
@@ -2730,7 +2824,7 @@ template <typename T>
 /// // (=Result<T, E>).
 /// ```
 ///
-/// # Constexpr
+/// # Constexpr ?
 ///
 /// C++ 20 and above
 ///
@@ -2768,7 +2862,7 @@ template <typename T, typename E>
 ///
 /// ```
 ///
-/// # Constexpr
+/// # Constexpr ?
 ///
 /// C++ 20 and above
 ///
