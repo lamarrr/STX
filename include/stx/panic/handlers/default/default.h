@@ -33,12 +33,26 @@
 #include <mutex>   // mutex NOLINT
 #include <thread>  // thread::id NOLINT
 
+#include "stx/panic/handlers/print.h"
+
 #if defined(STX_ENABLE_PANIC_BACKTRACE)
 #include "stx/backtrace.h"
 #endif
 
 namespace stx {
 
+// here, we can avoid any form of memory allocation that might be needed,
+// therefore deferring the info string and report payload to the callee and can
+// also use a stack allocated string especially in cases where dynamic memory
+// allocation is undesired
+// this is also thread-safe.
+//
+// most considerations here are for constrained systems. We can't just use
+// `printf` as it is implementation-defined whether it uses dynamic memory
+// allocation or not. Also, we can't pack the strings into a buffer and `fputs`
+// at once as the buffer can likely not be enough, instead we reuse the buffer.
+// May not be fast, but it is a panic anyway.
+//
 inline void panic_default(std::string_view const& info,
                           ReportPayload const& payload,
                           SourceLocation const& location) noexcept {
@@ -46,16 +60,23 @@ inline void panic_default(std::string_view const& info,
 
   static std::mutex stderr_lock;
 
-  char log_buffer[kFormatBufferSize];
+  // probably too much, but enough
+  // this will at least hold a formatted uint128_t (40 digits)
+  static constexpr const int kFmtBufferSize = 64;
 
-  auto thread_id_hash = kThreadIdHash(std::this_thread::get_id());
+  // we use this buffer for all formatting operations. as it is implementation
+  // defined whether fprintf uses dynamic mem alloc
+  // only one thread can print at a time so this is safe
+  static char fmt_buffer[kFmtBufferSize];
 
   stderr_lock.lock();
 
+  thread_local size_t const thread_id_hash =
+      kThreadIdHasher(std::this_thread::get_id());
+
   std::fputs("\nthread with hash: '", stderr);
 
-  std::snprintf(log_buffer, kFormatBufferSize, "%zu", thread_id_hash);
-  std::fputs(log_buffer, stderr);
+  STX_PANIC_EPRINTF_WITH(fmt_buffer, kFmtBufferSize, "%zu", thread_id_hash);
 
   std::fputs("' panicked with: '", stderr);
 
@@ -64,17 +85,14 @@ inline void panic_default(std::string_view const& info,
   }
 
   if (!payload.data().empty()) {
-    std::fputc(':', stderr);
-    std::fputc(' ', stderr);
+    std::fputs(": ", stderr);
 
     for (auto c : payload.data()) {
       std::fputc(c, stderr);
     }
   }
 
-  std::fputc('\'', stderr);
-
-  std::fputs(" at function: '", stderr);
+  std::fputs("' at function: '", stderr);
 
   std::fputs(location.function_name(), stderr);
 
@@ -84,18 +102,20 @@ inline void panic_default(std::string_view const& info,
 
   std::fputc(':', stderr);
 
-  if (location.line() != 0) {
-    std::snprintf(log_buffer, kFormatBufferSize, "%d", location.line());
-    std::fputs(log_buffer, stderr);
+  auto line = location.line();
+
+  if (line != 0) {
+    STX_PANIC_EPRINTF_WITH(fmt_buffer, kFmtBufferSize, "%" PRIuLEAST32, line);
   } else {
     std::fputs("unknown", stderr);
   }
 
   std::fputc(':', stderr);
 
-  if (location.column() != 0) {
-    std::snprintf(log_buffer, kFormatBufferSize, "%d", location.column());
-    std::fputs(log_buffer, stderr);
+  auto column = location.column();
+
+  if (column != 0) {
+    STX_PANIC_EPRINTF_WITH(fmt_buffer, kFmtBufferSize, "%" PRIuLEAST32, column);
   } else {
     std::fputs("unknown", stderr);
   }
@@ -105,7 +125,6 @@ inline void panic_default(std::string_view const& info,
   std::fflush(stderr);
 
 #if defined(STX_ENABLE_PANIC_BACKTRACE)
-  // assumes the presence of an operating system
 
   std::fputs(
       "\nBacktrace:\nip: Instruction Pointer,  sp: Stack "
@@ -113,26 +132,33 @@ inline void panic_default(std::string_view const& info,
       stderr);
 
   int frames = backtrace::trace(
+      [](backtrace::Frame frame, int i) {
+        auto const print_none = []() { std::fputs("unknown", stderr); };
 
-    std::fprintf(stderr, "#%d\t\t", i);
+        auto const print_ptr = [](uintptr_t ip) {
+          STX_PANIC_EPRINTF(kxPtrFmtSize, "0x%" PRIxPTR, ip);
+        };
 
-    frame.symbol.as_ref().match(
-        [](Ref<backtrace::Symbol> sym) {
-          for (char c : sym.get().raw()) {
-            std::fputc(c, stderr);
-          }
-        },
-        print_none);
+        // int varies
+        STX_PANIC_EPRINTF(kI32FmtSize + 8, "#%d\t\t", i);
 
-    std::fputs("\t (ip: ", stderr);
+        frame.symbol.match(
+            [](backtrace::Symbol& sym) {
+              for (char c : sym.raw()) {
+                std::fputc(c, stderr);
+              }
+            },
+            print_none);
 
-    frame.ip.as_ref().match(print_ptr, print_none);
+        std::fputs("\t (ip: ", stderr);
 
-    std::fputs(", sp: ", stderr);
+        frame.ip.match(print_ptr, print_none);
 
-    frame.sp.as_ref().match(print_ptr, print_none);
+        std::fputs(", sp: ", stderr);
 
-    std::fputs(")\n", stderr);
+        frame.sp.match(print_ptr, print_none);
+
+        std::fputs(")\n", stderr);
 
         return false;
       },
