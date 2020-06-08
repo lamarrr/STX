@@ -1439,6 +1439,7 @@ class [[nodiscard]] Option {
   union {
     T storage_value_;
   };
+
   bool is_none_;
 
   [[nodiscard]] constexpr T& value_ref_() { return storage_value_; }
@@ -1446,6 +1447,9 @@ class [[nodiscard]] Option {
   [[nodiscard]] constexpr T const& value_cref_() const {
     return storage_value_;
   }
+
+  template <typename Tp>
+  friend Tp&& internal::option::unsafe_value_move(Option<Tp>&);
 };
 
 template <typename U, typename T>
@@ -1471,6 +1475,26 @@ template <typename T>
                                         Option<T> const& option) noexcept {
   return option.is_some();
 }
+
+// JUST LOOK AWAY
+
+namespace internal {
+namespace result {
+
+// constructs an r-value reference to the result's value directly, without
+// checking if it is in the `Ok` or `Err` state. This is totally unsafe and
+// user-end code should **never** use this
+template <typename Tp, typename Er>
+inline Tp&& unsafe_value_move(Result<Tp, Er>&);
+
+// constructs an r-value reference to the result's error directly, without
+// checking if it is in the `Err` or `Ok` state. This is totally unsafe and
+// user-end code should **never** use this
+template <typename Tp, typename Er>
+inline Er&& unsafe_err_move(Result<Tp, Er>&);
+
+}  // namespace result
+}  // namespace internal
 
 //! ### Error handling with the `Result` type.
 //!
