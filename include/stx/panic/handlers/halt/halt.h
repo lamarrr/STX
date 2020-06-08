@@ -49,4 +49,4 @@ inline void panic_halt(std::string_view const& info,
   while (halt) {
   }
 }
-};  // namespace stx
+}  // namespace stx

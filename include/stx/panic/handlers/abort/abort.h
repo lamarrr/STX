@@ -47,4 +47,4 @@ namespace stx {
   std::abort();
 }
 
-};  // namespace stx
+}  // namespace stx
