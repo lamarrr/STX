@@ -78,7 +78,7 @@ To define your panic handlers, we have provided a few behaviours for your use:
 
 # Overriding the default panic behaviour
 
-Suppose you want to log the errors to disk or to a network before terminating the program, you can define your custom panic handlers to do that.
+Failure reporting varies from project to project, suppose you want to log the errors to disk or to a network before terminating the program due to a `panic`, you can define your custom panic handlers to do that.
 
 **NOTE**: A panic handler can only be defined once (One Definition Rule).
 
