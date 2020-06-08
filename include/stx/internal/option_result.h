@@ -206,8 +206,6 @@ struct Err;
 //!
 //! # Constexpr
 //!
-//! # Constexpr ?
-//!
 //! C++ 17 and above
 //!
 template <typename T>
@@ -327,8 +325,18 @@ struct [[nodiscard]] Err {
   friend class Result;
 };
 
-template <typename T, typename E>
-class [[nodiscard]] Result;
+// JUST LOOK AWAY
+
+namespace internal {
+namespace option {
+// constructs an r-value reference to the option's value directly, without
+// checking if it is in the `Some` or `None` state. This is totally unsafe and
+// user-end code should **never** use this
+template <typename Tp>
+inline Tp&& unsafe_value_move(Option<Tp>&);
+
+}  // namespace option
+}  // namespace internal
 
 //! Optional values.
 //!
