@@ -30,12 +30,10 @@
 
 #include "stx/report.h"
 
+#include <charconv>
 #include <limits>
 
 #include "gtest/gtest.h"
-
-enum class IoError { EoF = 1, NotExists = 2, InvalidPath = 4, __Reserved };
-enum class Dummy {};
 
 using namespace stx;
 using namespace std::literals;
@@ -47,21 +45,32 @@ STX_FORCE_INLINE bool ends_with(std::string_view const& str,
          str.compare(str.size() - sv.size(), std::string_view::npos, sv) == 0;
 }
 
-template <>
-Report stx::operator>>(ReportQuery, IoError const& v) noexcept {
+enum class IoError { EoF = 1, NotExists = 2, InvalidPath = 4, __Reserved };
+enum class Dummy {};
+
+SpanReport operator>>(ReportQuery, IoError const& v) noexcept {
   switch (v) {
     case IoError::EoF:
-      return Report("End of File");
+      return SpanReport("End of File");
     case IoError::NotExists:
-      return Report("File does not exist");
+      return SpanReport("File does not exist");
     case IoError::InvalidPath:
-      return Report("Invalid Path provided");
+      return SpanReport("Invalid Path provided");
     default:
-      return Report("Unknown Error");
+      return SpanReport("Unknown Error");
   }
 }
 
 static constexpr auto query = ReportQuery{};
+
+TEST(ReportTest, FormatPointer) {
+  EXPECT_TRUE((query >> (int*)0x28e7).what() == "0x28e7"s);
+
+  EXPECT_TRUE((query >> (int const*)0x28e7).what() == "0x28e7"s);
+
+  int const* const c = (int const*)0x28e7;
+  EXPECT_TRUE((query >> c).what() == "0x28e7"s);
+}
 
 TEST(ReportTest, FormatUInt8) {
   uint8_t a = 255;
@@ -75,15 +84,40 @@ TEST(ReportTest, FormatInt8) {
   int8_t a = 127;
   EXPECT_EQ((query >> a).what(), "127");
 
-  EXPECT_TRUE((query >> (int*)0x28e7).what() == "0x28e7"s);
-
   int8_t b = -128;
   EXPECT_EQ((query >> b).what(), "-128");
 }
 
+TEST(ReportTest, FormatUInt16) {
+  uint16_t a = std::numeric_limits<uint16_t>::min();
+  EXPECT_EQ((query >> a).what(), std::to_string(a));
+
+  uint16_t b = std::numeric_limits<uint16_t>::max();
+  EXPECT_EQ((query >> b).what(), std::to_string(b));
+}
+
 TEST(ReportTest, FormatInt16) {
-  int16_t a = -1;
-  EXPECT_EQ((query >> a).what(), "-1");
+  int16_t a = std::numeric_limits<int16_t>::min();
+  EXPECT_EQ((query >> a).what(), std::to_string(a));
+
+  int16_t b = std::numeric_limits<int16_t>::max();
+  EXPECT_EQ((query >> b).what(), std::to_string(b));
+}
+
+TEST(ReportTest, FormatUInt32) {
+  uint32_t a = std::numeric_limits<uint32_t>::min();
+  EXPECT_EQ((query >> a).what(), std::to_string(a));
+
+  uint32_t b = std::numeric_limits<uint32_t>::max();
+  EXPECT_EQ((query >> b).what(), std::to_string(b));
+}
+
+TEST(ReportTest, FormatInt32) {
+  int32_t a = std::numeric_limits<int32_t>::min();
+  EXPECT_EQ((query >> a).what(), std::to_string(a));
+
+  int32_t b = std::numeric_limits<int32_t>::max();
+  EXPECT_EQ((query >> b).what(), std::to_string(b));
 }
 
 TEST(ReportTest, FormatEnum) {
@@ -94,21 +128,29 @@ TEST(ReportTest, FormatEnum) {
   EXPECT_EQ((query >> IoError::__Reserved).what(), "Unknown Error");
 
   auto a = std::string();
-  for (size_t i = 0; i < kMaxReportSize; i++) {
+  for (size_t i = 0; i < kReportReserveSize; i++) {
     a += "H";
   }
 
   auto b = std::string();
-  for (size_t i = 0; i < kMaxReportSize + 1; i++) {
+  for (size_t i = 0; i < kReportReserveSize + 1; i++) {
     b += "H";
   }
 
-  EXPECT_FALSE(ends_with((query >> a).what(), kReportTruncationMessage));
-  EXPECT_TRUE(ends_with((query >> b).what(), kReportTruncationMessage));
+  EXPECT_FALSE(ends_with((query >> a).what(), "HHHHh"));
+  EXPECT_EQ((query >> b).what(), b);
 
   EXPECT_EQ((query >> "Hello"sv).what(), "Hello");
 
   auto strq = "Hi"sv;
 
   EXPECT_EQ((query >> strq).what(), strq);
+}
+
+TEST(ReportTest, UnReportable) {
+  struct Dummy {};
+  EXPECT_EQ((query >> Dummy{}).what(), "");
+  int c = 98;
+  stx::Ref<int> g(c);
+  EXPECT_EQ(g, c);
 }
