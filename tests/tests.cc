@@ -32,8 +32,8 @@
 
 /*******************************
 
-Don't just test with simple integral/POD types, also test with complex objects
-involving memory allocation.
+Don't just test with simple integral/POD/trivial types, also test with complex
+objects involving memory allocation.
 
 *******************************/
 
