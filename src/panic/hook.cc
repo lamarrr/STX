@@ -52,7 +52,7 @@ STX_LOCAL AtomicPanicHook& panic_hook_ref() noexcept {
 
 }  // namespace stx
 
-STX_EXPORT bool stx::panic_hook_visible() noexcept { return kVisiblePanicHook; }
+STX_EXPORT bool stx::panic_hook_visible() noexcept { return kPanicHookVisible; }
 
 STX_EXPORT bool stx::this_thread::is_panicking() noexcept {
   return stx::this_thread::step_panic_count(0) != 0;

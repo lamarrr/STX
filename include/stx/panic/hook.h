@@ -60,9 +60,9 @@
 namespace stx {
 
 #if defined(STX_VISIBLE_PANIC_HOOK)
-constexpr bool kVisiblePanicHook = true;
+constexpr bool kPanicHookVisible = true;
 #else
-constexpr bool kVisiblePanicHook = false;
+constexpr bool kPanicHookVisible = false;
 #endif
 
 // multiple threads can try to modify/read the hook at once.
