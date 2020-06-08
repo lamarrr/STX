@@ -33,15 +33,15 @@
 namespace stx {
 
 ///
-/// The source_location class represents certain information about the source
+/// The `SourceLocation`  class represents certain information about the source
 /// code, such as file names, line numbers, and function names. Previously,
 /// functions that desire to obtain this information about the call site (for
 /// logging, testing, or debugging purposes) must use macros so that predefined
 /// macros like `__LINE__` and `__FILE__` are expanded in the context of the
-/// caller. The source_location class provides a better alternative.
+/// caller. The `SourceLocation` class provides a better alternative.
 ///
 ///
-/// https://en.cppreference.com/w/cpp/utility/source_location
+/// based on: https://en.cppreference.com/w/cpp/utility/source_location
 ///
 // It's equivalent to GCC's implementation
 struct [[nodiscard]] SourceLocation {
@@ -59,15 +59,15 @@ struct [[nodiscard]] SourceLocation {
 #endif
 
 #if STX_HAS_BUILTIN(LINE)
-      uint32_t line = __builtin_LINE(),
+      uint_least32_t line = __builtin_LINE(),
 #else
-      uint32_t line = 0,
+      uint_least32_t line = 0,
 #endif
 
 #if STX_HAS_BUILTIN(COLUMN)
-      uint32_t column = __builtin_COLUMN()
+      uint_least32_t column = __builtin_COLUMN()
 #else
-      uint32_t column = 0
+      uint_least32_t column = 0
 #endif
           ) noexcept {
     SourceLocation loc{};
@@ -89,14 +89,21 @@ struct [[nodiscard]] SourceLocation {
       default;
   ~SourceLocation() noexcept = default;
 
-  constexpr uint32_t column() const noexcept { return column_; }
-  constexpr uint32_t line() const noexcept { return line_; }
+  /// return the column number represented by this object
+  constexpr uint_least32_t column() const noexcept { return column_; }
+
+  /// return the line number represented by this object
+  constexpr uint_least32_t line() const noexcept { return line_; }
+
+  /// return the file name represented by this object
   constexpr const char* file_name() const noexcept { return file_; }
+
+  /// return the name of the function represented by this object, if any
   constexpr const char* function_name() const noexcept { return func_; }
 
  private:
-  uint32_t line_;
-  uint32_t column_;
+  uint_least32_t line_;
+  uint_least32_t column_;
   const char* file_;
   const char* func_;
 };
