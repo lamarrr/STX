@@ -94,15 +94,20 @@ concept Impl = std::is_base_of_v<Base, T>;
 #endif
 
 /// pointer hex formatting
+///
 /// 0xaabbccdd => 4 bytes (+ 8 chars)
+///
 /// 0xaa => 1 byte (+ 2 chars)
+///
 /// 0xaabb => 2 bytes (+ 4 chars)
+///
 /// we leave 2 extra bytes for tolerance
 constexpr int kxPtrFmtSize = static_cast<int>((sizeof(void*) << 1) + 2 + 2);
 
-/// note that they also depend on word size
-/// we also can't allocate less, though it can be a bit much, such as int64_t on
-/// 32-bit platforms
+// note that the sizes are also affected by the word size. i.e. int64_t and
+// size_t will be 32-bit on some platforms, we thus can't allocate less memory
+// than required on the stack, though it can be a bit much, such as int64_t on
+// 32-bit platforms
 
 /// 10 digits + 1 sign
 constexpr int kI32FmtSize = 11;
