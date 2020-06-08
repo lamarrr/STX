@@ -33,7 +33,6 @@ project(
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
 
 include(CMakeDependentOption)
-include(CheckCXXCompilerFlag)
 include(HandleFlags)
 
 # we have to inform the user of the standards version change, else it'll cause
@@ -334,36 +333,24 @@ if(STX_BUILD_TESTS)
   macro(try_add_sanitized_test sanitize_mode)
     # only known to be supported on GCC and Clang, If otherwise drop a PR!
     if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU|Clang")
-      check_cxx_compiler_flag("-fsanitize=${sanitize_mode}"
-                              STX_HAS_${sanitize_mode}_SANITIZER)
 
-      if(STX_HAS_${sanitize_mode}_SANITIZER)
-
-        add_executable(stx_tests_${sanitize_mode}_sanitized ${STX_TEST_SRCS})
-        target_compile_options(
-          stx_tests_${sanitize_mode}_sanitized
-          PRIVATE "-fsanitize=${sanitize_mode}" ${STX_FLAGS}
-                  ${STX_WARNING_FLAGS} ${STX_TEST_WARNING_FLAGS})
-        target_compile_definitions(stx_tests_${sanitize_mode}_sanitized
-                                   PRIVATE STX_OVERRIDE_PANIC_HANDLER)
-        target_include_directories(stx_tests_${sanitize_mode}_sanitized
-                                   PRIVATE tests)
-        target_link_libraries(stx_tests_${sanitize_mode}_sanitized stx
-                              gtest_main gtest "-fsanitize=${sanitize_mode}")
-
-      else()
-        message(
-          WARNING
-            "[STX] Compiler does not have ${sanitize_mode} sanitizer, ${sanitize_mode}-sanitized tests will not be built"
-        )
-
-      endif()
+      add_executable(stx_tests_${sanitize_mode}_sanitized ${STX_TEST_SRCS})
+      target_compile_options(
+        stx_tests_${sanitize_mode}_sanitized
+        PRIVATE "-fsanitize=${sanitize_mode}" ${STX_FLAGS} ${STX_WARNING_FLAGS}
+                ${STX_TEST_WARNING_FLAGS})
+      target_compile_definitions(stx_tests_${sanitize_mode}_sanitized
+                                 PRIVATE STX_OVERRIDE_PANIC_HANDLER)
+      target_include_directories(stx_tests_${sanitize_mode}_sanitized
+                                 PRIVATE tests)
+      target_link_libraries(stx_tests_${sanitize_mode}_sanitized stx gtest_main
+                            gtest "-fsanitize=${sanitize_mode}")
 
     else()
 
       message(
         WARNING
-          "[STX] Compiler does not have ${sanitize_mode} sanitizer, ${sanitize_mode}-sanitized tests will not be built"
+          "[STX] We only build sanitized tests for GCC and Clang. Sanitized tests will not be built"
       )
 
     endif()
