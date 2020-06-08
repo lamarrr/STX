@@ -35,6 +35,7 @@
 
 #include "absl/debugging/stacktrace.h"
 #include "absl/debugging/symbolize.h"
+#include "stx/panic/handlers/print.h"
 
 namespace stx {
 
@@ -43,8 +44,7 @@ auto backtrace::Symbol::raw() const noexcept -> std::string_view {
 }
 
 int backtrace::trace(Callback callback, int skip_count) {
-
-  // auto head_sp = static_cast<uintptr_t>(&stack_head);
+  // TODO(lamarrr): get stack pointer in a portable and well-defined way
 
   void* ips[STX_MAX_STACK_FRAME_DEPTH];
   //  uintptr_t sps[STX_MAX_STACK_FRAME_DEPTH];
@@ -58,8 +58,6 @@ int backtrace::trace(Callback callback, int skip_count) {
   char symbol[STX_SYMBOL_BUFFER_SIZE];
   int max_len = STX_SYMBOL_BUFFER_SIZE;
 
-  // uintptr_t stack_ptr = head_sp;
-
   for (int i = 0; i < depth; i++) {
     symbol[0] = '\0';
     Frame frame{};
@@ -68,15 +66,10 @@ int backtrace::trace(Callback callback, int skip_count) {
       frame.symbol = Some(backtrace::Symbol(std::move(span)));
     }
 
-    // stack_ptr += static_cast<uintptr_t>(sizes[i]);
-
     frame.ip = Some(reinterpret_cast<uintptr_t>(ips[i]));
-
-    // frame.sp = Some(static_cast<uintptr_t>(stack_ptr));
 
     if (callback(std::move(frame), depth - i)) break;
   }
-
   return depth;
 }
 
@@ -84,36 +77,43 @@ namespace {
 
 void print_backtrace() {
   fputs(
-      "\n\nBacktrace:\nip: Instruction Pointer,  sp: Stack "
-      "Pointer\n\n",
+      R"(Printing Backtrace...
+
+NOTE: ip => Instruction Pointer,  sp => Stack Pointer
+)",
       stderr);
 
   int frames = backtrace::trace(
       [](backtrace::Frame frame, int i) {
-      fprintf(stderr, "0x%" PRIxPTR, ptr);
-    };
+        auto const print_none = []() { fputs("unknown", stderr); };
+        auto const print_ptr = [](uintptr_t ptr) {
+          STX_PANIC_EPRINTF(kxPtrFmtSize, "0x%" PRIxPTR, ptr);
+        };
 
-    fprintf(stderr, "#%d\t\t", i);
+        // int is native and not specific but we'll use this anyways
+        STX_PANIC_EPRINTF(kI32FmtSize + 10, "#%" PRId32 "\t\t", i);
 
-    frame.symbol.match(
-        [](auto& sym) {
-          for (char c : sym.raw()) {
-            fputc(c, stderr);
-          }
-        },
-        print_none);
+        frame.symbol.match(
+            [](backtrace::Symbol& sym) {
+              for (char c : sym.raw()) {
+                std::fputc(c, stderr);
+              }
+            },
+            print_none);
 
-    fputs("\t (ip: ", stderr);
+        std::fputs("\t (ip: ", stderr);
 
-    frame.ip.match(print_ptr, print_none);
+        frame.ip.match(print_ptr, print_none);
 
-    fputs(", sp: ", stderr);
+        std::fputs(", sp: ", stderr);
 
-    frame.sp.match(print_ptr, print_none);
+        frame.sp.match(print_ptr, print_none);
 
-    fputs(")\n", stderr);
+        std::fputs(")\n", stderr);
 
-    return false;
+        return false;
+      },
+      2);
 
   if (frames == 0) {
     std::fputs(
@@ -122,26 +122,26 @@ void print_backtrace() {
         stderr);
   }
 
-  fputs("\n", stderr);
+  std::fputs("\n", stderr);
 }
 
 [[noreturn]] void signal_handler(int signal) {
-  fputs("\n\n", stderr);
+  std::fputs("\n\n", stderr);
   switch (signal) {
     case SIGSEGV:
-      fputs(
+      std::fputs(
           "Received 'SIGSEGV' signal. Invalid memory access occurred "
           "(segmentation fault).",
           stderr);
       break;
     case SIGILL:
-      fputs(
+      std::fputs(
           "Received 'SIGILL' signal. Invalid program image (illegal/invalid "
           "instruction, i.e. nullptr dereferencing).",
           stderr);
       break;
     case SIGFPE:
-      fputs(
+      std::fputs(
           "Received 'SIGFPE' signal. Erroneous arithmetic operation (i.e. "
           "divide by zero).",
           stderr);
