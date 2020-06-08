@@ -325,18 +325,8 @@ struct [[nodiscard]] Err {
   friend class Result;
 };
 
-// JUST LOOK AWAY
-
-namespace internal {
-namespace option {
-// constructs an r-value reference to the option's value directly, without
-// checking if it is in the `Some` or `None` state. This is totally unsafe and
-// user-end code should **never** use this
-template <typename Tp>
-inline Tp&& unsafe_value_move(Option<Tp>&);
-
-}  // namespace option
-}  // namespace internal
+template <typename T, typename E>
+class [[nodiscard]] Result;
 
 //! Optional values.
 //!
@@ -2459,9 +2449,9 @@ class [[nodiscard]] Result {
   ///                                                             // expect_err:
   ///                                                             // 10"
   /// ```
-  [[nodiscard]] auto expect_err(std::string_view msg)&&->E {
+  [[nodiscard]] auto expect_err(std::string_view const& msg)&&->E {
     if (is_ok()) {
-      internal::result::expect_err_failed(std::move(msg));
+      internal::result::expect_err_failed(msg);
     }
     return std::move(err_ref_());
   }
