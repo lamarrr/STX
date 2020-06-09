@@ -44,6 +44,7 @@ void panic_handler(std::string_view const& info, ReportPayload const& payload,
 /// Handles and dispatches the panic handler. The debugging breakpoint should be
 /// attached to this function to investigate panics.
 ///
+/// # WARNING
 ///
 /// DO NOT INVOKE THIS FUNCTION!!!
 ///
