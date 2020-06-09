@@ -1536,14 +1536,14 @@ template <typename U, typename T>
 }
 
 template <typename T>
-[[nodiscard]] constexpr bool operator==(NoneType const&,
-                                        Option<T> const& option) noexcept {
+[[nodiscard]] STX_FORCE_INLINE constexpr bool operator==(
+    NoneType const&, Option<T> const& option) noexcept {
   return option.is_none();
 }
 
 template <typename T>
-[[nodiscard]] constexpr bool operator!=(NoneType const&,
-                                        Option<T> const& option) noexcept {
+[[nodiscard]] STX_FORCE_INLINE constexpr bool operator!=(
+    NoneType const&, Option<T> const& option) noexcept {
   return option.is_some();
 }
 
