@@ -160,10 +160,11 @@ constexpr NoneType const None{};
 //!
 template <typename T>
 struct [[nodiscard]] Some {
-  static_assert(movable<T>, "Type must be movable");
+  static_assert(movable<T>, "Value type 'T' for 'Option<T>' must be movable");
   static_assert(
       !is_reference<T>,
-      "Cannot use T& nor T&& for type, To prevent subtleties use "
+      "Cannot use a reference for value type 'T' of 'Option<T>' , To prevent "
+      "subtleties use "
       "type wrappers like std::reference_wrapper (stx::Ref) or any of the "
       "`stx::ConstRef` or `stx::MutRef` specialized aliases instead");
 
@@ -241,10 +242,11 @@ struct [[nodiscard]] Some {
 //!
 template <typename T>
 struct [[nodiscard]] Ok {
-  static_assert(movable<T>, "Type must be movable");
+  static_assert(movable<T>, "Value type 'T' for 'Ok<T>' must be movable");
   static_assert(
       !is_reference<T>,
-      "Cannot use T& nor T&& for type, To prevent subtleties use "
+      "Cannot use a reference for value type 'T' of 'Ok<T>' , To prevent "
+      "subtleties use "
       "type wrappers like std::reference_wrapper (stx::Ref) or any of the "
       "`stx::ConstRef` or `stx::MutRef` specialized aliases instead");
 
@@ -325,10 +327,11 @@ struct [[nodiscard]] Ok {
 //!
 template <typename E>
 struct [[nodiscard]] Err {
-  static_assert(movable<E>, "Type must be movable");
+  static_assert(movable<E>, "Error type 'E' for 'Err<E>' must be movable");
   static_assert(
       !is_reference<E>,
-      "Cannot use E& nor E&& for type, To prevent subtleties use "
+      "Cannot use a reference for error type 'E' of 'Err<E>' , To prevent "
+      "subtleties use "
       "type wrappers like std::reference_wrapper (stx::Ref) or any of the "
       "`stx::ConstRef` or `stx::MutRef` specialized aliases instead");
 
@@ -438,10 +441,11 @@ struct [[nodiscard]] Option {
  public:
   using value_type = T;
 
-  static_assert(movable<T>, "Type must be movable");
+  static_assert(movable<T>, "Value type 'T' for 'Option<T>' must be movable");
   static_assert(
       !is_reference<T>,
-      "Cannot use T& nor T&& for type, To prevent subtleties use "
+      "Cannot use a reference for value type 'T' of 'Option<T>' , To prevent "
+      "subtleties use "
       "type wrappers like std::reference_wrapper (stx::Ref) or any of the "
       "`stx::ConstRef` or `stx::MutRef` specialized aliases instead");
 
@@ -1635,16 +1639,20 @@ inline Er&& unsafe_err_move(Result<Tp, Er>&);
 template <typename T, typename E>
 struct [[nodiscard]] Result {
  public:
-  static_assert(movable<T>, "Type must be movable");
-  static_assert(movable<E>, "Type must be movable");
+  static_assert(movable<T>,
+                "Value type 'T' for 'Result<T, E>' must be movable");
+  static_assert(movable<E>,
+                "Error type 'E' for 'Result<T, E>' must be movable");
   static_assert(
       !is_reference<T>,
-      "Cannot use T& nor T&& for type, To prevent subtleties use "
+      "Cannot use a reference for value type 'T' of 'Result<T, E>', To prevent "
+      "subtleties use "
       "type wrappers like std::reference_wrapper (stx::Ref) or any of the "
       "`stx::ConstRef` or `stx::MutRef` specialized aliases instead");
   static_assert(
       !is_reference<E>,
-      "Cannot use E& nor E&& for type, To prevent subtleties use "
+      "Cannot use a reference for error type 'E' of 'Result<T, E>', To prevent "
+      "subtleties use "
       "type wrappers like std::reference_wrapper (stx::Ref) or any of the "
       "`stx::ConstRef` or `stx::MutRef` specialized aliases instead");
 
