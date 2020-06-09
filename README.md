@@ -236,6 +236,8 @@ C-Style/FailurePath   |     0.384 ns  |      0.383 ns |  1000000000
 
 ## Tested-on Compilers
 
+|          |      Architecture        |
+|----------|--------------------------|
 | Compiler | x86-64 |  arm  | aarch64 |
 |----------|--------|-------|---------|
 Clang-10   |  YES   |   NO  |    NO    
