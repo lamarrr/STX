@@ -15,7 +15,7 @@ Let's try calling `panic()` in a simple program:
 Filename: src/main.cc
 
 ```cpp
-#include "stx/panic.h"
+ #include "stx/panic.h"
 
  int main() {
     stx::panic("crash and burn!");
@@ -48,7 +48,7 @@ When you choose to return a `Result` value, you give the calling code options ra
 Here is an example of using a panic with a malloc.
 
 ```cpp
-#include <cinttypes>
+ #include <cinttypes>
  #include <cstdlib>
 
  #include "stx/panic.h" 
@@ -73,7 +73,7 @@ Given that systems range from user-facing to safety-critical (cannot crash) ther
 To define your panic handlers, we have provided a few behaviours for your use:
 
 - `stx::panic_default` : The default panic handler that prints the error message and panic location data, and afterwards aborts the program without freeing the resources. If the backtrace feature is enabled, the panic function will also print a stack backtrace. In addition, this panic handler is thread-safe when reporting to `stderr` .
-- `stx::panic_halt` : A panic handler that causes the program, or the current thread, to halt by entering an infinite loop, Andrew Koenig generally advises halting on heap memory exhaustion.
+- `stx::panic_halt` : A panic handler that causes the program, or the current thread, to halt by entering an infinite loop.
 - `stx::panic_abort` : A panic handler that causes the abort instruction to be executed.
 
 # Overriding the default panic behaviour
