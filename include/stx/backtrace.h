@@ -34,6 +34,9 @@
 
 #include "stx/internal/option_result.h"
 
+// since backtracing will mostly be used in failure handling code, we can't make
+// use of heap allocation
+
 #define STX_MAX_STACK_FRAME_DEPTH 128
 
 // MSVC and ICC typically have 1024 bytes max for a symbol
