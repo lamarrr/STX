@@ -36,34 +36,23 @@
 
 #pragma once
 
-namespace stx {
-namespace internal {
-
-namespace result {
-
 template <typename Tp, typename Er>
-STX_FORCE_INLINE Tp&& unsafe_value_move(Result<Tp, Er>& result) {
+STX_FORCE_INLINE Tp&& stx::internal::result::unsafe_value_move(
+    Result<Tp, Er>& result) {
   return std::move(result.value_ref_());
 }
 
 template <typename Tp, typename Er>
-STX_FORCE_INLINE Er&& unsafe_err_move(Result<Tp, Er>& result) {
+STX_FORCE_INLINE Er&& stx::internal::result::unsafe_err_move(
+    Result<Tp, Er>& result) {
   return std::move(result.err_ref_());
 }
 
-}  // namespace result
-
-namespace option {
-
 template <typename Tp>
-STX_FORCE_INLINE Tp&& unsafe_value_move(Option<Tp>& option) {
+STX_FORCE_INLINE Tp&& stx::internal::option::unsafe_value_move(
+    Option<Tp>& option) {
   return std::move(option.value_ref_());
 }
-
-}  // namespace option
-
-}  // namespace internal
-}  // namespace stx
 
 #define STX_TRY__UTIL_JOIN_(x, y) x##_##y
 #define STX_WITH_UNIQUE_SUFFIX_(x, y) STX_TRY__UTIL_JOIN_(x, y)
