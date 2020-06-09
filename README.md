@@ -236,15 +236,15 @@ C-Style/FailurePath   |     0.384 ns  |      0.383 ns |  1000000000
 
 ## Tested-on Compilers
 
-|          |      Architecture        |
-|----------|--------------------------|
-| Compiler | x86-64 |  arm  | aarch64 |
+| Compiler |      Architecture        |
+|          |                          |
+|          | x86-64 |  arm  | aarch64 |
 |----------|--------|-------|---------|
 Clang-10   |  YES   |   NO  |    NO    
 Clang-9    |  YES   |  YES  |   YES    
-GCC-9      |  YES   |  YES  |   YES
-GCC-8      |  YES   |  YES  |   YES  
-GCC-7      |  YES   |   NO  |    NO
+GCC-9      |  YES   |  YES  |   YES    
+GCC-8      |  YES   |  YES  |   YES    
+GCC-7      |  YES   |   NO  |    NO    
 
 ## CMake Configuration Options
 
