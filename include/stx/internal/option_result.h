@@ -1596,7 +1596,7 @@ inline Er&& unsafe_err_move(Result<Tp, Er>&);
 //!    }
 //!  };
 //!
-//! parse_version({1u, 2u, 3u, 4u, 5u})
+//! parse_version({1, 2, 3, 4, 5})
 //!      .match(
 //!          [](auto version) {
 //!            std::cout << "Working with version: "
