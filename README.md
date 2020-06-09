@@ -186,7 +186,7 @@ float result  = std::move(option).unwrap(); // will compile, the value is moved 
 
 <b>NOTE</b>: Just as any moved-from object, `Option` and `Result` are not to be used after a `std::move` ! (as the objects will be left in an unspecified state).
 
-* `Result` does not make any implicit copies of the contained object as it is designed as a purely forwarding type, this is especially due to its primary purpose as return channels in which we do not want duplication nor implicit copies of the returned values.
+* `Result` and `Option` do not make any implicit copies of the contained object as they are designed as purely forwarding types, this is especially due to their primary purpose as return channels in which we do not want duplication nor implicit copies of the returned values.
 
 To make explicit copies:
 
@@ -235,10 +235,14 @@ C-Style/FailurePath   |     0.384 ns  |      0.383 ns |  1000000000
 * Doxygen and Graphviz (for documentation)
 
 ## Tested-on Compilers
-* Clang-10 (arch: 86-64)
-* Clang-9 (arch: x86-64, aarch64)
-* GCC-9 (arch: arm, aarch64, and x86-64)
-* GCC-8, GCC-7 (arch: x86-64)
+
+| Compiler | x86-64 |  arm  | aarch64 |
+|----------|--------|-------|---------|
+Clang-10   |  YES   |   NO  |    NO    
+Clang-9    |  YES   |  YES  |   YES    
+GCC-9      |  YES   |  YES  |   YES
+GCC-8      |  YES   |  YES  |   YES  
+GCC-7      |  YES   |   NO  |    NO
 
 ## CMake Configuration Options
 
