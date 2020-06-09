@@ -67,6 +67,7 @@ Here is a list of C++ projects with a similar error-handling model:
 * P-ranav's [ `Result<T, E>` ](https://github.com/p-ranav/result/blob/master/include/result/result.hpp)
 * Mum4k's Arduino Error Classes: [ `ErrorOr` ](https://github.com/mum4k/arduino_error/blob/master/error_or.h), [ `Error` ](https://github.com/mum4k/arduino_error/blob/master/error.h), and [Error Macros](https://github.com/mum4k/arduino_error/blob/master/error_macros.h)
 
+
 # FAQs
 
 * Why not exceptions?
@@ -81,7 +82,7 @@ These reasons are a bit biased, but based on my team's experience:
   + Exception-handling code gets messy easily
   + Exceptions are essentially for exceptional cases
   + Exceptions require RTTI
-  + Some custom exception implementations make use of dynamic memory allocation (std::string especially)
+  + Some custom exception implementations make use of dynamic memory allocation (many using std::string especially)
   + There's nothing stopping you from catching exceptions you are not meant to catch
 
 # Some Interesting Reads
@@ -99,4 +100,19 @@ These reasons are a bit biased, but based on my team's experience:
 
 * Herb Sutter: [Zero Overhead Deterministic Exceptions](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0709r0.pdf)
 
-## Relatable Excerpts
+# Relatable Excerpts
+
+> Many projects ban exceptions. In [SC++F 2018](https://isocpp.org/blog/2018/03/results-summary-cpp-foundation-developer-survey-lite-2018-02), 52% of C++ developers reported that exceptions were banned in part or all of their project code i.e., most are not allowed to freely use C++’s primary recommended error-handling model that is required to use the C++ standard language and library.
+
+> A programming bug or abstract machine corruption is never an "error" (both are not programmatically recoverable, so report bugs to the human programmer using **contract** violations that default to **fail-fast** and report abstract machine corruption using fail-fast). Programming bugs (e.g., out-of-bounds access, null dereference) and abstract machine corruption cause a corrupted state that cannot be recovered from programmatically, and so **should never** be reported to the calling code as errors that code could somehow handle.
+
+Note here that exceptions also don't fit this fail-fast procedure as they can be caught by any function on the stack! and try to continue the program!!! (for fail-fast: STX provides `stx::panic`, and for recoverable errors: `stx::Result`). There should be no reason to continue the program or propagate a programming bug.
+
+> Today's dynamic exception handling is not deterministic (run-time space and time determinism). This is the primary reason exceptions are banned in many real-time and/or safety-critical environments (for example, many games, coding standards like JSF++ [[JSF++2005]](http://www.stroustrup.com/JSF-AV-rules.pdf), and environments like the Mars Rover flight software [[Maimone 2014]](https://github.com/CppCon/CppCon2014/blob/master/Presentations/C%2B%2B%20on%20Mars%20-%20Incorporating%20C%2B%2B%20into%20Mars%20Rover%20Flight%20Software/C%2B%2B%20On%20Mars%20-%20Mark%20Maimone%20-%20CppCon%202014.pdf)).
+
+> We cannot accept that "Standard C++ is not applicable for real-time systems" -- that would be an admission of defeat in C++'s core mission as an efficient systems programming language. Therefore we know we cannot live with today's model unchanged.
+
+> "[In CLU] We rejected this approach [propagating dynamic exceptions] because it did not fit our ideas about modular program construction. We wanted to be able to call a procedure knowing just its specification, not its implementation." -- [[Liskov 1992]](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.127.8460&rep=rep1&type=pdf)
+
+> "By allowing multi-level propagation of exceptions, C++ loses one aspect of static checking. One cannot simply look at a function to determine which exceptions it may throw." -- [Stroustrup 1994] p. 395
+

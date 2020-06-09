@@ -1,7 +1,7 @@
 /**
  * @file backtrace.h
  * @author Basit Ayantunde <rlamarrr@gmail.com>
- * @version  0.0.1
+ * @version  0.1.0
  * @date 2020-05-13
  *
  * @copyright MIT License

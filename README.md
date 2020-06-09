@@ -25,8 +25,8 @@ STX is a collection of libraries and utilities designed to make working with C++
 ## Libraries
 
 * [Panicking](https://lamarrr.github.io/STX/Panicking.html)
-* [ `Result<T, E>` ](https://lamarrr.github.io/STX/classstx_1_1Result.html)
-* [ `Option<T>` ](https://lamarrr.github.io/STX/classstx_1_1Option.html)
+* [ `Result<T, E>` ](https://lamarrr.github.io/STX/structstx_1_1Result.html) (with constexpr in C++20)
+* [ `Option<T>` ](https://lamarrr.github.io/STX/structstx_1_1Option.html) (with constexpr in C++20)
 * [Backtracing](https://lamarrr.github.io/STX/namespacestx_1_1backtrace.html)
 
 ## Features
@@ -39,7 +39,7 @@ STX is a collection of libraries and utilities designed to make working with C++
 * Panic backtraces
 * Signal backtraces ( `SIGSEGV` , `SIGILL` , and `SIGFPE` )
 * Backtrace library
-* Portable, suitable, and easily-adoptable for embedded systems, safety-critical systems, and operating systems.
+* Portable, suitable, and easily-adoptable for embedded systems, real-time systems, safety-critical systems, and operating systems
 * Easy debugging
 * Easy to use and hard to misuse API
 * Exception-free, RTTI-free, and memory allocation free ( `no-std` )
@@ -49,6 +49,8 @@ STX is a collection of libraries and utilities designed to make working with C++
 * Fast success and error return paths
 * Modern and clean API
 * Well-documented
+* Extensively tested
+* Functions using only `Result` and `Option` for error and optional value handling are callable from C code as they are unions.
 
 ## Basic Examples
 
@@ -142,7 +144,7 @@ You can also add const/volatile attributes to `TRY_OK` 's assigned value, i.e:
 
 auto parse_data(array<uint8_t, 6> const& header) -> Result<uint8_t, string_view> {
   TRY_OK(const version, parse_version(header));
-  return Ok(version + header.at(1) + header.at(2));
+  return Ok(version + header[1] + header[2]);
 }
 
 ```
