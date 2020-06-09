@@ -50,9 +50,9 @@
 // possible
 // - We also try to prevent you from shooting yourself in the foot, especially
 // with references and implicit copies
-// - Most are marked constexpr but won't work in a constexpr context in C++ 17
+// - Many are marked constexpr but won't work in a constexpr context in C++ 17
 // mode. They work in C++ 20 and We don't want macros for that
-//
+// - std::move & std::forward or macros?
 
 //! @file
 //!
