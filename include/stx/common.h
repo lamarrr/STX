@@ -36,8 +36,6 @@
 #include "stx/config.h"
 
 namespace stx {
-// NOTE: these implementations will be replaced by standard versions in future
-// release, most toolchains don't implement these yet
 
 template <typename Fn, typename... Args>
 using invoke_result = typename std::invoke_result_t<Fn, Args...>;
