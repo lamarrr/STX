@@ -2872,6 +2872,81 @@ template <typename T, typename E>
   return Err<E>(std::forward<E>(err));
 }
 
+/// Helper function to construct a `Some` containing a `std::reference_wrapper`
+/// (stx::Ref)
+///
+/// # Examples
+///
+/// Basic usage:
+///
+/// ``` cpp
+/// int x = 4;
+/// Option<Ref<int>> y = some_ref(x); // constructs a
+///                                   // Some<std::reference_wrapper<int>>
+///                                   // a.k.a. Some<Ref<int>>
+///
+/// int const a = 5;
+/// Option<Ref<const int>> b = some_ref(a); // constructs a
+///                               // Some<std::reference_wrapper<const int>>
+///                               // a.k.a. Some<Ref<const int>>
+///                               // note that 'a' is const
+/// ```
+///
+template <typename T>
+STX_FORCE_INLINE auto some_ref(T& value) noexcept {
+  return Some<Ref<T>>(std::forward<T&>(value));
+}
+
+/// Helper function to construct an `Ok` containing a `std::reference_wrapper`
+/// (stx::Ref)
+///
+/// # Examples
+///
+/// Basic usage:
+///
+/// ``` cpp
+/// int x = 4;
+/// Result<Ref<int>, int> y = ok_ref(x); // constructs an
+///                                      // Ok<std::reference_wrapper<int>>
+///                                      // a.k.a. Ok<Ref<int>>
+///
+/// int const a = 5;
+/// Result<Ref<const int>, int> b = ok_ref(a); // constructs an
+///                        // Ok<std::reference_wrapper<const int>> a.k.a.
+///                        // Ok<Ref<const int>
+///                        // note that 'a' is const
+/// ```
+///
+template <typename T>
+STX_FORCE_INLINE auto ok_ref(T& value) noexcept {
+  return Ok<Ref<T>>(std::forward<T&>(value));
+}
+
+/// Helper function to construct an `Err` containing a `std::reference_wrapper`
+/// (stx::Ref)
+///
+/// # Examples
+///
+/// Basic usage:
+///
+/// ``` cpp
+/// int x = 4;
+/// Result<int, Ref<int>> y = err_ref(x); // constructs an
+///                                       // Err<std::reference_wrapper<int>>
+///                                       // a.k.a. Err<Ref<int>>
+///
+/// int const a = 5;
+/// Result<int, Ref<const int>> b = err_ref(a); // constructs an
+///                            // Err<std::reference_wrapper<const int>>
+///                            // a.k.a. Err<Ref<const int>>
+///                            // note that 'a' is const
+/// ```
+///
+template <typename E>
+STX_FORCE_INLINE auto err_ref(E& value) noexcept {
+  return Err<Ref<E>>(std::forward<E&>(value));
+}
+
 }  // namespace stx
 
 // Error propagation macros
