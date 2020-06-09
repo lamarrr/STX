@@ -67,19 +67,25 @@ struct is_equality_comparable<
                       std::declval<std::remove_reference_t<Cmp> const&>()),
                  (void)0)>> : std::true_type {};
 
+/// Checks if the type has a compatible 'operator ==' and 'operator!='
 template <typename T, typename Cmp = T>
 constexpr bool equality_comparable = is_equality_comparable<T, Cmp>::value;
 
 template <typename T>
 constexpr bool is_reference = std::is_reference_v<T>;
 
+/// `Ref` is an alias for `std::reference_wrapper`
+/// `Ref` can be mutable and immutable depending on the const-qualifier for `T`
+/// To offer stronger guarantees prefer `ConstRef` and `MutRef`
 template <typename T>
 using Ref = std::reference_wrapper<T>;
 
+/// `ConstRef` is an always-const `Ref`.
 template <typename T>
 using ConstRef =
     std::reference_wrapper<std::add_const_t<std::remove_reference_t<T>>>;
 
+/// `MutRef` is an always-mutable `Ref`
 template <typename T>
 using MutRef =
     std::reference_wrapper<std::remove_const_t<std::remove_reference_t<T>>>;
