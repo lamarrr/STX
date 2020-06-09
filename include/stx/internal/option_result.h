@@ -2546,9 +2546,9 @@ struct [[nodiscard]] Result {
   /// ``` cpp
   /// Result<int, string_view> x = Ok(10);
   /// ASSERT_DEATH(move(x).expect_err("Testing expect_err")); // panics with
-  ///                                                             // "Testing
-  ///                                                             // expect_err:
-  ///                                                             // 10"
+  ///                                                         // "Testing
+  ///                                                         // expect_err:
+  ///                                                         // 10"
   /// ```
   [[nodiscard]] auto expect_err(std::string_view const& msg)&&->E {
     if (is_ok()) {
@@ -2729,6 +2729,8 @@ template <typename F, typename T, typename E>
   return result != cmp;
 }
 
+/*********************    HELPER FUNCTIONS    *********************/
+
 /// Helper function to construct an `Option<T>` with a `Some<T>` value.
 /// if the template parameter is not specified, it is auto-deduced from the
 /// parameter's value.
@@ -2750,14 +2752,12 @@ template <typename F, typename T, typename E>
 /// // ... and a few more
 ///
 /// // to make it easier and less verbose:
-/// auto m = make_some(9);
+/// auto m = make_some(9); // 'm' is of type Option<int>
 /// ASSERT_EQ(m, Some(9));
 ///
-/// auto n = make_some<int>(9);
+/// auto n = make_some<int>(9); // to be explicit
 /// ASSERT_EQ(m, Some(9));
 ///
-/// // observe that m is constructed as an Option<int> (=Option<T>) and T (=int)
-/// // is auto-deduced from make_some's parameter type.
 /// ```
 ///
 /// # Constexpr ?
@@ -2786,10 +2786,9 @@ template <typename T>
 /// Option<int> k = make_none<int>();
 ///
 /// // to make it easier and less verbose:
-/// auto m = make_none<int>();
+/// auto m = make_none<int>();  // 'm' = Option<int>
 /// ASSERT_EQ(m, None);
 ///
-/// // observe that m is constructed as an Option<int> (=Option<T>) and T(=int).
 /// ```
 ///
 /// # Constexpr ?
@@ -2821,14 +2820,12 @@ template <typename T>
 /// Result<int, string> b = Ok<int>(8);
 ///
 /// // to make it easier and less verbose:
-/// auto c = make_ok<int, string>(9);
+/// auto c = make_ok<int, string>(9); // 'c' = Result<string, int>
 /// ASSERT_EQ(c, Ok(9));
 ///
 /// auto d = make_ok<string, int>("Hello"s);
 /// ASSERT_EQ(d, Ok("Hello"s));
 ///
-/// // observe that c is constructed as Result<string, int>
-/// // (=Result<T, E>).
 /// ```
 ///
 /// # Constexpr ?
@@ -2856,16 +2853,13 @@ template <typename T, typename E>
 /// ``` cpp
 ///
 /// // these are some of the various ways to construct on Result<T, E> with an
-/// // Ok<T> value
+/// // Err<E> value
 /// Result<int, string> a = Err("foo"s);
 /// Result<int, string> b = Err<string>("foo"s);
 ///
 /// // to make it easier and less verbose:
-/// auto c = make_err<int, string>("bar"s);
+/// auto c = make_err<int, string>("bar"s); // 'c' = Result<int, string>
 /// ASSERT_EQ(c, Err("bar"s));
-///
-/// // observe that c is constructed as Result<int, string>
-/// // (=Result<T, E>).
 ///
 /// ```
 ///
