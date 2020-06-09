@@ -9,3 +9,4 @@
 * STX_MAKE_FORMAT_BUFFER(name, U32) STX_FORMAT_BUFFER_SIZE_U32
 * C-compatibility layer: StxResult(int, error_code) -> is_ok_, is_ , StxOption(int) -> has_value
 * version the docs on the gh-pages branch?
+* Stack unwinding
