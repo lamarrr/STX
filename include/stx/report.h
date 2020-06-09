@@ -1,7 +1,7 @@
 /**
  * @file report.h
  * @author Basit Ayantunde <rlamarrr@gmail.com>
- * @version  0.1.0
+ * @version  1.0.0
  * @date 2020-05-22
  *
  * @copyright MIT License

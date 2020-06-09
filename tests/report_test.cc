@@ -1,7 +1,7 @@
 /**
  * @file report_test.cc
  * @author Basit Ayantunde <rlamarrr@gmail.com>
- * @version  0.1.0
+ * @version  1.0.0
  * @date 2020-06-05
  *
  * @copyright MIT License
@@ -30,8 +30,8 @@
 
 #include "stx/report.h"
 
-#include <charconv>
 #include <limits>
+#include <sstream>
 
 #include "gtest/gtest.h"
 
@@ -43,6 +43,13 @@ STX_FORCE_INLINE bool ends_with(std::string_view const& str,
                                 std::string_view const& sv) noexcept {
   return str.size() >= sv.size() &&
          str.compare(str.size() - sv.size(), std::string_view::npos, sv) == 0;
+}
+
+template <typename T>
+std::string to_string(T const& value) {
+  std::ostringstream stream;
+  stream << value;
+  return stream.str();
 }
 
 enum class IoError { EoF = 1, NotExists = 2, InvalidPath = 4, __Reserved };
@@ -90,34 +97,34 @@ TEST(ReportTest, FormatInt8) {
 
 TEST(ReportTest, FormatUInt16) {
   uint16_t a = std::numeric_limits<uint16_t>::min();
-  EXPECT_EQ((query >> a).what(), std::to_string(a));
+  EXPECT_EQ((query >> a).what(), to_string(a));
 
   uint16_t b = std::numeric_limits<uint16_t>::max();
-  EXPECT_EQ((query >> b).what(), std::to_string(b));
+  EXPECT_EQ((query >> b).what(), to_string(b));
 }
 
 TEST(ReportTest, FormatInt16) {
   int16_t a = std::numeric_limits<int16_t>::min();
-  EXPECT_EQ((query >> a).what(), std::to_string(a));
+  EXPECT_EQ((query >> a).what(), to_string(a));
 
   int16_t b = std::numeric_limits<int16_t>::max();
-  EXPECT_EQ((query >> b).what(), std::to_string(b));
+  EXPECT_EQ((query >> b).what(), to_string(b));
 }
 
 TEST(ReportTest, FormatUInt32) {
   uint32_t a = std::numeric_limits<uint32_t>::min();
-  EXPECT_EQ((query >> a).what(), std::to_string(a));
+  EXPECT_EQ((query >> a).what(), to_string(a));
 
   uint32_t b = std::numeric_limits<uint32_t>::max();
-  EXPECT_EQ((query >> b).what(), std::to_string(b));
+  EXPECT_EQ((query >> b).what(), to_string(b));
 }
 
 TEST(ReportTest, FormatInt32) {
   int32_t a = std::numeric_limits<int32_t>::min();
-  EXPECT_EQ((query >> a).what(), std::to_string(a));
+  EXPECT_EQ((query >> a).what(), to_string(a));
 
   int32_t b = std::numeric_limits<int32_t>::max();
-  EXPECT_EQ((query >> b).what(), std::to_string(b));
+  EXPECT_EQ((query >> b).what(), to_string(b));
 }
 
 TEST(ReportTest, FormatEnum) {

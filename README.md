@@ -6,6 +6,9 @@
 <div align="center"><i> C++ 17 & C++ 20 error-handling and utility extensions.</i>
 </div>
 
+<p align="center"> VERSION 1.0.0 </p>
+
+
 ## Overview
 
 STX is a collection of libraries and utilities designed to make working with C++ easier and less error-prone.
@@ -153,7 +156,7 @@ auto parse_data(array<uint8_t, 6> const& header) -> Result<uint8_t, string_view>
 
 * Result and Option will only work in `constexpr` context (compile-time error-handling) in C++ 20, to check if you can use it as `constexpr` check if the macros `STX_RESULT_CONSTEXPR` and `STX_OPTION_CONSTEXPR` are set to `1`, for an example see [`constexpr_test`](tests/constexpr_test.cc) .
 * To ensure you never forget to use the returned errors/results, raise the warning levels for your project ( `-Wall`  `-Wextra`  `-Wpedantic` on GNUC-based compilers, and `/W4` on MSVC)
-* Some methods like `match` , `map` , `unwrap` and most of the `Result` , and `Option` monadic methods **consume** the stored value and thus the `Result` or `Option` has to be destroyed as its lifetime has ended. For example:
+* Some methods like `map` , `unwrap` and most of the `Result` , and `Option` monadic methods **consume** the stored value and thus the `Result` or `Option` has to be destroyed as its lifetime has ended. For example:
 
   Say we define a function named `safe_divide` as in the example above, with the following prototype:
 
@@ -183,7 +186,7 @@ float result  = std::move(option).unwrap(); // will compile, the value is moved 
 
 <b>NOTE</b>: Just as any moved-from object, `Option` and `Result` are not to be used after a `std::move` ! (as the objects will be left in an unspecified state).
 
-* `Option` and `Result` do not make any implicit copies of the contained object as they are designed as purely forwarding types, this is especially due to their primary purpose as return channels in which we do not want duplication or implicit copies of the returned values.
+* `Result` does not make any implicit copies of the contained object as it is designed as a purely forwarding type, this is especially due to its primary purpose as return channels in which we do not want duplication nor implicit copies of the returned values.
 
 To make explicit copies:
 
@@ -231,10 +234,11 @@ C-Style/FailurePath   |     0.384 ns  |      0.383 ns |  1000000000
 * C++ 17 or C++ 20 Compiler
 * Doxygen and Graphviz (for documentation)
 
-## Tested-on Compiler & Toolchains
-
-* Clang-10 + libstdc++-9
-* Clang-11 + libstdc++-9
+## Tested-on Compilers
+* Clang-10 (arch: 86-64)
+* Clang-9 (arch: x86-64, aarch64)
+* GCC-9 (arch: arm, aarch64, and x86-64)
+* GCC-8, GCC-7 (arch: x86-64)
 
 ## CMake Configuration Options
 
