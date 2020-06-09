@@ -61,49 +61,52 @@ TEST(ResultTest, Equality) {
 
   int const f = 89;
   int g = 89;
+ int xx = 4;
+ Result<int, ConstRef<int>> yy = err_ref<int const>(xx); // constructs an
+ 
 
-  EXPECT_EQ(Ok(89), Ok<ConstRef<int>>(f));
-  EXPECT_EQ(Ok(89), Ok<MutRef<int>>(g));
+  EXPECT_EQ(Ok(89), ok_ref(f));
+  EXPECT_EQ(Ok(89), ok_ref(g));
 
-  EXPECT_NE(Ok(8), Ok<ConstRef<int>>(f));
-  EXPECT_NE(Ok(8), Ok<MutRef<int>>(g));
+  EXPECT_NE(Ok(8), ok_ref(f));
+  EXPECT_NE(Ok(8), ok_ref(g));
 
-  EXPECT_EQ(Ok(89), Ok<ConstRef<int>>(g));
-  EXPECT_EQ(Ok(89), Ok<ConstRef<int>>(f));
+  EXPECT_EQ(Ok(89), ok_ref(g));
+  EXPECT_EQ(Ok(89), ok_ref(f));
 
-  EXPECT_NE(Ok(9), Ok<ConstRef<int>>(g));
-  EXPECT_NE(Ok(9), Ok<ConstRef<int>>(f));
+  EXPECT_NE(Ok(9), ok_ref(g));
+  EXPECT_NE(Ok(9), ok_ref(f));
 
   int const h = 89;
   int i = 89;
 
-  EXPECT_EQ(Err(89), Err<ConstRef<int>>(h));
-  EXPECT_EQ(Err(89), Err<MutRef<int>>(i));
+  EXPECT_EQ(Err(89), err_ref(h));
+  EXPECT_EQ(Err(89), err_ref(i));
 
-  EXPECT_NE(Err(8), Err<ConstRef<int>>(h));
-  EXPECT_NE(Err(8), Err<MutRef<int>>(i));
+  EXPECT_NE(Err(8), err_ref(h));
+  EXPECT_NE(Err(8), err_ref(i));
 
-  EXPECT_EQ(Err(89), Err<ConstRef<int>>(h));
-  EXPECT_EQ(Err(89), Err<ConstRef<int>>(i));
+  EXPECT_EQ(Err(89), err_ref(h));
+  EXPECT_EQ(Err(89), err_ref(i));
 
-  EXPECT_NE(Err(8), Err<ConstRef<int>>(h));
-  EXPECT_NE(Err(8), Err<ConstRef<int>>(i));
+  EXPECT_NE(Err(8), err_ref(h));
+  EXPECT_NE(Err(8), err_ref(i));
 
-  EXPECT_EQ((make_ok<int, int>(89)), Ok<ConstRef<int>>(h));
-  EXPECT_EQ((make_ok<int, int>(89)), Ok<ConstRef<int>>(i));
+  EXPECT_EQ((make_ok<int, int>(89)), ok_ref(h));
+  EXPECT_EQ((make_ok<int, int>(89)), ok_ref(i));
 
-  EXPECT_EQ((make_ok<int, int>(89)), Ok<ConstRef<int>>(h));
-  EXPECT_EQ((make_ok<int, int>(89)), Ok<ConstRef<int>>(i));
+  EXPECT_EQ((make_ok<int, int>(89)), ok_ref(h));
+  EXPECT_EQ((make_ok<int, int>(89)), ok_ref(i));
 
-  EXPECT_EQ((make_ok<int, int>(89)), Ok<MutRef<int>>(i));
+  EXPECT_EQ((make_ok<int, int>(89)), ok_ref(i));
 
-  EXPECT_EQ((make_err<int, int>(89)), Err<ConstRef<int>>(h));
-  EXPECT_EQ((make_err<int, int>(89)), Err<ConstRef<int>>(i));
+  EXPECT_EQ((make_err<int, int>(89)), err_ref(h));
+  EXPECT_EQ((make_err<int, int>(89)), err_ref(i));
 
-  EXPECT_EQ((make_err<int, int>(89)), Err<ConstRef<int>>(h));
-  EXPECT_EQ((make_err<int, int>(89)), Err<ConstRef<int>>(i));
+  EXPECT_EQ((make_err<int, int>(89)), err_ref(h));
+  EXPECT_EQ((make_err<int, int>(89)), err_ref(i));
 
-  EXPECT_EQ((make_err<int, int>(89)), Err<MutRef<int>>(i));
+  EXPECT_EQ((make_err<int, int>(89)), err_ref(i));
 }
 
 TEST(ResultTest, IsOk) {
