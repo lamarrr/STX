@@ -1670,7 +1670,6 @@ struct [[nodiscard]] Result {
   // 2 - the union will be default-constructed (empty) and we thus need to call
   // placement-new in the constructor block
   Result(Result && rhs) : is_ok_(rhs.is_ok_) {
-    // not correct
     if (rhs.is_ok()) {
       new (&storage_value_) T(std::move(rhs.storage_value_));
     } else {
