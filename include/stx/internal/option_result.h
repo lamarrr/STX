@@ -1633,8 +1633,8 @@ inline Er&& unsafe_err_move(Result<Tp, Er>&);
 //! `Result` unlike `Option` is a value-forwarding type. It doesn't have copy
 //! constructors of any sort. More like a `unique_ptr`.
 //!
-//! `Result` should be seen as a channel (for returning from functions) and not
-//! an object.
+//! `Result` should be seen as a return channel (for returning from functions)
+//! and not an object.
 //!
 template <typename T, typename E>
 struct [[nodiscard]] Result {
