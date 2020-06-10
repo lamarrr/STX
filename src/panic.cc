@@ -28,6 +28,8 @@
  *
  */
 
+#ifndef STX_OVERRIDE_PANIC_HANDLER
+
 #include "stx/panic.h"
 
 #include "stx/panic/handlers/default/default.h"
