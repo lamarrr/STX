@@ -53,7 +53,7 @@
 //! - Check if hooks are available for attaching: `has_panic_hook()`
 //! - If hooks are available, attach a panic hook:
 //! `attach_panic_hook(my_handler)` or reset the exisiting panic hook back to
-//! the default: `take_panic_hook()`
+//! the default: `take_panic_hook(&installed_handler)`
 //!
 //!
 
