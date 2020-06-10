@@ -30,9 +30,12 @@
 
 #pragma once
 
-#include <mutex>   // mutex NOLINT
-#include <thread>  // thread::id NOLINT
+#if !defined(STX_NO_STD_THREAD_MUTEX)
+#include <mutex>   // NOLINT
+#include <thread>  // NOLINT
+#endif
 
+#include "stx/panic.h"
 #include "stx/panic/handlers/print.h"
 
 #if defined(STX_ENABLE_PANIC_BACKTRACE)
@@ -56,13 +59,15 @@ namespace stx {
 inline void panic_default(std::string_view const& info,
                           ReportPayload const& payload,
                           SourceLocation const& location) noexcept {
-  static constexpr const auto kThreadIdHasher = std::hash<std::thread::id>{};
-
-  static std::mutex stderr_lock;
-
   // probably too much, but enough
   // this will at least hold a formatted uint128_t (40 digits)
   static constexpr const int kFmtBufferSize = 64;
+
+#if !defined(STX_NO_STD_THREAD_MUTEX)
+
+  static constexpr const auto kThreadIdHasher = std::hash<std::thread::id>{};
+
+  static std::mutex stderr_lock;
 
   // we use this buffer for all formatting operations. as it is implementation
   // defined whether fprintf uses dynamic mem alloc
@@ -74,11 +79,27 @@ inline void panic_default(std::string_view const& info,
   thread_local size_t const thread_id_hash =
       kThreadIdHasher(std::this_thread::get_id());
 
-  std::fputs("\nthread with hash: '", stderr);
+#else
+
+  // we can't be too sure that the user won't panic from multiple threads even
+  // though they seem to be disabled
+  char fmt_buffer[kFmtBufferSize];
+
+#endif
+
+  std::fputs("\nthread", stderr);
+
+#if !defined(STX_NO_STD_THREAD_MUTEX)
+
+  std::fputs(" with hash: '", stderr);
 
   STX_PANIC_EPRINTF_WITH(fmt_buffer, kFmtBufferSize, "%zu", thread_id_hash);
 
+#else
+
   std::fputs("' panicked with: '", stderr);
+
+#endif
 
   for (char c : info) {
     std::fputc(c, stderr);
@@ -175,7 +196,9 @@ inline void panic_default(std::string_view const& info,
 
 #endif
 
+#if !defined(STX_NO_STD_THREAD_MUTEX)
   // other threads will still be able to log for some nanoseconds
   stderr_lock.unlock();
+#endif
 }
 }  // namespace stx
