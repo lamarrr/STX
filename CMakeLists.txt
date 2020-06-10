@@ -178,9 +178,9 @@ if(STX_ENABLE_BACKTRACE)
   # TODO(lamarrr): check platform support
 endif()
 
-# some microcontroller platforms may not have std::thread enabled if so, we
-# remove the thread facilities, this will cause compilation errors otherwise,
-# since the classes won't be available
+# some microcontroller platforms 'arm-gcc-none especially" may not have
+# std::thread enabled if so, we remove the thread facilities, this will cause
+# compilation errors otherwise, since the classes won't be available
 check_cxx_source_compiles(
   "
 #include <thread>
