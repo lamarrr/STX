@@ -111,7 +111,7 @@ bool stx::take_panic_hook(PanicHook* out) noexcept {
     std::abort();
   }
 
-  // panic hooks, all threads use the same panic hook
+  // all threads use the same panic hook
   PanicHook hook = panic_hook_ref().load(std::memory_order_seq_cst);
 
   if (hook != nullptr) {
