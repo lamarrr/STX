@@ -171,6 +171,17 @@ int trace(Callback callback, int skip_count = 0);
 /// whenever the signal is raised. It can and will only handle `SIGSEGV`,
 /// `SIGILL`, and `SIGFPE`. It returns the previous signal handler if
 /// successful, else returns the error.
+///
+/// # Example
+///
+/// ``` cpp
+/// // immediately after program startup
+/// handle_signal(SIGILL).unwrap();
+/// handle_signal(SIGSEGV).unwrap();
+/// handle_signal(SIGFPE).unwrap();
+///
+/// ```
+///
 auto handle_signal(int signal) noexcept -> Result<void (*)(int), SignalError>;
 
 }  // namespace backtrace
