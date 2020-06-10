@@ -316,3 +316,17 @@
 #else
 #define STX_TOOLCHAIN_LLVM 0
 #endif
+
+/*********************** VERSIONING ***********************/
+
+#define STX_VERSION v1
+
+#define STX_VERSION_STRING "v1"
+
+#define STX_BEGIN_NAMESPACE \
+  namespace stx {           \
+  inline namespace v1 {
+
+#define STX_END_NAMESPACE \
+  }                       \
+  }
