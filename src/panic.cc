@@ -36,9 +36,8 @@
 
 STX_BEGIN_NAMESPACE
 
-void stx::panic_handler(std::string_view const& info,
-                        ReportPayload const& payload,
-                        SourceLocation const& location) noexcept {
+void panic_handler(std::string_view const& info, ReportPayload const& payload,
+                   SourceLocation const& location) noexcept {
   panic_default(info, payload, location);
 }
 
