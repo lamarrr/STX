@@ -697,7 +697,7 @@ auto ok_try_b(int x) -> stx::Result<int, int> {
 
 auto ok_try_a(int m) -> stx::Result<int, int> {
   // clang-format off
-  TRY_OK(x, ok_try_b(m)); TRY_OK(y, ok_try_b(m)); // also tests for name collision in our macros
+  TRY_OK(x, ok_try_b(m)); TRY_OK(const y, ok_try_b(m)); TRY_OK(volatile z, ok_try_b(m)); // also tests for name collision in our macros
   // clang-format on
   x += 60;
   return Ok(std::move(x));
