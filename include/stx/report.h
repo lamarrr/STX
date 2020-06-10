@@ -40,7 +40,7 @@
 STX_BEGIN_NAMESPACE
 
 #ifndef STX_REPORT_RESERVE_SIZE
-constexpr size_t kReportReserveSize = 256UL;
+constexpr size_t kReportReserveSize = 128;
 #else
 constexpr size_t kReportReserveSize = STX_REPORT_RESERVE_SIZE;
 #endif
