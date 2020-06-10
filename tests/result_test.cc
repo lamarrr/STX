@@ -61,10 +61,6 @@ TEST(ResultTest, Equality) {
 
   int const f = 89;
   int g = 89;
- int xx = 4;
- Result<int, ConstRef<int>> yy = err_ref<int const>(xx); // constructs an
- 
-
   EXPECT_EQ(Ok(89), ok_ref(f));
   EXPECT_EQ(Ok(89), ok_ref(g));
 
