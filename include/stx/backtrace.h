@@ -33,6 +33,7 @@
 #include <cstdint>
 
 #include "stx/internal/option_result.h"
+#include "stx/report.h"
 
 // since backtracing will mostly be used in failure handling code, we can't make
 // use of heap allocation
