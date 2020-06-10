@@ -87,11 +87,11 @@ NOTE: ip => Instruction Pointer,  sp => Stack Pointer
       [](backtrace::Frame frame, int i) {
         auto const print_none = []() { fputs("unknown", stderr); };
         auto const print_ptr = [](uintptr_t ptr) {
-          STX_PANIC_EPRINTF(kxPtrFmtSize, "0x%" PRIxPTR, ptr);
+          STX_PANIC_EPRINTF(internal::kxPtrFmtSize, "0x%" PRIxPTR, ptr);
         };
 
         // int is native and not specific but we'll use this anyways
-        STX_PANIC_EPRINTF(kI32FmtSize + 10, "#%" PRId32 "\t\t", i);
+        STX_PANIC_EPRINTF(internal::kI32FmtSize + 10, "#%" PRId32 "\t\t", i);
 
         frame.symbol.match(
             [](backtrace::Symbol& sym) {
