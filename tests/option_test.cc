@@ -727,7 +727,7 @@ auto opt_try_b(int x) -> Option<int> {
 
 auto opt_try_a(int m) -> Option<int> {
   // clang-format off
-  TRY_SOME(x, opt_try_b(m)); TRY_SOME(y, opt_try_b(m));
+  TRY_SOME(x, opt_try_b(m)); TRY_SOME(const y, opt_try_b(m)); TRY_SOME(volatile z, opt_try_b(m));
   // clang-format on
   x += 60;
   return Some(std::move(x));
