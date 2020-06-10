@@ -350,8 +350,7 @@ template <typename T>
 template <typename T>
 [[nodiscard]] inline FixedReport operator>>(ReportQuery,
                                             T const* const& ptr) noexcept {
-  STX_INTERNAL_MAKE_REPORT(kxPtrFmtSize, "0x%" PRIxPTR,
-                           reinterpret_cast<uintptr_t const>(ptr));
+  STX_INTERNAL_MAKE_REPORT_(internal::kxPtrFmtSize, "0x%" PRIxPTR,
 }
 
 template <typename T>

@@ -157,11 +157,11 @@ inline void panic_default(std::string_view const& info,
         auto const print_none = []() { std::fputs("unknown", stderr); };
 
         auto const print_ptr = [](uintptr_t ip) {
-          STX_PANIC_EPRINTF(kxPtrFmtSize, "0x%" PRIxPTR, ip);
+          STX_PANIC_EPRINTF(internal::kxPtrFmtSize, "0x%" PRIxPTR, ip);
         };
 
         // int varies
-        STX_PANIC_EPRINTF(kI32FmtSize + 8, "#%d\t\t", i);
+        STX_PANIC_EPRINTF(internal::kI32FmtSize + 8, "#%d\t\t", i);
 
         frame.symbol.match(
             [](backtrace::Symbol& sym) {

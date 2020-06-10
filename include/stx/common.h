@@ -97,6 +97,8 @@ concept Impl = std::is_base_of_v<Base, T>;
 #endif
 #endif
 
+namespace internal {
+
 /// pointer hex formatting
 ///
 /// 0xaabbccdd => 4 bytes (+ 8 chars)
@@ -126,4 +128,4 @@ constexpr int kI8FmtSize = 4;
 /// 3 digits
 constexpr int kU8FmtSize = 3;
 
-}  // namespace stx
+}  // namespace internal
