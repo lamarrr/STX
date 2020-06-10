@@ -62,6 +62,17 @@ enum class SignalError {
   SigErr
 };
 
+inline SpanReport operator>>(ReportQuery, SignalError const &err) noexcept {
+  switch (err) {
+    case SignalError::Unknown:
+      return SpanReport(
+          "Uknown signal given, 'handle_signal' can only handle 'SIGSEGV', "
+          "'SIGILL' and 'SIGFPE'.");
+    case SignalError::SigErr:
+      return SpanReport("'std::signal' returned 'SIGERR'");
+  }
+}
+
 /// Mutable type-erased view over a contiguous character container.
 struct CharSpan {
   char *data;
