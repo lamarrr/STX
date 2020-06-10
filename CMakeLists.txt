@@ -34,6 +34,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
 
 include(CMakeDependentOption)
 include(HandleFlags)
+include(CheckCXXSourceCompiles)
 
 # we have to inform the user of the standards version change, else it'll cause
 # possible compatibility issues
@@ -175,6 +176,25 @@ endif()
 
 if(STX_ENABLE_BACKTRACE)
   # TODO(lamarrr): check platform support
+endif()
+
+# some microcontroller platforms may not have std::thread enabled if so, we
+# remove the thread facilities, this will cause compilation errors otherwise,
+# since the classes won't be available
+check_cxx_source_compiles(
+  "
+#include <thread>
+#include <mutex>
+
+int main(){
+  std::this_thread::get_id();
+  std::mutex mutex;
+}
+"
+  LIBSTX_HAS_STD_THREAD_MUTEX)
+
+if(NOT LIBSTX_HAS_STD_THREAD_MUTEX)
+  list(APPEND STX_COMPILER_DEFS "STX_NO_STD_THREAD_MUTEX")
 endif()
 
 # ===============================================
