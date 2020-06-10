@@ -336,61 +336,62 @@ template <typename T>
   return SpanReport();
 }
 
-#define STX_INTERNAL_MAKE_REPORT(STX_ARG_SIZE, STX_ARG_FORMAT, STX_ARG_VALUE) \
-  /* string size + terminating null character */                              \
-  char fmt_buffer[STX_ARG_SIZE + 1];                                          \
-  int fmt_buffer_size = std::snprintf(fmt_buffer, STX_ARG_SIZE + 1,           \
-                                      STX_ARG_FORMAT, STX_ARG_VALUE);         \
-  if (fmt_buffer_size < 0 || fmt_buffer_size >= STX_ARG_SIZE + 1) {           \
-    return FixedReport(kFormatError, kFormatErrorSize);                       \
-  } else {                                                                    \
-    return FixedReport(fmt_buffer, fmt_buffer_size);                          \
+#define STX_INTERNAL_MAKE_REPORT_(STX_ARG_SIZE, STX_ARG_FORMAT, STX_ARG_VALUE) \
+  /* string size + terminating null character */                               \
+  char fmt_buffer[STX_ARG_SIZE + 1];                                           \
+  int fmt_buffer_size = std::snprintf(fmt_buffer, STX_ARG_SIZE + 1,            \
+                                      STX_ARG_FORMAT, STX_ARG_VALUE);          \
+  if (fmt_buffer_size < 0 || fmt_buffer_size >= STX_ARG_SIZE + 1) {            \
+    return FixedReport(kFormatError, kFormatErrorSize);                        \
+  } else {                                                                     \
+    return FixedReport(fmt_buffer, fmt_buffer_size);                           \
   }
 
 template <typename T>
 [[nodiscard]] inline FixedReport operator>>(ReportQuery,
                                             T const* const& ptr) noexcept {
   STX_INTERNAL_MAKE_REPORT_(internal::kxPtrFmtSize, "0x%" PRIxPTR,
+                            reinterpret_cast<uintptr_t const>(ptr));
 }
 
 template <typename T>
 [[nodiscard]] inline FixedReport operator>>(ReportQuery,
                                             T* const& ptr) noexcept {
-  STX_INTERNAL_MAKE_REPORT(kxPtrFmtSize, "0x%" PRIxPTR,
-                           reinterpret_cast<uintptr_t>(ptr));
+  STX_INTERNAL_MAKE_REPORT_(internal::kxPtrFmtSize, "0x%" PRIxPTR,
+                            reinterpret_cast<uintptr_t>(ptr));
 }
 
 [[nodiscard]] inline FixedReport operator>>(ReportQuery,
                                             int8_t const& v) noexcept {
-  STX_INTERNAL_MAKE_REPORT(kI8FmtSize, "%" PRIi8, v);
+  STX_INTERNAL_MAKE_REPORT_(internal::kI8FmtSize, "%" PRIi8, v);
 }
 
 [[nodiscard]] inline FixedReport operator>>(ReportQuery,
                                             uint8_t const& v) noexcept {
-  STX_INTERNAL_MAKE_REPORT(kU8FmtSize, "%" PRIu8, v);
+  STX_INTERNAL_MAKE_REPORT_(internal::kU8FmtSize, "%" PRIu8, v);
 }
 
 [[nodiscard]] inline FixedReport operator>>(ReportQuery,
                                             int16_t const& v) noexcept {
-  STX_INTERNAL_MAKE_REPORT(kI16FmtSize, "%" PRIi16, v);
+  STX_INTERNAL_MAKE_REPORT_(internal::kI16FmtSize, "%" PRIi16, v);
 }
 
 [[nodiscard]] inline FixedReport operator>>(ReportQuery,
                                             uint16_t const& v) noexcept {
-  STX_INTERNAL_MAKE_REPORT(kU16FmtSize, "%" PRIu16, v);
+  STX_INTERNAL_MAKE_REPORT_(internal::kU16FmtSize, "%" PRIu16, v);
 }
 
 [[nodiscard]] inline FixedReport operator>>(ReportQuery,
                                             int32_t const& v) noexcept {
-  STX_INTERNAL_MAKE_REPORT(kI32FmtSize, "%" PRIi32, v);
+  STX_INTERNAL_MAKE_REPORT_(internal::kI32FmtSize, "%" PRIi32, v);
 }
 
 [[nodiscard]] inline FixedReport operator>>(ReportQuery,
                                             uint32_t const& v) noexcept {
-  STX_INTERNAL_MAKE_REPORT(kU32FmtSize, "%" PRIu32, v);
+  STX_INTERNAL_MAKE_REPORT_(internal::kU32FmtSize, "%" PRIu32, v);
 }
 
-#undef STX_INTERNAL_MAKE_REPORT
+#undef STX_INTERNAL_MAKE_REPORT_
 
 [[nodiscard]] inline SpanReport operator>>(ReportQuery,
                                            std::string_view const& v) noexcept {
