@@ -34,7 +34,7 @@
 
 #include "stx/panic.h"
 
-namespace stx {
+STX_BEGIN_NAMESPACE
 
 /// Causes the abort instruction to be executed.
 [[noreturn]] inline void panic_abort(std::string_view const& info,
@@ -47,4 +47,4 @@ namespace stx {
   std::abort();
 }
 
-}  // namespace stx
+STX_END_NAMESPACE

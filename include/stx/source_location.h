@@ -32,6 +32,7 @@
 
 #include "stx/config.h"
 
+STX_BEGIN_NAMESPACE
 
 ///
 /// The `SourceLocation`  class represents certain information about the source
@@ -109,4 +110,4 @@ struct [[nodiscard]] SourceLocation {
   const char* func_;
 };
 
-}  // namespace stx
+STX_END_NAMESPACE

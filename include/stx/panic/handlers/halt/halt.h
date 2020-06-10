@@ -32,7 +32,7 @@
 
 #include "stx/panic.h"
 
-namespace stx {
+STX_BEGIN_NAMESPACE
 
 /// Causes the program, or the current thread, to halt by entering an infinite
 /// loop.
@@ -49,4 +49,5 @@ inline void panic_halt(std::string_view const& info,
   while (halt) {
   }
 }
-}  // namespace stx
+
+STX_END_NAMESPACE

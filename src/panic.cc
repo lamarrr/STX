@@ -34,12 +34,14 @@
 
 #include "stx/panic/handlers/default/default.h"
 
-#ifndef STX_OVERRIDE_PANIC_HANDLER
+STX_BEGIN_NAMESPACE
 
 void stx::panic_handler(std::string_view const& info,
                         ReportPayload const& payload,
                         SourceLocation const& location) noexcept {
   panic_default(info, payload, location);
 }
+
+STX_END_NAMESPACE
 
 #endif

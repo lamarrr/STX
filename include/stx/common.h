@@ -35,7 +35,7 @@
 
 #include "stx/config.h"
 
-namespace stx {
+STX_BEGIN_NAMESPACE
 
 template <typename Fn, typename... Args>
 using invoke_result = typename std::invoke_result_t<Fn, Args...>;
@@ -129,3 +129,5 @@ constexpr int kI8FmtSize = 4;
 constexpr int kU8FmtSize = 3;
 
 }  // namespace internal
+
+STX_END_NAMESPACE

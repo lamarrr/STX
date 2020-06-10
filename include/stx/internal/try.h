@@ -36,23 +36,30 @@
 
 #pragma once
 
+/// @cond
+
+STX_BEGIN_NAMESPACE
+
 template <typename Tp, typename Er>
-STX_FORCE_INLINE Tp&& stx::internal::result::unsafe_value_move(
+STX_FORCE_INLINE Tp&& internal::result::unsafe_value_move(
     Result<Tp, Er>& result) {
   return std::move(result.value_ref_());
 }
 
 template <typename Tp, typename Er>
-STX_FORCE_INLINE Er&& stx::internal::result::unsafe_err_move(
+STX_FORCE_INLINE Er&& internal::result::unsafe_err_move(
     Result<Tp, Er>& result) {
   return std::move(result.err_ref_());
 }
 
 template <typename Tp>
-STX_FORCE_INLINE Tp&& stx::internal::option::unsafe_value_move(
-    Option<Tp>& option) {
+STX_FORCE_INLINE Tp&& internal::option::unsafe_value_move(Option<Tp>& option) {
   return std::move(option.value_ref_());
 }
+
+STX_END_NAMESPACE
+
+/// @endcond
 
 #define STX_TRY__UTIL_JOIN_(x, y) x##_##y
 #define STX_WITH_UNIQUE_SUFFIX_(x, y) STX_TRY__UTIL_JOIN_(x, y)

@@ -37,7 +37,7 @@
 
 #include "stx/common.h"
 
-namespace stx {
+STX_BEGIN_NAMESPACE
 
 #ifndef STX_REPORT_RESERVE_SIZE
 constexpr size_t kReportReserveSize = 256UL;
@@ -402,4 +402,4 @@ template <typename T>
   return SpanReport(v);
 }
 
-}  // namespace stx
+STX_END_NAMESPACE

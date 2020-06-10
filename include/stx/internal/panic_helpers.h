@@ -32,7 +32,8 @@
 
 #include "stx/panic.h"
 
-namespace stx {
+STX_BEGIN_NAMESPACE
+
 namespace internal {
 
 // Forced inline functions basically function like macros.
@@ -122,4 +123,5 @@ template <typename T>
 
 }  // namespace result
 }  // namespace internal
-}  // namespace stx
+
+STX_END_NAMESPACE

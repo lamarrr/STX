@@ -42,7 +42,7 @@
 #include "stx/backtrace.h"
 #endif
 
-namespace stx {
+STX_BEGIN_NAMESPACE
 
 // here, we can avoid any form of memory allocation that might be needed,
 // therefore deferring the info string and report payload to the callee and can
@@ -201,4 +201,5 @@ inline void panic_default(std::string_view const& info,
   stderr_lock.unlock();
 #endif
 }
-}  // namespace stx
+
+STX_END_NAMESPACE

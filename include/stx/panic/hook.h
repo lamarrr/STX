@@ -57,7 +57,7 @@
 //!
 //!
 
-namespace stx {
+STX_BEGIN_NAMESPACE
 
 #if defined(STX_VISIBLE_PANIC_HOOK)
 constexpr bool kPanicHookVisible = true;
@@ -131,4 +131,4 @@ STX_LOCAL
     bool
     take_panic_hook(PanicHook* hook) noexcept;
 
-}  // namespace stx
+STX_END_NAMESPACE

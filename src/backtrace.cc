@@ -37,7 +37,7 @@
 #include "absl/debugging/symbolize.h"
 #include "stx/panic/handlers/print.h"
 
-namespace stx {
+STX_BEGIN_NAMESPACE
 
 auto backtrace::Symbol::raw() const noexcept -> std::string_view {
   return std::string_view(symbol_.data);
@@ -165,4 +165,4 @@ auto backtrace::handle_signal(int signal) noexcept
   return Ok(std::move(err));
 }
 
-}  // namespace stx
+STX_END_NAMESPACE

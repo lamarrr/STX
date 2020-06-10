@@ -71,7 +71,7 @@
 //!
 //! ```
 
-namespace stx {
+STX_BEGIN_NAMESPACE
 
 template <typename T>
 struct Some;
@@ -2947,7 +2947,7 @@ STX_FORCE_INLINE auto err_ref(E& value) noexcept {
   return Err<Ref<E>>(std::forward<E&>(value));
 }
 
-}  // namespace stx
+STX_END_NAMESPACE
 
 // Error propagation macros
 #include "stx/internal/try.h"

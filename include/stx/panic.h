@@ -33,7 +33,8 @@
 #include "stx/report.h"
 #include "stx/source_location.h"
 
-namespace stx {
+STX_BEGIN_NAMESPACE
+
 /// The global panic handler.
 /// It is advisable to be avoid heap memory allocation of any sort and be
 /// conscious of shared state as it can be called from mulitple threads.
@@ -73,4 +74,4 @@ template <typename T = void>
   begin_panic(info, ReportPayload(SpanReport()), location);
 }
 
-}  // namespace stx
+STX_END_NAMESPACE

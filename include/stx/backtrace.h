@@ -51,7 +51,7 @@
 //!
 //!
 
-namespace stx {
+STX_BEGIN_NAMESPACE
 
 namespace backtrace {
 
@@ -185,4 +185,5 @@ int trace(Callback callback, int skip_count = 0);
 auto handle_signal(int signal) noexcept -> Result<void (*)(int), SignalError>;
 
 }  // namespace backtrace
-}  // namespace stx
+
+STX_END_NAMESPACE
