@@ -156,7 +156,7 @@ auto parse_data(array<uint8_t, 6> const& header) -> Result<uint8_t, string_view>
 
 * Result and Option will only work in `constexpr` context (compile-time error-handling) in C++ 20, to check if you can use it as `constexpr` check if the macros `STX_RESULT_CONSTEXPR` and `STX_OPTION_CONSTEXPR` are set to `1`, for an example see [`constexpr_test`](tests/constexpr_test.cc) .
 * To ensure you never forget to use the returned errors/results, raise the warning levels for your project ( `-Wall`  `-Wextra`  `-Wpedantic` on GNUC-based compilers, and `/W4` on MSVC)
-* Some methods like `map` , `unwrap` and most of the `Result` , and `Option` monadic methods **consume** the stored value and thus the `Result` or `Option` has to be destroyed as its lifetime has ended. For example:
+* Some methods like `map` , `unwrap`, `or_else`, and most of `Result` and `Option`'s monadic methods **consume** the stored value and thus the `Result` or `Option` has to be destroyed as its lifetime has ended. For example:
 
   Say we define a function named `safe_divide` as in the example above, with the following prototype:
 
@@ -236,13 +236,13 @@ C-Style/FailurePath   |     0.384 ns  |      0.383 ns |  1000000000
 
 ## Tested-on Compilers
 
-| Compiler | x86-64 |  arm  | aarch64 |
-|----------|--------|-------|---------|
-Clang-10   |  YES   |   NO  |    NO    
-Clang-9    |  YES   |  YES  |   YES    
-GCC-9      |  YES   |  YES  |   YES    
-GCC-8      |  YES   |  YES  |   YES    
-GCC-7      |  YES   |   NO  |    NO    
+| Compiler | x86-64 |  arm-linux  | aarch64-linux |
+|----------|--------|-------------|---------------|
+Clang-10   |  YES   |     NO      |       NO    
+Clang-9    |  YES   |    YES      |      YES    
+GCC-9      |  YES   |    YES      |      YES    
+GCC-8      |  YES   |    YES      |      YES    
+GCC-7      |  YES   |     NO      |       NO    
 
 ## CMake Configuration Options
 
