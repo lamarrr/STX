@@ -37,6 +37,18 @@
 #include "absl/debugging/symbolize.h"
 #include "stx/panic/handlers/print.h"
 
+// since backtracing will mostly be used in failure handling code, we can't make
+// use of heap allocation
+#ifndef STX_MAX_STACK_FRAME_DEPTH
+#define STX_MAX_STACK_FRAME_DEPTH 128
+#endif
+
+// MSVC and ICC typically have 1024 bytes max for a symbol
+// The standard recommends 1024 bytes minimum for an identifier
+#ifndef STX_SYMBOL_BUFFER_SIZE
+#define STX_SYMBOL_BUFFER_SIZE 1024
+#endif
+
 STX_BEGIN_NAMESPACE
 
 auto backtrace::Symbol::raw() const noexcept -> std::string_view {
