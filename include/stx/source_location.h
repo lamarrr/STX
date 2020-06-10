@@ -30,7 +30,8 @@
 
 #pragma once
 
-namespace stx {
+#include "stx/config.h"
+
 
 ///
 /// The `SourceLocation`  class represents certain information about the source
