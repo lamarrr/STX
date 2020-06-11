@@ -1,4 +1,4 @@
-name: cpp17:clang10:macos-10.15	
+name: cpp17:clang:macos-10.15	
 
 on:	
   push:	
