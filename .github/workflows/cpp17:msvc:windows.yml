@@ -1,0 +1,33 @@
+name: cpp17:msvc:windows-2019.yml
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:	
+  build:	
+    runs-on: windows-2019	
+
+    strategy:	
+
+      matrix:	
+        build_mode: ["Release", "Debug"]	
+        panic_backtrace: ["ON", "OFF"]	
+        backtrace: ["ON", "OFF"]	
+
+    steps:	
+      - uses: actions/checkout@v2	
+
+      - name: Configure Build Directory	
+        run: mkdir build	
+
+      - name: Initialize CMake	
+        run: cd build && cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_mode }} -DSTX_BUILD_TESTS=ON -DSTX_ENABLE_BACKTRACE=${{ matrix.backtrace }} -DSTX_ENABLE_PANIC_BACKTRACE=${{ matrix.panic_backtrace }} -DSTX_SANITIZE_TESTS=OFF	-DCMAKE_CXX_STANDARD=17
+
+      - name: CMake Build	
+        run: cmake --build build
+
+      - name: Run Unsanitized Tests	
+        run: cd build && .\stx_tests
