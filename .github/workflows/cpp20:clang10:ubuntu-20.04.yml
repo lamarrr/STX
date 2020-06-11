@@ -41,4 +41,4 @@ jobs:
         run: cd build && make -j8 stx_tests_thread_sanitized && ./stx_tests_thread_sanitized
 
       - name: Run Undefined-sanitized Tests
-        run: cd build && ninja stx_tests_undefined_sanitized && ./stx_tests_undefined_sanitized
+        run: cd build && make -j8 stx_tests_undefined_sanitized && ./stx_tests_undefined_sanitized
