@@ -675,7 +675,7 @@ struct [[nodiscard]] Option {
   /// ASSERT_EQ(x, Some(2));
   /// ```
   [[nodiscard]] T& value()& noexcept {
-    if (is_none_) internal::option::no_lref();
+    if (is_none()) internal::option::no_lref();
     return value_ref_();
   }
 
@@ -697,7 +697,7 @@ struct [[nodiscard]] Option {
   /// ASSERT_EQ(y, 9);
   /// ```
   [[nodiscard]] T const& value() const& noexcept {
-    if (is_none_) internal::option::no_lref();
+    if (is_none()) internal::option::no_lref();
     return value_cref_();
   }
 
@@ -1986,7 +1986,7 @@ struct [[nodiscard]] Result {
   /// ASSERT_EQ(result, Err(46));
   /// ```
   [[nodiscard]] E& err_value()& noexcept {
-    if (is_ok_) internal::result::no_err_lref();
+    if (is_ok()) internal::result::no_err_lref();
     return err_ref_();
   }
 
@@ -2008,7 +2008,7 @@ struct [[nodiscard]] Result {
   /// ASSERT_EQ(err, 9);
   /// ```
   [[nodiscard]] E const& err_value() const& noexcept {
-    if (is_ok_) internal::result::no_err_lref();
+    if (is_ok()) internal::result::no_err_lref();
     return err_cref_();
   }
 
