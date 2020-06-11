@@ -26,7 +26,7 @@ jobs:
         run: sudo apt install clang-10
 
       - name: Initialize CMake
-        run: cd build && export CC=clang-10 CXX=clang++-10 && cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_mode }} -DSTX_BUILD_TESTS=ON -DSTX_ENABLE_BACKTRACE=${{ matrix.backtrace }} -DSTX_ENABLE_PANIC_BACKTRACE=${{ matrix.panic_backtrace }} -DSTX_SANITIZE_TESTS=ON
+        run: cd build && export CC=clang-10 CXX=clang++-10 && cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_mode }} -DSTX_BUILD_TESTS=ON -DSTX_ENABLE_BACKTRACE=${{ matrix.backtrace }} -DSTX_ENABLE_PANIC_BACKTRACE=${{ matrix.panic_backtrace }} -DSTX_SANITIZE_TESTS=ON -DCMAKE_CXX_STANDARD=20
 
       - name: Run Unsanitized Tests
         run: cd build && make -j8 run_tests
