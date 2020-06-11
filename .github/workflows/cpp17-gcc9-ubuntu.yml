@@ -1,4 +1,4 @@
-ame: cpp17:gcc9:ubuntu
+name: cpp17:gcc9:ubuntu
 
 on:
   push:
