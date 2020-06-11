@@ -1,4 +1,4 @@
-<img src="https://github.com/lamarrr/STX/workflows/cpp17:clang9:ubuntu/badge.svg"> <img src="https://github.com/lamarrr/STX/workflows/cpp20:clang10:ubuntu/badge.svg">
+<img src="https://github.com/lamarrr/STX/workflows/cpp17:clang9:ubuntu/badge.svg"> <img src="https://github.com/lamarrr/STX/workflows/cpp20:clang10:ubuntu/badge.svg"> <img src="https://github.com/lamarrr/STX/workflows/cpp17:clang:macos-10.15/badge.svg"> <img src="https://github.com/lamarrr/STX/workflows/cpp17:msvc:windows-2019.yml/badge.svg">
 
 
 <br/>
