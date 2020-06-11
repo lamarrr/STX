@@ -213,6 +213,8 @@ float result = safe_divide(n, d).value(); // this won't compile as 'value' alway
 
 ```
 
+* All methods of `Result` and `Option` pass r-value/l-value references to their invocable parameters.
+
 ## [Benchmarks](benchmarks)
 
 ### Release Mode ( `-O3` )
