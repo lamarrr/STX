@@ -1,7 +1,6 @@
 /**
  * @file source_location.h
  * @author Basit Ayantunde <rlamarrr@gmail.com>
- * @version  1.0.0
  * @date 2020-06-04
  *
  * @copyright MIT License

@@ -1,7 +1,6 @@
 /**
  * @file print.h
  * @author Basit Ayantunde <rlamarrr@gmail.com>
- * @version  1.0.0
  * @date 2020-06-07
  *
  * @copyright MIT License

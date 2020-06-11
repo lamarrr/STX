@@ -1,7 +1,6 @@
 /**
  * @file abort.h
  * @author Basit Ayantunde <rlamarrr@gmail.com>
- * @version  1.0.0
  * @date 2020-04-26
  *
  * @copyright MIT License

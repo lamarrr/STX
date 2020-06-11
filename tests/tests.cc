@@ -1,7 +1,6 @@
 /**
  * @file tests.cc
  * @author Basit Ayantunde <rlamarrr@gmail.com>
- * @version  1.0.0
  * @date 2020-04-18
  *
  * @copyright MIT License
