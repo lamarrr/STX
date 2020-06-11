@@ -246,6 +246,7 @@ Clang-9    |  YES   |    YES      |      YES
 GCC-9      |  YES   |    YES      |      YES    
 GCC-8      |  YES   |    YES      |      YES    
 GCC-7      |  YES   |     NO      |       NO    
+MSVC-2019  |  YES   |     NO      |       NO    
 
 ## CMake Configuration Options
 
