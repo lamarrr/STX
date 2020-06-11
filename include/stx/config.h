@@ -1,17 +1,33 @@
 /**
  * @file config.h
  * @author Basit Ayantunde <rlamarrr@gmail.com>
- * @brief
- * @version  0.1
  * @date 2020-05-22
  *
- * @copyright Copyright (c) 2020
+ * @copyright MIT License
+ *
+ * Copyright (c) 2020 Basit Ayantunde
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  *
  */
 
 #pragma once
-
-#include <version>
 
 /// configuration macro
 #define CFG(param, value) STX_##param##_##value
@@ -192,18 +208,33 @@
 
 /************ FEATURE AND LIBRARY REQUIREMENTS ************/
 
-#if __has_include(<source_location>)
-#define STX_STABLE_LIB_SOURCE_LOCATION
+#if defined __has_builtin
+#define STX_HAS_BUILTIN(feature) __has_builtin(__builtin_##feature)
 #else
-#if __has_include(<experimental/source_location>)
-// ok
-#else
-#error C++20 Source location library is not available on this toolchain.  Please upgrade to a newer version.
-#endif
+#define STX_HAS_BUILTIN(feature) 0
 #endif
 
-#if !defined(__cpp_concepts) || (__cpp_concepts < 201907L)
-#error 2019/07 version of concepts is not supported on this compiler.  Please upgrade to a newer version.
+// From non-trivial constexpr paper
+#if __cpp_constexpr >= 201807L
+/// constexpr destructor is only available on C++ 20, it is needed for
+/// non-trivial constexpr classes
+#define STX_CXX20_DESTRUCTOR_CONSTEXPR constexpr
+/// some compilers have partial support for C++20 (i.e. flags like gnu++2a), you
+/// can use directly if you're certain your compiler fully supports C++ 20
+#define STX_RESULT_CONSTEXPR 1
+/// some compilers have partial support for C++20 (i.e. flags like gnu++2a), you
+/// can use directly if you're certain your compiler fully supports C++ 20
+#define STX_OPTION_CONSTEXPR 1
+#else
+/// constexpr destructor is only available on C++ 20, it is needed for
+/// non-trivial constexpr classes
+#define STX_CXX20_DESTRUCTOR_CONSTEXPR
+/// some compilers have partial support for C++20 (i.e. flags like gnu++2a), you
+/// can use directly if you're certain your compiler fully supports C++ 20
+#define STX_RESULT_CONSTEXPR 0
+/// some compilers have partial support for C++20 (i.e. flags like gnu++2a), you
+/// can use directly if you're certain your compiler fully supports C++ 20
+#define STX_OPTION_CONSTEXPR 0
 #endif
 
 /*********************** UTILITY MACROS ***********************/
@@ -259,13 +290,13 @@
 
 /*********************** BINARY FORMATS ***********************/
 
-#if defined(__wasm__)
+#if defined(__wasm__)  // Web Assembly
 #define STX_BINARY_WASW 1
 #else
 #define STX_BINARY_WASW 0
 #endif
 
-#if defined(__ELF__)
+#if defined(__ELF__)  // Executable and Linkable Formats
 #define STX_BINARY_ELF 1
 #else
 #define STX_BINARY_ELF 0
@@ -284,3 +315,17 @@
 #else
 #define STX_TOOLCHAIN_LLVM 0
 #endif
+
+/*********************** VERSIONING ***********************/
+
+#define STX_VERSION v1
+
+#define STX_VERSION_STRING "v1"
+
+#define STX_BEGIN_NAMESPACE \
+  namespace stx {           \
+  inline namespace v1 {
+
+#define STX_END_NAMESPACE \
+  }                       \
+  }

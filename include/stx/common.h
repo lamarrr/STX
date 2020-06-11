@@ -1,166 +1,132 @@
 /**
  * @file common.h
  * @author Basit Ayantunde <rlamarrr@gmail.com>
- * @brief
- * @version  0.1
  * @date 2020-04-11
  *
- * @copyright Copyright (c) 2020
+ * @copyright MIT License
+ *
+ * Copyright (c) 2020 Basit Ayantunde
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  *
  */
 
 #pragma once
 
 #include <functional>
-#include <iterator>
 #include <type_traits>
 
 #include "stx/config.h"
 
-namespace stx {
-// NOTE: these implementations will be replaced by standard versions in future
-// release, most toolchains don't implement these yet
+STX_BEGIN_NAMESPACE
 
 template <typename Fn, typename... Args>
-using invoke_result = typename std::invoke_result<Fn, Args...>::type;
-
-template <typename T>
-using remove_ref = std::remove_reference_t<T>;
-
-template <typename T>
-using remove_const = std::remove_const_t<T>;
-
-template <typename T>
-concept Const = std::is_const_v<T>;
-
-template <typename T>
-concept NonConst = !Const<T>;
-
-// TODO(lamarrr): we actually need a movable, and not swappable
-template <typename T>
-concept Swappable = std::is_swappable_v<T>;
-
-template <typename T>
-concept default_constructible = std::is_default_constructible_v<T>;
-
-template <typename T>
-concept copy_constructible = std::is_copy_constructible_v<T>;
-
-template <typename T, typename Cmp>
-concept same_as = std::is_same_v<T, Cmp>;
-
-template <typename Src, typename Dest>
-concept convertible_to = std::is_convertible_v<Src, Dest>;
-
-/// helps to guide against implicit conversions, especially amongst character
-/// pointers, string, and string_view.
-/// Pointers are dangerous and can mean a lot of things!
-/// a string or string_view does not always
-/// mean a char *, nor char const *, but they have implicit conversions. It is
-/// not sensible to allow implicit conversions in that scenario.
-template <typename T, typename Cmp>
-concept exact = std::is_same_v<T, Cmp>;
+using invoke_result = typename std::invoke_result_t<Fn, Args...>;
 
 template <typename Fn, typename... Args>
-concept invocable = std::is_invocable_v<Fn, Args...>;
-
-template <typename L, typename R = L>
-concept equality_comparable = requires(std::remove_reference_t<L> const& l,
-                                       std::remove_reference_t<R> const& r) {
-  { l == r }
-  ->same_as<bool>;
-  { l != r }
-  ->same_as<bool>;
-  { l == r }
-  ->same_as<bool>;
-  { l != r }
-  ->same_as<bool>;
-};
+constexpr bool invocable = std::is_invocable_v<Fn, Args...>;
 
 template <typename T>
-concept RawReference = std::is_reference_v<T>;
+constexpr bool movable = std::is_object_v<T>&& std::is_move_constructible_v<T>&&
+    std::is_assignable_v<T&, T>&& std::is_swappable_v<T>;
 
 template <typename T>
-concept Pointer = std::is_pointer_v<T>;
+constexpr bool copy_constructible = std::is_copy_constructible_v<T>;
+
+template <typename From, typename To>
+constexpr bool convertible = std::is_convertible_v<From, To>;
+
+template <typename T, typename Cmp = T, typename = void>
+struct is_equality_comparable : std::false_type {};
+
+template <typename T, typename Cmp>
+struct is_equality_comparable<
+    T, Cmp,
+    typename std::enable_if_t<
+        true,
+        decltype((std::declval<std::remove_reference_t<T> const&>() ==
+                  std::declval<std::remove_reference_t<Cmp> const&>()) &&
+                     (std::declval<std::remove_reference_t<T> const&>() !=
+                      std::declval<std::remove_reference_t<Cmp> const&>()),
+                 (void)0)>> : std::true_type {};
+
+/// Checks if the type has a compatible 'operator ==' and 'operator!='
+template <typename T, typename Cmp = T>
+constexpr bool equality_comparable = is_equality_comparable<T, Cmp>::value;
 
 template <typename T>
-concept UnaryDerefableSmartPointer =
-    requires(T t, typename T::element_type element_type) {
-  { *t }
-  ->RawReference;
-};
+constexpr bool is_reference = std::is_reference_v<T>;
 
-template <typename T>
-concept OutputPointer =
-    Pointer<T> && !(std::is_const_v<std::remove_pointer_t<T>>);
-
-// any type of pointer is an input pointer
-template <typename T>
-concept InputPointer = Pointer<T>;
-
-// not all pointers are iterators!!!
-// an iterator is not constant
-template <typename T>
-concept Iterator =
-    requires(std::iterator_traits<T> traits,
-             typename std::iterator_traits<T>::value_type value,
-             typename std::iterator_traits<T>::reference reference,
-             typename std::iterator_traits<T>::pointer pointer,
-             typename std::iterator_traits<T>::difference_type difference,
-             typename std::iterator_traits<T>::iterator_category category) {
-  {traits};
-}
-&&(
-    requires(T iter) {
-      { iter++ }
-      ->convertible_to<T>;
-    } ||
-    requires(T iter) {
-      { iter-- }
-      ->convertible_to<T>;
-    });
-
-template <typename T>
-concept Derefable = Pointer<T> || Iterator<T> || UnaryDerefableSmartPointer<T>;
-
-namespace internal {
-template <Derefable T>
-using DerefValue__ = std::remove_reference_t<decltype(*std::declval<T>())>;
-};
-
-template <typename T>
-concept OutputIterator = Iterator<T>&& NonConst<internal::DerefValue__<T>>;
-
-// any type of pointer is an input iterator
-template <typename T>
-concept InputIterator = Iterator<T>;
-
-// any type of dereferencable is const dereferencable
-template <typename T>
-concept ConstDerefable = Derefable<T>;
-
+/// `Ref` is an alias for `std::reference_wrapper`
+/// `Ref` can be mutable and immutable depending on the const-qualifier for `T`
+/// To offer stronger guarantees prefer `ConstRef` and `MutRef`
 template <typename T>
 using Ref = std::reference_wrapper<T>;
 
-template <NonConst T>
-using MutRef = std::reference_wrapper<T>;
-
+/// `ConstRef` is an always-const `Ref`.
 template <typename T>
-using ConstRef = std::reference_wrapper<T const>;
+using ConstRef =
+    std::reference_wrapper<std::add_const_t<std::remove_reference_t<T>>>;
 
+/// `MutRef` is an always-mutable `Ref`
 template <typename T>
-concept MutDerefable = Derefable<T> && (OutputPointer<T> || OutputIterator<T>);
+using MutRef =
+    std::reference_wrapper<std::remove_const_t<std::remove_reference_t<T>>>;
 
-template <Derefable T>
-using Deref = std::reference_wrapper<internal::DerefValue__<T>>;
-
-template <ConstDerefable T>
-using ConstDeref = std::reference_wrapper<internal::DerefValue__<T> const>;
-
-template <MutDerefable T>
-using MutDeref = Deref<T>;
-
+#if defined(__cpp_concepts)
+#if __cpp_concepts >= 201907L
 template <typename T, typename Base>
 concept Impl = std::is_base_of_v<Base, T>;
+#endif
+#endif
 
-};  // namespace stx
+namespace internal {
+
+/// pointer hex formatting
+///
+/// 0xaabbccdd => 4 bytes (+ 8 chars)
+///
+/// 0xaa => 1 byte (+ 2 chars)
+///
+/// 0xaabb => 2 bytes (+ 4 chars)
+///
+/// we leave 2 extra bytes for tolerance
+constexpr int kxPtrFmtSize = static_cast<int>((sizeof(void*) << 1) + 2 + 2);
+
+// note that the sizes are also affected by the word size. i.e. int64_t and
+// size_t will be 32-bit on some platforms, we thus can't allocate less memory
+// than required on the stack, though it can be a bit much, such as int64_t on
+// 32-bit platforms
+
+/// 10 digits + 1 sign
+constexpr int kI32FmtSize = 11;
+/// 10 digits
+constexpr int kU32FmtSize = 10;
+/// 5 digits + 1 sign
+constexpr int kI16FmtSize = 6;
+/// 5 digits
+constexpr int kU16FmtSize = 5;
+/// 3 digits + 1 sign
+constexpr int kI8FmtSize = 4;
+/// 3 digits
+constexpr int kU8FmtSize = 3;
+
+}  // namespace internal
+
+STX_END_NAMESPACE

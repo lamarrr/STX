@@ -1,11 +1,29 @@
 /**
  * @file hook.h
  * @author Basit Ayantunde <rlamarrr@gmail.com>
- * @brief
- * @version  0.1
  * @date 2020-05-08
  *
- * @copyright Copyright (c) 2020
+ * @copyright MIT License
+ *
+ * Copyright (c) 2020 Basit Ayantunde
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  *
  */
 
@@ -34,16 +52,16 @@
 //! - Check if hooks are available for attaching: `has_panic_hook()`
 //! - If hooks are available, attach a panic hook:
 //! `attach_panic_hook(my_handler)` or reset the exisiting panic hook back to
-//! the default: `take_panic_hook()`
+//! the default: `take_panic_hook(&installed_handler)`
 //!
 //!
 
-namespace stx {
+STX_BEGIN_NAMESPACE
 
 #if defined(STX_VISIBLE_PANIC_HOOK)
-constexpr bool kVisiblePanicHook = true;
+constexpr bool kPanicHookVisible = true;
 #else
-constexpr bool kVisiblePanicHook = false;
+constexpr bool kPanicHookVisible = false;
 #endif
 
 // multiple threads can try to modify/read the hook at once.
@@ -54,18 +72,21 @@ namespace this_thread {
 
 /// Checks if the current thread is panicking.
 ///
-/// # THREAD-SAFETY
-/// thread-safe.
+/// # Thread-safe?
+///
+/// Yes
+///
 [[nodiscard]] STX_EXPORT bool is_panicking() noexcept;
-};  // namespace this_thread
+}  // namespace this_thread
 
 /// Checks if panic hooks are visible to be attached-to when loaded as a dynamic
 /// library. This should be called before calling any of `attach_panic_hook` or
 /// `take_panic_hook` when loaded as a dynamic library.
 ///
-/// # THREAD-SAFETY
+/// # Thread-safe?
 ///
-/// thread-safe.
+/// Yes
+///
 [[nodiscard]] STX_EXPORT bool panic_hook_visible() noexcept;
 
 /// Attaches a new panic hook, the attached panic hook is called in place of the
@@ -74,10 +95,10 @@ namespace this_thread {
 /// Returns `true` if the thread is not panicking and the panic hook was
 /// successfully attached, else returns `false`.
 ///
-/// # THREAD-SAFETY
+/// # Thread-safe?
 ///
-/// thread-safe.
-
+/// Yes
+///
 [[nodiscard]]
 #if defined(STX_VISIBLE_PANIC_HOOK)
 STX_EXPORT
@@ -95,10 +116,10 @@ STX_LOCAL
 /// Returns `true` if the thread is not panicking and the panic hook was
 /// successfully taken, else returns `false`.
 ///
-/// # THREAD-SAFETY
+/// # Thread-safe?
 ///
-/// thread-safe.
-
+/// Yes
+///
 [[nodiscard]]
 #if defined(STX_VISIBLE_PANIC_HOOK)
 STX_EXPORT
@@ -109,4 +130,4 @@ STX_LOCAL
     bool
     take_panic_hook(PanicHook* hook) noexcept;
 
-};  // namespace stx
+STX_END_NAMESPACE

@@ -1,11 +1,29 @@
 /**
  * @file option_test.cc
  * @author Basit Ayantunde <rlamarrr@gmail.com>
- * @brief
- * @version  0.1
  * @date 2020-04-16
  *
- * @copyright Copyright (c) 2020
+ * @copyright MIT License
+ *
+ * Copyright (c) 2020 Basit Ayantunde
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  *
  */
 
@@ -44,6 +62,7 @@ struct MoveOnly {
   }
 
   bool operator==(MoveOnly const&) const { return true; }
+  bool operator!=(MoveOnly const&) const { return false; }
 };
 
 template <size_t id>
@@ -51,7 +70,7 @@ MoveOnly<id> make_mv() {
   return MoveOnly<id>(id);
 }
 
-static_assert(Swappable<MoveOnly<0>>);
+static_assert(std::is_swappable_v<MoveOnly<0>>);
 static_assert(equality_comparable<MoveOnly<0>>);
 
 struct FnMut {
@@ -76,7 +95,7 @@ TEST(OptionTest, Misc) {
 TEST(OptionTest, ObjectConstructionTest) {
   Option<int> a = None;
   Option b = Some(89);
-  EXPECT_DEATH(move(a).unwrap(), ".*");
+  EXPECT_DEATH_IF_SUPPORTED(move(a).unwrap(), ".*");
   EXPECT_NO_THROW(move(b).unwrap());
   EXPECT_EQ(Option(Some(89)).unwrap(), 89);
 
@@ -91,6 +110,28 @@ TEST(OptionTest, ObjectConstructionTest) {
   d = Some(make_mv<0>());
   d = None;
   d = Some(make_mv<0>());
+}
+
+TEST(OptionTest, CopyConstructionTest) {
+  Option<int> a = None;
+  Option<int> b = a;
+  EXPECT_EQ(a, b);
+
+  Option<int> c = Some(98);
+  b = c;
+  EXPECT_EQ(b, c);
+  EXPECT_NE(a, c);
+  EXPECT_NE(a, b);
+
+  Option<vector<int>> d = None;
+  Option<vector<int>> e = d;
+  EXPECT_EQ(d, e);
+
+  Option f = Some(vector{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
+  e = f;
+  EXPECT_EQ(e, f);
+  EXPECT_NE(d, e);
+  EXPECT_NE(d, f);
 }
 
 TEST(OptionTest, ObjectForwardingTest) {
@@ -125,6 +166,7 @@ TEST(OptionTest, ObjectForwardingTest) {
 TEST(OptionTest, Equality) {
   EXPECT_NE(Some(0), None);
   EXPECT_EQ(Some(90), Some(90));
+  EXPECT_NE(Some(90), Some(70));
   EXPECT_NE(Some<Option<int>>(None), None);
   EXPECT_EQ(None, None);
   EXPECT_EQ(Option(Some(90)), Some(90));
@@ -135,19 +177,32 @@ TEST(OptionTest, Equality) {
   EXPECT_EQ(Option<int>(None), None);
   EXPECT_NE(Option<Option<int>>(Some(Option<int>(None))), None);
 
+  EXPECT_NE(None, Some(0));
+  EXPECT_NE(None, Some<Option<int>>(None));
+  EXPECT_EQ(Some(90), Option(Some(90)));
+  EXPECT_NE(Some(70), Option(Some(90)));
+  EXPECT_NE(None, Option(Some(90)));
+  EXPECT_EQ(None, Option<int>(None));
+  EXPECT_NE(None, Option<Option<int>>(Some(Option<int>(None))));
+
   int const x = 909'909;
   int y = 909'909;
-  EXPECT_EQ(Some(909'909), Some<ConstRef<int>>(x));
-  EXPECT_EQ(Some(909'909), Some(&x));
 
-  EXPECT_EQ(Some(909'909), Some<ConstRef<int>>(y));
-  EXPECT_EQ(Some(909'909), Some<MutRef<int>>(y));
-  EXPECT_EQ(Some(909'909), Some(&y));
+  EXPECT_EQ(some_ref(x), Some(909'909));
+  EXPECT_EQ(some_ref(y), Some(909'909));
 
-  EXPECT_EQ(Option(Some(909'909)), Some(&x));
-  EXPECT_EQ(Option(Some(909'909)), Some(&y));
-  EXPECT_NE(Option(Some(101'101)), Some(&x));
-  EXPECT_NE(Option(Some(101'101)), Some(&y));
+  EXPECT_EQ(Some(909'909), some_ref(y));
+  EXPECT_EQ(Some(909'909), some_ref(y));
+
+  EXPECT_EQ(Option(Some(909'909)), some_ref(x));
+  EXPECT_EQ(Option(Some(909'909)), some_ref(y));
+  EXPECT_NE(Option(Some(101'101)), some_ref(x));
+  EXPECT_NE(Option(Some(101'101)), some_ref(y));
+
+  EXPECT_EQ(some_ref(x), Option(Some(909'909)));
+  EXPECT_EQ(some_ref(y), Option(Some(909'909)));
+  EXPECT_NE(some_ref(x), Option(Some(101'101)));
+  EXPECT_NE(some_ref(y), Option(Some(101'101)));
 }
 
 TEST(OptionTest, Contains) {
@@ -167,8 +222,9 @@ TEST(OptionLifetimeTest, Contains) {
 TEST(OptionTest, Exists) {
   constexpr auto even = [](int const& x) { return x % 2 == 0; };
 
-  auto const all_even = [=](vector<int> const& x) {
-    return std::all_of(x.begin(), x.end(), even);
+  auto const all_even = [](vector<int> const& x) {
+    return std::all_of(x.begin(), x.end(),
+                       [](int const& x) { return x % 2 == 0; });
   };
 
   EXPECT_TRUE(make_some(8).exists(even));
@@ -218,11 +274,11 @@ TEST(OptionLifeTimeTest, AsRef) {
 
 TEST(OptionTest, Unwrap) {
   EXPECT_EQ(Option(Some(0)).unwrap(), 0);
-  EXPECT_DEATH(Option<int>(None).unwrap(), ".*");
+  EXPECT_DEATH_IF_SUPPORTED(Option<int>(None).unwrap(), ".*");
 
   EXPECT_EQ(Option(Some(vector{1, 2, 3, 4, 5})).unwrap(),
             (vector{1, 2, 3, 4, 5}));
-  EXPECT_DEATH(Option<vector<int>>(None).unwrap(), ".*");
+  EXPECT_DEATH_IF_SUPPORTED(Option<vector<int>>(None).unwrap(), ".*");
 }
 
 TEST(OptionLifetimeTest, Unwrap) {
@@ -233,7 +289,8 @@ TEST(OptionLifetimeTest, Unwrap) {
 TEST(OptionTest, Expect) {
   EXPECT_NO_THROW(Option(Some(0)).expect("No Value Received"));
   // how does it behave with unique_ptr?
-  EXPECT_DEATH(Option<unique_ptr<int>>(None).expect("No Value Received"), ".*");
+  EXPECT_DEATH_IF_SUPPORTED(
+      Option<unique_ptr<int>>(None).expect("No Value Received"), ".*");
 }
 
 TEST(OptionLifetimeTest, Expect) {
@@ -608,19 +665,20 @@ TEST(OptionTest, OrElse) {
 }
 
 TEST(OptionTest, ExpectNone) {
-  EXPECT_DEATH(Option(Some(56)).expect_none("===TEST==="), ".*");
+  EXPECT_DEATH_IF_SUPPORTED(Option(Some(56)).expect_none("===TEST==="), ".*");
   EXPECT_NO_THROW(Option<int>(None).expect_none("===TEST==="));
 
-  EXPECT_DEATH(Option(Some(vector{1, 2, 3, 4, 5})).expect_none("===TEST==="),
-               ".*");
+  EXPECT_DEATH_IF_SUPPORTED(
+      Option(Some(vector<int>{1, 2, 3, 4, 5})).expect_none("===TEST==="), ".*");
   EXPECT_NO_THROW(Option<vector<int>>(None).expect_none("===TEST==="));
 }
 
 TEST(OptionTest, UnwrapNone) {
-  EXPECT_DEATH(Option(Some(56)).unwrap_none(), ".*");
+  EXPECT_DEATH_IF_SUPPORTED(Option(Some(56)).unwrap_none(), ".*");
   EXPECT_NO_THROW(Option<int>(None).unwrap_none());
 
-  EXPECT_DEATH(Option(Some(vector{1, 2, 3, 4, 5})).unwrap_none(), ".*");
+  EXPECT_DEATH_IF_SUPPORTED(
+      Option(Some(vector<int>{1, 2, 3, 4, 5})).unwrap_none(), ".*");
   EXPECT_NO_THROW(Option<vector<int>>(None).unwrap_none());
 }
 
@@ -631,58 +689,6 @@ TEST(OptionTest, UnwrapOrDefault) {
   EXPECT_EQ(Option(Some(vector{1, 2, 3, 4, 5})).unwrap_or_default(),
             (vector{1, 2, 3, 4, 5}));
   EXPECT_EQ(Option<vector<int>>(None).unwrap_or_default(), (vector<int>{}));
-}
-
-TEST(OptionTest, AsConstDeref) {
-  int const x = 98;
-  auto const a = Option(Some(&x));
-  EXPECT_EQ(a.as_const_deref().unwrap().get(), 98);
-  EXPECT_EQ(&a.as_const_deref().unwrap().get(), &x);
-
-  auto const b = Option<int*>(None);
-  EXPECT_EQ(b.as_const_deref(), None);
-
-  auto const y = vector{1, 2, 3, 4, 5};
-  auto const c = Option(Some(&y));
-  EXPECT_EQ(c.as_const_deref().unwrap().get(), (vector{1, 2, 3, 4, 5}));
-  EXPECT_EQ(&c.as_const_deref().unwrap().get(), &y);
-
-  auto const d = Option<vector<int>*>(None);
-  EXPECT_EQ(d.as_const_deref(), None);
-
-  // works with standard vector iterators
-  auto const z = vector{1, 2, 3, 4, 5};
-  auto e = Option(Some(z.begin()));
-  EXPECT_EQ(e.as_const_deref().unwrap().get(), 1);
-  EXPECT_EQ(&e.as_const_deref().unwrap().get(), &z.front());
-}
-
-TEST(OptionTest, AsMutDeref) {
-  int x = 98;
-  auto a = Option(Some(&x));
-  a.as_mut_deref().unwrap().get() = 77;
-  EXPECT_EQ(a.as_mut_deref().unwrap().get(), 77);
-
-  auto b = Option<int*>(None);
-  EXPECT_EQ(b.as_mut_deref(), None);
-
-  auto vec = vector{1, 2, 3, 4, 5};
-  auto c = Option(Some(&vec));
-  c.as_mut_deref().unwrap().get() = vector{6, 7, 8, 9, 10};
-  EXPECT_EQ(c.as_mut_deref().unwrap().get(), (vector{6, 7, 8, 9, 10}));
-
-  auto d = Option<vector<int>*>(None);
-  EXPECT_EQ(d.as_mut_deref(), None);
-
-  auto vec_b = vector{1, 2, 3, 4, 5};
-  auto e = Option(Some(vec_b.begin()));
-  e.as_mut_deref().unwrap().get() = -1;
-  EXPECT_EQ(vec_b, (vector{-1, 2, 3, 4, 5}));
-
-  auto vec_c = vector{1, 2, 3, 4, 5};
-  auto f = Option(Some(vec_c.end() - 1));
-  f.as_mut_deref().unwrap().get() = -1;
-  EXPECT_EQ(vec_c, (vector{1, 2, 3, 4, -1}));
 }
 
 TEST(OptionTest, Match) {
@@ -719,7 +725,9 @@ auto opt_try_b(int x) -> Option<int> {
 }
 
 auto opt_try_a(int m) -> Option<int> {
-  TRY_SOME(x, opt_try_b(m));
+  // clang-format off
+  TRY_SOME(x, opt_try_b(m)); TRY_SOME(const y, opt_try_b(m)); TRY_SOME(volatile z, opt_try_b(m));
+  // clang-format on
   x += 60;
   return Some(std::move(x));
 }

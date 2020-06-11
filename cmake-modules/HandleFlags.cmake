@@ -1,5 +1,5 @@
-# HandleLibcxxFlags - A set of macros used to setup the flags used to compile
-# and link libc++abi. These macros add flags to the following CMake variables. -
+# HandleFlags - A set of macros used to setup the flags used to compile
+# and link stx. These macros add flags to the following CMake variables. -
 # LIBSTX_COMPILE_FLAGS: flags used to compile libstx -
 # LIBSTX_LINK_FLAGS: flags used to link libstx - LIBSTX_LIBRARIES:
 # libraries to link libstx to.

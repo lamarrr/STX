@@ -1,11 +1,13 @@
 <img src="https://github.com/lamarrr/STX/workflows/tests:ubuntu-18.04/badge.svg"> <img src="https://github.com/lamarrr/STX/workflows/tests:ubuntu-20.04/badge.svg">
 
-
 <br/>
 <div align="center"><img src="assets/stx.png"/> </div>
 
-<div align="center"><i> C++ 20 error-handling and utility extensions.</i>
+<div align="center"><i> C++ 17 & C++ 20 error-handling and utility extensions.</i>
 </div>
+
+<p align="center"> VERSION 1.0.0 </p>
+
 
 ## Overview
 
@@ -26,8 +28,8 @@ STX is a collection of libraries and utilities designed to make working with C++
 ## Libraries
 
 * [Panicking](https://lamarrr.github.io/STX/Panicking.html)
-* [ `Result<T, E>` ](https://lamarrr.github.io/STX/classstx_1_1Result.html)
-* [ `Option<T>` ](https://lamarrr.github.io/STX/classstx_1_1Option.html)
+* [ `Result<T, E>` ](https://lamarrr.github.io/STX/structstx_1_1Result.html) (with constexpr in C++20)
+* [ `Option<T>` ](https://lamarrr.github.io/STX/structstx_1_1Option.html) (with constexpr in C++20)
 * [Backtracing](https://lamarrr.github.io/STX/namespacestx_1_1backtrace.html)
 
 ## Features
@@ -40,17 +42,18 @@ STX is a collection of libraries and utilities designed to make working with C++
 * Panic backtraces
 * Signal backtraces ( `SIGSEGV` , `SIGILL` , and `SIGFPE` )
 * Backtrace library
-* Portable, suitable, and easily-adoptable for embedded systems, safety-critical systems, and operating systems.
+* Portable, suitable, and easily-adoptable for embedded systems, real-time systems, safety-critical systems, and operating systems
 * Easy debugging
 * Easy to use and hard to misuse API
 * Exception-free, RTTI-free, and memory allocation free ( `no-std` )
-* SFINAE-free
 * Space and time deterministic error-handling
 * Deterministic value lifetimes
 * Eliminates repitive code and abstractable error-handling logic code via monadic extensions
 * Fast success and error return paths
 * Modern and clean API
 * Well-documented
+* Extensively tested
+* Functions using only `Result` and `Option` for error and optional value handling are callable from C code as they are unions.
 
 ## Basic Examples
 
@@ -144,15 +147,16 @@ You can also add const/volatile attributes to `TRY_OK` 's assigned value, i.e:
 
 auto parse_data(array<uint8_t, 6> const& header) -> Result<uint8_t, string_view> {
   TRY_OK(const version, parse_version(header));
-  return Ok(version + header.at(1) + header.at(2));
+  return Ok(version + header[1] + header[2]);
 }
 
 ```
 
 ## Guidelines
 
+* Result and Option will only work in `constexpr` context (compile-time error-handling) in C++ 20, to check if you can use it as `constexpr` check if the macros `STX_RESULT_CONSTEXPR` and `STX_OPTION_CONSTEXPR` are set to `1`, for an example see [`constexpr_test`](tests/constexpr_test.cc) .
 * To ensure you never forget to use the returned errors/results, raise the warning levels for your project ( `-Wall`  `-Wextra`  `-Wpedantic` on GNUC-based compilers, and `/W4` on MSVC)
-* Some methods like `match` , `map` , `unwrap` and most of the `Result` , and `Option` monadic methods **consume** the stored value and thus the `Result` or `Option` has to be destroyed as its lifetime has ended. For example:
+* Some methods like `map` , `unwrap`, `or_else`, and most of `Result` and `Option`'s monadic methods **consume** the stored value and thus the `Result` or `Option` has to be destroyed as its lifetime has ended. For example:
 
   Say we define a function named `safe_divide` as in the example above, with the following prototype:
 
@@ -182,7 +186,7 @@ float result  = std::move(option).unwrap(); // will compile, the value is moved 
 
 <b>NOTE</b>: Just as any moved-from object, `Option` and `Result` are not to be used after a `std::move` ! (as the objects will be left in an unspecified state).
 
-* `Option` and `Result` do not perform any implicit copies of the contained object as they are designed as purely forwarding types, this is especially due to their primary purpose as return channels in which we do not want duplication or implicit copies of the returned values.
+* `Result` and `Option` do not make any implicit copies of the contained object as they are designed as purely forwarding types, this is especially due to their primary purpose as return channels in which we do not want duplication nor implicit copies of the returned values.
 
 To make explicit copies:
 
@@ -227,13 +231,18 @@ C-Style/FailurePath   |     0.384 ns  |      0.383 ns |  1000000000
 
 * CMake
 * Make or Ninja Build
-* C++ 20 Compiler
-* Doxygen and Graphviz (only for documentation)
+* C++ 17 or C++ 20 Compiler
+* Doxygen and Graphviz (for documentation)
 
-## Tested-on Compiler & Toolchains
+## Tested-on Compilers
 
-* Clang-10 + libstdc++-9
-* Clang-11 + libstdc++-9
+| Compiler | x86-64 |  arm-linux  | aarch64-linux |
+|----------|--------|-------------|---------------|
+Clang-10   |  YES   |     NO      |       NO    
+Clang-9    |  YES   |    YES      |      YES    
+GCC-9      |  YES   |    YES      |      YES    
+GCC-8      |  YES   |    YES      |      YES    
+GCC-7      |  YES   |     NO      |       NO    
 
 ## CMake Configuration Options
 

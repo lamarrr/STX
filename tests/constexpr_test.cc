@@ -1,5 +1,5 @@
 /**
- * @file backtrace_test.cc
+ * @file constexpr_test.cc
  * @author Basit Ayantunde <rlamarrr@gmail.com>
  * @date 2020-06-05
  *
@@ -27,40 +27,42 @@
  *
  */
 
-#include "stx/backtrace.h"
-
-#include "gtest/gtest.h"
 #include "stx/option.h"
-#include "stx/panic.h"
+#include "stx/result.h"
 
-using namespace stx;             // NOLINT
-using namespace stx::backtrace;  // NOLINT
+#if STX_OPTION_CONSTEXPR && STX_RESULT_CONSTEXPR  // check if it'll work
 
-void fn_d() {
-  backtrace::trace(
-      [](Frame frame, int) {
-        frame.symbol.match(
-            [](auto sym) {
-              auto const& s = sym.raw();
-              std::fwrite(s.data(), s.size(), 1, stdout);
-            },
-            []() { std::fputs("unknown symbol", stdout); });
+using stx::Ok, stx::Err, stx::Result;
+using stx::Some, stx::None, stx::Option;
 
-        std::puts("");
-
-        frame.ip.match([](auto ip) { std::printf("ip: 0x%" PRIxPTR, ip); },
-                       []() { std::fputs("unknown pc", stdout); });
-
-        puts("\n");
-        return false;
-      },
-      1);
+constexpr auto divide(int x, int y) -> Option<int> {
+  if (y == 0) return None;
+  return Some(x / y);
 }
 
-void fn_c() { fn_d(); }
+static_assert(divide(56, 1).unwrap_or_default() == 56);
+static_assert(divide(56, 0).unwrap_or_default() == 0);
 
-void fn_b() { fn_c(); }
+static_assert(divide(56, 10).match([](int v) { return v; },
+                                   []() { return -1; }) == 5);
+static_assert(divide(56, 0).match([](int v) { return v; },
+                                  []() { return -1; }) == -1);
 
-void fn_a() { fn_b(); }
+enum class Error { Range };
 
-TEST(BacktraceTest, Backtrace) { fn_a(); }
+constexpr auto add(int8_t x, int8_t y) -> Result<int8_t, Error> {
+  int16_t acc = x;
+  acc += y;
+
+  if (acc > 127) return Err(Error::Range);
+  return Ok((int8_t)acc);
+}
+
+static_assert(add(0, 10).unwrap_or_default() == 10);
+static_assert(add(127, 1).unwrap_or_default() == 0);
+static_assert(add(56, 10).match([](int8_t v) { return v; },
+                                [](Error) { return -1; }) == 66);
+static_assert(add(56, 100).match([](int8_t v) { return v; },
+                                 [](Error) { return -1; }) == -1);
+
+#endif

@@ -1,11 +1,29 @@
 /**
  * @file backtrace.h
  * @author Basit Ayantunde <rlamarrr@gmail.com>
- * @brief
- * @version  0.1
  * @date 2020-05-13
  *
- * @copyright Copyright (c) 2020
+ * @copyright MIT License
+ *
+ * Copyright (c) 2020 Basit Ayantunde
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  *
  */
 
@@ -14,21 +32,17 @@
 #include <cstdint>
 
 #include "stx/internal/option_result.h"
+#include "stx/report.h"
 
-#define STX_MAX_STACK_FRAME_DEPTH 128
-
-// MSVC and ICC typically have 1024 max symbol length
-#define STX_SYMBOL_BUFFER_SIZE 1024
-
-//!
+//! @file
 //!
 //! - Thread and signal-safe, non-allocating.
-//! - Supports local unwinding only: i.e. within the current process
+//! - Supports local backtracing only: i.e. within the current process
 //!
 //!
 //!
 
-namespace stx {
+STX_BEGIN_NAMESPACE
 
 namespace backtrace {
 
@@ -39,12 +53,22 @@ enum class SignalError {
   SigErr
 };
 
+inline SpanReport operator>>(ReportQuery, SignalError const &err) noexcept {
+  switch (err) {
+    case SignalError::Unknown:
+      return SpanReport(
+          "Uknown signal given, 'handle_signal' can only handle 'SIGSEGV', "
+          "'SIGILL' and 'SIGFPE'.");
+    case SignalError::SigErr:
+      return SpanReport("'std::signal' returned 'SIGERR'");
+  }
+}
+
 /// Mutable type-erased view over a contiguous character container.
 struct CharSpan {
   char *data;
   size_t size;
-  explicit CharSpan(char *data_, size_t size_) noexcept  // NOLINT
-      : data{data_}, size{size_} {}
+  CharSpan(char *data_, size_t size_) noexcept : data{data_}, size{size_} {}
   CharSpan(CharSpan const &) noexcept = default;
   CharSpan(CharSpan &&) noexcept = default;
   CharSpan &operator=(CharSpan const &) noexcept = default;
@@ -81,27 +105,12 @@ struct Frame {
   /// function's symbol name. possibly demangled.
   Option<Symbol> symbol;
 
-  explicit Frame() noexcept  // NOLINT
-      : ip{None}, sp{None}, offset{None}, symbol{None} {}
-
-  Frame(Frame &&) noexcept = default;
-  Frame &operator=(Frame &&) noexcept = default;
-
-  Frame(Frame const &cp) noexcept
-      : ip{cp.ip.clone()},
-        sp{cp.sp.clone()},
-        offset{cp.offset.clone()},
-        symbol{cp.symbol.clone()} {}
-
-  Frame &operator=(Frame const &cp) noexcept {
-    ip = cp.ip.clone();
-    sp = cp.sp.clone();
-    offset = cp.offset.clone();
-    symbol = cp.symbol.clone();
-    return *this;
-  }
-
-  ~Frame() noexcept = default;
+  constexpr explicit Frame() = default;
+  Frame(Frame &&) = default;
+  Frame &operator=(Frame &&) = default;
+  Frame(Frame const &) = default;
+  Frame &operator=(Frame const &) = default;
+  ~Frame() = default;
 };
 
 using Callback = bool (*)(Frame, int);
@@ -136,7 +145,9 @@ using Callback = bool (*)(Frame, int);
 /// ```cpp
 ///
 ///   stx::backtrace::trace([](Frame frame, int) {
-///    std::cout << "IP=" << frame.ip.as_ref().unwrap() << std::endl;
+///    std::cout << "Instruction Pointer="
+///              << frame.ip.clone().unwrap()
+///              << std::endl;
 ///    return false;
 ///  });
 ///
@@ -145,13 +156,25 @@ using Callback = bool (*)(Frame, int);
 ///
 // all memory passed to the callback is cleared after each call. Hence we only
 // use one stack memory for the callback feed-loop.
-size_t trace(Callback callback);
+int trace(Callback callback, int skip_count = 0);
 
 /// Installs an handler for the specified signal that prints a backtrace
 /// whenever the signal is raised. It can and will only handle `SIGSEGV`,
 /// `SIGILL`, and `SIGFPE`. It returns the previous signal handler if
 /// successful, else returns the error.
+///
+/// # Example
+///
+/// ``` cpp
+/// // immediately after program startup
+/// handle_signal(SIGILL).unwrap();
+/// handle_signal(SIGSEGV).unwrap();
+/// handle_signal(SIGFPE).unwrap();
+///
+/// ```
+///
 auto handle_signal(int signal) noexcept -> Result<void (*)(int), SignalError>;
 
-};  // namespace backtrace
-};  // namespace stx
+}  // namespace backtrace
+
+STX_END_NAMESPACE

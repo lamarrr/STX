@@ -1,99 +1,86 @@
 /**
  * @file backtrace.cc
  * @author Basit Ayantunde <rlamarrr@gmail.com>
- * @brief
- * @version  0.1
  * @date 2020-05-16
  *
- * @copyright Copyright (c) 2020
+ * @copyright MIT License
+ *
+ * Copyright (c) 2020 Basit Ayantunde
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  *
  */
 
-// debug-build assertions
-#if !defined(NDEBUG) && defined(STX_ENABLE_DEBUG_ASSERTIONS)
-#include <cassert>
-#include <string>
+#include "stx/backtrace.h"
 
-using namespace std::literals;
-
-#define LOG(x) \
-  std::cout << "[" << __FILE__ << ":" << __LINE__ << "] " << x << std::endl
-#define ASSERT_UNREACHABLE()        \
-  LOG("Source location reached"sv); \
-  assert(false)
-
-#define ASSERT_NEQ(a, b)                                                    \
-  if (!((a) != (b))) {                                                      \
-    LOG("Assertion: '"s + std::to_string(a) + " != "s + std::to_string(b) + \
-        "' failed"s);                                                       \
-    assert((a) != (b));                                                     \
-  }
-#define ASSERT_EQ(a, b)                                                     \
-  if (!((a) == (b))) {                                                      \
-    LOG("Assertion: '"s + std::to_string(a) + " == "s + std::to_string(b) + \
-        "' failed"s);                                                       \
-    assert((a) == (b));                                                     \
-  }
-#else
-#define LOG(x) (void)0
-#define ASSERT_UNREACHABLE() (void)0
-#define ASSERT_NEQ(a, b) (void)0
-#define ASSERT_EQ(a, b) (void)0
-#endif
-
-#include <stdio.h>
-
-#include <array>
 #include <csignal>
-#include <cstring>
-#include <iostream>
+#include <cstdio>
 
 #include "absl/debugging/stacktrace.h"
 #include "absl/debugging/symbolize.h"
-#include "stx/backtrace.h"
+#include "stx/panic/handlers/print.h"
 
-namespace stx {
+// since backtracing will mostly be used in failure handling code, we can't make
+// use of heap allocation
+#ifndef STX_MAX_STACK_FRAME_DEPTH
+#define STX_MAX_STACK_FRAME_DEPTH 128
+#endif
+
+// MSVC and ICC typically have 1024 bytes max for a symbol
+// The standard recommends 1024 bytes minimum for an identifier
+#ifndef STX_SYMBOL_BUFFER_SIZE
+#define STX_SYMBOL_BUFFER_SIZE 1024
+#endif
+
+STX_BEGIN_NAMESPACE
 
 auto backtrace::Symbol::raw() const noexcept -> std::string_view {
   return std::string_view(symbol_.data);
 }
 
-size_t backtrace::trace(Callback callback) {
-  // size_t stack_head = 0;
-  // *static_cast<volatile size_t*>(&stack_head) = 2;
+int backtrace::trace(Callback callback, int skip_count) {
+  // TODO(lamarrr): get stack pointer in a portable and well-defined way
 
-  // auto head_sp = static_cast<uintptr_t>(&stack_head);
+  void* ips[STX_MAX_STACK_FRAME_DEPTH];
+  //  uintptr_t sps[STX_MAX_STACK_FRAME_DEPTH];
+  int sizes[STX_MAX_STACK_FRAME_DEPTH];
 
-  int skip_count = 0;
-  void* ips[STX_MAX_STACK_FRAME_DEPTH] = {};
-  uintptr_t sps[STX_MAX_STACK_FRAME_DEPTH] = {};
-  int sizes[STX_MAX_STACK_FRAME_DEPTH] = {};
+  int depth =
+      absl::GetStackFrames(ips, sizes, STX_MAX_STACK_FRAME_DEPTH, skip_count);
 
-  int depth = absl::GetStackFrames(ips, sizes, sizeof(ips) / sizeof(ips[0]),
-                                   skip_count);
+  if (depth <= 0) return 0;
 
-  char symbol[STX_SYMBOL_BUFFER_SIZE] = {};
-  auto max_len = sizeof(symbol) / sizeof(symbol[0]);
-
-  // uintptr_t stack_ptr = head_sp;
-  (void)sps;
+  char symbol[STX_SYMBOL_BUFFER_SIZE];
+  int max_len = STX_SYMBOL_BUFFER_SIZE;
 
   for (int i = 0; i < depth; i++) {
-    std::memset(symbol, 0, max_len);
+    symbol[0] = '\0';
     Frame frame{};
     if (absl::Symbolize(ips[i], symbol, max_len)) {
       auto span = backtrace::CharSpan(symbol, max_len);
       frame.symbol = Some(backtrace::Symbol(std::move(span)));
     }
 
-    // stack_ptr += static_cast<uintptr_t>(sizes[i]);
-
     frame.ip = Some(reinterpret_cast<uintptr_t>(ips[i]));
-    // frame.sp = Some(static_cast<uintptr_t>(stack_ptr));
 
     if (callback(std::move(frame), depth - i)) break;
   }
-
   return depth;
 }
 
@@ -101,59 +88,71 @@ namespace {
 
 void print_backtrace() {
   fputs(
-      "\n\nBacktrace:\nip: Instruction Pointer,  sp: Stack "
-      "Pointer\n\n",
+      R"(Printing Backtrace...
+
+NOTE: ip => Instruction Pointer,  sp => Stack Pointer
+)",
       stderr);
 
-  backtrace::trace([](backtrace::Frame frame, int i) {
-    auto const print_none = []() { fputs("<unknown>", stderr); };
-    auto const print_ptr = [](Ref<uintptr_t> ptr) {
-      fprintf(stderr, "0x%" PRIxPTR, ptr.get());
-    };
+  int frames = backtrace::trace(
+      [](backtrace::Frame frame, int i) {
+        auto const print_none = []() { fputs("unknown", stderr); };
+        auto const print_ptr = [](uintptr_t ptr) {
+          STX_PANIC_EPRINTF(internal::kxPtrFmtSize, "0x%" PRIxPTR, ptr);
+        };
 
-    fprintf(stderr, "#%d\t\t", i);
+        // int is native and not specific but we'll use this anyways
+        STX_PANIC_EPRINTF(internal::kI32FmtSize + 10, "#%" PRId32 "\t\t", i);
 
-    frame.symbol.as_ref().match(
-        [](Ref<backtrace::Symbol> sym) {
-          for (char c : sym.get().raw()) {
-            fputc(c, stderr);
-          }
-        },
-        print_none);
+        frame.symbol.match(
+            [](backtrace::Symbol& sym) {
+              for (char c : sym.raw()) {
+                std::fputc(c, stderr);
+              }
+            },
+            print_none);
 
-    fputs("\t (ip: ", stderr);
+        std::fputs("\t (ip: ", stderr);
 
-    frame.ip.as_ref().match(print_ptr, print_none);
+        frame.ip.match(print_ptr, print_none);
 
-    fputs(", sp: ", stderr);
+        std::fputs(", sp: ", stderr);
 
-    frame.sp.as_ref().match(print_ptr, print_none);
+        frame.sp.match(print_ptr, print_none);
 
-    fputs(")\n", stderr);
+        std::fputs(")\n", stderr);
 
-    return false;
-  });
+        return false;
+      },
+      2);
 
-  fputs("\n", stderr);
+  if (frames == 0) {
+    std::fputs(
+        R"(WARNING >> The stack frames couldn't be identified, debug information was possibly stripped, unavailable, or elided by compiler
+)",
+        stderr);
+  }
+
+  std::fputs("\n", stderr);
 }
 
 [[noreturn]] void signal_handler(int signal) {
-  fputs("\n\n", stderr);
+  std::fputs("\n\n", stderr);
   switch (signal) {
     case SIGSEGV:
-      fputs(
+      std::fputs(
           "Received 'SIGSEGV' signal. Invalid memory access occurred "
           "(segmentation fault).",
           stderr);
       break;
     case SIGILL:
-      fputs(
+      std::fputs(
           "Received 'SIGILL' signal. Invalid program image (illegal/invalid "
           "instruction, i.e. nullptr dereferencing).",
           stderr);
       break;
     case SIGFPE:
-      fputs(
+      std::fputs(
           "Received 'SIGFPE' signal. Erroneous arithmetic operation (i.e. "
           "divide by zero).",
           stderr);
@@ -177,4 +176,4 @@ auto backtrace::handle_signal(int signal) noexcept
   return Ok(std::move(err));
 }
 
-};  // namespace stx
+STX_END_NAMESPACE

@@ -1,11 +1,29 @@
 /**
  * @file result_test.cc
  * @author Basit Ayantunde <rlamarrr@gmail.com>
- * @brief
- * @version  0.1
  * @date 2020-04-16
  *
- * @copyright Copyright (c) 2020
+ * @copyright MIT License
+ *
+ * Copyright (c) 2020 Basit Ayantunde
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  *
  */
 
@@ -42,49 +60,48 @@ TEST(ResultTest, Equality) {
 
   int const f = 89;
   int g = 89;
+  EXPECT_EQ(Ok(89), ok_ref(f));
+  EXPECT_EQ(Ok(89), ok_ref(g));
 
-  EXPECT_EQ(Ok(89), Ok<ConstRef<int>>(f));
-  EXPECT_EQ(Ok(89), Ok<MutRef<int>>(g));
+  EXPECT_NE(Ok(8), ok_ref(f));
+  EXPECT_NE(Ok(8), ok_ref(g));
 
-  EXPECT_NE(Ok(8), Ok<ConstRef<int>>(f));
-  EXPECT_NE(Ok(8), Ok<MutRef<int>>(g));
+  EXPECT_EQ(Ok(89), ok_ref(g));
+  EXPECT_EQ(Ok(89), ok_ref(f));
 
-  EXPECT_EQ(Ok(89), Ok(&g));
-  EXPECT_EQ(Ok(89), Ok(&f));
-
-  EXPECT_NE(Ok(9), Ok(&g));
-  EXPECT_NE(Ok(9), Ok(&f));
+  EXPECT_NE(Ok(9), ok_ref(g));
+  EXPECT_NE(Ok(9), ok_ref(f));
 
   int const h = 89;
   int i = 89;
 
-  EXPECT_EQ(Err(89), Err<ConstRef<int>>(h));
-  EXPECT_EQ(Err(89), Err<MutRef<int>>(i));
+  EXPECT_EQ(Err(89), err_ref(h));
+  EXPECT_EQ(Err(89), err_ref(i));
 
-  EXPECT_NE(Err(8), Err<ConstRef<int>>(h));
-  EXPECT_NE(Err(8), Err<MutRef<int>>(i));
+  EXPECT_NE(Err(8), err_ref(h));
+  EXPECT_NE(Err(8), err_ref(i));
 
-  EXPECT_EQ(Err(89), Err(&h));
-  EXPECT_EQ(Err(89), Err(&i));
+  EXPECT_EQ(Err(89), err_ref(h));
+  EXPECT_EQ(Err(89), err_ref(i));
 
-  EXPECT_NE(Err(8), Err(&h));
-  EXPECT_NE(Err(8), Err(&i));
+  EXPECT_NE(Err(8), err_ref(h));
+  EXPECT_NE(Err(8), err_ref(i));
 
-  EXPECT_EQ((make_ok<int, int>(89)), Ok(&h));
-  EXPECT_EQ((make_ok<int, int>(89)), Ok(&i));
+  EXPECT_EQ((make_ok<int, int>(89)), ok_ref(h));
+  EXPECT_EQ((make_ok<int, int>(89)), ok_ref(i));
 
-  EXPECT_EQ((make_ok<int, int>(89)), Ok<ConstRef<int>>(h));
-  EXPECT_EQ((make_ok<int, int>(89)), Ok<ConstRef<int>>(i));
+  EXPECT_EQ((make_ok<int, int>(89)), ok_ref(h));
+  EXPECT_EQ((make_ok<int, int>(89)), ok_ref(i));
 
-  EXPECT_EQ((make_ok<int, int>(89)), Ok<MutRef<int>>(i));
+  EXPECT_EQ((make_ok<int, int>(89)), ok_ref(i));
 
-  EXPECT_EQ((make_err<int, int>(89)), Err(&h));
-  EXPECT_EQ((make_err<int, int>(89)), Err(&i));
+  EXPECT_EQ((make_err<int, int>(89)), err_ref(h));
+  EXPECT_EQ((make_err<int, int>(89)), err_ref(i));
 
-  EXPECT_EQ((make_err<int, int>(89)), Err<ConstRef<int>>(h));
-  EXPECT_EQ((make_err<int, int>(89)), Err<ConstRef<int>>(i));
+  EXPECT_EQ((make_err<int, int>(89)), err_ref(h));
+  EXPECT_EQ((make_err<int, int>(89)), err_ref(i));
 
-  EXPECT_EQ((make_err<int, int>(89)), Err<MutRef<int>>(i));
+  EXPECT_EQ((make_err<int, int>(89)), err_ref(i));
 }
 
 TEST(ResultTest, IsOk) {
@@ -535,70 +552,75 @@ TEST(ResultTest, UnwrapOrElse) {
 
 TEST(ResultTest, Expect) {
   EXPECT_EQ((make_ok<int, int>(10).expect("===TEST ERR MSG===")), 10);
-  EXPECT_DEATH((make_err<int, int>(20).expect("===TEST ERR MSG===")), ".*");
+  EXPECT_DEATH_IF_SUPPORTED(
+      (make_err<int, int>(20).expect("===TEST ERR MSG===")), ".*");
 
   EXPECT_EQ((make_ok<vector<int>, int>(vector{1, 2, 3, 4, 5})
                  .expect("===TEST ERR MSG===")),
             (vector{1, 2, 3, 4, 5}));
-  EXPECT_DEATH((make_err<vector<int>, int>(20).expect("===TEST ERR MSG===")),
-               ".*");
+  EXPECT_DEATH_IF_SUPPORTED(
+      (make_err<vector<int>, int>(20).expect("===TEST ERR MSG===")), ".*");
 
   EXPECT_EQ((make_ok<int, vector<int>>(-1).expect("===TEST ERR MSG===")), -1);
-  EXPECT_DEATH((make_err<int, vector<int>>(vector{-1, -2, -3, -4, -5})
-                    .expect("===TEST ERR MSG===")),
-               ".*");
+  EXPECT_DEATH_IF_SUPPORTED(
+      (make_err<int, vector<int>>(vector{-1, -2, -3, -4, -5})
+           .expect("===TEST ERR MSG===")),
+      ".*");
 
   EXPECT_EQ((make_ok<vector<int>, vector<int>>(vector{1, 2, 3, 4, 5})
                  .expect("===TEST ERR MSG===")),
             (vector{1, 2, 3, 4, 5}));
 
-  EXPECT_DEATH((make_err<vector<int>, vector<int>>(vector{-1, -2, -3, -4, -5})
-                    .expect("===TEST ERR MSG===")),
-               ".*");
+  EXPECT_DEATH_IF_SUPPORTED(
+      (make_err<vector<int>, vector<int>>(vector{-1, -2, -3, -4, -5})
+           .expect("===TEST ERR MSG===")),
+      ".*");
 }
 
 TEST(ResultTest, UnwrapErr) {
   EXPECT_EQ((make_err<int, int>(20).unwrap_err()), 20);
-  EXPECT_DEATH((make_ok<int, int>(10).unwrap_err()), ".*");
+  EXPECT_DEATH_IF_SUPPORTED((make_ok<int, int>(10).unwrap_err()), ".*");
 
   EXPECT_EQ((make_err<vector<int>, int>(-40).unwrap_err()), -40);
-  EXPECT_DEATH((make_ok<vector<int>, int>(vector{10, 20, 30}).unwrap_err()),
-               ".*");
+  EXPECT_DEATH_IF_SUPPORTED(
+      (make_ok<vector<int>, int>(vector{10, 20, 30}).unwrap_err()), ".*");
 
   EXPECT_EQ((make_err<int, vector<int>>(vector{1, 2, 3, 4}).unwrap_err()),
             (vector{1, 2, 3, 4}));
-  EXPECT_DEATH((make_ok<int, vector<int>>(68).unwrap_err()), ".*");
+  EXPECT_DEATH_IF_SUPPORTED((make_ok<int, vector<int>>(68).unwrap_err()), ".*");
 
   EXPECT_EQ(
       (make_err<vector<int>, vector<int>>(vector{1, 2, 3, 4}).unwrap_err()),
       (vector{1, 2, 3, 4}));
-  EXPECT_DEATH(
+  EXPECT_DEATH_IF_SUPPORTED(
       (make_ok<vector<int>, vector<int>>(vector{1, 2, 3, 4}).unwrap_err()),
       ".*");
 }
 
 TEST(ResultTest, ExpectErr) {
   EXPECT_EQ((make_err<int, int>(20).expect_err("===TEST ERR MSG===")), 20);
-  EXPECT_DEATH((make_ok<int, int>(10).expect_err("===TEST ERR MSG===")), ".*");
+  EXPECT_DEATH_IF_SUPPORTED(
+      (make_ok<int, int>(10).expect_err("===TEST ERR MSG===")), ".*");
 
   EXPECT_EQ((make_err<vector<int>, int>(-40).expect_err("===TEST ERR MSG===")),
             -40);
-  EXPECT_DEATH((make_ok<vector<int>, int>(vector{10, 20, 30})
-                    .expect_err("===TEST ERR MSG===")),
-               ".*");
+  EXPECT_DEATH_IF_SUPPORTED((make_ok<vector<int>, int>(vector{10, 20, 30})
+                                 .expect_err("===TEST ERR MSG===")),
+                            ".*");
 
   EXPECT_EQ((make_err<int, vector<int>>(vector{1, 2, 3, 4})
                  .expect_err("===TEST ERR MSG===")),
             (vector{1, 2, 3, 4}));
-  EXPECT_DEATH((make_ok<int, vector<int>>(68).expect_err("===TEST ERR MSG===")),
-               ".*");
+  EXPECT_DEATH_IF_SUPPORTED(
+      (make_ok<int, vector<int>>(68).expect_err("===TEST ERR MSG===")), ".*");
 
   EXPECT_EQ((make_err<vector<int>, vector<int>>(vector{1, 2, 3, 4})
                  .expect_err("===TEST ERR MSG===")),
             (vector{1, 2, 3, 4}));
-  EXPECT_DEATH((make_ok<vector<int>, vector<int>>(vector{1, 2, 3, 4})
-                    .expect_err("===TEST ERR MSG===")),
-               ".*");
+  EXPECT_DEATH_IF_SUPPORTED(
+      (make_ok<vector<int>, vector<int>>(vector{1, 2, 3, 4})
+           .expect_err("===TEST ERR MSG===")),
+      ".*");
 }
 
 TEST(ResultTest, UnwapOrDefault) {
@@ -622,98 +644,6 @@ TEST(ResultTest, UnwapOrDefault) {
   EXPECT_EQ((make_err<vector<int>, vector<int>>(vector{-1, -2, -3, -4, -5})
                  .unwrap_or_default()),
             (vector<int>{}));
-}
-
-TEST(ResultTest, AsConstDeref) {
-  int x = 99;
-  auto const a = make_ok<int*, int>(&x);
-  EXPECT_EQ(a.as_const_deref().unwrap().get(), 99);
-  EXPECT_EQ(&a.as_const_deref().unwrap().get(), &x);
-
-  auto const b = make_err<int*, int>(-68);
-  EXPECT_TRUE(b.as_const_deref().is_err());
-
-  vector<int> vec{1, 2, 3, 4, 5};
-  auto const c = make_ok<typename vector<int>::iterator, int>(vec.begin());
-  EXPECT_EQ(c.as_const_deref().unwrap().get(), 1);
-
-  auto const d =
-      make_ok<typename vector<int>::const_reverse_iterator, int>(vec.crbegin());
-  EXPECT_EQ(d.as_const_deref().unwrap().get(), vec.back());
-  EXPECT_EQ(&d.as_const_deref().unwrap().get(), &vec.back());
-
-  auto const e =
-      make_err<typename vector<int>::const_reverse_iterator, int>(-87);
-  EXPECT_TRUE(e.as_const_deref().is_err());
-}
-
-TEST(ResultTest, AsConstDerefErr) {
-  int x = 99;
-  auto const a = make_err<int, int*>(&x);
-  EXPECT_EQ(a.as_const_deref_err().unwrap_err().get(), 99);
-  EXPECT_EQ(&a.as_const_deref_err().unwrap_err().get(), &x);
-
-  auto const b = make_ok<int, int*>(-68);
-  EXPECT_TRUE(b.as_const_deref_err().is_ok());
-
-  vector<int> vec{1, 2, 3, 4, 5};
-  auto const c = make_err<int, typename vector<int>::iterator>(vec.begin());
-  EXPECT_EQ(c.as_const_deref_err().unwrap_err().get(), 1);
-
-  auto const d = make_err<int, typename vector<int>::const_reverse_iterator>(
-      vec.crbegin());
-  EXPECT_EQ(d.as_const_deref_err().unwrap_err().get(), vec.back());
-  EXPECT_EQ(&d.as_const_deref_err().unwrap_err().get(), &vec.back());
-
-  auto const e =
-      make_ok<int, typename vector<int>::const_reverse_iterator>(-87);
-  EXPECT_TRUE(e.as_const_deref_err().is_ok());
-}
-
-TEST(ResultTest, AsMutDeref) {
-  int x = 99;
-  auto a = make_ok<int*, int>(&x);
-  a.as_mut_deref().unwrap().get() = 1024;
-  EXPECT_EQ(a.as_mut_deref().unwrap().get(), 1024);
-  EXPECT_EQ(&a.as_mut_deref().unwrap().get(), &x);
-
-  auto b = make_err<int*, int>(-68);
-  EXPECT_TRUE(b.as_mut_deref().is_err());
-
-  vector<int> vec{1, 2, 3, 4, 5};
-  auto c = make_ok<typename vector<int>::iterator, int>(vec.begin());
-  c.as_mut_deref().unwrap().get() = 889;
-  EXPECT_EQ(c.as_mut_deref().unwrap().get(), 889);
-
-  auto d = make_ok<typename vector<int>::reverse_iterator, int>(vec.rbegin());
-  EXPECT_EQ(d.as_mut_deref().unwrap().get(), vec.back());
-  EXPECT_EQ(&d.as_mut_deref().unwrap().get(), &vec.back());
-
-  auto e = make_err<typename vector<int>::reverse_iterator, int>(-87);
-  EXPECT_TRUE(e.as_mut_deref().is_err());
-}
-
-TEST(ResultTest, AsMutDerefErr) {
-  int x = 99;
-  auto a = make_err<int, int*>(&x);
-  a.as_mut_deref_err().unwrap_err().get() = 1024;
-  EXPECT_EQ(a.as_mut_deref_err().unwrap_err().get(), 1024);
-  EXPECT_EQ(&a.as_mut_deref_err().unwrap_err().get(), &x);
-
-  auto b = make_ok<int, int*>(-68);
-  EXPECT_TRUE(b.as_mut_deref_err().is_ok());
-
-  vector<int> vec{1, 2, 3, 4, 5};
-  auto c = make_err<int, typename vector<int>::iterator>(vec.begin());
-  c.as_mut_deref_err().unwrap_err().get() = 889;
-  EXPECT_EQ(c.as_mut_deref_err().unwrap_err().get(), 889);
-
-  auto d = make_err<int, typename vector<int>::reverse_iterator>(vec.rbegin());
-  EXPECT_EQ(d.as_mut_deref_err().unwrap_err().get(), vec.back());
-  EXPECT_EQ(&d.as_mut_deref_err().unwrap_err().get(), &vec.back());
-
-  auto e = make_ok<int, typename vector<int>::reverse_iterator>(-87);
-  EXPECT_TRUE(e.as_mut_deref_err().is_ok());
 }
 
 TEST(ResultTest, Match) {
@@ -761,7 +691,9 @@ auto ok_try_b(int x) -> stx::Result<int, int> {
 }
 
 auto ok_try_a(int m) -> stx::Result<int, int> {
-  TRY_OK(x, ok_try_b(m));
+  // clang-format off
+  TRY_OK(x, ok_try_b(m)); TRY_OK(const y, ok_try_b(m)); TRY_OK(volatile z, ok_try_b(m)); // also tests for name collision in our macros
+  // clang-format on
   x += 60;
   return Ok(std::move(x));
 }

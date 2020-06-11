@@ -1036,8 +1036,9 @@ table.doxtable th {
 
 table.fieldtable {
 	margin-bottom: 10px;
-	border: 1px solid #A8B8D9;
+	border: 1px solid #DDDDDD;
 	border-spacing: 0px;
+	border-radius: 4px;
 }
 
 .fieldtable td, .fieldtable th {
@@ -1046,8 +1047,8 @@ table.fieldtable {
 
 .fieldtable td.fieldtype, .fieldtable td.fieldname {
 	white-space: nowrap;
-	border-right: 1px solid #A8B8D9;
-	border-bottom: 1px solid #A8B8D9;
+	border-right: 1px solid #DDDDDD;
+	border-bottom: 1px solid #DDDDDD;
 	vertical-align: top;
 }
 
@@ -1056,7 +1057,7 @@ table.fieldtable {
 }
 
 .fieldtable td.fielddoc {
-	border-bottom: 1px solid #A8B8D9;
+	border-bottom: 1px solid #DDDDDD;
 }
 
 .fieldtable td.fielddoc p:first-child {
@@ -1073,14 +1074,12 @@ table.fieldtable {
 
 .fieldtable th {
 	background-repeat: repeat-x;
-	background-color: #E2E8F2;
 	font-size: 90%;
-	color: #253555;
 	padding-bottom: 4px;
 	padding-top: 5px;
 	text-align: left;
 	font-weight: 400;
-	border-bottom: 1px solid #A8B8D9;
+	border-bottom: 1px solid #DDDDDD;
 }
 
 .tabsearch {
