@@ -94,11 +94,9 @@ inline void panic_default(std::string_view const& info,
 
   STX_PANIC_EPRINTF_WITH(fmt_buffer, kFmtBufferSize, "%zu", thread_id_hash);
 
-#else
+#endif
 
   std::fputs("' panicked with: '", stderr);
-
-#endif
 
   for (char c : info) {
     std::fputc(c, stderr);
