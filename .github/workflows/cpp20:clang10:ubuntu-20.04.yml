@@ -1,4 +1,4 @@
-name: tests:cpp20:clang10:ubuntu-20.04
+name: cpp20:clang10:ubuntu
 
 on:
   push:
