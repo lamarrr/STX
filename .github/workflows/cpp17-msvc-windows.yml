@@ -24,7 +24,7 @@ jobs:
         run: mkdir build	
 
       - name: Initialize CMake	
-        run: cd build && cmake .. --config ${{ matrix.build_mode }} -DSTX_BUILD_TESTS=ON -DSTX_ENABLE_BACKTRACE=${{ matrix.backtrace }} -DSTX_ENABLE_PANIC_BACKTRACE=${{ matrix.panic_backtrace }} -DSTX_SANITIZE_TESTS=OFF	-DCMAKE_CXX_STANDARD=17 -Dgtest_force_shared_crt=ON 
+        run: cd build && cmake --build .. --config ${{ matrix.build_mode }} -DSTX_BUILD_TESTS=ON -DSTX_ENABLE_BACKTRACE=${{ matrix.backtrace }} -DSTX_ENABLE_PANIC_BACKTRACE=${{ matrix.panic_backtrace }} -DSTX_SANITIZE_TESTS=OFF	-DCMAKE_CXX_STANDARD=17 -Dgtest_force_shared_crt=ON 
 
       - name: CMake Build	
         run: cmake --build build
