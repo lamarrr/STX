@@ -1,4 +1,4 @@
-<img src="https://github.com/lamarrr/STX/workflows/tests:ubuntu-18.04/badge.svg"> <img src="https://github.com/lamarrr/STX/workflows/tests:cpp20:clang10:ubuntu-20.04/badge.svg"/>
+<img src="https://github.com/lamarrr/STX/workflows/tests:cpp17:clang9:ubuntu-18.04/badge.svg"> <img src="https://github.com/lamarrr/STX/workflows/tests:cpp20:clang10:ubuntu-20.04/badge.svg"/>
 
 
 <br/>
