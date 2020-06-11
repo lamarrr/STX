@@ -30,4 +30,4 @@ jobs:
         run: cmake --build build
 
       - name: Run Unsanitized Tests	
-        run: cd build && .\stx_tests
+        run: cd build && .\stx_tests.exe
