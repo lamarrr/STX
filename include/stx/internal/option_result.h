@@ -2300,11 +2300,11 @@ struct [[nodiscard]] Result {
   // a copy attempt like passing a const could cause an error
   template <typename U, typename F>
   [[nodiscard]] constexpr auto AND(Result<U, F> && res)&&->Result<U, F> {
-    static_assert(convertible<E, F>);
+    static_assert(convertible<E&&, F>);
     if (is_ok()) {
       return std::forward<Result<U, F>&&>(res);
     } else {
-      return Err<F>(E(std::move(err_ref_())));
+      return Err<F>(std::move(static_cast<F>(std::move(err_ref_()))));
     }
   }
 
@@ -2371,7 +2371,7 @@ struct [[nodiscard]] Result {
   [[nodiscard]] constexpr auto OR(Result<U, F> && alt)&&->Result<U, F> {
     static_assert(convertible<T&&, U>);
     if (is_ok()) {
-      return Ok<U>(static_cast<U>(std::move(value_ref_())));
+      return Ok<U>(std::move(static_cast<U>(std::move(value_ref_()))));
     } else {
       return std::forward<Result<U, F>&&>(alt);
     }
