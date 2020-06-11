@@ -12,8 +12,7 @@ jobs:
 
     strategy:	
 
-      matrix:
-        build_mode: ["Debug", "Release"]	
+      matrix:	
         panic_backtrace: ["ON", "OFF"]	
         backtrace: ["ON", "OFF"]	
 
@@ -24,10 +23,10 @@ jobs:
         run: mkdir build	
 
       - name: Initialize CMake	
-        run: cd build && cmake -DSTX_BUILD_TESTS=ON -DSTX_ENABLE_BACKTRACE=${{ matrix.backtrace }} -DSTX_ENABLE_PANIC_BACKTRACE=${{ matrix.panic_backtrace }} -DSTX_SANITIZE_TESTS=OFF	-DCMAKE_CXX_STANDARD=17 -Dgtest_force_shared_crt=ON --DCMAKE_BUILD_TYPE=${{ matrix.build_mode }} -P..\CMakeLists.txt
+        run: cd build && cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_mode }} -DSTX_BUILD_TESTS=ON -DSTX_ENABLE_BACKTRACE=${{ matrix.backtrace }} -DSTX_ENABLE_PANIC_BACKTRACE=${{ matrix.panic_backtrace }} -DSTX_SANITIZE_TESTS=OFF	-DCMAKE_CXX_STANDARD=17 -Dgtest_force_shared_crt=ON 
 
       - name: CMake Build	
         run: cmake --build build
 
       - name: Run Unsanitized Tests	
-        run: cd build && ${{ matrix.build_mode }}\stx_tests.exe
+        run: cd build && Debug\stx_tests.exe
