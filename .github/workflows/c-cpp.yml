@@ -1,0 +1,41 @@
+ame: cpp17:gcc9:ubuntu
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+
+    strategy:
+      matrix:
+        build_mode: ["Release", "Debug"]
+        panic_backtrace: ["ON", "OFF"]
+        backtrace: ["ON", "OFF"]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Configure Build Directory
+        run: mkdir build
+
+      - name: Initialize CMake
+        run: cd build && export CC=gcc-9 CXX=g++-9 && cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_mode }} -DSTX_BUILD_TESTS=ON -DSTX_ENABLE_BACKTRACE=${{ matrix.backtrace }} -DSTX_ENABLE_PANIC_BACKTRACE=${{ matrix.panic_backtrace }} -DSTX_SANITIZE_TESTS=ON -DCMAKE_CXX_STANDARD=17
+
+      - name: Run Unsanitized Tests
+        run: cd build && make run_tests
+
+      - name: Run Address-sanitized Tests
+        run: cd build && make stx_tests_address_sanitized && ./stx_tests_address_sanitized
+
+      - name: Run Leak-sanitized Tests
+        run: cd build && make stx_tests_leak_sanitized && ./stx_tests_leak_sanitized
+
+      - name: Run Thread-sanitized Tests
+        run: cd build && make stx_tests_thread_sanitized && ./stx_tests_thread_sanitized
+
+      - name: Run Undefined-sanitized Tests
+        run: cd build && make stx_tests_undefined_sanitized && ./stx_tests_undefined_sanitized
