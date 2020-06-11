@@ -143,7 +143,7 @@ list(APPEND STX_TEST_WARNING_FLAGS)
 # ===============================================
 
 if(MSVC)
-  append_flags_if_supported(STX_WARNING_FLAGS "/W3" "/WX")
+  append_flags_if_supported(STX_WARNING_FLAGS "/W4")
 else()
   append_flags_if_supported(STX_WARNING_FLAGS "-Wpedantic" "-Wall" "-Wextra")
 endif()
