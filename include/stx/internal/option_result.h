@@ -623,7 +623,7 @@ struct [[nodiscard]] Option {
   /// ```
   template <typename CmpType>
   [[nodiscard]] constexpr bool contains(CmpType const& cmp) const {
-    static_assert(equality_comparable<CmpType, T>);
+    static_assert(equality_comparable<T, CmpType>);
     if (is_some()) {
       return value_cref_() == cmp;
     } else {
