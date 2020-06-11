@@ -28,14 +28,14 @@ jobs:
       - name: Run Unsanitized Tests	
         run: cd build && make run_tests	
 
-      - name: Run Address-sanitized Tests	
-        run: cd build && make stx_tests_address_sanitized && ./stx_tests_address_sanitized	
+      #- name: Run Address-sanitized Tests	
+      #  run: cd build && make stx_tests_address_sanitized && ./stx_tests_address_sanitized	
 
-      - name: Run Leak-sanitized Tests	
-        run: cd build && make stx_tests_leak_sanitized && ./stx_tests_leak_sanitized	
+      #- name: Run Leak-sanitized Tests	
+      #  run: cd build && make stx_tests_leak_sanitized && ./stx_tests_leak_sanitized	
 
-      - name: Run Thread-sanitized Tests	
-        run: cd build && make stx_tests_thread_sanitized && ./stx_tests_thread_sanitized	
+      #- name: Run Thread-sanitized Tests	
+      #  run: cd build && make stx_tests_thread_sanitized && ./stx_tests_thread_sanitized	
 
-      - name: Run Undefined-sanitized Tests	
-        run: cd build && make stx_tests_undefined_sanitized && ./stx_tests_undefined_sanitized
+      #- name: Run Undefined-sanitized Tests	
+      #  run: cd build && make stx_tests_undefined_sanitized && ./stx_tests_undefined_sanitized
