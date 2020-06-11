@@ -167,9 +167,6 @@ class [[nodiscard]] FixedReport {
     return std::string_view(reserve_, report_size_);
   };
 
-  template <typename T>
-  friend FixedReport operator>>(ReportQuery, T const&) noexcept;
-
  private:
   storage_type reserve_;
   size_t report_size_;

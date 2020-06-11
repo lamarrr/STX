@@ -30,6 +30,7 @@
 #include "stx/result.h"
 
 #include <numeric>
+#include <algorithm>
 
 #include "gtest/gtest.h"
 

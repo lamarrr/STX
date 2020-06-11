@@ -32,6 +32,7 @@
 #include <memory>
 #include <numeric>
 #include <vector>
+#include <algorithm>
 
 #include "gtest/gtest.h"
 #include "stx/panic.h"
