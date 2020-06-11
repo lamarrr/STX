@@ -43,32 +43,32 @@ namespace option {
 [[noreturn]] STX_FORCE_INLINE void expect_value_failed(
     std::string_view const& msg,
     SourceLocation const& location = SourceLocation::current()) noexcept {
-  stx::panic(msg, location);
+  panic(msg, location);
 }
 
 /// panic helper for `Option<T>::expect_none()` when a value is present
 [[noreturn]] STX_FORCE_INLINE void expect_none_failed(
     std::string_view const& msg,
     SourceLocation const& location = SourceLocation::current()) noexcept {
-  stx::panic(msg, location);
+  panic(msg, location);
 }
 
 /// panic helper for `Option<T>::unwrap()` when no value is present
 [[noreturn]] STX_FORCE_INLINE void no_value(
     SourceLocation const& location = SourceLocation::current()) noexcept {
-  stx::panic("called `Option::unwrap()` on a `None` value", location);
+  panic("called `Option::unwrap()` on a `None` value", location);
 }
 
 /// panic helper for `Option<T>::value()` when no value is present
 [[noreturn]] STX_FORCE_INLINE void no_lref(
     SourceLocation const& location = SourceLocation::current()) noexcept {
-  stx::panic("called `Option::value()` on a `None` value", location);
+  panic("called `Option::value()` on a `None` value", location);
 }
 
 /// panic helper for `Option<T>::unwrap_none()` when a value is present
 [[noreturn]] STX_FORCE_INLINE void no_none(
     SourceLocation const& location = SourceLocation::current()) noexcept {
-  stx::panic("called `Option::unwrap_none()` on a `Some` value", location);
+  panic("called `Option::unwrap_none()` on a `Some` value", location);
 }
 
 }  // namespace option
@@ -80,14 +80,14 @@ template <typename T>
 [[noreturn]] STX_FORCE_INLINE void expect_value_failed(
     std::string_view const& msg, T const& err,
     SourceLocation const& location = SourceLocation::current()) noexcept {
-  stx::panic(msg, err, location);
+  panic(msg, err, location);
 }
 
 /// panic helper for `Result<T, E>::expect_err()` when a value is present
 [[noreturn]] STX_FORCE_INLINE void expect_err_failed(
     std::string_view const& msg,
     SourceLocation const& location = SourceLocation::current()) noexcept {
-  stx::panic(msg, location);
+  panic(msg, location);
 }
 
 /// panic helper for `Result<T, E>::unwrap()` when no value is present
@@ -95,7 +95,7 @@ template <typename T>
 [[noreturn]] STX_FORCE_INLINE void no_value(
     T const& err,
     SourceLocation const& location = SourceLocation::current()) noexcept {
-  stx::panic("called `Result::unwrap()` on an `Err` value", err, location);
+  panic("called `Result::unwrap()` on an `Err` value", err, location);
 }
 
 /// panic helper for `Result<T, E>::value()` when no value is present
@@ -103,19 +103,19 @@ template <typename T>
 [[noreturn]] STX_FORCE_INLINE void no_lref(
     T const& err,
     SourceLocation const& location = SourceLocation::current()) noexcept {
-  stx::panic("called `Result::value()` on an `Err` value", err, location);
+  panic("called `Result::value()` on an `Err` value", err, location);
 }
 
 /// panic helper for `Result<T, E>::unwrap_err()` when a value is present
 [[noreturn]] STX_FORCE_INLINE void no_err(
     SourceLocation const& location = SourceLocation::current()) noexcept {
-  stx::panic("called `Result::unwrap_err()` on an `Ok` value", location);
+  panic("called `Result::unwrap_err()` on an `Ok` value", location);
 }
 
 /// panic helper for `Result<T, E>::err_value()` when no value is present
 [[noreturn]] STX_FORCE_INLINE void no_err_lref(
     SourceLocation const& location = SourceLocation::current()) noexcept {
-  stx::panic("called `Result::err_value()` on an `Ok` value", location);
+  panic("called `Result::err_value()` on an `Ok` value", location);
 }
 
 }  // namespace result
