@@ -1353,7 +1353,7 @@ struct [[nodiscard]] Option {
   [[nodiscard]] constexpr auto clone() const->Option {
     static_assert(copy_constructible<T>);
     if (is_some()) {
-      return Some<T>(T(value_cref_()));
+      return Some<T>(std::move(T(value_cref_())));
     } else {
       return None;
     }
@@ -2671,9 +2671,9 @@ struct [[nodiscard]] Result {
     static_assert(copy_constructible<E>);
 
     if (is_ok()) {
-      return Ok<T>(T(value_cref_()));
+      return Ok<T>(std::move(T(value_cref_())));
     } else {
-      return Err<E>(E(err_cref_()));
+      return Err<E>(std::move(E(err_cref_())));
     }
   }
 
