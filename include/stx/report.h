@@ -30,6 +30,7 @@
 #pragma once
 
 #include <cinttypes>
+#include <cstddef>
 #include <cstdio>
 #include <string>
 #include <string_view>
