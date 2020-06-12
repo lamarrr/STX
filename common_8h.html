@@ -66,6 +66,7 @@
                                 src="eagle.png" /></td>
                         <td id="projectalign" style="padding-left: 0.5em;">
                             <div id="projectname"> STX
+                                &#160;<span id="projectnumber">1.0.0</span>
                             </div>
                         </td>
                     </tr>
@@ -106,6 +107,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#namespaces">Namespaces</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
 <a href="#var-members">Variables</a>  </div>
@@ -114,7 +116,6 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &lt;functional&gt;</code><br />
-<code>#include &lt;iterator&gt;</code><br />
 <code>#include &lt;type_traits&gt;</code><br />
 <code>#include &quot;<a class="el" href="config_8h_source.html">stx/config.h</a>&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
@@ -122,7 +123,7 @@ Include dependency graph for common.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="common_8h__incl.png" border="0" usemap="#include_2stx_2common_8h" alt=""/></div>
 <map name="include_2stx_2common_8h" id="include_2stx_2common_8h">
-<area shape="rect" id="node5" href="config_8h.html" title="stx/config.h" alt="" coords="377,80,496,107"/>
+<area shape="rect" id="node4" href="config_8h.html" title="stx/config.h" alt="" coords="232,80,329,107"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -130,21 +131,29 @@ This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
 <div class="center"><img src="common_8h__dep__incl.png" border="0" usemap="#include_2stx_2common_8hdep" alt=""/></div>
 <map name="include_2stx_2common_8hdep" id="include_2stx_2common_8hdep">
-<area shape="rect" id="node2" href="report_8h.html" title="include/stx/report.h" alt="" coords="593,80,776,107"/>
-<area shape="rect" id="node3" href="panic_8h.html" title="include/stx/panic.h" alt="" coords="597,155,772,181"/>
-<area shape="rect" id="node4" href="panic__helpers_8h.html" title="include/stx/internal\l/panic_helpers.h" alt="" coords="236,229,419,271"/>
-<area shape="rect" id="node9" href="abort_8h.html" title="include/stx/panic/handlers\l/abort/abort.h" alt="" coords="443,229,673,271"/>
-<area shape="rect" id="node10" href="halt_8h.html" title="include/stx/panic/handlers\l/halt/halt.h" alt="" coords="697,229,928,271"/>
-<area shape="rect" id="node11" href="hook_8h.html" title="include/stx/panic/hook.h" alt="" coords="952,237,1167,263"/>
-<area shape="rect" id="node5" href="option__result_8h.html" title="include/stx/internal\l/option_result.h" alt="" coords="236,319,419,360"/>
-<area shape="rect" id="node6" href="backtrace_8h.html" title="include/stx/backtrace.h" alt="" coords="5,408,212,435"/>
-<area shape="rect" id="node7" href="option_8h.html" title="include/stx/option.h" alt="" coords="236,408,419,435"/>
-<area shape="rect" id="node8" href="result_8h.html" title="include/stx/result.h" alt="" coords="443,408,625,435"/>
+<area shape="rect" id="node2" href="report_8h.html" title="include/stx/report.h" alt="" coords="207,80,355,107"/>
+<area shape="rect" id="node3" href="backtrace_8h.html" title="include/stx/backtrace.h" alt="" coords="5,408,179,435"/>
+<area shape="rect" id="node4" href="panic_8h.html" title="include/stx/panic.h" alt="" coords="469,155,613,181"/>
+<area shape="rect" id="node5" href="panic__helpers_8h.html" title="include/stx/internal\l/panic_helpers.h" alt="" coords="167,229,313,271"/>
+<area shape="rect" id="node9" href="abort_8h.html" title="include/stx/panic/handlers\l/abort/abort.h" alt="" coords="337,229,529,271"/>
+<area shape="rect" id="node10" href="default_8h.html" title="include/stx/panic/handlers\l/default/default.h" alt="" coords="553,229,745,271"/>
+<area shape="rect" id="node11" href="halt_8h.html" title="include/stx/panic/handlers\l/halt/halt.h" alt="" coords="769,229,961,271"/>
+<area shape="rect" id="node12" href="hook_8h.html" title="include/stx/panic/hook.h" alt="" coords="986,237,1166,263"/>
+<area shape="rect" id="node6" href="option__result_8h.html" title="include/stx/internal\l/option_result.h" alt="" coords="185,319,332,360"/>
+<area shape="rect" id="node7" href="option_8h.html" title="include/stx/option.h" alt="" coords="203,408,354,435"/>
+<area shape="rect" id="node8" href="result_8h.html" title="include/stx/result.h" alt="" coords="379,408,525,435"/>
 </map>
 </div>
 </div>
 <p><a href="common_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structstx_1_1is__equality__comparable.html">stx::is_equality_comparable&lt; T, Cmp, typename &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structstx_1_1is__equality__comparable_3_01T_00_01Cmp_00_01typename_01std_1_1enable__if__t_3_01trb152c1ae333528fc9ea6742e04bd9ffe.html">stx::is_equality_comparable&lt; T, Cmp, typename std::enable_if_t&lt; true, decltype((std::declval&lt; std::remove_reference_t&lt; T &gt; const &amp; &gt;()==std::declval&lt; std::remove_reference_t&lt; Cmp &gt; const &amp; &gt;()) &amp;&amp;(std::declval&lt; std::remove_reference_t&lt; T &gt; const &amp; &gt;() !=std::declval&lt; std::remove_reference_t&lt; Cmp &gt; const &amp; &gt;()),(void) 0)&gt; &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>
 Namespaces</h2></td></tr>
 <tr class="memitem:namespacestx"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html">stx</a></td></tr>
@@ -154,111 +163,71 @@ Namespaces</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
 Typedefs</h2></td></tr>
-<tr class="memitem:ac43d924d52c43f451ac8f9a9ae00934b"><td class="memTemplParams" colspan="2">template&lt;typename Fn , typename... Args&gt; </td></tr>
-<tr class="memitem:ac43d924d52c43f451ac8f9a9ae00934b"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#ac43d924d52c43f451ac8f9a9ae00934b">stx::invoke_result</a> = typename std::invoke_result&lt; Fn, Args... &gt;::type</td></tr>
-<tr class="separator:ac43d924d52c43f451ac8f9a9ae00934b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a30fcdba74930fcb149068cf64cd83a87"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a30fcdba74930fcb149068cf64cd83a87"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a30fcdba74930fcb149068cf64cd83a87">stx::remove_ref</a> = std::remove_reference_t&lt; T &gt;</td></tr>
-<tr class="separator:a30fcdba74930fcb149068cf64cd83a87"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab35cc2640e31ae15ea0386629bcd6410"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:ab35cc2640e31ae15ea0386629bcd6410"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#ab35cc2640e31ae15ea0386629bcd6410">stx::remove_const</a> = std::remove_const_t&lt; T &gt;</td></tr>
-<tr class="separator:ab35cc2640e31ae15ea0386629bcd6410"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5537a5fc6a63cf189c28341a0b5e1775"><td class="memTemplParams" colspan="2">template&lt;Derefable T&gt; </td></tr>
-<tr class="memitem:a5537a5fc6a63cf189c28341a0b5e1775"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal.html#a5537a5fc6a63cf189c28341a0b5e1775">stx::internal::DerefValue__</a> = std::remove_reference_t&lt; decltype(*std::declval&lt; T &gt;())&gt;</td></tr>
-<tr class="separator:a5537a5fc6a63cf189c28341a0b5e1775"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2b0a348596751ac8e1ccbe193fad671c"><td class="memTemplParams" colspan="2">template&lt;typename Fn , typename... Args&gt; </td></tr>
+<tr class="memitem:a2b0a348596751ac8e1ccbe193fad671c"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a2b0a348596751ac8e1ccbe193fad671c">stx::invoke_result</a> = typename std::invoke_result_t&lt; Fn, Args... &gt;</td></tr>
+<tr class="separator:a2b0a348596751ac8e1ccbe193fad671c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a68ea584a0b679af5089d68d1eea8b9b6"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
 <tr class="memitem:a68ea584a0b679af5089d68d1eea8b9b6"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a68ea584a0b679af5089d68d1eea8b9b6">stx::Ref</a> = std::reference_wrapper&lt; T &gt;</td></tr>
 <tr class="separator:a68ea584a0b679af5089d68d1eea8b9b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1b55420e0cd6b42317f23d32831d1637"><td class="memTemplParams" colspan="2">template&lt;NonConst T&gt; </td></tr>
-<tr class="memitem:a1b55420e0cd6b42317f23d32831d1637"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a1b55420e0cd6b42317f23d32831d1637">stx::MutRef</a> = std::reference_wrapper&lt; T &gt;</td></tr>
-<tr class="separator:a1b55420e0cd6b42317f23d32831d1637"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a910046924ff264eb1eec0707011908ee"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a910046924ff264eb1eec0707011908ee"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a910046924ff264eb1eec0707011908ee">stx::ConstRef</a> = std::reference_wrapper&lt; T const  &gt;</td></tr>
-<tr class="separator:a910046924ff264eb1eec0707011908ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a98a5d486fa75e600c57447a5575970c9"><td class="memTemplParams" colspan="2">template&lt;Derefable T&gt; </td></tr>
-<tr class="memitem:a98a5d486fa75e600c57447a5575970c9"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a98a5d486fa75e600c57447a5575970c9">stx::Deref</a> = std::reference_wrapper&lt; internal::DerefValue__&lt; T &gt; &gt;</td></tr>
-<tr class="separator:a98a5d486fa75e600c57447a5575970c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a19cb55229a23ce342a52e7eae99011b1"><td class="memTemplParams" colspan="2">template&lt;ConstDerefable T&gt; </td></tr>
-<tr class="memitem:a19cb55229a23ce342a52e7eae99011b1"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a19cb55229a23ce342a52e7eae99011b1">stx::ConstDeref</a> = std::reference_wrapper&lt; internal::DerefValue__&lt; T &gt; const  &gt;</td></tr>
-<tr class="separator:a19cb55229a23ce342a52e7eae99011b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a72043031ae9f0ed1a4e40c7c3ed80c96"><td class="memTemplParams" colspan="2">template&lt;MutDerefable T&gt; </td></tr>
-<tr class="memitem:a72043031ae9f0ed1a4e40c7c3ed80c96"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a72043031ae9f0ed1a4e40c7c3ed80c96">stx::MutDeref</a> = Deref&lt; T &gt;</td></tr>
-<tr class="separator:a72043031ae9f0ed1a4e40c7c3ed80c96"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ade174634b9a4ee8ee45d74045538b591"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:ade174634b9a4ee8ee45d74045538b591"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#ade174634b9a4ee8ee45d74045538b591">stx::ConstRef</a> = std::reference_wrapper&lt; std::add_const_t&lt; std::remove_reference_t&lt; T &gt; &gt;&gt;</td></tr>
+<tr class="memdesc:ade174634b9a4ee8ee45d74045538b591"><td class="mdescLeft">&#160;</td><td class="mdescRight"><code>ConstRef</code> is an always-const <code>Ref</code>.  <a href="namespacestx.html#ade174634b9a4ee8ee45d74045538b591">More...</a><br /></td></tr>
+<tr class="separator:ade174634b9a4ee8ee45d74045538b591"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a602d285852b6664cc71937407fe7484a"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a602d285852b6664cc71937407fe7484a"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a602d285852b6664cc71937407fe7484a">stx::MutRef</a> = std::reference_wrapper&lt; std::remove_const_t&lt; std::remove_reference_t&lt; T &gt; &gt;&gt;</td></tr>
+<tr class="memdesc:a602d285852b6664cc71937407fe7484a"><td class="mdescLeft">&#160;</td><td class="mdescRight"><code>MutRef</code> is an always-mutable <code>Ref</code>  <a href="namespacestx.html#a602d285852b6664cc71937407fe7484a">More...</a><br /></td></tr>
+<tr class="separator:a602d285852b6664cc71937407fe7484a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:ab1afd2f750ccc65f9bfe9ce66c3721f3"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:ab1afd2f750ccc65f9bfe9ce66c3721f3"><td class="memTemplItemLeft" align="right" valign="top">concept&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#ab1afd2f750ccc65f9bfe9ce66c3721f3">stx::Const</a> = std::is_const_v&lt;T&gt;</td></tr>
-<tr class="separator:ab1afd2f750ccc65f9bfe9ce66c3721f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a128f46122ffca11b20a3873faba65b59"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a128f46122ffca11b20a3873faba65b59"><td class="memTemplItemLeft" align="right" valign="top">concept&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a128f46122ffca11b20a3873faba65b59">stx::NonConst</a> = !Const&lt;T&gt;</td></tr>
-<tr class="separator:a128f46122ffca11b20a3873faba65b59"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a84fb09ef1fd8c4956f06f7e5f5f75bca"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a84fb09ef1fd8c4956f06f7e5f5f75bca"><td class="memTemplItemLeft" align="right" valign="top">concept&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a84fb09ef1fd8c4956f06f7e5f5f75bca">stx::Swappable</a> = std::is_swappable_v&lt;T&gt;</td></tr>
-<tr class="separator:a84fb09ef1fd8c4956f06f7e5f5f75bca"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a33c4edb845e3f658de071107790b37bc"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a33c4edb845e3f658de071107790b37bc"><td class="memTemplItemLeft" align="right" valign="top">concept&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a33c4edb845e3f658de071107790b37bc">stx::default_constructible</a> = std::is_default_constructible_v&lt;T&gt;</td></tr>
-<tr class="separator:a33c4edb845e3f658de071107790b37bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac27784f661f2d1e57b357110b69ec260"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:ac27784f661f2d1e57b357110b69ec260"><td class="memTemplItemLeft" align="right" valign="top">concept&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#ac27784f661f2d1e57b357110b69ec260">stx::copy_constructible</a> = std::is_copy_constructible_v&lt;T&gt;</td></tr>
-<tr class="separator:ac27784f661f2d1e57b357110b69ec260"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a72c257321bd113fe606abfed2dc1933e"><td class="memTemplParams" colspan="2">template&lt;typename T , typename Cmp &gt; </td></tr>
-<tr class="memitem:a72c257321bd113fe606abfed2dc1933e"><td class="memTemplItemLeft" align="right" valign="top">concept&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a72c257321bd113fe606abfed2dc1933e">stx::same_as</a> = std::is_same_v&lt;T, Cmp&gt;</td></tr>
-<tr class="separator:a72c257321bd113fe606abfed2dc1933e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa0bd2b8f4938c62598f62d340bd74008"><td class="memTemplParams" colspan="2">template&lt;typename Src , typename Dest &gt; </td></tr>
-<tr class="memitem:aa0bd2b8f4938c62598f62d340bd74008"><td class="memTemplItemLeft" align="right" valign="top">concept&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#aa0bd2b8f4938c62598f62d340bd74008">stx::convertible_to</a> = std::is_convertible_v&lt;Src, Dest&gt;</td></tr>
-<tr class="separator:aa0bd2b8f4938c62598f62d340bd74008"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a29467c7fc852297ae18c2a2d24a71e17"><td class="memTemplParams" colspan="2">template&lt;typename T , typename Cmp &gt; </td></tr>
-<tr class="memitem:a29467c7fc852297ae18c2a2d24a71e17"><td class="memTemplItemLeft" align="right" valign="top">concept&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a29467c7fc852297ae18c2a2d24a71e17">stx::exact</a> = std::is_same_v&lt;T, Cmp&gt;</td></tr>
-<tr class="separator:a29467c7fc852297ae18c2a2d24a71e17"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa8f14c3c14e6dcdecfdf0710ee2ed774"><td class="memTemplParams" colspan="2">template&lt;typename Fn , typename... Args&gt; </td></tr>
-<tr class="memitem:aa8f14c3c14e6dcdecfdf0710ee2ed774"><td class="memTemplItemLeft" align="right" valign="top">concept&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#aa8f14c3c14e6dcdecfdf0710ee2ed774">stx::invocable</a> = std::is_invocable_v&lt;Fn, Args...&gt;</td></tr>
-<tr class="separator:aa8f14c3c14e6dcdecfdf0710ee2ed774"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a81068b2d8a2b022352d7695cf90d733b"><td class="memTemplParams" colspan="2">template&lt;typename L , typename R  = L&gt; </td></tr>
-<tr class="memitem:a81068b2d8a2b022352d7695cf90d733b"><td class="memTemplItemLeft" align="right" valign="top">concept&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a81068b2d8a2b022352d7695cf90d733b">stx::equality_comparable</a></td></tr>
-<tr class="separator:a81068b2d8a2b022352d7695cf90d733b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3eaf32a44f7e3b6129c7c03e667103b8"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a3eaf32a44f7e3b6129c7c03e667103b8"><td class="memTemplItemLeft" align="right" valign="top">concept&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a3eaf32a44f7e3b6129c7c03e667103b8">stx::RawReference</a> = std::is_reference_v&lt;T&gt;</td></tr>
-<tr class="separator:a3eaf32a44f7e3b6129c7c03e667103b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7963292b1244776f2feec99973c5b2b6"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a7963292b1244776f2feec99973c5b2b6"><td class="memTemplItemLeft" align="right" valign="top">concept&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a7963292b1244776f2feec99973c5b2b6">stx::Pointer</a> = std::is_pointer_v&lt;T&gt;</td></tr>
-<tr class="separator:a7963292b1244776f2feec99973c5b2b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aad250bb617828f55bae108cc7a41d8de"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:aad250bb617828f55bae108cc7a41d8de"><td class="memTemplItemLeft" align="right" valign="top">concept&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#aad250bb617828f55bae108cc7a41d8de">stx::UnaryDerefableSmartPointer</a></td></tr>
-<tr class="separator:aad250bb617828f55bae108cc7a41d8de"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2e0303993e62ad182da251dab01fa301"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a2e0303993e62ad182da251dab01fa301"><td class="memTemplItemLeft" align="right" valign="top">concept&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a2e0303993e62ad182da251dab01fa301">stx::OutputPointer</a></td></tr>
-<tr class="separator:a2e0303993e62ad182da251dab01fa301"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac5bfb5b22e5c97f05deb4a58913eb1cd"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:ac5bfb5b22e5c97f05deb4a58913eb1cd"><td class="memTemplItemLeft" align="right" valign="top">concept&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#ac5bfb5b22e5c97f05deb4a58913eb1cd">stx::InputPointer</a> = Pointer&lt;T&gt;</td></tr>
-<tr class="separator:ac5bfb5b22e5c97f05deb4a58913eb1cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a99457d77a191875e9f534c7322891d83"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a99457d77a191875e9f534c7322891d83"><td class="memTemplItemLeft" align="right" valign="top">concept&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a99457d77a191875e9f534c7322891d83">stx::Iterator</a></td></tr>
-<tr class="separator:a99457d77a191875e9f534c7322891d83"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a70d42bfcf3e84110e92e930fa042c60e"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a70d42bfcf3e84110e92e930fa042c60e"><td class="memTemplItemLeft" align="right" valign="top">concept&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a70d42bfcf3e84110e92e930fa042c60e">stx::Derefable</a> = Pointer&lt;T&gt; || Iterator&lt;T&gt; || UnaryDerefableSmartPointer&lt;T&gt;</td></tr>
-<tr class="separator:a70d42bfcf3e84110e92e930fa042c60e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a534cfc6e1bdfb4d9b268a4891d064c7f"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a534cfc6e1bdfb4d9b268a4891d064c7f"><td class="memTemplItemLeft" align="right" valign="top">concept&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a534cfc6e1bdfb4d9b268a4891d064c7f">stx::OutputIterator</a> = Iterator&lt;T&gt;&amp;&amp; NonConst&lt;internal::DerefValue__&lt;T&gt;&gt;</td></tr>
-<tr class="separator:a534cfc6e1bdfb4d9b268a4891d064c7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad95d8ee0bd1901128d4c9f076bb308eb"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:ad95d8ee0bd1901128d4c9f076bb308eb"><td class="memTemplItemLeft" align="right" valign="top">concept&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#ad95d8ee0bd1901128d4c9f076bb308eb">stx::InputIterator</a> = Iterator&lt;T&gt;</td></tr>
-<tr class="separator:ad95d8ee0bd1901128d4c9f076bb308eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1c152d28b41a74770885bed0d734d99c"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a1c152d28b41a74770885bed0d734d99c"><td class="memTemplItemLeft" align="right" valign="top">concept&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a1c152d28b41a74770885bed0d734d99c">stx::ConstDerefable</a> = Derefable&lt;T&gt;</td></tr>
-<tr class="separator:a1c152d28b41a74770885bed0d734d99c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4c2b065ac3478dc862f0dcf5c9dc034c"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a4c2b065ac3478dc862f0dcf5c9dc034c"><td class="memTemplItemLeft" align="right" valign="top">concept&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a4c2b065ac3478dc862f0dcf5c9dc034c">stx::MutDerefable</a> = Derefable&lt;T&gt; &amp;&amp; (OutputPointer&lt;T&gt; || OutputIterator&lt;T&gt;)</td></tr>
-<tr class="separator:a4c2b065ac3478dc862f0dcf5c9dc034c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae448538bd452d6354958417eb4aa92d4"><td class="memTemplParams" colspan="2">template&lt;typename T , typename Base &gt; </td></tr>
-<tr class="memitem:ae448538bd452d6354958417eb4aa92d4"><td class="memTemplItemLeft" align="right" valign="top">concept&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#ae448538bd452d6354958417eb4aa92d4">stx::Impl</a> = std::is_base_of_v&lt;Base, T&gt;</td></tr>
-<tr class="separator:ae448538bd452d6354958417eb4aa92d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ff633ed2412851c88edc7c88feb59b9"><td class="memTemplParams" colspan="2">template&lt;typename Fn , typename... Args&gt; </td></tr>
+<tr class="memitem:a3ff633ed2412851c88edc7c88feb59b9"><td class="memTemplItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a3ff633ed2412851c88edc7c88feb59b9">stx::invocable</a> = std::is_invocable_v&lt;Fn, Args...&gt;</td></tr>
+<tr class="separator:a3ff633ed2412851c88edc7c88feb59b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98f05a2c4e4e15bf68a4c35da5e98e1d"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a98f05a2c4e4e15bf68a4c35da5e98e1d"><td class="memTemplItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a98f05a2c4e4e15bf68a4c35da5e98e1d">stx::movable</a></td></tr>
+<tr class="separator:a98f05a2c4e4e15bf68a4c35da5e98e1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a21bb1d3a8e0f1735ff9f8b4ecedb3691"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a21bb1d3a8e0f1735ff9f8b4ecedb3691"><td class="memTemplItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a21bb1d3a8e0f1735ff9f8b4ecedb3691">stx::copy_constructible</a> = std::is_copy_constructible_v&lt;T&gt;</td></tr>
+<tr class="separator:a21bb1d3a8e0f1735ff9f8b4ecedb3691"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0739d34b8bd39add4ec073491c788bdb"><td class="memTemplParams" colspan="2">template&lt;typename From , typename To &gt; </td></tr>
+<tr class="memitem:a0739d34b8bd39add4ec073491c788bdb"><td class="memTemplItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a0739d34b8bd39add4ec073491c788bdb">stx::convertible</a> = std::is_convertible_v&lt;From, To&gt;</td></tr>
+<tr class="separator:a0739d34b8bd39add4ec073491c788bdb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7d41ec835e18a047e2a9d3ec2902a736"><td class="memTemplParams" colspan="2">template&lt;typename T , typename Cmp  = T&gt; </td></tr>
+<tr class="memitem:a7d41ec835e18a047e2a9d3ec2902a736"><td class="memTemplItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a7d41ec835e18a047e2a9d3ec2902a736">stx::equality_comparable</a> = is_equality_comparable&lt;T, Cmp&gt;::value</td></tr>
+<tr class="memdesc:a7d41ec835e18a047e2a9d3ec2902a736"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if the type has a compatible 'operator ==' and 'operator!='.  <a href="namespacestx.html#a7d41ec835e18a047e2a9d3ec2902a736">More...</a><br /></td></tr>
+<tr class="separator:a7d41ec835e18a047e2a9d3ec2902a736"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa2567fd08d12712653f859c80fa46601"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:aa2567fd08d12712653f859c80fa46601"><td class="memTemplItemLeft" align="right" valign="top">constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#aa2567fd08d12712653f859c80fa46601">stx::is_reference</a> = std::is_reference_v&lt;T&gt;</td></tr>
+<tr class="separator:aa2567fd08d12712653f859c80fa46601"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acedb36d8678fe5cae1e9b2b2876a0095"><td class="memItemLeft" align="right" valign="top">constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal.html#acedb36d8678fe5cae1e9b2b2876a0095">stx::internal::kxPtrFmtSize</a> = static_cast&lt;int&gt;((sizeof(void*) &lt;&lt; 1) + 2 + 2)</td></tr>
+<tr class="separator:acedb36d8678fe5cae1e9b2b2876a0095"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9fc79ef5a7d8e104811845633eac3368"><td class="memItemLeft" align="right" valign="top">constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal.html#a9fc79ef5a7d8e104811845633eac3368">stx::internal::kI32FmtSize</a> = 11</td></tr>
+<tr class="memdesc:a9fc79ef5a7d8e104811845633eac3368"><td class="mdescLeft">&#160;</td><td class="mdescRight">10 digits + 1 sign  <a href="namespacestx_1_1internal.html#a9fc79ef5a7d8e104811845633eac3368">More...</a><br /></td></tr>
+<tr class="separator:a9fc79ef5a7d8e104811845633eac3368"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afaa7db1a2a252ecdab95b9f547a913c3"><td class="memItemLeft" align="right" valign="top">constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal.html#afaa7db1a2a252ecdab95b9f547a913c3">stx::internal::kU32FmtSize</a> = 10</td></tr>
+<tr class="memdesc:afaa7db1a2a252ecdab95b9f547a913c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">10 digits  <a href="namespacestx_1_1internal.html#afaa7db1a2a252ecdab95b9f547a913c3">More...</a><br /></td></tr>
+<tr class="separator:afaa7db1a2a252ecdab95b9f547a913c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaf50b84e7e5fc5a250d60f00a3d4fefd"><td class="memItemLeft" align="right" valign="top">constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal.html#aaf50b84e7e5fc5a250d60f00a3d4fefd">stx::internal::kI16FmtSize</a> = 6</td></tr>
+<tr class="memdesc:aaf50b84e7e5fc5a250d60f00a3d4fefd"><td class="mdescLeft">&#160;</td><td class="mdescRight">5 digits + 1 sign  <a href="namespacestx_1_1internal.html#aaf50b84e7e5fc5a250d60f00a3d4fefd">More...</a><br /></td></tr>
+<tr class="separator:aaf50b84e7e5fc5a250d60f00a3d4fefd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8233b854c60135f8a38000bb40fdc2f4"><td class="memItemLeft" align="right" valign="top">constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal.html#a8233b854c60135f8a38000bb40fdc2f4">stx::internal::kU16FmtSize</a> = 5</td></tr>
+<tr class="memdesc:a8233b854c60135f8a38000bb40fdc2f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">5 digits  <a href="namespacestx_1_1internal.html#a8233b854c60135f8a38000bb40fdc2f4">More...</a><br /></td></tr>
+<tr class="separator:a8233b854c60135f8a38000bb40fdc2f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a164a722fb94fe66d33d0a26c42603429"><td class="memItemLeft" align="right" valign="top">constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal.html#a164a722fb94fe66d33d0a26c42603429">stx::internal::kI8FmtSize</a> = 4</td></tr>
+<tr class="memdesc:a164a722fb94fe66d33d0a26c42603429"><td class="mdescLeft">&#160;</td><td class="mdescRight">3 digits + 1 sign  <a href="namespacestx_1_1internal.html#a164a722fb94fe66d33d0a26c42603429">More...</a><br /></td></tr>
+<tr class="separator:a164a722fb94fe66d33d0a26c42603429"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a42b2028d37e7e2a37dbd55ba12d9ac59"><td class="memItemLeft" align="right" valign="top">constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal.html#a42b2028d37e7e2a37dbd55ba12d9ac59">stx::internal::kU8FmtSize</a> = 3</td></tr>
+<tr class="memdesc:a42b2028d37e7e2a37dbd55ba12d9ac59"><td class="mdescLeft">&#160;</td><td class="mdescRight">3 digits  <a href="namespacestx_1_1internal.html#a42b2028d37e7e2a37dbd55ba12d9ac59">More...</a><br /></td></tr>
+<tr class="separator:a42b2028d37e7e2a37dbd55ba12d9ac59"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><dl class="section author"><dt>Author</dt><dd>Basit Ayantunde <a href="#" onclick="location.href='mai'+'lto:'+'rla'+'ma'+'rrr'+'@g'+'mai'+'l.'+'com'; return false;">rlama<span style="display: none;">.nosp@m.</span>rrr@<span style="display: none;">.nosp@m.</span>gmail<span style="display: none;">.nosp@m.</span>.com</a> </dd></dl>
-<dl class="section version"><dt>Version</dt><dd>0.1 </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2020-04-11</dd></dl>
-<dl class="section copyright"><dt>Copyright</dt><dd>Copyright (c) 2020 </dd></dl>
+<dl class="section copyright"><dt>Copyright</dt><dd>MIT License</dd></dl>
+<p>Copyright (c) 2020 Basit Ayantunde</p>
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. </p>
 </div></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.13-->
 <!-- start footer part -->

@@ -66,6 +66,7 @@
                                 src="eagle.png" /></td>
                         <td id="projectalign" style="padding-left: 0.5em;">
                             <div id="projectname"> STX
+                                &#160;<span id="projectnumber">1.0.0</span>
                             </div>
                         </td>
                     </tr>
@@ -107,18 +108,27 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#namespaces">Namespaces</a> &#124;
-<a href="#func-members">Functions</a> &#124;
-<a href="#var-members">Variables</a>  </div>
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">default.h File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &lt;mutex&gt;</code><br />
 <code>#include &lt;thread&gt;</code><br />
+<code>#include &quot;<a class="el" href="panic_8h_source.html">stx/panic.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="print_8h_source.html">stx/panic/handlers/print.h</a>&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for default.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="default_8h__incl.png" border="0" usemap="#include_2stx_2panic_2handlers_2default_2default_8h" alt=""/></div>
+<map name="include_2stx_2panic_2handlers_2default_2default_8h" id="include_2stx_2panic_2handlers_2default_2default_8h">
+<area shape="rect" id="node4" href="panic_8h.html" title="stx/panic.h" alt="" coords="298,95,391,121"/>
+<area shape="rect" id="node15" href="print_8h.html" title="stx/panic/handlers\l/print.h" alt="" coords="435,169,577,211"/>
+<area shape="rect" id="node5" href="report_8h.html" title="stx/report.h" alt="" coords="296,177,393,203"/>
+<area shape="rect" id="node14" href="source__location_8h.html" title="stx/source_location.h" alt="" coords="18,177,178,203"/>
+<area shape="rect" id="node10" href="common_8h.html" title="stx/common.h" alt="" coords="165,259,279,285"/>
+<area shape="rect" id="node13" href="config_8h.html" title="stx/config.h" alt="" coords="5,333,103,360"/>
+</map>
 </div>
 </div>
 <p><a href="default_8h_source.html">Go to the source code of this file.</a></p>
@@ -127,28 +137,20 @@ Include dependency graph for default.h:</div>
 Namespaces</h2></td></tr>
 <tr class="memitem:namespacestx"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html">stx</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:namespacestx_1_1internal"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal.html">stx::internal</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:namespacestx_1_1internal_1_1panic__util"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1panic__util.html">stx::internal::panic_util</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a1ebce27ece974208de2c36d2dc15c531"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#a1ebce27ece974208de2c36d2dc15c531">stx::panic_default</a> (std::string_view info, ReportPayload const &amp;payload, SourceLocation location=SourceLocation::current()) noexcept</td></tr>
-<tr class="separator:a1ebce27ece974208de2c36d2dc15c531"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
-Variables</h2></td></tr>
-<tr class="memitem:ac4ea8c6c59e942d79307a0aa20fcfee3"><td class="memItemLeft" align="right" valign="top">constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1panic__util.html#ac4ea8c6c59e942d79307a0aa20fcfee3">stx::internal::panic_util::kFormatBufferSize</a> = 256</td></tr>
-<tr class="separator:ac4ea8c6c59e942d79307a0aa20fcfee3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad1b726b5a8cc3634fdd6028d4fd1d2f3"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1panic__util.html#ad1b726b5a8cc3634fdd6028d4fd1d2f3">stx::internal::panic_util::kThreadIdHash</a> = std::hash&lt;std::thread::id&gt;{}</td></tr>
-<tr class="separator:ad1b726b5a8cc3634fdd6028d4fd1d2f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aea57bab011ea9d8d29338e59717d72a5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#aea57bab011ea9d8d29338e59717d72a5">stx::panic_default</a> (std::string_view const &amp;info, ReportPayload const &amp;payload, SourceLocation const &amp;location) noexcept</td></tr>
+<tr class="separator:aea57bab011ea9d8d29338e59717d72a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><dl class="section author"><dt>Author</dt><dd>Basit Ayantunde <a href="#" onclick="location.href='mai'+'lto:'+'rla'+'ma'+'rrr'+'@g'+'mai'+'l.'+'com'; return false;">rlama<span style="display: none;">.nosp@m.</span>rrr@<span style="display: none;">.nosp@m.</span>gmail<span style="display: none;">.nosp@m.</span>.com</a> </dd></dl>
-<dl class="section version"><dt>Version</dt><dd>0.1 </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2020-05-22</dd></dl>
-<dl class="section copyright"><dt>Copyright</dt><dd>Copyright (c) 2020 </dd></dl>
+<dl class="section copyright"><dt>Copyright</dt><dd>MIT License</dd></dl>
+<p>Copyright (c) 2020 Basit Ayantunde</p>
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. </p>
 </div></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.13-->
 <!-- start footer part -->

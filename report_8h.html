@@ -66,6 +66,7 @@
                                 src="eagle.png" /></td>
                         <td id="projectalign" style="padding-left: 0.5em;">
                             <div id="projectname"> STX
+                                &#160;<span id="projectnumber">1.0.0</span>
                             </div>
                         </td>
                     </tr>
@@ -108,14 +109,14 @@ $(function() {
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#namespaces">Namespaces</a> &#124;
+<a href="#define-members">Macros</a> &#124;
 <a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
 <div class="title">report.h File Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><code>#include &lt;array&gt;</code><br />
-<code>#include &lt;cinttypes&gt;</code><br />
+<div class="textblock"><code>#include &lt;cinttypes&gt;</code><br />
 <code>#include &lt;cstdio&gt;</code><br />
 <code>#include &lt;string&gt;</code><br />
 <code>#include &lt;string_view&gt;</code><br />
@@ -125,8 +126,8 @@ Include dependency graph for report.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="report_8h__incl.png" border="0" usemap="#include_2stx_2report_8h" alt=""/></div>
 <map name="include_2stx_2report_8h" id="include_2stx_2report_8h">
-<area shape="rect" id="node7" href="common_8h.html" title="stx/common.h" alt="" coords="535,80,653,107"/>
-<area shape="rect" id="node11" href="config_8h.html" title="stx/config.h" alt="" coords="735,155,853,181"/>
+<area shape="rect" id="node6" href="common_8h.html" title="stx/common.h" alt="" coords="403,80,517,107"/>
+<area shape="rect" id="node9" href="config_8h.html" title="stx/config.h" alt="" coords="530,155,627,181"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -134,15 +135,16 @@ This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
 <div class="center"><img src="report_8h__dep__incl.png" border="0" usemap="#include_2stx_2report_8hdep" alt=""/></div>
 <map name="include_2stx_2report_8hdep" id="include_2stx_2report_8hdep">
-<area shape="rect" id="node2" href="panic_8h.html" title="include/stx/panic.h" alt="" coords="597,80,772,107"/>
-<area shape="rect" id="node3" href="panic__helpers_8h.html" title="include/stx/internal\l/panic_helpers.h" alt="" coords="236,155,419,196"/>
-<area shape="rect" id="node8" href="abort_8h.html" title="include/stx/panic/handlers\l/abort/abort.h" alt="" coords="443,155,673,196"/>
-<area shape="rect" id="node9" href="halt_8h.html" title="include/stx/panic/handlers\l/halt/halt.h" alt="" coords="697,155,928,196"/>
-<area shape="rect" id="node10" href="hook_8h.html" title="include/stx/panic/hook.h" alt="" coords="952,162,1167,189"/>
-<area shape="rect" id="node4" href="option__result_8h.html" title="include/stx/internal\l/option_result.h" alt="" coords="236,244,419,285"/>
-<area shape="rect" id="node5" href="backtrace_8h.html" title="include/stx/backtrace.h" alt="" coords="5,333,212,360"/>
-<area shape="rect" id="node6" href="option_8h.html" title="include/stx/option.h" alt="" coords="236,333,419,360"/>
-<area shape="rect" id="node7" href="result_8h.html" title="include/stx/result.h" alt="" coords="443,333,625,360"/>
+<area shape="rect" id="node2" href="backtrace_8h.html" title="include/stx/backtrace.h" alt="" coords="5,333,179,360"/>
+<area shape="rect" id="node3" href="panic_8h.html" title="include/stx/panic.h" alt="" coords="469,80,613,107"/>
+<area shape="rect" id="node4" href="panic__helpers_8h.html" title="include/stx/internal\l/panic_helpers.h" alt="" coords="167,155,313,196"/>
+<area shape="rect" id="node8" href="abort_8h.html" title="include/stx/panic/handlers\l/abort/abort.h" alt="" coords="337,155,529,196"/>
+<area shape="rect" id="node9" href="default_8h.html" title="include/stx/panic/handlers\l/default/default.h" alt="" coords="553,155,745,196"/>
+<area shape="rect" id="node10" href="halt_8h.html" title="include/stx/panic/handlers\l/halt/halt.h" alt="" coords="769,155,961,196"/>
+<area shape="rect" id="node11" href="hook_8h.html" title="include/stx/panic/hook.h" alt="" coords="986,162,1166,189"/>
+<area shape="rect" id="node5" href="option__result_8h.html" title="include/stx/internal\l/option_result.h" alt="" coords="185,244,332,285"/>
+<area shape="rect" id="node6" href="option_8h.html" title="include/stx/option.h" alt="" coords="203,333,354,360"/>
+<area shape="rect" id="node7" href="result_8h.html" title="include/stx/result.h" alt="" coords="379,333,525,360"/>
 </map>
 </div>
 </div>
@@ -151,9 +153,11 @@ This graph shows which files directly or indirectly include this file:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structstx_1_1ReportQuery.html">stx::ReportQuery</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tag for dispatching reports from types.  <a href="structstx_1_1ReportQuery.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tag type for dispatching reports.  <a href="structstx_1_1ReportQuery.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classstx_1_1Report.html">stx::Report</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classstx_1_1FixedReport.html">stx::FixedReport</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classstx_1_1SpanReport.html">stx::SpanReport</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classstx_1_1ReportPayload.html">stx::ReportPayload</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -162,50 +166,100 @@ Classes</h2></td></tr>
 Namespaces</h2></td></tr>
 <tr class="memitem:namespacestx"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html">stx</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:namespacestx_1_1internal"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal.html">stx::internal</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:namespacestx_1_1internal_1_1report"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1report.html">stx::internal::report</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:a78b3337084762e8d072c05844fa09b9b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="report_8h.html#a78b3337084762e8d072c05844fa09b9b">STX_INTERNAL_MAKE_REPORT_</a>(STX_ARG_SIZE,  STX_ARG_FORMAT,  STX_ARG_VALUE)</td></tr>
+<tr class="separator:a78b3337084762e8d072c05844fa09b9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a41f5b218155d282dc8de23b18222d4c8"><td class="memItemLeft" align="right" valign="top">constexpr void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1report.html#a41f5b218155d282dc8de23b18222d4c8">stx::internal::report::write_unknown</a> (char *buffer) noexcept</td></tr>
-<tr class="separator:a41f5b218155d282dc8de23b18222d4c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afacf16a60fb163364a16ce6b6daf8526"><td class="memItemLeft" align="right" valign="top">Report&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#afacf16a60fb163364a16ce6b6daf8526">stx::operator&gt;&gt;</a> (ReportQuery, exact&lt; int8_t &gt; auto const &amp;v) noexcept</td></tr>
-<tr class="separator:afacf16a60fb163364a16ce6b6daf8526"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad302a0bbc396ad78fcd03b574f384ecb"><td class="memItemLeft" align="right" valign="top">Report&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#ad302a0bbc396ad78fcd03b574f384ecb">stx::operator&gt;&gt;</a> (ReportQuery, exact&lt; uint8_t &gt; auto const &amp;v) noexcept</td></tr>
-<tr class="separator:ad302a0bbc396ad78fcd03b574f384ecb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3e2f6b9a5c2e1316cfc6c2acd96693c0"><td class="memItemLeft" align="right" valign="top">Report&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#a3e2f6b9a5c2e1316cfc6c2acd96693c0">stx::operator&gt;&gt;</a> (ReportQuery, exact&lt; int16_t &gt; auto const &amp;v) noexcept</td></tr>
-<tr class="separator:a3e2f6b9a5c2e1316cfc6c2acd96693c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0e1fdbd125eb0a6b33de0827e0345520"><td class="memItemLeft" align="right" valign="top">Report&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#a0e1fdbd125eb0a6b33de0827e0345520">stx::operator&gt;&gt;</a> (ReportQuery, exact&lt; uint16_t &gt; auto const &amp;v) noexcept</td></tr>
-<tr class="separator:a0e1fdbd125eb0a6b33de0827e0345520"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3383cbfcd1138048593a6da57158e988"><td class="memItemLeft" align="right" valign="top">Report&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#a3383cbfcd1138048593a6da57158e988">stx::operator&gt;&gt;</a> (ReportQuery, exact&lt; int32_t &gt; auto const &amp;v) noexcept</td></tr>
-<tr class="separator:a3383cbfcd1138048593a6da57158e988"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acd1a03f7b064f9e4df98ab90bd2afa36"><td class="memItemLeft" align="right" valign="top">Report&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#acd1a03f7b064f9e4df98ab90bd2afa36">stx::operator&gt;&gt;</a> (ReportQuery, exact&lt; uint32_t &gt; auto const &amp;v) noexcept</td></tr>
-<tr class="separator:acd1a03f7b064f9e4df98ab90bd2afa36"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aec4a85fa49fe469fd7c7fb88ba49fca4"><td class="memItemLeft" align="right" valign="top">Report&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#aec4a85fa49fe469fd7c7fb88ba49fca4">stx::operator&gt;&gt;</a> (ReportQuery, exact&lt; std::string_view &gt; auto const &amp;v) noexcept</td></tr>
-<tr class="separator:aec4a85fa49fe469fd7c7fb88ba49fca4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a83e62e115c23718cba12139d68b123c2"><td class="memItemLeft" align="right" valign="top">Report&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#a83e62e115c23718cba12139d68b123c2">stx::operator&gt;&gt;</a> (ReportQuery, exact&lt; std::string &gt; auto const &amp;v) noexcept</td></tr>
-<tr class="separator:a83e62e115c23718cba12139d68b123c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a10159b8cbecfdd12f9338462aecf5d98"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a10159b8cbecfdd12f9338462aecf5d98"><td class="memTemplItemLeft" align="right" valign="top">SpanReport&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a10159b8cbecfdd12f9338462aecf5d98">stx::operator&gt;&gt;</a> (ReportQuery, T const &amp;) noexcept</td></tr>
+<tr class="separator:a10159b8cbecfdd12f9338462aecf5d98"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a782dcc3326c3a14ce3d4273f23a8dd61"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a782dcc3326c3a14ce3d4273f23a8dd61"><td class="memTemplItemLeft" align="right" valign="top">FixedReport&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a782dcc3326c3a14ce3d4273f23a8dd61">stx::operator&gt;&gt;</a> (ReportQuery, T const *const &amp;ptr) noexcept</td></tr>
+<tr class="separator:a782dcc3326c3a14ce3d4273f23a8dd61"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad53a3e8086137db50a093ccdef8af719"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:ad53a3e8086137db50a093ccdef8af719"><td class="memTemplItemLeft" align="right" valign="top">FixedReport&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#ad53a3e8086137db50a093ccdef8af719">stx::operator&gt;&gt;</a> (ReportQuery, T *const &amp;ptr) noexcept</td></tr>
+<tr class="separator:ad53a3e8086137db50a093ccdef8af719"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a345aa8c893d972e440979b33cc9ca1f6"><td class="memItemLeft" align="right" valign="top">FixedReport&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#a345aa8c893d972e440979b33cc9ca1f6">stx::operator&gt;&gt;</a> (ReportQuery, int8_t const &amp;v) noexcept</td></tr>
+<tr class="separator:a345aa8c893d972e440979b33cc9ca1f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaf92d0ade7eec8c8c86e2907ad073720"><td class="memItemLeft" align="right" valign="top">FixedReport&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#aaf92d0ade7eec8c8c86e2907ad073720">stx::operator&gt;&gt;</a> (ReportQuery, uint8_t const &amp;v) noexcept</td></tr>
+<tr class="separator:aaf92d0ade7eec8c8c86e2907ad073720"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0584404a66441158872110446c43936c"><td class="memItemLeft" align="right" valign="top">FixedReport&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#a0584404a66441158872110446c43936c">stx::operator&gt;&gt;</a> (ReportQuery, int16_t const &amp;v) noexcept</td></tr>
+<tr class="separator:a0584404a66441158872110446c43936c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a010fa34e7001caac544b80be309873a4"><td class="memItemLeft" align="right" valign="top">FixedReport&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#a010fa34e7001caac544b80be309873a4">stx::operator&gt;&gt;</a> (ReportQuery, uint16_t const &amp;v) noexcept</td></tr>
+<tr class="separator:a010fa34e7001caac544b80be309873a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab85847cd8fc55b0ac69fe7b462f5fdaf"><td class="memItemLeft" align="right" valign="top">FixedReport&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#ab85847cd8fc55b0ac69fe7b462f5fdaf">stx::operator&gt;&gt;</a> (ReportQuery, int32_t const &amp;v) noexcept</td></tr>
+<tr class="separator:ab85847cd8fc55b0ac69fe7b462f5fdaf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8fce4b8eec680857418eb876a6fb07a0"><td class="memItemLeft" align="right" valign="top">FixedReport&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#a8fce4b8eec680857418eb876a6fb07a0">stx::operator&gt;&gt;</a> (ReportQuery, uint32_t const &amp;v) noexcept</td></tr>
+<tr class="separator:a8fce4b8eec680857418eb876a6fb07a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3c23ca223a30c46beb35c52c027f7b4a"><td class="memItemLeft" align="right" valign="top">SpanReport&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#a3c23ca223a30c46beb35c52c027f7b4a">stx::operator&gt;&gt;</a> (ReportQuery, std::string_view const &amp;v) noexcept</td></tr>
+<tr class="separator:a3c23ca223a30c46beb35c52c027f7b4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab7078d96beadf3ccaa1aa108533d1c0e"><td class="memItemLeft" align="right" valign="top">SpanReport&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#ab7078d96beadf3ccaa1aa108533d1c0e">stx::operator&gt;&gt;</a> (ReportQuery, std::string const &amp;v) noexcept</td></tr>
+<tr class="separator:ab7078d96beadf3ccaa1aa108533d1c0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:ad9682e89025c42157ac1adb579fb3a70"><td class="memItemLeft" align="right" valign="top">constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#ad9682e89025c42157ac1adb579fb3a70">stx::kMaxReportSize</a> = 512</td></tr>
-<tr class="separator:ad9682e89025c42157ac1adb579fb3a70"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a084832ee2ae8227752582cd88cdc61fe"><td class="memItemLeft" align="right" valign="top">constexpr std::string_view&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#a084832ee2ae8227752582cd88cdc61fe">stx::kReportTruncationMessage</a></td></tr>
-<tr class="separator:a084832ee2ae8227752582cd88cdc61fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a58d6aebc2c99909c82e3f451f5e32dd5"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a58d6aebc2c99909c82e3f451f5e32dd5"><td class="memTemplItemLeft" align="right" valign="top">concept&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a58d6aebc2c99909c82e3f451f5e32dd5">stx::Reportable</a></td></tr>
-<tr class="separator:a58d6aebc2c99909c82e3f451f5e32dd5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4db4117e7bfc4e25de27740bc102d0e8"><td class="memItemLeft" align="right" valign="top">constexpr auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1report.html#a4db4117e7bfc4e25de27740bc102d0e8">stx::internal::report::query</a> = ReportQuery{}</td></tr>
-<tr class="separator:a4db4117e7bfc4e25de27740bc102d0e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae6e8554825200e0d9ce7db596645f36c"><td class="memItemLeft" align="right" valign="top">constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#ae6e8554825200e0d9ce7db596645f36c">stx::kReportReserveSize</a> = 128</td></tr>
+<tr class="separator:ae6e8554825200e0d9ce7db596645f36c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a54bddc7bc77c74cb12333b1fd322c16b"><td class="memItemLeft" align="right" valign="top">constexpr char const&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#a54bddc7bc77c74cb12333b1fd322c16b">stx::kReportTruncationMessage</a> []</td></tr>
+<tr class="separator:a54bddc7bc77c74cb12333b1fd322c16b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a50d9e4a2875df6f21453020373acb0fe"><td class="memItemLeft" align="right" valign="top">constexpr ReportQuery const&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#a50d9e4a2875df6f21453020373acb0fe">stx::report_query</a> {}</td></tr>
+<tr class="memdesc:a50d9e4a2875df6f21453020373acb0fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tag value for dispatching reports.  <a href="namespacestx.html#a50d9e4a2875df6f21453020373acb0fe">More...</a><br /></td></tr>
+<tr class="separator:a50d9e4a2875df6f21453020373acb0fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af10a45c6ecb0f31652c8a3568da88594"><td class="memItemLeft" align="right" valign="top">constexpr char const&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#af10a45c6ecb0f31652c8a3568da88594">stx::kFormatError</a> [] = &quot;&lt;format error&gt;&quot;</td></tr>
+<tr class="separator:af10a45c6ecb0f31652c8a3568da88594"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af360f25a162ebc17e80fbfcf255f4a78"><td class="memItemLeft" align="right" valign="top">constexpr size_t const&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#af360f25a162ebc17e80fbfcf255f4a78">stx::kFormatErrorSize</a> = sizeof(kFormatError) - 1</td></tr>
+<tr class="separator:af360f25a162ebc17e80fbfcf255f4a78"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><dl class="section author"><dt>Author</dt><dd>Basit Ayantunde <a href="#" onclick="location.href='mai'+'lto:'+'rla'+'ma'+'rrr'+'@g'+'mai'+'l.'+'com'; return false;">rlama<span style="display: none;">.nosp@m.</span>rrr@<span style="display: none;">.nosp@m.</span>gmail<span style="display: none;">.nosp@m.</span>.com</a> </dd></dl>
-<dl class="section version"><dt>Version</dt><dd>0.1 </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2020-05-22</dd></dl>
-<dl class="section copyright"><dt>Copyright</dt><dd>Copyright (c) 2020 </dd></dl>
-</div></div><!-- contents -->
+<dl class="section copyright"><dt>Copyright</dt><dd>MIT License</dd></dl>
+<p>Copyright (c) 2020 Basit Ayantunde</p>
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. </p>
+</div><h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="a78b3337084762e8d072c05844fa09b9b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a78b3337084762e8d072c05844fa09b9b">&#9670;&nbsp;</a></span>STX_INTERNAL_MAKE_REPORT_</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define STX_INTERNAL_MAKE_REPORT_</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">STX_ARG_SIZE, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">STX_ARG_FORMAT, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">STX_ARG_VALUE&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line"><span class="comment">/* string size + terminating null character */</span>                               \</div><div class="line">  char fmt_buffer[STX_ARG_SIZE + 1];                                           \</div><div class="line">  int fmt_buffer_size = std::snprintf(fmt_buffer, STX_ARG_SIZE + 1,            \</div><div class="line">                                      STX_ARG_FORMAT, STX_ARG_VALUE);          \</div><div class="line">  if (fmt_buffer_size &lt; 0 || fmt_buffer_size &gt;= STX_ARG_SIZE + 1) {            \</div><div class="line">    return FixedReport(<a class="code" href="namespacestx.html#af10a45c6ecb0f31652c8a3568da88594">kFormatError</a>, <a class="code" href="namespacestx.html#af360f25a162ebc17e80fbfcf255f4a78">kFormatErrorSize</a>);                        \</div><div class="line">  } <span class="keywordflow">else</span> {                                                                     \</div><div class="line">    return FixedReport(fmt_buffer, fmt_buffer_size);                           \</div><div class="line">  }</div><div class="ttc" id="namespacestx_html_af360f25a162ebc17e80fbfcf255f4a78"><div class="ttname"><a href="namespacestx.html#af360f25a162ebc17e80fbfcf255f4a78">stx::kFormatErrorSize</a></div><div class="ttdeci">constexpr size_t const kFormatErrorSize</div><div class="ttdef"><b>Definition:</b> report.h:328</div></div>
+<div class="ttc" id="namespacestx_html_af10a45c6ecb0f31652c8a3568da88594"><div class="ttname"><a href="namespacestx.html#af10a45c6ecb0f31652c8a3568da88594">stx::kFormatError</a></div><div class="ttdeci">constexpr char const kFormatError[]</div><div class="ttdef"><b>Definition:</b> report.h:327</div></div>
+</div><!-- fragment -->
+</div>
+</div>
+</div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.13-->
 <!-- start footer part -->
 <hr class="footer" />

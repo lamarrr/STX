@@ -66,6 +66,7 @@
                                 src="eagle.png" /></td>
                         <td id="projectalign" style="padding-left: 0.5em;">
                             <div id="projectname"> STX
+                                &#160;<span id="projectnumber">1.0.0</span>
                             </div>
                         </td>
                     </tr>
@@ -114,33 +115,33 @@ $(function() {
 <p>The panic library provides:</p>
 <ul>
 <li>panicking:<ul>
-<li><code><a class="el" href="namespacestx.html#acf6af607fec2dc51a8fdb46f50585932">stx::panic</a></code> : signals an abnormal flow/error in the program.</li>
+<li><code><a class="el" href="namespacestx.html#ab30ac58d45acea6e2f513446d245e62e">stx::panic</a></code> : signals an abnormal flow/error in the program.</li>
 </ul>
 </li>
 <li>runtime panic hooks<ul>
 <li><code><a class="el" href="namespacestx.html#ae665459dd656d01fbba3db15a8294661">stx::take_panic_hook</a></code> , <code><a class="el" href="namespacestx.html#a6dcdb760094ff41ef8cc186ff9eb7b85">stx::attach_panic_hook</a></code> , and <code><a class="el" href="namespacestx.html#ab773ac393ac1bed763cef3d30ea74ee2">stx::panic_hook_visible</a></code></li>
 </ul>
 </li>
-<li>panic backtraces</li>
-<li>error reporting</li>
+<li>panic backtraces (see the <a href="https://github.com/lamarrr/STX/tree/master/examples"><code>panic_backtrace</code></a> example project)</li>
+<li>error reporting (see <code><a class="el" href="classstx_1_1FixedReport.html">stx::FixedReport</a></code> and <code><a class="el" href="classstx_1_1SpanReport.html">stx::SpanReport</a></code>)</li>
 <li>panic handlers:<ul>
-<li><code><a class="el" href="namespacestx.html#a1ebce27ece974208de2c36d2dc15c531">stx::panic_default</a></code> : The default panic handler that prints the error message and panic location data, and afterwards aborts the program.</li>
-<li><code><a class="el" href="namespacestx.html#ac12bc9b5d83367f67f863b8e1bfad0b4">stx::panic_halt</a></code> : A panic handler that causes the current calling thread, to halt by entering an infinite loop.</li>
-<li><code><a class="el" href="namespacestx.html#aa46f26a96cafe98167a3dd212bda8027" title="Causes the abort instruction to be executed. ">stx::panic_abort</a></code> : A panic handler that causes the abort instruction to be executed.</li>
+<li><code><a class="el" href="namespacestx.html#aea57bab011ea9d8d29338e59717d72a5">stx::panic_default</a></code> : The default panic handler that prints the error message and panic location data, and afterwards aborts the program.</li>
+<li><code><a class="el" href="namespacestx.html#a5d216eab794f0940fde701b640cb27b3">stx::panic_halt</a></code> : A panic handler that causes the current calling thread, to halt by entering an infinite loop.</li>
+<li><code><a class="el" href="namespacestx.html#a2c3889fa68ce826dd9786a63252ca3bc" title="Causes the abort instruction to be executed. ">stx::panic_abort</a></code> : A panic handler that causes the abort instruction to be executed.</li>
 </ul>
 </li>
 </ul>
 <h2>Error and Optional-Value Handling Library</h2>
 <p>These monadic types not only make error handling easier but also make the paths more obvious to the compiler for optimizations. Monads can be simply thought of as abstract types of actions. Their monadic nature makes it easy to operate on them as pipelines and in the process eliminate redundant error-handling logic code.</p>
 <ul>
-<li><code><a class="el" href="classstx_1_1Result.html">stx::Result</a>&lt;T, E&gt;</code> : Type for relaying the result of a function that can fail or succeed (with monadic extensions)</li>
-<li><code><a class="el" href="classstx_1_1Option.html">stx::Option</a>&lt;T&gt;</code> : Type for <b>safe</b> optional values (with monadic extensions)</li>
+<li><code><a class="el" href="structstx_1_1Result.html">stx::Result</a>&lt;T, E&gt;</code> : Type for relaying the result of a function that can fail or succeed (with monadic extensions)</li>
+<li><code><a class="el" href="structstx_1_1Option.html">stx::Option</a>&lt;T&gt;</code> : Type for <b>safe</b> optional values (with monadic extensions)</li>
 </ul>
 <h2>Backtracing Library</h2>
 <p>The backtracing library is useful for manually querying/viewing information of active stack frames. It makes debugging easier by making it easier to get stackframe information programmartically or automatically (via panics) without having to inspect core dumps or step into a debugger in which errors might not be reproducible (especially for embedded systems). The backtrace library is disabled by default as not all platforms support them, It can be enabled by setting <code>STX_ENABLE_BACKTRACE</code> to <code>ON</code> in the CMakeLists.txt file, this is demonstrated in the <a href="https://github.com/lamarrr/STX/tree/master/examples"><code>panic_backtrace</code></a> example project.</p>
 <ul>
-<li>Fatal signal backtraces for <code>SIGSEGV</code> , <code>SIGFPE</code> , and <code>SIGILL</code></li>
-<li>Manual stack backtraces</li>
+<li>Fatal signal backtraces for <code>SIGSEGV</code> , <code>SIGFPE</code> , and <code>SIGILL</code> (<code><a class="el" href="namespacestx_1_1backtrace.html#ad2dc56c0a5c73aaa3d6e75c78e6d7e95">stx::backtrace::handle_signal</a></code>)</li>
+<li>Manual stack backtraces (<code><a class="el" href="namespacestx_1_1backtrace.html#a908839a2af8bdec79ba9bef62f1f9703">stx::backtrace::trace</a></code>)</li>
 </ul>
 <h1>Why STX?</h1>
 <p>STX is primarilly an effort to bring a more convenient and usable error-handling model to the C++ ecosystem. Whilst also sampling ideas from various error-handling model implementations duplicated across the community, Most of the basic facilities for which STX's libraries aims to provide.</p>
@@ -170,17 +171,19 @@ $(function() {
 <li>Exceptions are really great, but present implementations are not so great for fail-often functions</li>
 <li>Some embedded systems toolchains don't have a conformant exception implementation and throwing an exception resorts to an immediate abort</li>
 <li>Currently, Exceptions are not deterministic in both space and time</li>
-<li>You never know which function throws which exception. And you never know when the callee code's API changes the exception type</li>
-<li>Exceptions are implicitly and automatically propagated up the call stack until it finds a function to handle it</li>
-<li>Exceptions aren't great for error-handling, the code gets messy easily</li>
+<li>You never know which function throws which exception and you never know when the callee code's API changes the exception type which can have extremely serious effects that'll go unnoticed</li>
+<li>Exceptions are implicitly and automatically propagated up the call stack until it finds a function to handle it which you might not want as <b>error-handling is very very contextual</b></li>
+<li>Exception-handling code gets messy easily</li>
 <li>Exceptions are essentially for exceptional cases</li>
 <li>Exceptions require RTTI</li>
+<li>Some custom exception implementations make use of dynamic memory allocation (many using std::string especially)</li>
+<li>There's nothing stopping you from catching exceptions you are not meant to catch</li>
 </ul>
 <h1>Some Interesting Reads</h1>
 <ul>
 <li>Joe Duffy: <a href="http://joeduffyblog.com/2016/02/07/the-error-model/">The Error Model</a></li>
 </ul>
-<h2>Relatable Excerpts:</h2>
+<h2>Relatable Excerpts</h2>
 <blockquote class="doxtable">
 <p>This problem isn’t theoretical. I’ve encountered numerous bugs caused by ignoring return codes and I’m sure you have too. Indeed, in the development of this very Error Model, my team encountered some fascinating ones. For example, when we ported Microsoft’s Speech Server to Midori, we found that 80% of Taiwan Chinese (zh-tw) requests were failing. Not failing in a way the developers immediately saw, however; instead, clients would get a gibberish response. At first, we thought it was our fault. But then we discovered a silently swallowed HRESULT in the original code. Once we got it over to Midori, the bug was thrown into our faces, found, and fixed immediately after porting. This experience certainly informed our opinion about error codes. </p>
 </blockquote>
@@ -188,7 +191,30 @@ $(function() {
 <p>In the exception model, any function call – and sometimes any statement – can throw an exception, transferring control non-locally somewhere else. Where? Who knows. There are no annotations or type system artifacts to guide your analysis. As a result, it’s difficult for anyone to reason about a program’s state at the time of the throw, the state changes that occur while that exception is propagated up the call stack – and possibly across threads in a concurrent program – and the resulting state by the time it gets caught or goes unhandled. </p>
 </blockquote>
 <blockquote class="doxtable">
-<p>Bugs Aren’t Recoverable Errors!</p>
+<p>Bugs Aren’t Recoverable Errors! </p>
+</blockquote>
+<ul>
+<li>Herb Sutter: <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0709r0.pdf">Zero Overhead Deterministic Exceptions</a></li>
+</ul>
+<h1>Relatable Excerpts</h1>
+<blockquote class="doxtable">
+<p>Many projects ban exceptions. In <a href="https://isocpp.org/blog/2018/03/results-summary-cpp-foundation-developer-survey-lite-2018-02">SC++F 2018</a>, 52% of C++ developers reported that exceptions were banned in part or all of their project code i.e., most are not allowed to freely use C++’s primary recommended error-handling model that is required to use the C++ standard language and library. </p>
+</blockquote>
+<blockquote class="doxtable">
+<p>A programming bug or abstract machine corruption is never an "error" (both are not programmatically recoverable, so report bugs to the human programmer using <b>contract</b> violations that default to <b>fail-fast</b> and report abstract machine corruption using fail-fast). Programming bugs (e.g., out-of-bounds access, null dereference) and abstract machine corruption cause a corrupted state that cannot be recovered from programmatically, and so <b>should never</b> be reported to the calling code as errors that code could somehow handle. </p>
+</blockquote>
+<p>Note here that exceptions also don't fit this fail-fast procedure as they can be caught by any function on the stack! and try to continue the program!!! (for fail-fast: STX provides <code><a class="el" href="namespacestx.html#ab30ac58d45acea6e2f513446d245e62e">stx::panic</a></code>, and for recoverable errors: <code><a class="el" href="structstx_1_1Result.html">stx::Result</a></code>). There should be no reason to continue the program or propagate a programming bug.</p>
+<blockquote class="doxtable">
+<p>Today's dynamic exception handling is not deterministic (run-time space and time determinism). This is the primary reason exceptions are banned in many real-time and/or safety-critical environments (for example, many games, coding standards like JSF++ <a href="http://www.stroustrup.com/JSF-AV-rules.pdf">[JSF++2005]</a>, and environments like the Mars Rover flight software <a href="https://github.com/CppCon/CppCon2014/blob/master/Presentations/C%2B%2B%20on%20Mars%20-%20Incorporating%20C%2B%2B%20into%20Mars%20Rover%20Flight%20Software/C%2B%2B%20On%20Mars%20-%20Mark%20Maimone%20-%20CppCon%202014.pdf">[Maimone 2014]</a>). </p>
+</blockquote>
+<blockquote class="doxtable">
+<p>We cannot accept that "Standard C++ is not applicable for real-time systems" &ndash; that would be an admission of defeat in C++'s core mission as an efficient systems programming language. Therefore we know we cannot live with today's model unchanged. </p>
+</blockquote>
+<blockquote class="doxtable">
+<p>"[In CLU] We rejected this approach [propagating dynamic exceptions] because it did not fit our ideas about modular program construction. We wanted to be able to call a procedure knowing just its specification, not its implementation." &ndash; <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.127.8460&amp;rep=rep1&amp;type=pdf">[Liskov 1992]</a> </p>
+</blockquote>
+<blockquote class="doxtable">
+<p>"By allowing multi-level propagation of exceptions, C++ loses one aspect of static checking. One cannot simply look at a function to determine which exceptions it may throw." &ndash; [Stroustrup 1994] p. 395</p>
 </blockquote>
 </div></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.13-->

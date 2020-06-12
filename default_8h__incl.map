@@ -1,2 +1,8 @@
 <map id="include/stx/panic/handlers/default/default.h" name="include/stx/panic/handlers/default/default.h">
+<area shape="rect" id="node4" href="$panic_8h.html" title="stx/panic.h" alt="" coords="298,95,391,121"/>
+<area shape="rect" id="node15" href="$print_8h.html" title="stx/panic/handlers\l/print.h" alt="" coords="435,169,577,211"/>
+<area shape="rect" id="node5" href="$report_8h.html" title="stx/report.h" alt="" coords="296,177,393,203"/>
+<area shape="rect" id="node14" href="$source__location_8h.html" title="stx/source_location.h" alt="" coords="18,177,178,203"/>
+<area shape="rect" id="node10" href="$common_8h.html" title="stx/common.h" alt="" coords="165,259,279,285"/>
+<area shape="rect" id="node13" href="$config_8h.html" title="stx/config.h" alt="" coords="5,333,103,360"/>
 </map>

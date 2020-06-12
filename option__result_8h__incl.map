@@ -1,7 +1,9 @@
 <map id="include/stx/internal/option_result.h" name="include/stx/internal/option_result.h">
-<area shape="rect" id="node2" href="$panic__helpers_8h.html" title="stx/internal/panic\l_helpers.h" alt="" coords="295,95,461,136"/>
-<area shape="rect" id="node3" href="$panic_8h.html" title="stx/panic.h" alt="" coords="323,184,433,211"/>
-<area shape="rect" id="node4" href="$report_8h.html" title="stx/report.h" alt="" coords="233,266,352,293"/>
-<area shape="rect" id="node10" href="$common_8h.html" title="stx/common.h" alt="" coords="535,348,653,375"/>
-<area shape="rect" id="node14" href="$config_8h.html" title="stx/config.h" alt="" coords="735,423,853,449"/>
+<area shape="rect" id="node2" href="$panic__helpers_8h.html" title="stx/internal/panic\l_helpers.h" alt="" coords="286,95,421,136"/>
+<area shape="rect" id="node14" href="$try_8h.html" title="stx/internal/try.h" alt="" coords="445,102,573,129"/>
+<area shape="rect" id="node3" href="$panic_8h.html" title="stx/panic.h" alt="" coords="307,184,400,211"/>
+<area shape="rect" id="node4" href="$report_8h.html" title="stx/report.h" alt="" coords="229,259,326,285"/>
+<area shape="rect" id="node13" href="$source__location_8h.html" title="stx/source_location.h" alt="" coords="419,259,579,285"/>
+<area shape="rect" id="node9" href="$common_8h.html" title="stx/common.h" alt="" coords="403,333,517,360"/>
+<area shape="rect" id="node12" href="$config_8h.html" title="stx/config.h" alt="" coords="525,408,622,435"/>
 </map>

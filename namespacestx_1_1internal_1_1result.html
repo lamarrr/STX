@@ -66,6 +66,7 @@
                                 src="eagle.png" /></td>
                         <td id="projectalign" style="padding-left: 0.5em;">
                             <div id="projectname"> STX
+                                &#160;<span id="projectnumber">1.0.0</span>
                             </div>
                         </td>
                     </tr>
@@ -114,28 +115,37 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:aff219b0f4032501baff4b2941106c0c1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1result.html#aff219b0f4032501baff4b2941106c0c1">expect_value_failed</a> (std::string_view &amp;&amp;msg, auto const &amp;err, <a class="el" href="namespacestx.html#aa8c3cd9138ec6458eaf97ddf25e18449">SourceLocation</a> location=SourceLocation::current()) noexcept</td></tr>
-<tr class="memdesc:aff219b0f4032501baff4b2941106c0c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">panic helper for <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;::expect()</code> when no value is present  <a href="#aff219b0f4032501baff4b2941106c0c1">More...</a><br /></td></tr>
-<tr class="separator:aff219b0f4032501baff4b2941106c0c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a93edcbcbed9c59c48056c39fd61ca3b0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1result.html#a93edcbcbed9c59c48056c39fd61ca3b0">expect_err_failed</a> (std::string_view &amp;&amp;msg, auto const &amp;value, <a class="el" href="namespacestx.html#aa8c3cd9138ec6458eaf97ddf25e18449">SourceLocation</a> location=SourceLocation::current()) noexcept</td></tr>
-<tr class="memdesc:a93edcbcbed9c59c48056c39fd61ca3b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">panic helper for <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;::expect_err()</code> when a value is present  <a href="#a93edcbcbed9c59c48056c39fd61ca3b0">More...</a><br /></td></tr>
-<tr class="separator:a93edcbcbed9c59c48056c39fd61ca3b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab1470b194b078cfa335a272016c01280"><td class="memItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1result.html#ab1470b194b078cfa335a272016c01280">no_value</a> (auto const &amp;err, <a class="el" href="namespacestx.html#aa8c3cd9138ec6458eaf97ddf25e18449">SourceLocation</a> location=SourceLocation::current()) noexcept</td></tr>
-<tr class="memdesc:ab1470b194b078cfa335a272016c01280"><td class="mdescLeft">&#160;</td><td class="mdescRight">panic helper for <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;::unwrap()</code> when no value is present  <a href="#ab1470b194b078cfa335a272016c01280">More...</a><br /></td></tr>
-<tr class="separator:ab1470b194b078cfa335a272016c01280"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a629d394047afb15e20ad3f6c561cc8f2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1result.html#a629d394047afb15e20ad3f6c561cc8f2">no_lref</a> (auto const &amp;err, <a class="el" href="namespacestx.html#aa8c3cd9138ec6458eaf97ddf25e18449">SourceLocation</a> location=SourceLocation::current()) noexcept</td></tr>
-<tr class="memdesc:a629d394047afb15e20ad3f6c561cc8f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">panic helper for <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;::value()</code> when no value is present  <a href="#a629d394047afb15e20ad3f6c561cc8f2">More...</a><br /></td></tr>
-<tr class="separator:a629d394047afb15e20ad3f6c561cc8f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7a3eae2297fc54ecb00c01ba7e130ace"><td class="memItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1result.html#a7a3eae2297fc54ecb00c01ba7e130ace">no_err</a> (auto const &amp;value, <a class="el" href="namespacestx.html#aa8c3cd9138ec6458eaf97ddf25e18449">SourceLocation</a> location=SourceLocation::current()) noexcept</td></tr>
-<tr class="memdesc:a7a3eae2297fc54ecb00c01ba7e130ace"><td class="mdescLeft">&#160;</td><td class="mdescRight">panic helper for <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;::unwrap_err()</code> when a value is present  <a href="#a7a3eae2297fc54ecb00c01ba7e130ace">More...</a><br /></td></tr>
-<tr class="separator:a7a3eae2297fc54ecb00c01ba7e130ace"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a49319c6457e147c6d64e166f6a1cd52a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1result.html#a49319c6457e147c6d64e166f6a1cd52a">no_err_lref</a> (auto const &amp;value, <a class="el" href="namespacestx.html#aa8c3cd9138ec6458eaf97ddf25e18449">SourceLocation</a> location=SourceLocation::current()) noexcept</td></tr>
-<tr class="memdesc:a49319c6457e147c6d64e166f6a1cd52a"><td class="mdescLeft">&#160;</td><td class="mdescRight">panic helper for <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;::err_value()</code> when no value is present  <a href="#a49319c6457e147c6d64e166f6a1cd52a">More...</a><br /></td></tr>
-<tr class="separator:a49319c6457e147c6d64e166f6a1cd52a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ec2b4bdb117683ffe736a20c7814880"><td class="memTemplParams" colspan="2">template&lt;typename Tp , typename Er &gt; </td></tr>
+<tr class="memitem:a7ec2b4bdb117683ffe736a20c7814880"><td class="memTemplItemLeft" align="right" valign="top">Tp &amp;&amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1result.html#a7ec2b4bdb117683ffe736a20c7814880">unsafe_value_move</a> (<a class="el" href="structstx_1_1Result.html">Result</a>&lt; Tp, Er &gt; &amp;)</td></tr>
+<tr class="separator:a7ec2b4bdb117683ffe736a20c7814880"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a235966bbcc1e1ed3421ddc1ba4358538"><td class="memTemplParams" colspan="2">template&lt;typename Tp , typename Er &gt; </td></tr>
+<tr class="memitem:a235966bbcc1e1ed3421ddc1ba4358538"><td class="memTemplItemLeft" align="right" valign="top">Er &amp;&amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1result.html#a235966bbcc1e1ed3421ddc1ba4358538">unsafe_err_move</a> (<a class="el" href="structstx_1_1Result.html">Result</a>&lt; Tp, Er &gt; &amp;)</td></tr>
+<tr class="separator:a235966bbcc1e1ed3421ddc1ba4358538"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a506752779470f9fdb0a58291a0b9decf"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a506752779470f9fdb0a58291a0b9decf"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1result.html#a506752779470f9fdb0a58291a0b9decf">expect_value_failed</a> (std::string_view const &amp;msg, T const &amp;err, <a class="el" href="structstx_1_1SourceLocation.html">SourceLocation</a> const &amp;location=<a class="el" href="structstx_1_1SourceLocation.html#aaa2db3e8e99eda38a2738e39dc6fac8b">SourceLocation::current</a>()) noexcept</td></tr>
+<tr class="memdesc:a506752779470f9fdb0a58291a0b9decf"><td class="mdescLeft">&#160;</td><td class="mdescRight">panic helper for <code><a class="el" href="structstx_1_1Result.html">Result</a>&lt;T, E&gt;::expect()</code> when no value is present  <a href="#a506752779470f9fdb0a58291a0b9decf">More...</a><br /></td></tr>
+<tr class="separator:a506752779470f9fdb0a58291a0b9decf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4d39503d69bb9a81bf9ac02200ad21b9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1result.html#a4d39503d69bb9a81bf9ac02200ad21b9">expect_err_failed</a> (std::string_view const &amp;msg, <a class="el" href="structstx_1_1SourceLocation.html">SourceLocation</a> const &amp;location=<a class="el" href="structstx_1_1SourceLocation.html#aaa2db3e8e99eda38a2738e39dc6fac8b">SourceLocation::current</a>()) noexcept</td></tr>
+<tr class="memdesc:a4d39503d69bb9a81bf9ac02200ad21b9"><td class="mdescLeft">&#160;</td><td class="mdescRight">panic helper for <code><a class="el" href="structstx_1_1Result.html">Result</a>&lt;T, E&gt;::expect_err()</code> when a value is present  <a href="#a4d39503d69bb9a81bf9ac02200ad21b9">More...</a><br /></td></tr>
+<tr class="separator:a4d39503d69bb9a81bf9ac02200ad21b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4f62040991dc0840cf7d8c0d2162be3c"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a4f62040991dc0840cf7d8c0d2162be3c"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1result.html#a4f62040991dc0840cf7d8c0d2162be3c">no_value</a> (T const &amp;err, <a class="el" href="structstx_1_1SourceLocation.html">SourceLocation</a> const &amp;location=<a class="el" href="structstx_1_1SourceLocation.html#aaa2db3e8e99eda38a2738e39dc6fac8b">SourceLocation::current</a>()) noexcept</td></tr>
+<tr class="memdesc:a4f62040991dc0840cf7d8c0d2162be3c"><td class="mdescLeft">&#160;</td><td class="mdescRight">panic helper for <code><a class="el" href="structstx_1_1Result.html">Result</a>&lt;T, E&gt;::unwrap()</code> when no value is present  <a href="#a4f62040991dc0840cf7d8c0d2162be3c">More...</a><br /></td></tr>
+<tr class="separator:a4f62040991dc0840cf7d8c0d2162be3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad5ab1d85a1b3cd3675c41a54a6e079bb"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:ad5ab1d85a1b3cd3675c41a54a6e079bb"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1result.html#ad5ab1d85a1b3cd3675c41a54a6e079bb">no_lref</a> (T const &amp;err, <a class="el" href="structstx_1_1SourceLocation.html">SourceLocation</a> const &amp;location=<a class="el" href="structstx_1_1SourceLocation.html#aaa2db3e8e99eda38a2738e39dc6fac8b">SourceLocation::current</a>()) noexcept</td></tr>
+<tr class="memdesc:ad5ab1d85a1b3cd3675c41a54a6e079bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">panic helper for <code><a class="el" href="structstx_1_1Result.html">Result</a>&lt;T, E&gt;::value()</code> when no value is present  <a href="#ad5ab1d85a1b3cd3675c41a54a6e079bb">More...</a><br /></td></tr>
+<tr class="separator:ad5ab1d85a1b3cd3675c41a54a6e079bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae2c61e2fe4fe3c92e0f22052bb687fda"><td class="memItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1result.html#ae2c61e2fe4fe3c92e0f22052bb687fda">no_err</a> (<a class="el" href="structstx_1_1SourceLocation.html">SourceLocation</a> const &amp;location=<a class="el" href="structstx_1_1SourceLocation.html#aaa2db3e8e99eda38a2738e39dc6fac8b">SourceLocation::current</a>()) noexcept</td></tr>
+<tr class="memdesc:ae2c61e2fe4fe3c92e0f22052bb687fda"><td class="mdescLeft">&#160;</td><td class="mdescRight">panic helper for <code><a class="el" href="structstx_1_1Result.html">Result</a>&lt;T, E&gt;::unwrap_err()</code> when a value is present  <a href="#ae2c61e2fe4fe3c92e0f22052bb687fda">More...</a><br /></td></tr>
+<tr class="separator:ae2c61e2fe4fe3c92e0f22052bb687fda"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aad3c98dcf745f77d63b8dfba043cc528"><td class="memItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1result.html#aad3c98dcf745f77d63b8dfba043cc528">no_err_lref</a> (<a class="el" href="structstx_1_1SourceLocation.html">SourceLocation</a> const &amp;location=<a class="el" href="structstx_1_1SourceLocation.html#aaa2db3e8e99eda38a2738e39dc6fac8b">SourceLocation::current</a>()) noexcept</td></tr>
+<tr class="memdesc:aad3c98dcf745f77d63b8dfba043cc528"><td class="mdescLeft">&#160;</td><td class="mdescRight">panic helper for <code><a class="el" href="structstx_1_1Result.html">Result</a>&lt;T, E&gt;::err_value()</code> when no value is present  <a href="#aad3c98dcf745f77d63b8dfba043cc528">More...</a><br /></td></tr>
+<tr class="separator:aad3c98dcf745f77d63b8dfba043cc528"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="a93edcbcbed9c59c48056c39fd61ca3b0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a93edcbcbed9c59c48056c39fd61ca3b0">&#9670;&nbsp;</a></span>expect_err_failed()</h2>
+<a id="a4d39503d69bb9a81bf9ac02200ad21b9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4d39503d69bb9a81bf9ac02200ad21b9">&#9670;&nbsp;</a></span>expect_err_failed()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -146,20 +156,14 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> void stx::internal::result::expect_err_failed </td>
           <td>(</td>
-          <td class="paramtype">std::string_view &amp;&amp;&#160;</td>
+          <td class="paramtype">std::string_view const &amp;&#160;</td>
           <td class="paramname"><em>msg</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">auto const &amp;&#160;</td>
-          <td class="paramname"><em>value</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="namespacestx.html#aa8c3cd9138ec6458eaf97ddf25e18449">SourceLocation</a>&#160;</td>
-          <td class="paramname"><em>location</em> = <code>SourceLocation::current()</code>&#160;</td>
+          <td class="paramtype"><a class="el" href="structstx_1_1SourceLocation.html">SourceLocation</a> const &amp;&#160;</td>
+          <td class="paramname"><em>location</em> = <code><a class="el" href="structstx_1_1SourceLocation.html#aaa2db3e8e99eda38a2738e39dc6fac8b">SourceLocation::current</a>()</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -174,15 +178,17 @@ Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>panic helper for <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;::expect_err()</code> when a value is present </p>
+<p>panic helper for <code><a class="el" href="structstx_1_1Result.html">Result</a>&lt;T, E&gt;::expect_err()</code> when a value is present </p>
 
 </div>
 </div>
-<a id="aff219b0f4032501baff4b2941106c0c1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aff219b0f4032501baff4b2941106c0c1">&#9670;&nbsp;</a></span>expect_value_failed()</h2>
+<a id="a506752779470f9fdb0a58291a0b9decf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a506752779470f9fdb0a58291a0b9decf">&#9670;&nbsp;</a></span>expect_value_failed()</h2>
 
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -190,20 +196,20 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> void stx::internal::result::expect_value_failed </td>
           <td>(</td>
-          <td class="paramtype">std::string_view &amp;&amp;&#160;</td>
+          <td class="paramtype">std::string_view const &amp;&#160;</td>
           <td class="paramname"><em>msg</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">auto const &amp;&#160;</td>
+          <td class="paramtype">T const &amp;&#160;</td>
           <td class="paramname"><em>err</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="namespacestx.html#aa8c3cd9138ec6458eaf97ddf25e18449">SourceLocation</a>&#160;</td>
-          <td class="paramname"><em>location</em> = <code>SourceLocation::current()</code>&#160;</td>
+          <td class="paramtype"><a class="el" href="structstx_1_1SourceLocation.html">SourceLocation</a> const &amp;&#160;</td>
+          <td class="paramname"><em>location</em> = <code><a class="el" href="structstx_1_1SourceLocation.html#aaa2db3e8e99eda38a2738e39dc6fac8b">SourceLocation::current</a>()</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -218,12 +224,12 @@ Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>panic helper for <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;::expect()</code> when no value is present </p>
+<p>panic helper for <code><a class="el" href="structstx_1_1Result.html">Result</a>&lt;T, E&gt;::expect()</code> when no value is present </p>
 
 </div>
 </div>
-<a id="a7a3eae2297fc54ecb00c01ba7e130ace"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7a3eae2297fc54ecb00c01ba7e130ace">&#9670;&nbsp;</a></span>no_err()</h2>
+<a id="ae2c61e2fe4fe3c92e0f22052bb687fda"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae2c61e2fe4fe3c92e0f22052bb687fda">&#9670;&nbsp;</a></span>no_err()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -234,19 +240,9 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> void stx::internal::result::no_err </td>
           <td>(</td>
-          <td class="paramtype">auto const &amp;&#160;</td>
-          <td class="paramname"><em>value</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
+          <td class="paramtype"><a class="el" href="structstx_1_1SourceLocation.html">SourceLocation</a> const &amp;&#160;</td>
+          <td class="paramname"><em>location</em> = <code><a class="el" href="structstx_1_1SourceLocation.html#aaa2db3e8e99eda38a2738e39dc6fac8b">SourceLocation::current</a>()</code></td><td>)</td>
           <td></td>
-          <td class="paramtype"><a class="el" href="namespacestx.html#aa8c3cd9138ec6458eaf97ddf25e18449">SourceLocation</a>&#160;</td>
-          <td class="paramname"><em>location</em> = <code>SourceLocation::current()</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -256,12 +252,12 @@ Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>panic helper for <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;::unwrap_err()</code> when a value is present </p>
+<p>panic helper for <code><a class="el" href="structstx_1_1Result.html">Result</a>&lt;T, E&gt;::unwrap_err()</code> when a value is present </p>
 
 </div>
 </div>
-<a id="a49319c6457e147c6d64e166f6a1cd52a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a49319c6457e147c6d64e166f6a1cd52a">&#9670;&nbsp;</a></span>no_err_lref()</h2>
+<a id="aad3c98dcf745f77d63b8dfba043cc528"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aad3c98dcf745f77d63b8dfba043cc528">&#9670;&nbsp;</a></span>no_err_lref()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -272,19 +268,9 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> void stx::internal::result::no_err_lref </td>
           <td>(</td>
-          <td class="paramtype">auto const &amp;&#160;</td>
-          <td class="paramname"><em>value</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
+          <td class="paramtype"><a class="el" href="structstx_1_1SourceLocation.html">SourceLocation</a> const &amp;&#160;</td>
+          <td class="paramname"><em>location</em> = <code><a class="el" href="structstx_1_1SourceLocation.html#aaa2db3e8e99eda38a2738e39dc6fac8b">SourceLocation::current</a>()</code></td><td>)</td>
           <td></td>
-          <td class="paramtype"><a class="el" href="namespacestx.html#aa8c3cd9138ec6458eaf97ddf25e18449">SourceLocation</a>&#160;</td>
-          <td class="paramname"><em>location</em> = <code>SourceLocation::current()</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -294,15 +280,17 @@ Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>panic helper for <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;::err_value()</code> when no value is present </p>
+<p>panic helper for <code><a class="el" href="structstx_1_1Result.html">Result</a>&lt;T, E&gt;::err_value()</code> when no value is present </p>
 
 </div>
 </div>
-<a id="a629d394047afb15e20ad3f6c561cc8f2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a629d394047afb15e20ad3f6c561cc8f2">&#9670;&nbsp;</a></span>no_lref()</h2>
+<a id="ad5ab1d85a1b3cd3675c41a54a6e079bb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad5ab1d85a1b3cd3675c41a54a6e079bb">&#9670;&nbsp;</a></span>no_lref()</h2>
 
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -310,14 +298,14 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> void stx::internal::result::no_lref </td>
           <td>(</td>
-          <td class="paramtype">auto const &amp;&#160;</td>
+          <td class="paramtype">T const &amp;&#160;</td>
           <td class="paramname"><em>err</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="namespacestx.html#aa8c3cd9138ec6458eaf97ddf25e18449">SourceLocation</a>&#160;</td>
-          <td class="paramname"><em>location</em> = <code>SourceLocation::current()</code>&#160;</td>
+          <td class="paramtype"><a class="el" href="structstx_1_1SourceLocation.html">SourceLocation</a> const &amp;&#160;</td>
+          <td class="paramname"><em>location</em> = <code><a class="el" href="structstx_1_1SourceLocation.html#aaa2db3e8e99eda38a2738e39dc6fac8b">SourceLocation::current</a>()</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -332,15 +320,17 @@ Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>panic helper for <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;::value()</code> when no value is present </p>
+<p>panic helper for <code><a class="el" href="structstx_1_1Result.html">Result</a>&lt;T, E&gt;::value()</code> when no value is present </p>
 
 </div>
 </div>
-<a id="ab1470b194b078cfa335a272016c01280"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab1470b194b078cfa335a272016c01280">&#9670;&nbsp;</a></span>no_value()</h2>
+<a id="a4f62040991dc0840cf7d8c0d2162be3c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4f62040991dc0840cf7d8c0d2162be3c">&#9670;&nbsp;</a></span>no_value()</h2>
 
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -348,14 +338,14 @@ Functions</h2></td></tr>
         <tr>
           <td class="memname"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> void stx::internal::result::no_value </td>
           <td>(</td>
-          <td class="paramtype">auto const &amp;&#160;</td>
+          <td class="paramtype">T const &amp;&#160;</td>
           <td class="paramname"><em>err</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="namespacestx.html#aa8c3cd9138ec6458eaf97ddf25e18449">SourceLocation</a>&#160;</td>
-          <td class="paramname"><em>location</em> = <code>SourceLocation::current()</code>&#160;</td>
+          <td class="paramtype"><a class="el" href="structstx_1_1SourceLocation.html">SourceLocation</a> const &amp;&#160;</td>
+          <td class="paramname"><em>location</em> = <code><a class="el" href="structstx_1_1SourceLocation.html#aaa2db3e8e99eda38a2738e39dc6fac8b">SourceLocation::current</a>()</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -370,7 +360,63 @@ Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>panic helper for <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;::unwrap()</code> when no value is present </p>
+<p>panic helper for <code><a class="el" href="structstx_1_1Result.html">Result</a>&lt;T, E&gt;::unwrap()</code> when no value is present </p>
+
+</div>
+</div>
+<a id="a235966bbcc1e1ed3421ddc1ba4358538"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a235966bbcc1e1ed3421ddc1ba4358538">&#9670;&nbsp;</a></span>unsafe_err_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Tp , typename Er &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Er&amp;&amp; stx::internal::result::unsafe_err_move </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structstx_1_1Result.html">Result</a>&lt; Tp, Er &gt; &amp;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a7ec2b4bdb117683ffe736a20c7814880"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7ec2b4bdb117683ffe736a20c7814880">&#9670;&nbsp;</a></span>unsafe_value_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename Tp , typename Er &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Tp&amp;&amp; stx::internal::result::unsafe_value_move </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structstx_1_1Result.html">Result</a>&lt; Tp, Er &gt; &amp;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
 
 </div>
 </div>

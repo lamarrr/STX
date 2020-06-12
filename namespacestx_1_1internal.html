@@ -66,6 +66,7 @@
                                 src="eagle.png" /></td>
                         <td id="projectalign" style="padding-left: 0.5em;">
                             <div id="projectname"> STX
+                                &#160;<span id="projectnumber">1.0.0</span>
                             </div>
                         </td>
                     </tr>
@@ -107,7 +108,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#namespaces">Namespaces</a> &#124;
-<a href="#typedef-members">Typedefs</a>  </div>
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
 <div class="title">stx::internal Namespace Reference</div>  </div>
 </div><!--header-->
@@ -117,33 +118,145 @@ $(function() {
 Namespaces</h2></td></tr>
 <tr class="memitem:namespacestx_1_1internal_1_1option"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1option.html">option</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:namespacestx_1_1internal_1_1panic__util"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1panic__util.html">panic_util</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:namespacestx_1_1internal_1_1report"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1report.html">report</a></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:namespacestx_1_1internal_1_1result"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1result.html">result</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
-Typedefs</h2></td></tr>
-<tr class="memitem:a5537a5fc6a63cf189c28341a0b5e1775"><td class="memTemplParams" colspan="2">template&lt;Derefable T&gt; </td></tr>
-<tr class="memitem:a5537a5fc6a63cf189c28341a0b5e1775"><td class="memTemplItemLeft" align="right" valign="top">using&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal.html#a5537a5fc6a63cf189c28341a0b5e1775">DerefValue__</a> = std::remove_reference_t&lt; decltype(*std::declval&lt; T &gt;())&gt;</td></tr>
-<tr class="separator:a5537a5fc6a63cf189c28341a0b5e1775"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:acedb36d8678fe5cae1e9b2b2876a0095"><td class="memItemLeft" align="right" valign="top">constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal.html#acedb36d8678fe5cae1e9b2b2876a0095">kxPtrFmtSize</a> = static_cast&lt;int&gt;((sizeof(void*) &lt;&lt; 1) + 2 + 2)</td></tr>
+<tr class="separator:acedb36d8678fe5cae1e9b2b2876a0095"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9fc79ef5a7d8e104811845633eac3368"><td class="memItemLeft" align="right" valign="top">constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal.html#a9fc79ef5a7d8e104811845633eac3368">kI32FmtSize</a> = 11</td></tr>
+<tr class="memdesc:a9fc79ef5a7d8e104811845633eac3368"><td class="mdescLeft">&#160;</td><td class="mdescRight">10 digits + 1 sign  <a href="#a9fc79ef5a7d8e104811845633eac3368">More...</a><br /></td></tr>
+<tr class="separator:a9fc79ef5a7d8e104811845633eac3368"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afaa7db1a2a252ecdab95b9f547a913c3"><td class="memItemLeft" align="right" valign="top">constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal.html#afaa7db1a2a252ecdab95b9f547a913c3">kU32FmtSize</a> = 10</td></tr>
+<tr class="memdesc:afaa7db1a2a252ecdab95b9f547a913c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">10 digits  <a href="#afaa7db1a2a252ecdab95b9f547a913c3">More...</a><br /></td></tr>
+<tr class="separator:afaa7db1a2a252ecdab95b9f547a913c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaf50b84e7e5fc5a250d60f00a3d4fefd"><td class="memItemLeft" align="right" valign="top">constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal.html#aaf50b84e7e5fc5a250d60f00a3d4fefd">kI16FmtSize</a> = 6</td></tr>
+<tr class="memdesc:aaf50b84e7e5fc5a250d60f00a3d4fefd"><td class="mdescLeft">&#160;</td><td class="mdescRight">5 digits + 1 sign  <a href="#aaf50b84e7e5fc5a250d60f00a3d4fefd">More...</a><br /></td></tr>
+<tr class="separator:aaf50b84e7e5fc5a250d60f00a3d4fefd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8233b854c60135f8a38000bb40fdc2f4"><td class="memItemLeft" align="right" valign="top">constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal.html#a8233b854c60135f8a38000bb40fdc2f4">kU16FmtSize</a> = 5</td></tr>
+<tr class="memdesc:a8233b854c60135f8a38000bb40fdc2f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">5 digits  <a href="#a8233b854c60135f8a38000bb40fdc2f4">More...</a><br /></td></tr>
+<tr class="separator:a8233b854c60135f8a38000bb40fdc2f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a164a722fb94fe66d33d0a26c42603429"><td class="memItemLeft" align="right" valign="top">constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal.html#a164a722fb94fe66d33d0a26c42603429">kI8FmtSize</a> = 4</td></tr>
+<tr class="memdesc:a164a722fb94fe66d33d0a26c42603429"><td class="mdescLeft">&#160;</td><td class="mdescRight">3 digits + 1 sign  <a href="#a164a722fb94fe66d33d0a26c42603429">More...</a><br /></td></tr>
+<tr class="separator:a164a722fb94fe66d33d0a26c42603429"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a42b2028d37e7e2a37dbd55ba12d9ac59"><td class="memItemLeft" align="right" valign="top">constexpr int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal.html#a42b2028d37e7e2a37dbd55ba12d9ac59">kU8FmtSize</a> = 3</td></tr>
+<tr class="memdesc:a42b2028d37e7e2a37dbd55ba12d9ac59"><td class="mdescLeft">&#160;</td><td class="mdescRight">3 digits  <a href="#a42b2028d37e7e2a37dbd55ba12d9ac59">More...</a><br /></td></tr>
+<tr class="separator:a42b2028d37e7e2a37dbd55ba12d9ac59"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Typedef Documentation</h2>
-<a id="a5537a5fc6a63cf189c28341a0b5e1775"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5537a5fc6a63cf189c28341a0b5e1775">&#9670;&nbsp;</a></span>DerefValue__</h2>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="aaf50b84e7e5fc5a250d60f00a3d4fefd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaf50b84e7e5fc5a250d60f00a3d4fefd">&#9670;&nbsp;</a></span>kI16FmtSize</h2>
 
 <div class="memitem">
 <div class="memproto">
-<div class="memtemplate">
-template&lt;Derefable T&gt; </div>
       <table class="memname">
         <tr>
-          <td class="memname">using <a class="el" href="namespacestx_1_1internal.html#a5537a5fc6a63cf189c28341a0b5e1775">stx::internal::DerefValue__</a> = typedef std::remove_reference_t&lt;decltype(*std::declval&lt;T&gt;())&gt;</td>
+          <td class="memname">constexpr int stx::internal::kI16FmtSize = 6</td>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>5 digits + 1 sign </p>
+
+</div>
+</div>
+<a id="a9fc79ef5a7d8e104811845633eac3368"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9fc79ef5a7d8e104811845633eac3368">&#9670;&nbsp;</a></span>kI32FmtSize</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr int stx::internal::kI32FmtSize = 11</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>10 digits + 1 sign </p>
+
+</div>
+</div>
+<a id="a164a722fb94fe66d33d0a26c42603429"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a164a722fb94fe66d33d0a26c42603429">&#9670;&nbsp;</a></span>kI8FmtSize</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr int stx::internal::kI8FmtSize = 4</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>3 digits + 1 sign </p>
+
+</div>
+</div>
+<a id="a8233b854c60135f8a38000bb40fdc2f4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8233b854c60135f8a38000bb40fdc2f4">&#9670;&nbsp;</a></span>kU16FmtSize</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr int stx::internal::kU16FmtSize = 5</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>5 digits </p>
+
+</div>
+</div>
+<a id="afaa7db1a2a252ecdab95b9f547a913c3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afaa7db1a2a252ecdab95b9f547a913c3">&#9670;&nbsp;</a></span>kU32FmtSize</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr int stx::internal::kU32FmtSize = 10</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>10 digits </p>
+
+</div>
+</div>
+<a id="a42b2028d37e7e2a37dbd55ba12d9ac59"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a42b2028d37e7e2a37dbd55ba12d9ac59">&#9670;&nbsp;</a></span>kU8FmtSize</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr int stx::internal::kU8FmtSize = 3</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>3 digits </p>
+
+</div>
+</div>
+<a id="acedb36d8678fe5cae1e9b2b2876a0095"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acedb36d8678fe5cae1e9b2b2876a0095">&#9670;&nbsp;</a></span>kxPtrFmtSize</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr int stx::internal::kxPtrFmtSize = static_cast&lt;int&gt;((sizeof(void*) &lt;&lt; 1) + 2 + 2)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>pointer hex formatting</p>
+<p>0xaabbccdd =&gt; 4 bytes (+ 8 chars)</p>
+<p>0xaa =&gt; 1 byte (+ 2 chars)</p>
+<p>0xaabb =&gt; 2 bytes (+ 4 chars)</p>
+<p>we leave 2 extra bytes for tolerance </p>
 
 </div>
 </div>

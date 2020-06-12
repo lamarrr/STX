@@ -1,6 +1,7 @@
 <map id="include/stx/panic/handlers/halt/halt.h" name="include/stx/panic/handlers/halt/halt.h">
-<area shape="rect" id="node2" href="$panic_8h.html" title="stx/panic.h" alt="" coords="323,95,433,121"/>
-<area shape="rect" id="node3" href="$report_8h.html" title="stx/report.h" alt="" coords="233,177,352,203"/>
-<area shape="rect" id="node9" href="$common_8h.html" title="stx/common.h" alt="" coords="535,259,653,285"/>
-<area shape="rect" id="node13" href="$config_8h.html" title="stx/config.h" alt="" coords="735,333,853,360"/>
+<area shape="rect" id="node2" href="$panic_8h.html" title="stx/panic.h" alt="" coords="307,95,400,121"/>
+<area shape="rect" id="node3" href="$report_8h.html" title="stx/report.h" alt="" coords="229,169,326,196"/>
+<area shape="rect" id="node12" href="$source__location_8h.html" title="stx/source_location.h" alt="" coords="419,169,579,196"/>
+<area shape="rect" id="node8" href="$common_8h.html" title="stx/common.h" alt="" coords="403,244,517,271"/>
+<area shape="rect" id="node11" href="$config_8h.html" title="stx/config.h" alt="" coords="525,319,622,345"/>
 </map>

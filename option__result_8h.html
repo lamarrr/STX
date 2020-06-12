@@ -66,6 +66,7 @@
                                 src="eagle.png" /></td>
                         <td id="projectalign" style="padding-left: 0.5em;">
                             <div id="projectname"> STX
+                                &#160;<span id="projectnumber">1.0.0</span>
                             </div>
                         </td>
                     </tr>
@@ -108,7 +109,6 @@ $(function() {
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#namespaces">Namespaces</a> &#124;
-<a href="#define-members">Macros</a> &#124;
 <a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
@@ -116,16 +116,19 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &quot;<a class="el" href="panic__helpers_8h_source.html">stx/internal/panic_helpers.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="try_8h_source.html">stx/internal/try.h</a>&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for option_result.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="option__result_8h__incl.png" border="0" usemap="#include_2stx_2internal_2option__result_8h" alt=""/></div>
 <map name="include_2stx_2internal_2option__result_8h" id="include_2stx_2internal_2option__result_8h">
-<area shape="rect" id="node2" href="panic__helpers_8h.html" title="stx/internal/panic\l_helpers.h" alt="" coords="295,95,461,136"/>
-<area shape="rect" id="node3" href="panic_8h.html" title="stx/panic.h" alt="" coords="323,184,433,211"/>
-<area shape="rect" id="node4" href="report_8h.html" title="stx/report.h" alt="" coords="233,266,352,293"/>
-<area shape="rect" id="node10" href="common_8h.html" title="stx/common.h" alt="" coords="535,348,653,375"/>
-<area shape="rect" id="node14" href="config_8h.html" title="stx/config.h" alt="" coords="735,423,853,449"/>
+<area shape="rect" id="node2" href="panic__helpers_8h.html" title="stx/internal/panic\l_helpers.h" alt="" coords="286,95,421,136"/>
+<area shape="rect" id="node14" href="try_8h.html" title="stx/internal/try.h" alt="" coords="445,102,573,129"/>
+<area shape="rect" id="node3" href="panic_8h.html" title="stx/panic.h" alt="" coords="307,184,400,211"/>
+<area shape="rect" id="node4" href="report_8h.html" title="stx/report.h" alt="" coords="229,259,326,285"/>
+<area shape="rect" id="node13" href="source__location_8h.html" title="stx/source_location.h" alt="" coords="419,259,579,285"/>
+<area shape="rect" id="node9" href="common_8h.html" title="stx/common.h" alt="" coords="403,333,517,360"/>
+<area shape="rect" id="node12" href="config_8h.html" title="stx/config.h" alt="" coords="525,408,622,435"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -133,9 +136,9 @@ This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
 <div class="center"><img src="option__result_8h__dep__incl.png" border="0" usemap="#include_2stx_2internal_2option__result_8hdep" alt=""/></div>
 <map name="include_2stx_2internal_2option__result_8hdep" id="include_2stx_2internal_2option__result_8hdep">
-<area shape="rect" id="node2" href="backtrace_8h.html" title="include/stx/backtrace.h" alt="" coords="5,95,212,121"/>
-<area shape="rect" id="node3" href="option_8h.html" title="include/stx/option.h" alt="" coords="236,95,419,121"/>
-<area shape="rect" id="node4" href="result_8h.html" title="include/stx/result.h" alt="" coords="443,95,625,121"/>
+<area shape="rect" id="node2" href="backtrace_8h.html" title="include/stx/backtrace.h" alt="" coords="5,95,179,121"/>
+<area shape="rect" id="node3" href="option_8h.html" title="include/stx/option.h" alt="" coords="203,95,354,121"/>
+<area shape="rect" id="node4" href="result_8h.html" title="include/stx/result.h" alt="" coords="379,95,525,121"/>
 </map>
 </div>
 </div>
@@ -143,185 +146,120 @@ This graph shows which files directly or indirectly include this file:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classstx_1_1NoneType.html">stx::NoneType</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">value-variant Type for <code><a class="el" href="classstx_1_1Option.html">Option</a>&lt;T&gt;</code> representing no-value  <a href="classstx_1_1NoneType.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structstx_1_1Some.html">stx::Some&lt; T &gt;</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structstx_1_1Err.html">stx::Err&lt; E &gt;</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">error-value variant for <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;</code> wrapping the contained error  <a href="structstx_1_1Err.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structstx_1_1Option.html">stx::Option&lt; T &gt;</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structstx_1_1Ok.html">stx::Ok&lt; T &gt;</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structstx_1_1Err.html">stx::Err&lt; E &gt;</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">error-value variant for <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;</code> wrapping the contained error  <a href="structstx_1_1Err.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classstx_1_1Option.html">stx::Option&lt; T &gt;</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structstx_1_1Result.html">stx::Result&lt; T, E &gt;</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classstx_1_1Result.html">stx::Result&lt; T, E &gt;</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structstx_1_1NoneType.html">stx::NoneType</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structstx_1_1Some.html">stx::Some&lt; T &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structstx_1_1Ok.html">stx::Ok&lt; T &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structstx_1_1Err.html">stx::Err&lt; E &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structstx_1_1Option.html">stx::Option&lt; T &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structstx_1_1Result.html">stx::Result&lt; T, E &gt;</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>
 Namespaces</h2></td></tr>
 <tr class="memitem:namespacestx"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html">stx</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
-Macros</h2></td></tr>
-<tr class="memitem:a2d7f824bb0cf080479d760528e70595d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="option__result_8h.html#a2d7f824bb0cf080479d760528e70595d">TRY_OK</a>(identifier,  result_expr)</td></tr>
-<tr class="separator:a2d7f824bb0cf080479d760528e70595d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1fa5d4f91bd28c1a4ac655a5072cacd3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="option__result_8h.html#a1fa5d4f91bd28c1a4ac655a5072cacd3">TRY_SOME</a>(identifier,  option_expr)</td></tr>
-<tr class="separator:a1fa5d4f91bd28c1a4ac655a5072cacd3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae0095cc7535c97eb9940a689cfe83aff"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="option__result_8h.html#ae0095cc7535c97eb9940a689cfe83aff">CO_TRY_OK</a>(identifier,  result_expr)</td></tr>
-<tr class="separator:ae0095cc7535c97eb9940a689cfe83aff"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab522f357d7f010f227567f2bf936fc01"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="option__result_8h.html#ab522f357d7f010f227567f2bf936fc01">CO_TRY_SOME</a>(identifier,  option_expr)</td></tr>
-<tr class="separator:ab522f357d7f010f227567f2bf936fc01"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:namespacestx_1_1internal"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal.html">stx::internal</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:namespacestx_1_1internal_1_1option"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1option.html">stx::internal::option</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:namespacestx_1_1internal_1_1result"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1result.html">stx::internal::result</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:ac4357cf95caeaf6ed23a0ed3ad62e156"><td class="memTemplParams" colspan="2">template&lt;typename Tp &gt; </td></tr>
+<tr class="memitem:ac4357cf95caeaf6ed23a0ed3ad62e156"><td class="memTemplItemLeft" align="right" valign="top">Tp &amp;&amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1option.html#ac4357cf95caeaf6ed23a0ed3ad62e156">stx::internal::option::unsafe_value_move</a> (Option&lt; Tp &gt; &amp;)</td></tr>
+<tr class="separator:ac4357cf95caeaf6ed23a0ed3ad62e156"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab440389a9338f654fcc12d97b8b9c06d"><td class="memTemplParams" colspan="2">template&lt;typename U , typename T &gt; </td></tr>
+<tr class="memitem:ab440389a9338f654fcc12d97b8b9c06d"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#ab440389a9338f654fcc12d97b8b9c06d">stx::operator==</a> (Some&lt; U &gt; const &amp;cmp, Option&lt; T &gt; const &amp;option)</td></tr>
+<tr class="separator:ab440389a9338f654fcc12d97b8b9c06d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3d3684c3bc22e1164ff1acbe5aaeff42"><td class="memTemplParams" colspan="2">template&lt;typename U , typename T &gt; </td></tr>
+<tr class="memitem:a3d3684c3bc22e1164ff1acbe5aaeff42"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a3d3684c3bc22e1164ff1acbe5aaeff42">stx::operator!=</a> (Some&lt; U &gt; const &amp;cmp, Option&lt; T &gt; const &amp;option)</td></tr>
+<tr class="separator:a3d3684c3bc22e1164ff1acbe5aaeff42"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad0e131fb6857f22f70172f94723c4b9f"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:ad0e131fb6857f22f70172f94723c4b9f"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#ad0e131fb6857f22f70172f94723c4b9f">stx::operator==</a> (NoneType const &amp;, Option&lt; T &gt; const &amp;option) noexcept</td></tr>
+<tr class="separator:ad0e131fb6857f22f70172f94723c4b9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a05ebcd83e2c988718ffb3cac7c6b59c4"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a05ebcd83e2c988718ffb3cac7c6b59c4"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a05ebcd83e2c988718ffb3cac7c6b59c4">stx::operator!=</a> (NoneType const &amp;, Option&lt; T &gt; const &amp;option) noexcept</td></tr>
+<tr class="separator:a05ebcd83e2c988718ffb3cac7c6b59c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ec2b4bdb117683ffe736a20c7814880"><td class="memTemplParams" colspan="2">template&lt;typename Tp , typename Er &gt; </td></tr>
+<tr class="memitem:a7ec2b4bdb117683ffe736a20c7814880"><td class="memTemplItemLeft" align="right" valign="top">Tp &amp;&amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1result.html#a7ec2b4bdb117683ffe736a20c7814880">stx::internal::result::unsafe_value_move</a> (Result&lt; Tp, Er &gt; &amp;)</td></tr>
+<tr class="separator:a7ec2b4bdb117683ffe736a20c7814880"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a235966bbcc1e1ed3421ddc1ba4358538"><td class="memTemplParams" colspan="2">template&lt;typename Tp , typename Er &gt; </td></tr>
+<tr class="memitem:a235966bbcc1e1ed3421ddc1ba4358538"><td class="memTemplItemLeft" align="right" valign="top">Er &amp;&amp;&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx_1_1internal_1_1result.html#a235966bbcc1e1ed3421ddc1ba4358538">stx::internal::result::unsafe_err_move</a> (Result&lt; Tp, Er &gt; &amp;)</td></tr>
+<tr class="separator:a235966bbcc1e1ed3421ddc1ba4358538"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a109fd6ec41cf3c03b4438038e816a2a9"><td class="memTemplParams" colspan="2">template&lt;typename U , typename T , typename E &gt; </td></tr>
+<tr class="memitem:a109fd6ec41cf3c03b4438038e816a2a9"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a109fd6ec41cf3c03b4438038e816a2a9">stx::operator==</a> (Ok&lt; U &gt; const &amp;cmp, Result&lt; T, E &gt; const &amp;result)</td></tr>
+<tr class="separator:a109fd6ec41cf3c03b4438038e816a2a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af38a5e0ccdf67f75f84c173a14183ac0"><td class="memTemplParams" colspan="2">template&lt;typename U , typename T , typename E &gt; </td></tr>
+<tr class="memitem:af38a5e0ccdf67f75f84c173a14183ac0"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#af38a5e0ccdf67f75f84c173a14183ac0">stx::operator!=</a> (Ok&lt; U &gt; const &amp;cmp, Result&lt; T, E &gt; const &amp;result)</td></tr>
+<tr class="separator:af38a5e0ccdf67f75f84c173a14183ac0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8179309c9d3f86a156a2c7e4dbb7d708"><td class="memTemplParams" colspan="2">template&lt;typename F , typename T , typename E &gt; </td></tr>
+<tr class="memitem:a8179309c9d3f86a156a2c7e4dbb7d708"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a8179309c9d3f86a156a2c7e4dbb7d708">stx::operator==</a> (Err&lt; F &gt; const &amp;cmp, Result&lt; T, E &gt; const &amp;result)</td></tr>
+<tr class="separator:a8179309c9d3f86a156a2c7e4dbb7d708"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1f56db2c7bbbafca52e937581b040d79"><td class="memTemplParams" colspan="2">template&lt;typename F , typename T , typename E &gt; </td></tr>
+<tr class="memitem:a1f56db2c7bbbafca52e937581b040d79"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> constexpr bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a1f56db2c7bbbafca52e937581b040d79">stx::operator!=</a> (Err&lt; F &gt; const &amp;cmp, Result&lt; T, E &gt; const &amp;result)</td></tr>
+<tr class="separator:a1f56db2c7bbbafca52e937581b040d79"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af3dd9531b7d03154feb5ab0b5230cd84"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
 <tr class="memitem:af3dd9531b7d03154feb5ab0b5230cd84"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#af3dd9531b7d03154feb5ab0b5230cd84">stx::make_some</a> (T value) -&gt; Option&lt; T &gt;</td></tr>
 <tr class="separator:af3dd9531b7d03154feb5ab0b5230cd84"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a256857a26601dfd788fff44c5f71e6c5"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
-<tr class="memitem:a256857a26601dfd788fff44c5f71e6c5"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a256857a26601dfd788fff44c5f71e6c5">stx::make_none</a> () -&gt; Option&lt; T &gt;</td></tr>
-<tr class="separator:a256857a26601dfd788fff44c5f71e6c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a614352aa8297d6f03af0c823998b86a6"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:a614352aa8297d6f03af0c823998b86a6"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a614352aa8297d6f03af0c823998b86a6">stx::make_none</a> () noexcept -&gt; Option&lt; T &gt;</td></tr>
+<tr class="separator:a614352aa8297d6f03af0c823998b86a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1754a6b0876636dda571d46f50182507"><td class="memTemplParams" colspan="2">template&lt;typename T , typename E &gt; </td></tr>
 <tr class="memitem:a1754a6b0876636dda571d46f50182507"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a1754a6b0876636dda571d46f50182507">stx::make_ok</a> (T value) -&gt; Result&lt; T, E &gt;</td></tr>
 <tr class="separator:a1754a6b0876636dda571d46f50182507"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aad98263198e88a079235f2845bd1ae09"><td class="memTemplParams" colspan="2">template&lt;typename T , typename E &gt; </td></tr>
 <tr class="memitem:aad98263198e88a079235f2845bd1ae09"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> constexpr auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#aad98263198e88a079235f2845bd1ae09">stx::make_err</a> (E err) -&gt; Result&lt; T, E &gt;</td></tr>
 <tr class="separator:aad98263198e88a079235f2845bd1ae09"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae66f8ca025608fec52a81bc53cad1cd0"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:ae66f8ca025608fec52a81bc53cad1cd0"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#ae66f8ca025608fec52a81bc53cad1cd0">stx::some_ref</a> (T &amp;value) noexcept</td></tr>
+<tr class="separator:ae66f8ca025608fec52a81bc53cad1cd0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab42ac3c4e110a19a5d4c64c578fdf4e8"><td class="memTemplParams" colspan="2">template&lt;typename T &gt; </td></tr>
+<tr class="memitem:ab42ac3c4e110a19a5d4c64c578fdf4e8"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#ab42ac3c4e110a19a5d4c64c578fdf4e8">stx::ok_ref</a> (T &amp;value) noexcept</td></tr>
+<tr class="separator:ab42ac3c4e110a19a5d4c64c578fdf4e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8138f85636912d8150267ee7a3c40317"><td class="memTemplParams" colspan="2">template&lt;typename E &gt; </td></tr>
+<tr class="memitem:a8138f85636912d8150267ee7a3c40317"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="config_8h.html#a6426ab0be789f90f2b64aa9374f141bc">STX_FORCE_INLINE</a> auto&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#a8138f85636912d8150267ee7a3c40317">stx::err_ref</a> (E &amp;value) noexcept</td></tr>
+<tr class="separator:a8138f85636912d8150267ee7a3c40317"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:a9ba8a760ec020ea9b105ae6060494203"><td class="memItemLeft" align="right" valign="top">constexpr const NoneType&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#a9ba8a760ec020ea9b105ae6060494203">stx::None</a> = NoneType{}</td></tr>
-<tr class="separator:a9ba8a760ec020ea9b105ae6060494203"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa7d1db411462b74cc4432ab51dee8e7d"><td class="memTemplParams" colspan="2">template&lt;Swappable T, Swappable E&gt; </td></tr>
-<tr class="memitem:aa7d1db411462b74cc4432ab51dee8e7d"><td class="memTemplItemLeft" align="right" valign="top">class nodiscard&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacestx.html#aa7d1db411462b74cc4432ab51dee8e7d">stx::Result</a></td></tr>
-<tr class="separator:aa7d1db411462b74cc4432ab51dee8e7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5cc62cda4ca89a8ebd4b9fb212fe30c4"><td class="memItemLeft" align="right" valign="top">constexpr NoneType const&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacestx.html#a5cc62cda4ca89a8ebd4b9fb212fe30c4">stx::None</a> {}</td></tr>
+<tr class="memdesc:a5cc62cda4ca89a8ebd4b9fb212fe30c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">value-variant for <code><a class="el" href="structstx_1_1Option.html">Option</a>&lt;T&gt;</code> representing no-value  <a href="namespacestx.html#a5cc62cda4ca89a8ebd4b9fb212fe30c4">More...</a><br /></td></tr>
+<tr class="separator:a5cc62cda4ca89a8ebd4b9fb212fe30c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><dl class="section author"><dt>Author</dt><dd>Basit Ayantunde <a href="#" onclick="location.href='mai'+'lto:'+'rla'+'ma'+'rrr'+'@g'+'mai'+'l.'+'com'; return false;">rlama<span style="display: none;">.nosp@m.</span>rrr@<span style="display: none;">.nosp@m.</span>gmail<span style="display: none;">.nosp@m.</span>.com</a> </dd></dl>
-<dl class="section version"><dt>Version</dt><dd>0.1 </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2020-04-16</dd></dl>
-<dl class="section copyright"><dt>Copyright</dt><dd>Copyright (c) 2020</dd></dl>
+<dl class="section copyright"><dt>Copyright</dt><dd>MIT License</dd></dl>
+<p>Copyright (c) 2020 Basit Ayantunde</p>
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
 <p>to run tests, use:</p>
-<div class="fragment"><div class="line"><span class="preprocessor">#include &lt;iostream&gt;</span></div><div class="line"><span class="preprocessor">#include &lt;string&gt;</span></div><div class="line"><span class="preprocessor">#include &lt;string_view&gt;</span></div><div class="line"></div><div class="line"><span class="preprocessor">#include &lt;fmt/format.h&gt;</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">using</span> std::move, std::string, std::string_view;</div><div class="line"><span class="keyword">using namespace </span>std::string_literals; <span class="comment">// makes &#39;&quot;Hello&quot;s&#39; give std::string</span></div><div class="line">                                      <span class="comment">// directly</span></div><div class="line"><span class="keyword">using namespace </span><a class="code" href="namespacestd_1_1string__view__literals.html">std::string_view_literals</a>;</div></div><!-- fragment --> </div><h2 class="groupheader">Macro Definition Documentation</h2>
-<a id="ae0095cc7535c97eb9940a689cfe83aff"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae0095cc7535c97eb9940a689cfe83aff">&#9670;&nbsp;</a></span>CO_TRY_OK</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define CO_TRY_OK</td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">identifier, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">result_expr&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">decltype(result_expr) stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh = (result_expr); \</div><div class="line">  if (stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh.is_err())                          \</div><div class="line">    co_return Err&lt;decltype(result_expr)::error_type&gt;(                          \</div><div class="line">        std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap_err());        \</div><div class="line">  decltype(result_expr)::value_type identifier =                               \</div><div class="line">      std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap();</div></div><!-- fragment -->
-</div>
-</div>
-<a id="ab522f357d7f010f227567f2bf936fc01"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab522f357d7f010f227567f2bf936fc01">&#9670;&nbsp;</a></span>CO_TRY_SOME</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define CO_TRY_SOME</td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">identifier, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">option_expr&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">decltype(option_expr) stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh = (option_expr); \</div><div class="line">  if (stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh.is_none()) co_return <a class="code" href="namespacestx.html#a9ba8a760ec020ea9b105ae6060494203">stx::None</a>;    \</div><div class="line">  decltype(option_expr)::value_type identifier =                               \</div><div class="line">      std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap();</div><div class="ttc" id="namespacestx_html_a9ba8a760ec020ea9b105ae6060494203"><div class="ttname"><a href="namespacestx.html#a9ba8a760ec020ea9b105ae6060494203">stx::None</a></div><div class="ttdeci">constexpr const NoneType None</div><div class="ttdef"><b>Definition:</b> option_result.h:73</div></div>
-</div><!-- fragment -->
-</div>
-</div>
-<a id="a2d7f824bb0cf080479d760528e70595d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2d7f824bb0cf080479d760528e70595d">&#9670;&nbsp;</a></span>TRY_OK</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define TRY_OK</td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">identifier, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">result_expr&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">decltype(result_expr) stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh = (result_expr); \</div><div class="line">  if (stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh.is_err())                          \</div><div class="line">    <span class="keywordflow">return</span> Err&lt;decltype(result_expr)::error_type&gt;(                             \</div><div class="line">        std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap_err());        \</div><div class="line">  decltype(result_expr)::value_type identifier =                               \</div><div class="line">      std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap();</div></div><!-- fragment -->
-</div>
-</div>
-<a id="a1fa5d4f91bd28c1a4ac655a5072cacd3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1fa5d4f91bd28c1a4ac655a5072cacd3">&#9670;&nbsp;</a></span>TRY_SOME</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define TRY_SOME</td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">identifier, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname">option_expr&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">decltype(option_expr) stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh = (option_expr); \</div><div class="line">  if (stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh.is_none()) <span class="keywordflow">return</span> <a class="code" href="namespacestx.html#a9ba8a760ec020ea9b105ae6060494203">stx::None</a>;       \</div><div class="line">  decltype(option_expr)::value_type identifier =                               \</div><div class="line">      std::move(stx_TmpVaRYoUHopEfUllYwOnTcoLlidEwiTh).unwrap();</div><div class="ttc" id="namespacestx_html_a9ba8a760ec020ea9b105ae6060494203"><div class="ttname"><a href="namespacestx.html#a9ba8a760ec020ea9b105ae6060494203">stx::None</a></div><div class="ttdeci">constexpr const NoneType None</div><div class="ttdef"><b>Definition:</b> option_result.h:73</div></div>
-</div><!-- fragment -->
-</div>
-</div>
-</div><!-- contents -->
+<div class="fragment"><div class="line"><span class="preprocessor">#include &lt;iostream&gt;</span></div><div class="line"><span class="preprocessor">#include &lt;string&gt;</span></div><div class="line"><span class="preprocessor">#include &lt;string_view&gt;</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">using</span> std::move, std::string, std::string_view;</div><div class="line"><span class="keyword">using namespace </span>std::literals; <span class="comment">// makes &#39;&quot;Hello&quot;s&#39; give std::string</span></div><div class="line">                               <span class="comment">// and &#39;&quot;Hello&quot;sv&#39; give std::string_view</span></div></div><!-- fragment --><dl class="section author"><dt>Author</dt><dd>Basit Ayantunde <a href="#" onclick="location.href='mai'+'lto:'+'rla'+'ma'+'rrr'+'@g'+'mai'+'l.'+'com'; return false;">rlama<span style="display: none;">.nosp@m.</span>rrr@<span style="display: none;">.nosp@m.</span>gmail<span style="display: none;">.nosp@m.</span>.com</a> </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>2020-06-05</dd></dl>
+<dl class="section copyright"><dt>Copyright</dt><dd>MIT License</dd></dl>
+<p>Copyright (c) 2020 Basit Ayantunde</p>
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. </p>
+</div></div><!-- contents -->
 <!-- HTML footer for doxygen 1.8.13-->
 <!-- start footer part -->
 <hr class="footer" />
