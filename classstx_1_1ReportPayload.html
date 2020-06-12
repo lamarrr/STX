@@ -114,11 +114,11 @@ $(function() {
 
 <p><code>#include &lt;<a class="el" href="report_8h_source.html">report.h</a>&gt;</code></p>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p><code><a class="el" href="classstx_1_1ReportPayload.html">ReportPayload</a></code> holds a reference to the report's data and is used accross ABI-boundaries as <code><a class="el" href="classstx_1_1Report.html">Report</a></code> can vary accross configurations. <code><a class="el" href="classstx_1_1ReportPayload.html">ReportPayload</a></code> is essentially a type-erased view of <code><a class="el" href="classstx_1_1Report.html">Report</a></code> (as in <code>std::span</code>).</p>
+<div class="textblock"><p><code><a class="el" href="classstx_1_1ReportPayload.html">ReportPayload</a></code> holds a reference to the report's data and is used accross ABI-boundaries by panic handlers, as <code><a class="el" href="classstx_1_1FixedReport.html">FixedReport</a></code> can vary accross configurations. <code><a class="el" href="classstx_1_1ReportPayload.html">ReportPayload</a></code> is essentially a type-erased view of <code><a class="el" href="classstx_1_1FixedReport.html">FixedReport</a></code> and <code><a class="el" href="classstx_1_1SpanReport.html">SpanReport</a></code> (as in <code>std::span</code>).</p>
 <p><code><a class="el" href="classstx_1_1ReportPayload.html">ReportPayload</a></code> is the type of the second argument to <code>panic_handler</code>. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a5b7b6c5d781f4495849409b06115cef9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5b7b6c5d781f4495849409b06115cef9">&#9670;&nbsp;</a></span>ReportPayload() <span class="overload">[1/3]</span></h2>
+<a id="ad26c924eff7c4ed81b2d83c1d8fea793"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad26c924eff7c4ed81b2d83c1d8fea793">&#9670;&nbsp;</a></span>ReportPayload() <span class="overload">[1/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -129,7 +129,33 @@ $(function() {
         <tr>
           <td class="memname">constexpr stx::ReportPayload::ReportPayload </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classstx_1_1Report.html">Report</a> const &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="classstx_1_1FixedReport.html">FixedReport</a> const &amp;&#160;</td>
+          <td class="paramname"><em>report</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">explicit</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a0182251e9040764daf872c251e1266ea"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0182251e9040764daf872c251e1266ea">&#9670;&nbsp;</a></span>ReportPayload() <span class="overload">[2/4]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr stx::ReportPayload::ReportPayload </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classstx_1_1SpanReport.html">SpanReport</a> const &amp;&#160;</td>
           <td class="paramname"><em>report</em></td><td>)</td>
           <td></td>
         </tr>
@@ -144,7 +170,7 @@ $(function() {
 </div>
 </div>
 <a id="a2ccac4024316d66da82ca1fd1d37b278"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2ccac4024316d66da82ca1fd1d37b278">&#9670;&nbsp;</a></span>ReportPayload() <span class="overload">[2/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a2ccac4024316d66da82ca1fd1d37b278">&#9670;&nbsp;</a></span>ReportPayload() <span class="overload">[3/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -170,7 +196,7 @@ $(function() {
 </div>
 </div>
 <a id="a32f549f797dbc8875c05d1d8e178af6c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a32f549f797dbc8875c05d1d8e178af6c">&#9670;&nbsp;</a></span>ReportPayload() <span class="overload">[3/3]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a32f549f797dbc8875c05d1d8e178af6c">&#9670;&nbsp;</a></span>ReportPayload() <span class="overload">[4/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -195,8 +221,8 @@ $(function() {
 
 </div>
 </div>
-<a id="a8b2411426abaa6ed128aa24af963629e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8b2411426abaa6ed128aa24af963629e">&#9670;&nbsp;</a></span>~ReportPayload()</h2>
+<a id="a1ffc1fa543035f90a9f6a86e11dc4e30"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1ffc1fa543035f90a9f6a86e11dc4e30">&#9670;&nbsp;</a></span>~ReportPayload()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -205,7 +231,7 @@ $(function() {
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr stx::ReportPayload::~ReportPayload </td>
+          <td class="memname">stx::ReportPayload::~ReportPayload </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>

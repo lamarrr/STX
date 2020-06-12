@@ -1,7 +1,7 @@
 var searchData=
 [
-  ['report',['Report',['../classstx_1_1Report.html',1,'stx']]],
-  ['reportpayload',['ReportPayload',['../classstx_1_1ReportPayload.html',1,'stx']]],
-  ['reportquery',['ReportQuery',['../structstx_1_1ReportQuery.html',1,'stx']]],
-  ['result',['Result',['../classstx_1_1Result.html',1,'stx']]]
+  ['ok',['Ok',['../structstx_1_1Ok.html',1,'stx']]],
+  ['option',['Option',['../structstx_1_1Option.html',1,'stx']]],
+  ['option_3c_20stx_3a_3abacktrace_3a_3asymbol_20_3e',['Option&lt; stx::backtrace::Symbol &gt;',['../structstx_1_1Option.html',1,'stx']]],
+  ['option_3c_20uintptr_5ft_20_3e',['Option&lt; uintptr_t &gt;',['../structstx_1_1Option.html',1,'stx']]]
 ];

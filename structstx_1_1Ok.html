@@ -114,10 +114,16 @@ $(function() {
 
 <p><code>#include &lt;<a class="el" href="option__result_8h_source.html">option_result.h</a>&gt;</code></p>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><h3>template&lt;Swappable T&gt;<br />
+<div class="textblock"><h3>template&lt;typename T&gt;<br />
 struct stx::Ok&lt; T &gt;</h3>
 
-<p>value-variant for <code><a class="el" href="classstx_1_1Result.html">Result</a>&lt;T, E&gt;</code> wrapping the contained value </p>
+<p>value-variant for <code><a class="el" href="structstx_1_1Result.html">Result</a>&lt;T, E&gt;</code> wrapping the contained successful value of type <code>T</code></p>
+<p>Note that <code><a class="el" href="structstx_1_1Ok.html">Ok</a></code> is only a value-forwarding type. An <code><a class="el" href="structstx_1_1Ok.html">Ok</a>&lt;T&gt;</code> can only be constructed with an r-value. What does this mean?</p>
+<p>For example, You can:</p>
+<div class="fragment"><div class="line">Result&lt;vector&lt;int&gt;, <span class="keywordtype">int</span>&gt; a = <a class="code" href="structstx_1_1Ok.html#a193db2ff1da79b47655c4396b7dd05f6">Ok</a>(vector{1, 2, 3, 4});</div></div><!-- fragment --><p> You can't:</p>
+<div class="fragment"><div class="line">vector&lt;int&gt; x {1, 2, 3, 4};</div><div class="line">Result&lt;vector&lt;int&gt;, <span class="keywordtype">int</span>&gt; a = <a class="code" href="structstx_1_1Ok.html#a193db2ff1da79b47655c4396b7dd05f6">Ok</a>(x);</div></div><!-- fragment --><p> But, to explicitly make <code>a</code> take ownership, you will:</p>
+<div class="fragment"><div class="line">vector&lt;int&gt; x {1, 2, 3, 4};</div><div class="line">Result&lt;vector&lt;int&gt;, <span class="keywordtype">int</span>&gt; a = <a class="code" href="structstx_1_1Ok.html#a193db2ff1da79b47655c4396b7dd05f6">Ok</a>(std::move(x));</div></div><!-- fragment --><h1>Constexpr ?</h1>
+<p>C++ 17 and above </p>
 </div><h2 class="groupheader">Member Typedef Documentation</h2>
 <a id="a5b1a2a357f8ef702ab07d5591d9882aa"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a5b1a2a357f8ef702ab07d5591d9882aa">&#9670;&nbsp;</a></span>value_type</h2>
@@ -125,7 +131,7 @@ struct stx::Ok&lt; T &gt;</h3>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;Swappable T&gt; </div>
+template&lt;typename T&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">using <a class="el" href="structstx_1_1Ok.html">stx::Ok</a>&lt; T &gt;::<a class="el" href="structstx_1_1Ok.html#a5b1a2a357f8ef702ab07d5591d9882aa">value_type</a> =  T</td>
@@ -142,7 +148,7 @@ template&lt;Swappable T&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;Swappable T&gt; </div>
+template&lt;typename T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -172,7 +178,7 @@ template&lt;Swappable T&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;Swappable T&gt; </div>
+template&lt;typename T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -194,13 +200,13 @@ template&lt;Swappable T&gt; </div>
 
 </div>
 </div>
-<a id="aa58f1ddf7745c5c186b863b648b322f0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa58f1ddf7745c5c186b863b648b322f0">&#9670;&nbsp;</a></span>Ok() <span class="overload">[3/3]</span></h2>
+<a id="aaf7c28a85015786d2fb173605e9a2627"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaf7c28a85015786d2fb173605e9a2627">&#9670;&nbsp;</a></span>Ok() <span class="overload">[3/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;Swappable T&gt; </div>
+template&lt;typename T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -215,26 +221,26 @@ template&lt;Swappable T&gt; </div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">delete</span></span>  </td>
+<span class="mlabels"><span class="mlabel">default</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="a56f2f3314d3706f347d82cc01c326773"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a56f2f3314d3706f347d82cc01c326773">&#9670;&nbsp;</a></span>~Ok()</h2>
+<a id="aa9b8fcec4e53472bd8aadc652b602859"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa9b8fcec4e53472bd8aadc652b602859">&#9670;&nbsp;</a></span>~Ok()</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;Swappable T&gt; </div>
+template&lt;typename T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">constexpr <a class="el" href="structstx_1_1Ok.html">stx::Ok</a>&lt; T &gt;::~<a class="el" href="structstx_1_1Ok.html">Ok</a> </td>
+          <td class="memname"><a class="el" href="config_8h.html#a01bc9952272b509c21c0aac4a3081c74">STX_CXX20_DESTRUCTOR_CONSTEXPR</a> <a class="el" href="structstx_1_1Ok.html">stx::Ok</a>&lt; T &gt;::~<a class="el" href="structstx_1_1Ok.html">Ok</a> </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -250,13 +256,73 @@ template&lt;Swappable T&gt; </div>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="a9b53677de2fd6f72871c3225b6950fc2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9b53677de2fd6f72871c3225b6950fc2">&#9670;&nbsp;</a></span>operator!=() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T&gt; </div>
+<div class="memtemplate">
+template&lt;typename U &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr bool <a class="el" href="structstx_1_1Ok.html">stx::Ok</a>&lt; T &gt;::operator!= </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structstx_1_1Ok.html">Ok</a>&lt; U &gt; const &amp;&#160;</td>
+          <td class="paramname"><em>cmp</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a198e1e8e426bc76c45353e12b8965122"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a198e1e8e426bc76c45353e12b8965122">&#9670;&nbsp;</a></span>operator!=() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T&gt; </div>
+<div class="memtemplate">
+template&lt;typename U &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">constexpr bool <a class="el" href="structstx_1_1Ok.html">stx::Ok</a>&lt; T &gt;::operator!= </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structstx_1_1Err.html">Err</a>&lt; U &gt; const &amp;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="af4c2f5eb1594d25a6a8acda151daf615"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af4c2f5eb1594d25a6a8acda151daf615">&#9670;&nbsp;</a></span>operator=() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;Swappable T&gt; </div>
+template&lt;typename T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -278,13 +344,13 @@ template&lt;Swappable T&gt; </div>
 
 </div>
 </div>
-<a id="a4c405918cacc7bfba35807d2fa40e8bd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4c405918cacc7bfba35807d2fa40e8bd">&#9670;&nbsp;</a></span>operator=() <span class="overload">[2/2]</span></h2>
+<a id="a27f55cd39abaa3d97b5447d159fa6ff3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a27f55cd39abaa3d97b5447d159fa6ff3">&#9670;&nbsp;</a></span>operator=() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;Swappable T&gt; </div>
+template&lt;typename T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -299,20 +365,22 @@ template&lt;Swappable T&gt; </div>
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">delete</span></span>  </td>
+<span class="mlabels"><span class="mlabel">default</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
 </div>
 </div>
-<a id="a2bccf4b204b28c8e0c2f75f4ec2c4b4d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2bccf4b204b28c8e0c2f75f4ec2c4b4d">&#9670;&nbsp;</a></span>operator==() <span class="overload">[1/6]</span></h2>
+<a id="a56c7f2ad1f5a516f7b1e6eb976e5d3ac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a56c7f2ad1f5a516f7b1e6eb976e5d3ac">&#9670;&nbsp;</a></span>operator==() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;Swappable T&gt; </div>
+template&lt;typename T&gt; </div>
+<div class="memtemplate">
+template&lt;typename U &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -320,119 +388,7 @@ template&lt;Swappable T&gt; </div>
         <tr>
           <td class="memname">constexpr bool <a class="el" href="structstx_1_1Ok.html">stx::Ok</a>&lt; T &gt;::operator== </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="structstx_1_1Ok.html">Ok</a>&lt; T &gt; const &amp;&#160;</td>
-          <td class="paramname"><em>cmp</em></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a5aec5928501d5ceb58e66b84a96d4d67"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5aec5928501d5ceb58e66b84a96d4d67">&#9670;&nbsp;</a></span>operator==() <span class="overload">[2/6]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;Swappable T&gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">constexpr bool <a class="el" href="structstx_1_1Ok.html">stx::Ok</a>&lt; T &gt;::operator== </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="structstx_1_1Ok.html">Ok</a>&lt; <a class="el" href="namespacestx.html#a910046924ff264eb1eec0707011908ee">ConstRef</a>&lt; T &gt;&gt; const &amp;&#160;</td>
-          <td class="paramname"><em>cmp</em></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a5300953ce440e0929ccbe5c08a318d10"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5300953ce440e0929ccbe5c08a318d10">&#9670;&nbsp;</a></span>operator==() <span class="overload">[3/6]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;Swappable T&gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">constexpr bool <a class="el" href="structstx_1_1Ok.html">stx::Ok</a>&lt; T &gt;::operator== </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="structstx_1_1Ok.html">Ok</a>&lt; <a class="el" href="namespacestx.html#a1b55420e0cd6b42317f23d32831d1637">MutRef</a>&lt; T &gt;&gt; const &amp;&#160;</td>
-          <td class="paramname"><em>cmp</em></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a4ab6dbfb883b8c7c546a513229505215"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4ab6dbfb883b8c7c546a513229505215">&#9670;&nbsp;</a></span>operator==() <span class="overload">[4/6]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;Swappable T&gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">constexpr bool <a class="el" href="structstx_1_1Ok.html">stx::Ok</a>&lt; T &gt;::operator== </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="structstx_1_1Ok.html">Ok</a>&lt; T *&gt; const &amp;&#160;</td>
-          <td class="paramname"><em>cmp</em></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a87fc98e10b7d1ef1417fd0f928bdab78"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a87fc98e10b7d1ef1417fd0f928bdab78">&#9670;&nbsp;</a></span>operator==() <span class="overload">[5/6]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-<div class="memtemplate">
-template&lt;Swappable T&gt; </div>
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">constexpr bool <a class="el" href="structstx_1_1Ok.html">stx::Ok</a>&lt; T &gt;::operator== </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="structstx_1_1Ok.html">Ok</a>&lt; const T *&gt; const &amp;&#160;</td>
+          <td class="paramtype"><a class="el" href="structstx_1_1Ok.html">Ok</a>&lt; U &gt; const &amp;&#160;</td>
           <td class="paramname"><em>cmp</em></td><td>)</td>
           <td> const</td>
         </tr>
@@ -447,12 +403,12 @@ template&lt;Swappable T&gt; </div>
 </div>
 </div>
 <a id="ae979031f4475f882b69a025bdf2f3022"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae979031f4475f882b69a025bdf2f3022">&#9670;&nbsp;</a></span>operator==() <span class="overload">[6/6]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#ae979031f4475f882b69a025bdf2f3022">&#9670;&nbsp;</a></span>operator==() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;Swappable T&gt; </div>
+template&lt;typename T&gt; </div>
 <div class="memtemplate">
 template&lt;typename U &gt; </div>
 <table class="mlabels">
@@ -482,7 +438,7 @@ template&lt;typename U &gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;Swappable T&gt; </div>
+template&lt;typename T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -509,7 +465,7 @@ template&lt;Swappable T&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;Swappable T&gt; </div>
+template&lt;typename T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -536,7 +492,7 @@ template&lt;Swappable T&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;Swappable T&gt; </div>
+template&lt;typename T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -563,7 +519,7 @@ template&lt;Swappable T&gt; </div>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;Swappable T&gt; </div>
+template&lt;typename T&gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
@@ -585,21 +541,21 @@ template&lt;Swappable T&gt; </div>
 </div>
 </div>
 <h2 class="groupheader">Friends And Related Function Documentation</h2>
-<a id="aa661ed80a6455d43917ff9ed85dd0703"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa661ed80a6455d43917ff9ed85dd0703">&#9670;&nbsp;</a></span>Result</h2>
+<a id="a06447b92547195b4312b40373a0dc7ab"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a06447b92547195b4312b40373a0dc7ab">&#9670;&nbsp;</a></span>Result</h2>
 
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;Swappable T&gt; </div>
+template&lt;typename T&gt; </div>
 <div class="memtemplate">
-template&lt;Swappable Tp, Swappable Err&gt; </div>
+template&lt;typename Tp , typename Er &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">friend class <a class="el" href="classstx_1_1Result.html">Result</a></td>
+          <td class="memname">friend struct <a class="el" href="structstx_1_1Result.html">Result</a></td>
         </tr>
       </table>
   </td>

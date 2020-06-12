@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['result',['Result',['../structstx_1_1Ok.html#aa661ed80a6455d43917ff9ed85dd0703',1,'stx::Ok::Result()'],['../structstx_1_1Err.html#aa661ed80a6455d43917ff9ed85dd0703',1,'stx::Err::Result()']]]
+  ['option',['Option',['../structstx_1_1Some.html#a5af7389f49e38a64ac4ac3fb3c05cc5f',1,'stx::Some']]]
 ];

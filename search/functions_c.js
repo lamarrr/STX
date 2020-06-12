@@ -1,8 +1,9 @@
 var searchData=
 [
-  ['raw',['raw',['../structstx_1_1backtrace_1_1Symbol.html#a183421f2d04f352f1b6f95fe8dd91926',1,'stx::backtrace::Symbol']]],
-  ['replace',['replace',['../classstx_1_1Option.html#acd2fe0fddbd977bbb36f795d86357fb2',1,'stx::Option::replace(T &amp;&amp;replacement) -&gt; Option'],['../classstx_1_1Option.html#a8cefdccb8d729acf6f1c398f5a72bc65',1,'stx::Option::replace(T const &amp;replacement) -&gt; Option']]],
-  ['report',['Report',['../classstx_1_1Report.html#a82e3631314cdf827b15739e9cf05abde',1,'stx::Report::Report(std::string_view info) noexcept'],['../classstx_1_1Report.html#a8bcdd3985a9aa17db8eedeae2619b29b',1,'stx::Report::Report(Report const &amp;) noexcept=default'],['../classstx_1_1Report.html#a77e59cf20507805d1c3ab14acdcc28cb',1,'stx::Report::Report(Report &amp;&amp;) noexcept=default']]],
-  ['reportpayload',['ReportPayload',['../classstx_1_1ReportPayload.html#a5b7b6c5d781f4495849409b06115cef9',1,'stx::ReportPayload::ReportPayload(Report const &amp;report) noexcept'],['../classstx_1_1ReportPayload.html#a2ccac4024316d66da82ca1fd1d37b278',1,'stx::ReportPayload::ReportPayload(ReportPayload const &amp;) noexcept=default'],['../classstx_1_1ReportPayload.html#a32f549f797dbc8875c05d1d8e178af6c',1,'stx::ReportPayload::ReportPayload(ReportPayload &amp;&amp;) noexcept=default']]],
-  ['result',['Result',['../classstx_1_1Result.html#af95769194b41887e66a5e01cd9f2aba6',1,'stx::Result::Result(Ok&lt; T &gt; &amp;&amp;result)'],['../classstx_1_1Result.html#a831e2b258f37867f17e5a924017d3edc',1,'stx::Result::Result(Err&lt; E &gt; &amp;&amp;err)'],['../classstx_1_1Result.html#a0cb86dae29a262fbbbfd0bfec4c7d8fa',1,'stx::Result::Result(Result &amp;&amp;rhs)'],['../classstx_1_1Result.html#ae366d626a55c02884081ef01e34c0566',1,'stx::Result::Result()=delete'],['../classstx_1_1Result.html#a66a498bb326209e5a0c711af6bf13cd0',1,'stx::Result::Result(Result const &amp;rhs)=delete']]]
+  ['panic',['panic',['../namespacestx.html#ab30ac58d45acea6e2f513446d245e62e',1,'stx::panic(std::string_view const &amp;info, T const &amp;value, SourceLocation const &amp;location=SourceLocation::current()) noexcept'],['../namespacestx.html#aa027c16fd7d520eaf7c0089f503c9a37',1,'stx::panic(std::string_view const &amp;info=&quot;explicit panic&quot;, SourceLocation const &amp;location=SourceLocation::current()) noexcept']]],
+  ['panic_5fabort',['panic_abort',['../namespacestx.html#a2c3889fa68ce826dd9786a63252ca3bc',1,'stx']]],
+  ['panic_5fdefault',['panic_default',['../namespacestx.html#aea57bab011ea9d8d29338e59717d72a5',1,'stx']]],
+  ['panic_5fhalt',['panic_halt',['../namespacestx.html#a5d216eab794f0940fde701b640cb27b3',1,'stx']]],
+  ['panic_5fhandler',['panic_handler',['../namespacestx.html#ad512643a74714683fa631125a1c49b52',1,'stx']]],
+  ['panic_5fhook_5fvisible',['panic_hook_visible',['../namespacestx.html#ab773ac393ac1bed763cef3d30ea74ee2',1,'stx']]]
 ];

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['mutderefable',['MutDerefable',['../namespacestx.html#a4c2b065ac3478dc862f0dcf5c9dc034c',1,'stx']]]
+  ['movable',['movable',['../namespacestx.html#a98f05a2c4e4e15bf68a4c35da5e98e1d',1,'stx']]]
 ];

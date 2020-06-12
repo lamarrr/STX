@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['nonetype',['NoneType',['../classstx_1_1NoneType.html',1,'stx']]]
+  ['is_5fequality_5fcomparable',['is_equality_comparable',['../structstx_1_1is__equality__comparable.html',1,'stx']]],
+  ['is_5fequality_5fcomparable_3c_20t_2c_20cmp_2c_20typename_20std_3a_3aenable_5fif_5ft_3c_20true_2c_20decltype_28_28std_3a_3adeclval_3c_20std_3a_3aremove_5freference_5ft_3c_20t_20_3e_20const_20_26_20_3e_28_29_3d_3dstd_3a_3adeclval_3c_20std_3a_3aremove_5freference_5ft_3c_20cmp_20_3e_20const_20_26_20_3e_28_29_29_20_26_26_28std_3a_3adeclval_3c_20std_3a_3aremove_5freference_5ft_3c_20t_20_3e_20const_20_26_20_3e_28_29_20_21_3dstd_3a_3adeclval_3c_20std_3a_3aremove_5freference_5ft_3c_20cmp_20_3e_20const_20_26_20_3e_28_29_29_2c_28void_29_200_29_3e_20_3e',['is_equality_comparable&lt; T, Cmp, typename std::enable_if_t&lt; true, decltype((std::declval&lt; std::remove_reference_t&lt; T &gt; const &amp; &gt;()==std::declval&lt; std::remove_reference_t&lt; Cmp &gt; const &amp; &gt;()) &amp;&amp;(std::declval&lt; std::remove_reference_t&lt; T &gt; const &amp; &gt;() !=std::declval&lt; std::remove_reference_t&lt; Cmp &gt; const &amp; &gt;()),(void) 0)&gt; &gt;',['../structstx_1_1is__equality__comparable_3_01T_00_01Cmp_00_01typename_01std_1_1enable__if__t_3_01trb152c1ae333528fc9ea6742e04bd9ffe.html',1,'stx']]]
 ];

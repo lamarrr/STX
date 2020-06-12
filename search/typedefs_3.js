@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['error_5ftype',['error_type',['../classstx_1_1Result.html#a807d28724ecb7c88a1bc71f1f704d06d',1,'stx::Result']]]
+  ['invoke_5fresult',['invoke_result',['../namespacestx.html#a2b0a348596751ac8e1ccbe193fad671c',1,'stx']]]
 ];

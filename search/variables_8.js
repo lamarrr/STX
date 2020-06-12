@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['pointer',['Pointer',['../namespacestx.html#a7963292b1244776f2feec99973c5b2b6',1,'stx']]]
+  ['report_5fquery',['report_query',['../namespacestx.html#a50d9e4a2875df6f21453020373acb0fe',1,'stx']]]
 ];
