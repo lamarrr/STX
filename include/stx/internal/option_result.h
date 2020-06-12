@@ -29,6 +29,8 @@
 
 #pragma once
 
+#include <utility>
+
 #include "stx/internal/panic_helpers.h"
 
 // Why so long? Option and Result depend on each other. I don't know of a
