@@ -120,8 +120,7 @@ constexpr ReportQuery const report_query{};
 ///
 // rather than having a `bool` to tell if this is allocated on the stack or is a
 // forwarding reference we pay for it at compile time by tag dispatch
-class [[nodiscard]] FixedReport {
- public:
+struct [[nodiscard]] FixedReport {
   using storage_type = char[kReportReserveSize];
 
   constexpr FixedReport() noexcept : reserve_{}, report_size_{0} {}
@@ -262,8 +261,7 @@ class [[nodiscard]] FixedReport {
 ///
 /// Ensure to not throw exceptions.
 ///
-class [[nodiscard]] SpanReport {
- public:
+struct [[nodiscard]] SpanReport {
   // maintains a reference to a string, instead of using a stack
   // allocated reservation buffer
   // it does not own the contents, so make sure the referenced buffer lives
