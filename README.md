@@ -129,7 +129,7 @@ auto parse_version(array<uint8_t, 6> const& header) -> Result<Version, string_vi
 
 auto parse_data(array<uint8_t, 6> const& header) -> Result<uint8_t, string_view> {
   TRY_OK(version, parse_version(header));
-  return Ok(version + header.at(1) + header.at(2));
+  return Ok(version + header[1] + header[2]);
 }
 
 int main() {
