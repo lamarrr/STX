@@ -9,3 +9,25 @@ Each directory contains an independent and re-usable project illustrating how to
 - `panic_hook`: example of using runtime panic hooks
 - `result`: example of using `Result<T, E>`
 - `signal_backtrace`: example of using STX's backtrace feature to obtain fatal signal backtraces (i.e. `SIGILL`, `SIGFPE`, `SIGSEGV`)
+
+
+# Building
+Building `option` for example.
+
+``` sh
+cd option
+```
+
+``` sh
+mkdir build
+```
+
+```sh
+cd build
+```
+``` sh
+cmake ..
+```
+``` sh
+make example.bin
+```
