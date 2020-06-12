@@ -50,8 +50,9 @@
 // - We also try to prevent you from shooting yourself in the foot, especially
 // with references and implicit copies
 // - Many are marked constexpr but won't work in a constexpr context in C++ 17
-// mode. They work in C++ 20 and We don't want macros for that
-// - std::move & std::forward or macros?
+// mode. They work in C++ 20 and we don't want macros for that. To add, many
+// compilers labelled with 'C++20' might not have non-trivial constexpr
+// destructors.
 
 //! @file
 //!
@@ -1430,7 +1431,7 @@ struct [[nodiscard]] Option {
   /// ASSERT_EQ(move(y).unwrap_or_default(), ""s);
   /// ```
   [[nodiscard]] constexpr auto unwrap_or_default()&&->T {
-    static_assert(std::is_default_constructible_v<T>);
+    static_assert(default_constructible<T>);
     if (is_some()) {
       return std::move(value_ref_());
     } else {
@@ -2577,7 +2578,7 @@ struct [[nodiscard]] Result {
   ///                                                     // for a C++ string
   /// ```
   [[nodiscard]] constexpr auto unwrap_or_default()&&->T {
-    static_assert(std::is_default_constructible_v<T>);
+    static_assert(default_constructible<T>);
     if (is_ok()) {
       return std::move(value_ref_());
     } else {
