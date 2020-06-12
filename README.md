@@ -7,8 +7,6 @@
 <div align="center"><i> C++ 17 & C++ 20 error-handling and utility extensions.</i>
 </div>
 
-<p align="center"> VERSION 1.0.0 </p>
-
 
 ## Overview
 
