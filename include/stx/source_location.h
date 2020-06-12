@@ -29,6 +29,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 #include "stx/config.h"
 
 STX_BEGIN_NAMESPACE
