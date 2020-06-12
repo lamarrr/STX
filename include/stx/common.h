@@ -37,20 +37,24 @@
 STX_BEGIN_NAMESPACE
 
 template <typename Fn, typename... Args>
-using invoke_result = typename std::invoke_result_t<Fn, Args...>;
+using invoke_result = typename std::invoke_result<Fn, Args...>::type;
 
 template <typename Fn, typename... Args>
-constexpr bool invocable = std::is_invocable_v<Fn, Args...>;
+constexpr bool invocable = std::is_invocable<Fn, Args...>::value;
 
 template <typename T>
-constexpr bool movable = std::is_object_v<T>&& std::is_move_constructible_v<T>&&
-    std::is_assignable_v<T&, T>&& std::is_swappable_v<T>;
+constexpr bool movable =
+    std::is_object<T>::value&& std::is_move_constructible<T>::value&&
+        std::is_assignable<T&, T>::value&& std::is_swappable<T>::value;
 
 template <typename T>
-constexpr bool copy_constructible = std::is_copy_constructible_v<T>;
+constexpr bool copy_constructible = std::is_copy_constructible<T>::value;
+
+template <typename T>
+constexpr bool default_constructible = std::is_default_constructible<T>::value;
 
 template <typename From, typename To>
-constexpr bool convertible = std::is_convertible_v<From, To>;
+constexpr bool convertible = std::is_convertible<From, To>::value;
 
 template <typename T, typename Cmp = T, typename = void>
 struct is_equality_comparable : std::false_type {};
@@ -71,7 +75,7 @@ template <typename T, typename Cmp = T>
 constexpr bool equality_comparable = is_equality_comparable<T, Cmp>::value;
 
 template <typename T>
-constexpr bool is_reference = std::is_reference_v<T>;
+constexpr bool is_reference = std::is_reference<T>::value;
 
 /// `Ref` is an alias for `std::reference_wrapper`
 /// `Ref` can be mutable and immutable depending on the const-qualifier for `T`
@@ -92,7 +96,7 @@ using MutRef =
 #if defined(__cpp_concepts)
 #if __cpp_concepts >= 201907L
 template <typename T, typename Base>
-concept Impl = std::is_base_of_v<Base, T>;
+concept Impl = std::is_base_of<Base, T>::value;
 #endif
 #endif
 
