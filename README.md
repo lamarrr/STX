@@ -233,6 +233,7 @@ C-Style/FailurePath   |     0.384 ns  |      0.383 ns |  1000000000
 * CMake
 * Make or Ninja Build
 * C++ 17 or C++ 20 Compiler
+* Git
 * Doxygen and Graphviz (for documentation)
 
 ## Tested-on Compilers
