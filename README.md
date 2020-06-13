@@ -257,6 +257,7 @@ MSVC-2019  |  YES   |     NO      |       NO
 * `STX_OVERRIDE_PANIC_HANDLER` - Override the global panic handler
 * `STX_ENABLE_BACKTRACE` - Enable the backtrace library
 * `STX_ENABLE_PANIC_BACKTRACE` - Enable panic backtraces. It depends on the backtrace library ( `STX_ENABLE_BACKTRACE` )
+* `STX_VISIBLE_PANIC_HOOK` - Make runtime panic hooks attachable when loaded as a dynamic library (i.e. device drivers) 
 
 ## License
 
