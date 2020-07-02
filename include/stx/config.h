@@ -258,6 +258,7 @@
 
 /*********************** ATTRIBUTE REQUIREMENTS ***********************/
 
+#if defined(__has_cpp_attribute)
 #if !__has_cpp_attribute(nodiscard)
 #error C++ attribute `nodiscard` is not available on this compiler. Important unused function results will not raise a warning. Please upgrade to a newer version.
 #endif
@@ -268,6 +269,7 @@
 
 #if !__has_cpp_attribute(noreturn)
 #error C++ function attribute `noreturn` is not available on this compiler. Please upgrade to a newer version.
+#endif
 #endif
 
 /*********************** SHARED LIBRARY SUPPORT ***********************/
