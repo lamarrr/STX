@@ -92,7 +92,13 @@ bool take_panic_hook(PanicHook* out) noexcept {
   return true;
 }
 
-[[noreturn]] void begin_panic(std::string_view const& info,
+[[noreturn]]
+#if defined(STX_VISIBLE_PANIC_HOOK)
+STX_EXPORT
+#else
+STX_LOCAL
+#endif
+void begin_panic(std::string_view const& info,
                               ReportPayload const& payload,
                               SourceLocation const& location) noexcept {
   // TODO(lamarrr): We probably need a method for stack unwinding, So we can
