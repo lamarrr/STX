@@ -79,7 +79,7 @@ STX_END_NAMESPACE
     return ::stx::Err<decltype((result_expr))::error_type>(                    \
         ::stx::internal::result::unsafe_err_move(STX_ARG_UNIQUE_PLACEHOLDER)); \
                                                                                \
-  decltype((result_expr))::value_type qualifier_identifier =                   \
+  typename decltype((result_expr))::value_type qualifier_identifier =          \
       ::stx::internal::result::unsafe_value_move(STX_ARG_UNIQUE_PLACEHOLDER);
 
 #define STX_TRY_SOME_IMPL_(STX_ARG_UNIQUE_PLACEHOLDER, qualifier_identifier, \
@@ -96,7 +96,7 @@ STX_END_NAMESPACE
                                                                              \
   if (STX_ARG_UNIQUE_PLACEHOLDER.is_none()) return ::stx::None;              \
                                                                              \
-  decltype((option_expr))::value_type qualifier_identifier =                 \
+  typename decltype((option_expr))::value_type qualifier_identifier =        \
       ::stx::internal::option::unsafe_value_move(STX_ARG_UNIQUE_PLACEHOLDER);
 
 /// if `result_expr` is a `Result` containing an error, `TRY_OK` returns its
@@ -139,7 +139,7 @@ STX_END_NAMESPACE
     co_return ::stx::Err<decltype((result_expr))::error_type>(                 \
         ::stx::internal::result::unsafe_err_move(STX_ARG_UNIQUE_PLACEHOLDER)); \
                                                                                \
-  decltype((result_expr))::value_type qualifier_identifier =                   \
+  typename decltype((result_expr))::value_type qualifier_identifier =          \
       ::stx::internal::result::unsafe_value_move(STX_ARG_UNIQUE_PLACEHOLDER);
 
 #define STX_CO_TRY_SOME_IMPL_(STX_ARG_UNIQUE_PLACEHOLDER,                   \
@@ -156,7 +156,7 @@ STX_END_NAMESPACE
                                                                             \
   if (STX_ARG_UNIQUE_PLACEHOLDER.is_none()) co_return ::stx::None;          \
                                                                             \
-  decltype((option_expr))::value_type qualifier_identifier =                \
+  typename decltype((option_expr))::value_type qualifier_identifier =       \
       ::stx::internal::option::unsafe_value_move(STX_ARG_UNIQUE_PLACEHOLDER);
 
 /// COROUTINES ONLY. if `result_expr` is `Result` containing an error,
