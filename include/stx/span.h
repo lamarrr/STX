@@ -56,7 +56,7 @@ template <typename T, typename U>
 using match_cv = typename match_cv_impl<T, U>::type;
 
 template <typename T>
-void type_ptr_and_size(T* ptr, size_t size) {}
+void type_ptr_and_size(T*, size_t) {}
 
 template <typename T, typename = void>
 struct is_container_impl : std::false_type {};
