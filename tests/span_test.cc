@@ -30,6 +30,7 @@
 #include "stx/span.h"
 
 #include <utility>
+#include <array>
 
 #include "gtest/gtest.h"
 
