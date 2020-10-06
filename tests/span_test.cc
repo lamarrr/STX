@@ -31,7 +31,6 @@
 
 #include <utility>
 
-#include "absl/types/span.h"
 #include "gtest/gtest.h"
 
 using namespace std;
