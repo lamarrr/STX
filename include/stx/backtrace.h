@@ -33,6 +33,7 @@
 
 #include "stx/internal/option_result.h"
 #include "stx/report.h"
+#include "stx/span.h"
 
 //! @file
 //!
