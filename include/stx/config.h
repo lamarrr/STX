@@ -216,25 +216,30 @@
 
 // From non-trivial constexpr paper
 #if __cpp_constexpr >= 201807L
+
 /// constexpr destructor is only available on C++ 20, it is needed for
 /// non-trivial constexpr classes
 #define STX_CXX20_DESTRUCTOR_CONSTEXPR constexpr
+
 /// some compilers have partial support for C++20 (i.e. flags like gnu++2a), you
-/// can use directly if you're certain your compiler fully supports C++ 20
-#define STX_RESULT_CONSTEXPR 1
-/// some compilers have partial support for C++20 (i.e. flags like gnu++2a), you
-/// can use directly if you're certain your compiler fully supports C++ 20
-#define STX_OPTION_CONSTEXPR 1
+/// can use `Option` and `Result` directly as constexpr if you're certain your
+/// compiler fully supports C++ 20
+#define STX_RESULT_IS_CONSTEXPR true
+#define STX_RESULT_CONSTEXPR constexpr
+
+#define STX_OPTION_IS_CONSTEXPR true
+#define STX_OPTION_CONSTEXPR constexpr
+
 #else
-/// constexpr destructor is only available on C++ 20, it is needed for
-/// non-trivial constexpr classes
+
 #define STX_CXX20_DESTRUCTOR_CONSTEXPR
-/// some compilers have partial support for C++20 (i.e. flags like gnu++2a), you
-/// can use directly if you're certain your compiler fully supports C++ 20
-#define STX_RESULT_CONSTEXPR 0
-/// some compilers have partial support for C++20 (i.e. flags like gnu++2a), you
-/// can use directly if you're certain your compiler fully supports C++ 20
-#define STX_OPTION_CONSTEXPR 0
+
+#define STX_RESULT_IS_CONSTEXPR false
+#define STX_RESULT_CONSTEXPR
+
+#define STX_OPTION_IS_CONSTEXPR false
+#define STX_OPTION_CONSTEXPR
+
 #endif
 
 /*********************** UTILITY MACROS ***********************/

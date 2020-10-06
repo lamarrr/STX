@@ -30,7 +30,7 @@
 #include "stx/option.h"
 #include "stx/result.h"
 
-#if STX_OPTION_CONSTEXPR && STX_RESULT_CONSTEXPR  // check if it'll work
+#if STX_OPTION_IS_CONSTEXPR && STX_RESULT_IS_CONSTEXPR  // check if it'll work
 
 using stx::Ok, stx::Err, stx::Result;
 using stx::Some, stx::None, stx::Option;
