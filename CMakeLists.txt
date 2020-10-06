@@ -331,6 +331,7 @@ list(
          tests/panic_test.cc
          tests/report_test.cc
          tests/result_test.cc
+         tests/span_test.cc
          tests/tests.cc)
 
 if(STX_ENABLE_BACKTRACE)
