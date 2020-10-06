@@ -415,14 +415,12 @@ constexpr result_t StaticSpan_Subspan() {
   return {b[0], b[b.size() - 1], b.size()};
 }
 
-namespace std {};
-
 template <size_t Offset, size_t Length>
 constexpr result_t DynamicSpan_Subspan() {
   int tmp[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
-  std::span<int> a = tmp;
-  std::span<int, Length> b = Span<int, Length>(a.subspan(Offset, Length));
+  Span<int> a = tmp;
+  Span<int, Length> b = a.subspan(Offset, Length);
 
   return {b[0], b[b.size() - 1], b.size()};
 }
