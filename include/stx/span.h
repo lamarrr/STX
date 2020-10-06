@@ -56,13 +56,13 @@ template <typename T, typename U>
 using match_cv = typename match_cv_impl<T, U>::type;
 
 template <typename T>
-void container_size_data_check(T* ptr, size_t size) {}
+void type_ptr_and_size(T* ptr, size_t size) {}
 
 template <typename T, typename = void>
 struct is_container_impl : std::false_type {};
 
 template <typename T>
-struct is_container_impl<T, decltype((container_size_data_check(
+struct is_container_impl<T, decltype((type_ptr_and_size(
                                          std::data(std::declval<T>()),
                                          std::size(std::declval<T>()))),
                                      (void)0)> : std::true_type {};
