@@ -33,6 +33,7 @@
 
 #include "stx/internal/option_result.h"
 #include "stx/report.h"
+#include "stx/span.h"
 
 //! @file
 //!
@@ -64,18 +65,6 @@ inline SpanReport operator>>(ReportQuery, SignalError const &err) noexcept {
   }
 }
 
-/// Mutable type-erased view over a contiguous character container.
-struct CharSpan {
-  char *data;
-  size_t size;
-  CharSpan(char *data_, size_t size_) noexcept : data{data_}, size{size_} {}
-  CharSpan(CharSpan const &) noexcept = default;
-  CharSpan(CharSpan &&) noexcept = default;
-  CharSpan &operator=(CharSpan const &) noexcept = default;
-  CharSpan &operator=(CharSpan &&) noexcept = default;
-  ~CharSpan() noexcept = default;
-};
-
 /// `Symbol` contains references to buffers and as such should not be copied nor
 /// moved as a reference. Its raw data content can also be copied as a
 /// `std::string`.
@@ -88,10 +77,10 @@ struct Symbol {
   /// null-terminated.
   ///
   /// UNCHECKED!
-  explicit Symbol(CharSpan sym) noexcept : symbol_{sym} {};
+  explicit Symbol(Span<char> sym) noexcept : symbol_{sym} {};
 
  private:
-  CharSpan symbol_;
+  Span<char> symbol_;
 };
 
 /// reperesents an active stack frame.

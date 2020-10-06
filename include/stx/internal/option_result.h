@@ -105,7 +105,7 @@ struct [[nodiscard]] NoneType {
   constexpr NoneType& operator=(NoneType const&) noexcept = default;
   constexpr NoneType& operator=(NoneType&&) noexcept = default;
 
-  STX_CXX20_DESTRUCTOR_CONSTEXPR ~NoneType() noexcept = default;
+  STX_OPTION_CONSTEXPR ~NoneType() noexcept = default;
 
   [[nodiscard]] constexpr bool operator==(NoneType const&) const noexcept {
     return true;
@@ -180,7 +180,7 @@ struct [[nodiscard]] Some {
   constexpr Some(Some const&) = default;
   constexpr Some& operator=(Some const&) = default;
 
-  STX_CXX20_DESTRUCTOR_CONSTEXPR ~Some() = default;
+  STX_OPTION_CONSTEXPR ~Some() = default;
 
   [[nodiscard]] constexpr T const& value() const& noexcept { return value_; }
   [[nodiscard]] constexpr T& value()& noexcept { return value_; }
@@ -262,7 +262,7 @@ struct [[nodiscard]] Ok {
   constexpr Ok(Ok const&) = default;
   constexpr Ok& operator=(Ok const&) = default;
 
-  STX_CXX20_DESTRUCTOR_CONSTEXPR ~Ok() = default;
+  STX_RESULT_CONSTEXPR ~Ok() = default;
 
   template <typename U>
   [[nodiscard]] constexpr bool operator==(Ok<U> const& cmp) const {
@@ -347,7 +347,7 @@ struct [[nodiscard]] Err {
   constexpr Err(Err const&) = default;
   constexpr Err& operator=(Err const&) = default;
 
-  STX_CXX20_DESTRUCTOR_CONSTEXPR ~Err() = default;
+  STX_RESULT_CONSTEXPR ~Err() = default;
 
   template <typename F>
   [[nodiscard]] constexpr bool operator==(Err<F> const& cmp) const {
@@ -515,7 +515,7 @@ struct [[nodiscard]] Option {
     return *this;
   }
 
-  STX_CXX20_DESTRUCTOR_CONSTEXPR ~Option() noexcept {
+  STX_OPTION_CONSTEXPR ~Option() noexcept {
     if (is_some()) {
       storage_value_.~T();
     }
@@ -1702,7 +1702,7 @@ struct [[nodiscard]] Result {
   Result(Result const& rhs) = delete;
   Result& operator=(Result const& rhs) = delete;
 
-  STX_CXX20_DESTRUCTOR_CONSTEXPR ~Result() noexcept {
+  STX_RESULT_CONSTEXPR ~Result() noexcept {
     if (is_ok()) {
       storage_value_.~T();
     } else {

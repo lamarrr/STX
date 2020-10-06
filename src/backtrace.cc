@@ -51,7 +51,7 @@
 STX_BEGIN_NAMESPACE
 
 auto backtrace::Symbol::raw() const noexcept -> std::string_view {
-  return std::string_view(symbol_.data);
+  return std::string_view(symbol_.data(), symbol_.size());
 }
 
 int backtrace::trace(Callback callback, int skip_count) {
@@ -73,7 +73,7 @@ int backtrace::trace(Callback callback, int skip_count) {
     symbol[0] = '\0';
     Frame frame{};
     if (absl::Symbolize(ips[i], symbol, max_len)) {
-      auto span = backtrace::CharSpan(symbol, max_len);
+      auto span = Span<char>(symbol, max_len);
       frame.symbol = Some(backtrace::Symbol(std::move(span)));
     }
 
