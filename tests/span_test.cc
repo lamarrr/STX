@@ -29,8 +29,8 @@
 
 #include "stx/span.h"
 
-#include <utility>
 #include <array>
+#include <utility>
 
 #include "gtest/gtest.h"
 
@@ -183,7 +183,7 @@ TEST(SpanTest, ConstructorContainer) {
   auto test_fn = [](auto vec) {
     using T = typename decltype(vec)::value_type;
     {
-      Span<T> a = Span<T>(vec);
+      Span<T> a(vec);
 
       Span<volatile T> b = a;
       Span<T const> c = a;
@@ -242,7 +242,7 @@ TEST(SpanTest, Empty) {
     EXPECT_TRUE(a.empty());
   }
   {
-    Span<int> a = Span<int>(tmp, 0UL);
+    Span<int> a(tmp, 0UL);
     EXPECT_TRUE(a.empty());
   }
 }
@@ -261,7 +261,7 @@ TEST(SpanTest, At) {
   }
 
   {
-    Span<int> a = Span<int>(tmp, size(tmp));
+    Span<int> a(tmp, size(tmp));
 
     EXPECT_EQ(a.at(4), None);
     EXPECT_EQ(a.at(3), Some(4));
