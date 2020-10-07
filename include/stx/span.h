@@ -174,7 +174,7 @@ struct Span {
   ///
   /// Also, see: bounds-checked `Span::try_init`.
   template <typename SrcElement>
-  constexpr Span(Span<SrcElement, dynamic_extent> const& src) noexcept
+  explicit constexpr Span(Span<SrcElement, dynamic_extent> const& src) noexcept
       : data_{static_cast<pointer>(src.data())} {}
 
   /// factory function for copy-constructing a static-extent span from a
@@ -256,7 +256,7 @@ struct Span {
   /// use only for containers storing a contiguous sequence of elements.
   template <typename Container,
             std::enable_if_t<internal::is_container<Container>, int> = 0>
-  constexpr Span(Container& container) noexcept
+  explicit constexpr Span(Container& container) noexcept
       : data_{static_cast<pointer>(std::data(container))} {}
 
   /// factory function for constructing a static-extent span from any container

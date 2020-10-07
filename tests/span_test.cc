@@ -204,7 +204,7 @@ TEST(SpanTest, ConstructorContainer) {
     }
 
     {
-      Span<T, 3> a = vec;
+      Span<T, 3> a (vec);
 
       Span<volatile T, 3> b = a;
       Span<T const, 3> c = a;
