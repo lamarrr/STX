@@ -30,6 +30,7 @@
 #pragma once
 #include <cinttypes>
 #include <limits>
+#include <type_traits>
 
 #include "stx/config.h"
 #include "stx/option.h"
@@ -476,24 +477,35 @@ struct Span<Element, dynamic_extent> {
       : data_{static_cast<pointer>(src.data())}, size_{src.size()} {}
 
   /// construct dynamic-extent span with an iterator/raw-pointer and a size
-  constexpr Span(iterator begin, size_type size) noexcept
-      : data_{begin}, size_{size} {};
+  template <
+      typename Iterator,
+      std::enable_if_t<std::is_convertible_v<Iterator&, iterator>, int> = 0>
+  constexpr Span(Iterator begin, size_type size) noexcept
+      : data_{static_cast<iterator>(begin)}, size_{size} {}
 
   /// construct dynamic-extent span from two iterators/raw-pointers.
   /// `end` must be greater than `begin`. (unchecked)
   ///
   /// Also, see checked `Span::try_init`.
-  constexpr Span(iterator begin, iterator end) noexcept
-      : data_{begin}, size_{static_cast<size_type>(end - begin)} {};
+  template <
+      typename Iterator,
+      std::enable_if_t<std::is_convertible_v<Iterator&, iterator>, int> = 0>
+  constexpr Span(Iterator begin, Iterator end) noexcept
+      : data_{begin},
+        size_{static_cast<size_type>(static_cast<iterator>(end) -
+                                     static_cast<iterator>(begin))} {}
 
   /// factory function for constructing a span from two iterators/raw-pointers
   /// (checked).
   //
   /// constexpr since C++20.
-  static STX_OPTION_CONSTEXPR Option<Span> try_init(iterator begin,
-                                                    iterator end) noexcept {
+  template <
+      typename Iterator,
+      std::enable_if_t<std::is_convertible_v<Iterator&, iterator>, int> = 0>
+  static STX_OPTION_CONSTEXPR Option<Span> try_init(Iterator begin,
+                                                    Iterator end) noexcept {
     if (end < begin) return None;
-    return Some(Span(begin, end));
+    return Some(Span(static_cast<iterator>(begin), static_cast<iterator>(end)));
   }
 
   /// construct dynamic-extent span from array
