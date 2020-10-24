@@ -72,7 +72,7 @@ MoveOnly<id> make_mv() {
 }
 
 static_assert(std::is_swappable_v<MoveOnly<0>>);
-static_assert(equality_comparable<MoveOnly<0>>);
+static_assert(stx::equality_comparable<MoveOnly<0>>);
 
 struct FnMut {
   int call_times;
