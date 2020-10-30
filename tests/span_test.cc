@@ -242,7 +242,7 @@ TEST(SpanTest, Empty) {
     EXPECT_TRUE(a.empty());
   }
   {
-    Span<int> a(tmp, 0UL);
+    Span<int> a(tmp, std::size_t{0});
     EXPECT_TRUE(a.empty());
   }
 }
