@@ -751,6 +751,16 @@ struct Span<Element, dynamic_extent> {
   size_type size_;
 };
 
-// TODO(lamarrr): deduction guides
+template <typename SrcElement, size_t Length>
+Span(SrcElement (&)[Length]) -> Span<SrcElement, Length>;
+
+template <typename SrcElement, size_t Length>
+Span(std::array<SrcElement, Length>&) -> Span<SrcElement, Length>;
+
+template <typename SrcElement, size_t Length>
+Span(std::array<SrcElement, Length> const&) -> Span<SrcElement const, Length>;
+
+template<typename Container>
+Span(Container& cont) -> Span<std::remove_pointer_t<decltype(std::data(cont))>>;
 
 STX_END_NAMESPACE
