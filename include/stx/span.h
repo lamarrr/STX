@@ -71,6 +71,26 @@ struct is_container_impl<T, decltype((type_ptr_and_size(
 template <typename T>
 constexpr bool is_container = is_container_impl<T>::value;
 
+template<typename Element, typename OtherElement>
+constexpr bool is_compatible = std::is_convertible_v<
+  OtherElement(*)[],
+  Element(*)[]
+>;
+
+
+template <typename T, typename Element, typename = void>
+struct is_compatible_container_impl : std::false_type {};
+
+template <typename T, typename Element>
+struct is_compatible_container_impl<T, Element, std::void_t<decltype(std::data(std::declval<T>()))>>
+   : std::bool_constant<is_compatible<
+    Element,
+    std::remove_pointer_t<decltype(std::data(std::declval<T>()))>
+   >> {};
+
+template<typename T, typename Element>
+constexpr bool is_compatible_container = is_compatible_container_impl<T, Element>::value;
+
 }  // namespace internal
 
 constexpr size_t dynamic_extent = std::numeric_limits<size_t>::max();
@@ -142,6 +162,9 @@ struct Span {
   template <typename T>
   using cv_match_ = internal::match_cv<element_type, T>;
 
+  template <typename T>
+  constexpr static bool is_compatible = internal::is_compatible<element_type, T>;
+
   static constexpr size_type byte_extent_ =
       Extent * (sizeof(element_type) / sizeof(std::byte));
   static constexpr size_type u8_extent_ =
@@ -152,7 +175,8 @@ struct Span {
 
   /// copy-construct static-extent span from another static-extent span
   /// (compile-time bounds-checked).
-  template <typename SrcElement, size_type SrcExtent>
+  template <typename SrcElement, size_type SrcExtent,
+            std::enable_if_t<is_compatible<SrcElement>, int> = 0>
   constexpr Span(Span<SrcElement, SrcExtent> const& src) noexcept
       : data_{static_cast<pointer>(src.data())} {
     static_assert(Extent <= SrcExtent,
@@ -162,7 +186,8 @@ struct Span {
 
   /// factory function for copy-constructing a static-extent span from another
   /// static-extent span (bounds-checked).
-  template <typename SrcElement, size_type SrcExtent>
+  template <typename SrcElement, size_type SrcExtent,
+            std::enable_if_t<is_compatible<SrcElement>, int> = 0>
   static STX_OPTION_CONSTEXPR Option<Span> try_init(
       Span<SrcElement, SrcExtent> const& src) noexcept {
     if constexpr (Extent > SrcExtent) return None;
@@ -173,13 +198,15 @@ struct Span {
   /// bounds-checked).
   ///
   /// Also, see: bounds-checked `Span::try_init`.
-  template <typename SrcElement>
+  template <typename SrcElement,
+            std::enable_if_t<is_compatible<SrcElement>, int> = 0>
   explicit constexpr Span(Span<SrcElement, dynamic_extent> const& src) noexcept
       : data_{static_cast<pointer>(src.data())} {}
 
   /// factory function for copy-constructing a static-extent span from a
   /// dynamic-extent span (bounds-checked).
-  template <typename SrcElement>
+  template <typename SrcElement,
+            std::enable_if_t<is_compatible<SrcElement>, int> = 0>
   static STX_OPTION_CONSTEXPR Option<Span> try_init(
       Span<SrcElement, dynamic_extent> const& src) noexcept {
     if (Extent > src.size()) return None;
@@ -191,7 +218,8 @@ struct Span {
   constexpr Span(iterator begin) noexcept : data_{begin} {};
 
   /// construct static-extent span from array (compile-time bounds-checked).
-  template <typename SrcElement, size_type Length>
+  template <typename SrcElement, size_type Length,
+            std::enable_if_t<is_compatible<SrcElement>, int> = 0>
   constexpr Span(SrcElement (&array)[Length]) noexcept
       : data_{static_cast<pointer>(array)} {
     static_assert(Extent <= Length,
@@ -199,7 +227,8 @@ struct Span {
   }
 
   /// construct static-extent span from array (bounds-checked).
-  template <typename SrcElement, size_type Length>
+  template <typename SrcElement, size_type Length,
+            std::enable_if_t<is_compatible<SrcElement>, int> = 0>
   static STX_OPTION_CONSTEXPR Option<Span> try_init(
       SrcElement (&array)[Length]) noexcept {
     if constexpr (Extent > Length) return None;
@@ -208,7 +237,8 @@ struct Span {
 
   /// construct static-extent span from std::array (compile-time
   /// bounds-checked).
-  template <typename SrcElement, size_type Length>
+  template <typename SrcElement, size_type Length,
+            std::enable_if_t<is_compatible<SrcElement>, int> = 0>
   constexpr Span(std::array<SrcElement, Length>& array) noexcept
       : data_{static_cast<pointer>(array.data())} {
     static_assert(Extent <= Length,
@@ -216,7 +246,8 @@ struct Span {
   }
 
   /// construct static-extent span from std::array (bounds-checked).
-  template <typename SrcElement, size_type Length>
+  template <typename SrcElement, size_type Length,
+            std::enable_if_t<is_compatible<SrcElement>, int> = 0>
   static STX_OPTION_CONSTEXPR Option<Span> try_init(
       std::array<SrcElement, Length>& array) noexcept {
     if constexpr (Extent > Length) return None;
@@ -225,7 +256,8 @@ struct Span {
 
   /// construct static-extent span from std::array (compile-time
   /// bounds-checked).
-  template <typename SrcElement, size_type Length>
+  template <typename SrcElement, size_type Length,
+            std::enable_if_t<is_compatible<SrcElement const>, int> = 0>
   constexpr Span(std::array<SrcElement, Length> const& array) noexcept
       : data_{static_cast<pointer>(array.data())} {
     static_assert(Extent <= Length,
@@ -233,8 +265,9 @@ struct Span {
   }
 
   /// construct static-extent span from std::array (bounds-checked).
-  template <typename SrcElement, size_type Length>
-  STX_OPTION_CONSTEXPR Option<Span> try_init(
+  template <typename SrcElement, size_type Length,
+            std::enable_if_t<is_compatible<SrcElement const>, int> = 0>
+  static STX_OPTION_CONSTEXPR Option<Span> try_init(
       std::array<SrcElement, Length> const& array) noexcept {
     if constexpr (Extent > Length) return None;
     return Some(Span(static_cast<pointer>(array.data())));
@@ -244,7 +277,7 @@ struct Span {
   constexpr Span(std::array<SrcElement, Length>&& array) noexcept = delete;
 
   template <typename SrcElement, size_type Length>
-  STX_OPTION_CONSTEXPR Option<Span> try_init(
+  static STX_OPTION_CONSTEXPR Option<Span> try_init(
       std::array<SrcElement, Length>&& array) noexcept = delete;
 
   /// construct static-extent span from any container (not bounds-checked).
@@ -255,14 +288,18 @@ struct Span {
   ///
   /// use only for containers storing a contiguous sequence of elements.
   template <typename Container,
-            std::enable_if_t<internal::is_container<Container>, int> = 0>
+            std::enable_if_t<
+              internal::is_container<Container&> &&
+              internal::is_compatible_container<Container&, element_type>, int> = 0>
   explicit constexpr Span(Container& container) noexcept
       : data_{static_cast<pointer>(std::data(container))} {}
 
   /// factory function for constructing a static-extent span from any container
   /// (bounds-checked).
   template <typename Container,
-            std::enable_if_t<internal::is_container<Container>, int> = 0>
+            std::enable_if_t<
+              internal::is_container<Container&> &&
+              internal::is_compatible_container<Container&, element_type>, int> = 0>
   static STX_OPTION_CONSTEXPR Option<Span> try_init(
       Container& container) noexcept {
     if (Extent > std::size(container)) return None;
@@ -463,25 +500,36 @@ struct Span<Element, dynamic_extent> {
   template <typename T>
   using cv_match_ = internal::match_cv<element_type, T>;
 
+  template <typename T>
+  constexpr static bool is_compatible = internal::is_compatible<element_type, T>;
+
  public:
   constexpr Span() noexcept : data_{nullptr}, size_{0} {}
 
   /// copy-construct dynamic-extent span from a static-extent span.
-  template <typename SrcElement, size_type SrcExtent>
+  template <typename SrcElement, size_type SrcExtent,
+            std::enable_if_t<is_compatible<SrcElement>, int> = 0>
   constexpr Span(Span<SrcElement, SrcExtent> const& src) noexcept
       : data_{static_cast<pointer>(src.data())}, size_{SrcExtent} {}
 
   /// copy-construct dynamic-extent span from another dynamic-extent span.
-  template <typename SrcElement>
+  template <typename SrcElement,
+            std::enable_if_t<is_compatible<SrcElement>, int> = 0>
   constexpr Span(Span<SrcElement, dynamic_extent> const& src) noexcept
       : data_{static_cast<pointer>(src.data())}, size_{src.size()} {}
 
   /// construct dynamic-extent span with an iterator/raw-pointer and a size
   template <
       typename Iterator,
-      std::enable_if_t<std::is_convertible_v<Iterator&, iterator>, int> = 0>
+      std::enable_if_t<
+        std::is_convertible_v<Iterator&, iterator> &&
+        is_compatible<typename std::iterator_traits<Iterator>::value_type>, int> = 0>
   constexpr Span(Iterator begin, size_type size) noexcept
       : data_{static_cast<iterator>(begin)}, size_{size} {}
+
+  /// construct dynamic-extent span with an iterator/raw-pointer and a size
+  constexpr Span(iterator begin, size_type size) noexcept
+      : data_{begin}, size_{size} {}
 
   /// construct dynamic-extent span from two iterators/raw-pointers.
   /// `end` must be greater than `begin`. (unchecked)
@@ -489,11 +537,21 @@ struct Span<Element, dynamic_extent> {
   /// Also, see checked `Span::try_init`.
   template <
       typename Iterator,
-      std::enable_if_t<std::is_convertible_v<Iterator&, iterator>, int> = 0>
+      std::enable_if_t<
+        std::is_convertible_v<Iterator&, iterator> &&
+        is_compatible<typename std::iterator_traits<Iterator>::value_type>, int> = 0>
   constexpr Span(Iterator begin, Iterator end) noexcept
       : data_{begin},
         size_{static_cast<size_type>(static_cast<iterator>(end) -
                                      static_cast<iterator>(begin))} {}
+
+  /// construct dynamic-extent span from two iterators/raw-pointers.
+  /// `end` must be greater than `begin`. (unchecked)
+  ///
+  /// Also, see checked `Span::try_init`.
+  constexpr Span(iterator begin, iterator end) noexcept
+      : data_{begin},
+        size_{static_cast<size_type>(end - begin)} {}
 
   /// factory function for constructing a span from two iterators/raw-pointers
   /// (checked).
@@ -501,7 +559,9 @@ struct Span<Element, dynamic_extent> {
   /// constexpr since C++20.
   template <
       typename Iterator,
-      std::enable_if_t<std::is_convertible_v<Iterator&, iterator>, int> = 0>
+      std::enable_if_t<
+        std::is_convertible_v<Iterator&, iterator> &&
+        is_compatible<typename std::iterator_traits<Iterator>::value_type>, int> = 0>
   static STX_OPTION_CONSTEXPR Option<Span> try_init(Iterator begin,
                                                     Iterator end) noexcept {
     if (end < begin) return None;
@@ -509,7 +569,8 @@ struct Span<Element, dynamic_extent> {
   }
 
   /// construct dynamic-extent span from array
-  template <typename SrcElement, size_type Length>
+  template <typename SrcElement, size_type Length,
+            std::enable_if_t<is_compatible<SrcElement>, int> = 0>
   constexpr Span(SrcElement (&array)[Length])
       : data_{static_cast<pointer>(array)}, size_{Length} {}
 
@@ -519,7 +580,9 @@ struct Span<Element, dynamic_extent> {
   ///
   /// use only for containers storing a contiguous sequence of elements.
   template <typename Container,
-            std::enable_if_t<internal::is_container<Container>, int> = 0>
+            std::enable_if_t<
+              internal::is_container<Container&> &&
+              internal::is_compatible_container<Container&, element_type>, int> = 0>
   constexpr Span(Container& container)
       : data_{static_cast<pointer>(std::data(container))},
         size_{std::size(container)} {}
