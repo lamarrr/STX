@@ -62,6 +62,8 @@ inline SpanReport operator>>(ReportQuery, SignalError const &err) noexcept {
           "'SIGILL' and 'SIGFPE'.");
     case SignalError::SigErr:
       return SpanReport("'std::signal' returned 'SIGERR'");
+    default:
+      return SpanReport();
   }
 }
 
