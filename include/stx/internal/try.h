@@ -76,13 +76,13 @@ STX_END_NAMESPACE
   decltype((result_expr))&& STX_ARG_UNIQUE_PLACEHOLDER = (result_expr);        \
                                                                                \
   if (STX_ARG_UNIQUE_PLACEHOLDER.is_err())                                     \
-    return ::stx::Err<                                                         \
-      typename std::remove_reference_t<decltype((result_expr))>::error_type>(  \
+    return ::stx::Err<typename std::remove_reference_t<decltype(               \
+        (result_expr))>::error_type>(                                          \
         ::stx::internal::result::unsafe_err_move(STX_ARG_UNIQUE_PLACEHOLDER)); \
                                                                                \
   typename std::remove_reference_t<decltype((result_expr))>::value_type        \
-    qualifier_identifier =                                                     \
-      ::stx::internal::result::unsafe_value_move(STX_ARG_UNIQUE_PLACEHOLDER);
+      qualifier_identifier = ::stx::internal::result::unsafe_value_move(       \
+          STX_ARG_UNIQUE_PLACEHOLDER);
 
 #define STX_TRY_SOME_IMPL_(STX_ARG_UNIQUE_PLACEHOLDER, qualifier_identifier, \
                            option_expr)                                      \
@@ -99,8 +99,8 @@ STX_END_NAMESPACE
   if (STX_ARG_UNIQUE_PLACEHOLDER.is_none()) return ::stx::None;              \
                                                                              \
   typename std::remove_reference_t<decltype((option_expr))>::value_type      \
-    qualifier_identifier =                                                   \
-      ::stx::internal::option::unsafe_value_move(STX_ARG_UNIQUE_PLACEHOLDER);
+      qualifier_identifier = ::stx::internal::option::unsafe_value_move(     \
+          STX_ARG_UNIQUE_PLACEHOLDER);
 
 /// if `result_expr` is a `Result` containing an error, `TRY_OK` returns its
 /// `Err` value.
@@ -139,11 +139,13 @@ STX_END_NAMESPACE
   decltype((result_expr))&& STX_ARG_UNIQUE_PLACEHOLDER = (result_expr);        \
                                                                                \
   if (STX_ARG_UNIQUE_PLACEHOLDER.is_err())                                     \
-    co_return ::stx::Err<decltype((result_expr))::error_type>(                 \
+    co_return ::stx::Err<typename std::remove_reference_t<decltype(            \
+        (result_expr))>::error_type>(                                          \
         ::stx::internal::result::unsafe_err_move(STX_ARG_UNIQUE_PLACEHOLDER)); \
                                                                                \
-  typename decltype((result_expr))::value_type qualifier_identifier =          \
-      ::stx::internal::result::unsafe_value_move(STX_ARG_UNIQUE_PLACEHOLDER);
+  typename std::remove_reference_t<decltype((result_expr))>::value_type        \
+      qualifier_identifier = ::stx::internal::result::unsafe_value_move(       \
+          STX_ARG_UNIQUE_PLACEHOLDER);
 
 #define STX_CO_TRY_SOME_IMPL_(STX_ARG_UNIQUE_PLACEHOLDER,                   \
                               qualifier_identifier, option_expr)            \
@@ -159,8 +161,9 @@ STX_END_NAMESPACE
                                                                             \
   if (STX_ARG_UNIQUE_PLACEHOLDER.is_none()) co_return ::stx::None;          \
                                                                             \
-  typename decltype((option_expr))::value_type qualifier_identifier =       \
-      ::stx::internal::option::unsafe_value_move(STX_ARG_UNIQUE_PLACEHOLDER);
+  typename std::remove_refence_t<decltype((option_expr))>::value_type       \
+      qualifier_identifier = ::stx::internal::option::unsafe_value_move(    \
+          STX_ARG_UNIQUE_PLACEHOLDER);
 
 /// COROUTINES ONLY. if `result_expr` is `Result` containing an error,
 /// `CO_TRY_OK` co-returns its `Err` value.
