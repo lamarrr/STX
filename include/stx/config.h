@@ -214,6 +214,14 @@
 #define STX_HAS_BUILTIN(feature) 0
 #endif
 
+#if defined STX_ENABLE_DEBUG_ASSERTIONS
+#define STX_DEBUG_ASSERT(Cond) (Cond) ? (void)0 : (void)(::stx::panic(#Cond))
+#define STX_DEBUG_STATEMENT(...) __VA_ARGS__
+#else
+#define STX_DEBUG_ASSERT(Cond) (void)0
+#define STX_DEBUG_STATEMENT(...) (void)0
+#endif
+
 // From non-trivial constexpr paper
 #if __cpp_constexpr >= 201807L
 

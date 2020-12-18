@@ -30,6 +30,7 @@
 #pragma once
 
 #include <utility>
+#include <memory> // constexpr std::construct_at, addressof
 
 #include "stx/internal/panic_helpers.h"
 
@@ -91,6 +92,13 @@ struct Err;
 
 template <typename T, typename E>
 struct Result;
+
+namespace internal {
+namespace option {
+template <typename T, bool Copyable>
+struct OptionStorageBasePre;
+} // namespace option
+} // namespace internal
 
 //! value-variant Type for `Option<T>` representing no-value
 //!
@@ -212,6 +220,8 @@ struct [[nodiscard]] Some {
 
   template <typename Tp>
   friend struct Option;
+  template <typename Tp, bool Copyable>
+  friend struct internal::option::OptionStorageBasePre;
 };
 
 //! value-variant for `Result<T, E>` wrapping the contained successful value of
@@ -386,6 +396,27 @@ struct [[nodiscard]] Err {
 // JUST LOOK AWAY
 
 namespace internal {
+
+template <typename Fn>
+struct Finally {
+  Fn fn;
+  STX_OPTION_CONSTEXPR ~Finally() noexcept(noexcept(fn())) { fn(); }
+};
+template <typename Fn>
+Finally(Fn) -> Finally<Fn>;
+
+#if STX_RESULT_IS_CONSTEXPR || STX_OPTION_IS_CONSTEXPR
+
+using std::construct_at;
+
+#else
+
+template <typename T, typename... Args>
+T* construct_at(T* address, Args&&... args) {
+  return new (address) T(std::forward<Args&&>(args)...);
+}
+
+#endif
 namespace option {
 // constructs an r-value reference to the option's value directly, without
 // checking if it is in the `Some` or `None` state. This is totally unsafe and
@@ -393,7 +424,327 @@ namespace option {
 template <typename Tp>
 inline Tp&& unsafe_value_move(Option<Tp>&);
 
-}  // namespace option
+template <typename Fn>
+struct Ftor_If {
+  Fn fn;
+  bool cond = true;
+  constexpr void operator()() noexcept {
+    if (cond) {
+      fn();
+    }
+  }
+};
+template <typename Fn>
+Ftor_If(Fn, bool = true) -> Ftor_If<Fn>;
+
+struct Ctor {
+  char& ref;
+  STX_OPTION_CONSTEXPR void operator()() noexcept {
+    internal::construct_at(std::addressof(ref));
+  }
+};
+struct Setter {
+  bool& ref;
+  bool const value;
+  constexpr void operator()() noexcept { ref = value; }
+};
+
+template <typename T, bool = std::is_trivial_v<T> && constructible<T>>
+struct OptionStorageBase {
+private:
+  T storage_value_{};
+  bool engaged_ = false;
+  // choose engaged_ rather than is none_, so the null state can have an
+  // all-zero bit pattern
+
+public:
+  constexpr OptionStorageBase() noexcept = default;
+  constexpr OptionStorageBase(Some<T> const& val) noexcept
+      : storage_value_{Some<T>(val).value()}, engaged_{true} {}
+
+  // precondition: object is disengaged
+  // postcondition: object is engaged, iff no exceptions are thrown
+  template <typename... Args>
+  constexpr void
+  _emplace(Args&&... args) noexcept(nothrow_constructible<T, Args&&...>) {
+    STX_DEBUG_ASSERT(!engaged_);
+    storage_value_ = T(std::forward<Args&&>(args)...);
+    engaged_ = true;
+  }
+
+  template <typename U>
+  constexpr void _assign(U&& rhs) noexcept(nothrow_assignable<T, U&&>) {
+    STX_DEBUG_ASSERT(engaged_);
+    storage_value_ = std::forward<U&&>(rhs);
+  }
+
+  // precondition: object is engaged
+  // postcondition: object is disengaged
+  constexpr void _destroy() noexcept {
+    STX_DEBUG_ASSERT(engaged_);
+    engaged_ = false;
+  }
+
+  // precondition: object is engaged
+  constexpr T const& _get() const noexcept {
+    STX_DEBUG_ASSERT(engaged_);
+    return storage_value_;
+  }
+  constexpr T& _get_mut() noexcept {
+    STX_DEBUG_ASSERT(engaged_);
+    return storage_value_;
+  }
+  constexpr T&& _get_move()&& noexcept {
+    STX_DEBUG_ASSERT(engaged_);
+    return static_cast<T&&>(storage_value_);
+  }
+  constexpr bool _engaged() const noexcept { return engaged_; }
+};
+
+template <typename T, bool = std::is_trivially_destructible_v<T>>
+struct OptionStorageBasePre {
+  // invariant:
+  // at any point, either storage_value_ is alive, and object is engaged,
+  // or none_ is alive and object is disengaged
+  union {
+    T storage_value_;
+    char none_{};
+  };
+  bool engaged_ = false;
+
+  constexpr OptionStorageBasePre(){};
+  template <typename U>
+  constexpr OptionStorageBasePre(U&& val) noexcept(
+      nothrow_constructible<T, decltype((std::declval<U&&>().value_))>)
+      : storage_value_{std::forward<U&&>(val).value_}, engaged_{true} {}
+};
+
+template <typename T>
+struct OptionStorageBasePre<T, false> {
+  // invariant:
+  // at any point, either storage_value_ is alive, and object is engaged,
+  // or none_ is alive and object is disengaged
+  union {
+    T storage_value_;
+    char none_{};
+  };
+  bool engaged_ = false;
+
+  STX_OPTION_CONSTEXPR ~OptionStorageBasePre() noexcept(
+      nothrow_destructible<T>) {
+    if (engaged_) {
+      static_cast<OptionStorageBase<T>&>(*this)._destroy();
+    }
+  }
+  constexpr OptionStorageBasePre(){};
+  template <typename U>
+  constexpr OptionStorageBasePre(U&& val) noexcept(
+      nothrow_constructible<T, decltype((std::declval<U&&>().value_))>)
+      : storage_value_{std::forward<U&&>(val).value_}, engaged_{true} {}
+};
+
+template <typename T>
+struct OptionStorageBase<T, false> : OptionStorageBasePre<T> {
+  using OptionStorageBasePre<T>::OptionStorageBasePre;
+
+private:
+  using OptionStorageBasePre<T>::storage_value_;
+  using OptionStorageBasePre<T>::none_;
+  using OptionStorageBasePre<T>::engaged_;
+
+public:
+  OptionStorageBase() = default;
+
+  // pre/post conditions, see main template.
+  template <typename... Args>
+  STX_OPTION_CONSTEXPR void
+  _emplace(Args&&... args) noexcept(nothrow_constructible<T, Args&&...>) {
+    STX_DEBUG_ASSERT(!engaged_);
+    auto r = Finally{Ftor_If{Ctor{none_}, true}};
+
+    std::destroy_at(std::addressof(none_));
+    // neither alive
+
+    // if ctor throws, raii restores the invariant
+    internal::construct_at(
+        std::addressof(storage_value_), std::forward<Args&&>(args)...);
+
+    // no throw, disable raii ctor and engage object
+    r.fn.cond = false;
+    engaged_ = true;
+
+    // invariant restored
+  }
+  template <typename U>
+  constexpr void _assign(U&& rhs) noexcept(nothrow_assignable<T, U&&>) {
+    STX_DEBUG_ASSERT(engaged_);
+    storage_value_ = std::forward<U&&>(rhs);
+  }
+
+  STX_OPTION_CONSTEXPR void _destroy() noexcept(nothrow_destructible<T>) {
+    STX_DEBUG_ASSERT(engaged_);
+    auto r = Finally{Ctor{none_}};
+    engaged_ = false;
+
+    std::destroy_at(std::addressof(storage_value_));
+  }
+  constexpr T const& _get() const noexcept {
+    STX_DEBUG_ASSERT(engaged_);
+    return *std::launder(std::addressof(storage_value_));
+  }
+  constexpr T& _get_mut() noexcept {
+    STX_DEBUG_ASSERT(engaged_);
+    return *std::launder(std::addressof(storage_value_));
+  }
+  constexpr T&& _get_move() && noexcept {
+    STX_DEBUG_ASSERT(engaged_);
+    return static_cast<T&&>(*std::launder(std::addressof(storage_value_)));
+  }
+  constexpr bool _engaged() const noexcept { return engaged_; }
+};
+
+template <
+    typename T,
+    bool = std::is_trivially_copy_constructible_v<T> ||
+           !constructible<T, T const&>>
+struct OptionCopyCtorBase : OptionStorageBase<T> {
+  using OptionStorageBase<T>::OptionStorageBase;
+  OptionCopyCtorBase() = default;
+  OptionCopyCtorBase(OptionCopyCtorBase const& rhs) = default;
+  OptionCopyCtorBase(OptionCopyCtorBase&& rhs) = default;
+  OptionCopyCtorBase& operator=(OptionCopyCtorBase const& rhs) = default;
+  OptionCopyCtorBase& operator=(OptionCopyCtorBase&& rhs) = default;
+};
+
+template <typename T>
+struct OptionCopyCtorBase<T, false> : OptionStorageBase<T> {
+  using OptionStorageBase<T>::OptionStorageBase;
+
+  OptionCopyCtorBase() = default;
+  OptionCopyCtorBase(OptionCopyCtorBase&& rhs) = default;
+  OptionCopyCtorBase& operator=(OptionCopyCtorBase const& rhs) = default;
+  OptionCopyCtorBase& operator=(OptionCopyCtorBase&& rhs) = default;
+
+  STX_OPTION_CONSTEXPR
+  OptionCopyCtorBase(OptionCopyCtorBase const& rhs) noexcept(
+      nothrow_constructible<T, T const&>) {
+    if (rhs._engaged()) {
+      this->_emplace(rhs._get());
+    }
+  }
+};
+
+template <
+    typename T,
+    bool = std::is_trivially_move_constructible_v<T> || !constructible<T, T&&>>
+struct OptionMoveCtorBase : OptionCopyCtorBase<T> {
+  using OptionCopyCtorBase<T>::OptionCopyCtorBase;
+  OptionMoveCtorBase() = default;
+  OptionMoveCtorBase(OptionMoveCtorBase const& rhs) = default;
+  OptionMoveCtorBase(OptionMoveCtorBase&& rhs) = default;
+  OptionMoveCtorBase& operator=(OptionMoveCtorBase const& rhs) = default;
+  OptionMoveCtorBase& operator=(OptionMoveCtorBase&& rhs) = default;
+};
+
+template <typename T>
+struct OptionMoveCtorBase<T, false> : OptionCopyCtorBase<T> {
+  using OptionCopyCtorBase<T>::OptionCopyCtorBase;
+
+  OptionMoveCtorBase() = default;
+  OptionMoveCtorBase(OptionMoveCtorBase const& rhs) = default;
+  OptionMoveCtorBase& operator=(OptionMoveCtorBase const& rhs) = default;
+  OptionMoveCtorBase& operator=(OptionMoveCtorBase&& rhs) = default;
+
+  STX_OPTION_CONSTEXPR
+  OptionMoveCtorBase(OptionMoveCtorBase&& rhs) noexcept(
+      nothrow_constructible<T, T&&>&& nothrow_destructible<T>) {
+    if (rhs._engaged()) {
+      this->_emplace(std::move(rhs)._get_move());
+      // note: std::optional<_> does *not* destroy the object after moving from
+      // it
+      rhs._destroy();
+    }
+  }
+};
+
+template <
+    typename T,
+    bool = std::is_trivially_copy_assignable_v<T> ||
+           !assignable<T, T const&> /* || is_reference<T> ? */>
+struct OptionCopyAssignBase : OptionMoveCtorBase<T> {
+  using OptionMoveCtorBase<T>::OptionMoveCtorBase;
+  OptionCopyAssignBase() = default;
+  OptionCopyAssignBase(OptionCopyAssignBase const& rhs) = default;
+  OptionCopyAssignBase(OptionCopyAssignBase&& rhs) = default;
+  OptionCopyAssignBase& operator=(OptionCopyAssignBase const& rhs) = default;
+  OptionCopyAssignBase& operator=(OptionCopyAssignBase&& rhs) = default;
+};
+
+template <typename T>
+struct OptionCopyAssignBase<T, false> : OptionMoveCtorBase<T> {
+  using OptionMoveCtorBase<T>::OptionMoveCtorBase;
+
+  OptionCopyAssignBase() = default;
+  OptionCopyAssignBase(OptionCopyAssignBase const& rhs) = default;
+  OptionCopyAssignBase(OptionCopyAssignBase&& rhs) = default;
+  OptionCopyAssignBase& operator=(OptionCopyAssignBase&& rhs) = default;
+
+  constexpr OptionCopyAssignBase& operator=(OptionCopyAssignBase const& rhs) noexcept(
+      nothrow_assignable<T, T const&>&& nothrow_constructible<T, T const&>&&
+          nothrow_destructible<T>) {
+    if (rhs._engaged() && this->_engaged()) {
+      this->_assign(rhs._get());
+    } else if (this->_engaged()) {
+      this->_destroy();
+    } else {
+      this->_emplace(rhs._get());
+    }
+    return *this;
+  }
+};
+
+template <
+    typename T,
+    bool = std::is_trivially_move_assignable_v<T> ||
+           !assignable<T, T&&> /* || is_reference<T> ? */>
+struct OptionMoveAssignBase : OptionCopyAssignBase<T> {
+  using OptionCopyAssignBase<T>::OptionCopyAssignBase;
+  OptionMoveAssignBase() = default;
+  OptionMoveAssignBase(OptionMoveAssignBase const& rhs) = default;
+  OptionMoveAssignBase(OptionMoveAssignBase&& rhs) = default;
+  OptionMoveAssignBase& operator=(OptionMoveAssignBase const& rhs) = default;
+  OptionMoveAssignBase& operator=(OptionMoveAssignBase&& rhs) = default;
+};
+
+template <typename T>
+struct OptionMoveAssignBase<T, false> : OptionCopyAssignBase<T> {
+  using OptionCopyAssignBase<T>::OptionCopyAssignBase;
+
+  OptionMoveAssignBase() = default;
+  OptionMoveAssignBase(OptionMoveAssignBase const& rhs) = default;
+  OptionMoveAssignBase(OptionMoveAssignBase&& rhs) = default;
+  OptionMoveAssignBase& operator=(OptionMoveAssignBase const& rhs) = default;
+
+  constexpr OptionMoveAssignBase& operator=(OptionMoveAssignBase&& rhs) noexcept(
+      nothrow_assignable<T, T&&>&& nothrow_constructible<T, T&&>&&
+          nothrow_destructible<T>) {
+    if (rhs._engaged()) {
+      if (this->_engaged()) {
+        this->_assign(std::move(rhs)._get_move());
+      } else {
+        this->_emplace(std::move(rhs)._get_move());
+      }
+      rhs._destroy();
+    } else {
+      if (this->_engaged()) {
+        this->_destroy();
+      }
+    }
+    return *this;
+  }
+};
+
+} // namespace option
 }  // namespace internal
 
 //! Optional values.
@@ -439,8 +790,8 @@ inline Tp&& unsafe_value_move(Option<Tp>&);
 //! C++ 20 and above
 //!
 template <typename T>
-struct [[nodiscard]] Option {
- public:
+struct [[nodiscard]] Option: private internal::option::OptionMoveAssignBase<T> {
+public:
   using value_type = T;
 
   static_assert(movable<T>, "Value type 'T' for 'Option<T>' must be movable");
@@ -451,75 +802,11 @@ struct [[nodiscard]] Option {
       "type wrappers like std::reference_wrapper (stx::Ref) or any of the "
       "`stx::ConstRef` or `stx::MutRef` specialized aliases instead");
 
-  constexpr Option() noexcept : is_none_(true) {}
+  constexpr Option() noexcept = default;
 
-  constexpr Option(Some<T> && some)
-      : storage_value_(std::move(some.value_)), is_none_(false) {}
+  using internal::option::OptionMoveAssignBase<T>::OptionMoveAssignBase;
 
-  constexpr Option(Some<T> const& some)
-      : storage_value_(some.value()), is_none_(false) {
-    static_assert(copy_constructible<T>);
-  }
-
-  constexpr Option(NoneType const&) noexcept : is_none_(true) {}
-
-  // constexpr?
-  // placement-new!
-  // we can't make this constexpr as of C++ 20
-  Option(Option && rhs) : is_none_(rhs.is_none_) {
-    if (rhs.is_some()) {
-      new (&storage_value_) T(std::move(rhs.storage_value_));
-    }
-  }
-
-  Option& operator=(Option&& rhs) {
-    // contained object is destroyed as appropriate in the parent scope
-    if (is_some() && rhs.is_some()) {
-      std::swap(storage_value_, rhs.storage_value_);
-    } else if (is_some() && rhs.is_none()) {
-      // we let the ref'd `rhs` destroy the object instead
-      new (&rhs.storage_value_) T(std::move(storage_value_));
-      storage_value_.~T();
-      is_none_ = true;
-      rhs.is_none_ = false;
-    } else if (is_none() && rhs.is_some()) {
-      new (&storage_value_) T(std::move(rhs.storage_value_));
-      rhs.storage_value_.~T();
-      rhs.is_none_ = true;
-      is_none_ = false;
-    }
-
-    return *this;
-  }
-
-  Option(Option const& rhs) : is_none_(rhs.is_none_) {
-    static_assert(copy_constructible<T>);
-    if (rhs.is_some()) {
-      new (&storage_value_) T(rhs.storage_value_);
-    }
-  }
-
-  Option& operator=(Option const& rhs) {
-    static_assert(copy_constructible<T>);
-
-    if (is_some() && rhs.is_some()) {
-      storage_value_ = rhs.storage_value_;
-    } else if (is_some() && rhs.is_none()) {
-      storage_value_.~T();
-      is_none_ = true;
-    } else if (is_none() && rhs.is_some()) {
-      new (&storage_value_) T(rhs.storage_value_);
-      is_none_ = false;
-    }
-
-    return *this;
-  }
-
-  STX_OPTION_CONSTEXPR ~Option() noexcept {
-    if (is_some()) {
-      storage_value_.~T();
-    }
-  }
+  constexpr Option(NoneType const&) noexcept : Option{} {}
 
   template <typename U>
   [[nodiscard]] constexpr bool operator==(Option<U> const& cmp) const {
@@ -602,9 +889,9 @@ struct [[nodiscard]] Option {
   /// Option<int> y = None;
   /// ASSERT_TRUE(y.is_none());
   /// ```
-  [[nodiscard]] constexpr bool is_none() const noexcept { return is_none_; }
+  [[nodiscard]] constexpr bool is_none() const noexcept { return !this->_engaged(); }
 
-  [[nodiscard]] operator bool() const noexcept { return is_some(); }
+  [[nodiscard]] constexpr operator bool() const noexcept { return is_some(); }
 
   /// Returns `true` if the option is a `Some` value containing the given
   /// value.
@@ -676,7 +963,7 @@ struct [[nodiscard]] Option {
   ///
   /// ASSERT_EQ(x, Some(2));
   /// ```
-  [[nodiscard]] T& value()& noexcept {
+  [[nodiscard]] constexpr T& value()& noexcept {
     if (is_none()) internal::option::no_lref();
     return value_ref_();
   }
@@ -698,7 +985,7 @@ struct [[nodiscard]] Option {
   ///
   /// ASSERT_EQ(y, 9);
   /// ```
-  [[nodiscard]] T const& value() const& noexcept {
+  [[nodiscard]] constexpr T const& value() const& noexcept {
     if (is_none()) internal::option::no_lref();
     return value_cref_();
   }
@@ -763,13 +1050,13 @@ struct [[nodiscard]] Option {
   [[deprecated(
       "calling Option::as_ref() on an r-value, and therefore binding a "
       "reference to an object that is marked to be moved")]]  //
-  [[nodiscard]] constexpr auto
+  [[nodiscard]] auto
   as_ref()&& noexcept->Option<MutRef<T>> = delete;
 
   [[deprecated(
       "calling Option::as_ref() on an r-value, and therefore binding a "
       "reference to an object that is marked to be moved")]]  //
-  [[nodiscard]] constexpr auto
+  [[nodiscard]] auto
   as_ref() const&& noexcept->Option<ConstRef<T>> = delete;
 
   /// Unwraps an option, yielding the content of a `Some`.
@@ -793,7 +1080,7 @@ struct [[nodiscard]] Option {
   ///                                                          // the world is
   ///                                                          // ending
   /// ```
-  [[nodiscard]] auto expect(std::string_view const& msg)&&->T {
+  [[nodiscard]] constexpr auto expect(std::string_view const& msg)&&->T {
     if (is_some()) {
       return std::move(value_ref_());
     } else {
@@ -823,7 +1110,7 @@ struct [[nodiscard]] Option {
   /// Option<string> y = None;
   /// ASSERT_DEATH(move(y).unwrap());
   /// ```
-  [[nodiscard]] auto unwrap()&&->T {
+  [[nodiscard]] constexpr auto unwrap()&&->T {
     if (is_some()) {
       return std::move(value_ref_());
     } else {
@@ -1270,8 +1557,7 @@ struct [[nodiscard]] Option {
   [[nodiscard]] constexpr auto take()->Option {
     if (is_some()) {
       auto some = Some<T>(std::move(value_ref_()));
-      value_ref_().~T();
-      is_none_ = true;
+      this->_destroy();
       return some;
     } else {
       return None;
@@ -1298,13 +1584,12 @@ struct [[nodiscard]] Option {
   /// ASSERT_EQ(y, Some(3));
   /// ASSERT_EQ(old_y, None);
   /// ```
-  [[nodiscard]] auto replace(T && replacement)->Option {
+  [[nodiscard]] constexpr auto replace(T && replacement)->Option {
     if (is_some()) {
       std::swap(replacement, value_ref_());
       return Some<T>(std::move(replacement));
     } else {
-      new (&storage_value_) T(std::forward<T&&>(replacement));
-      is_none_ = false;
+      this->_emplace(std::move(replacement));
       return None;
     }
   }
@@ -1329,15 +1614,14 @@ struct [[nodiscard]] Option {
   /// ASSERT_EQ(y, Some(3));
   /// ASSERT_EQ(old_y, None);
   /// ```
-  [[nodiscard]] auto replace(T const& replacement)->Option {
+  [[nodiscard]] constexpr auto replace(T const& replacement)->Option {
     static_assert(copy_constructible<T>);
     if (is_some()) {
       T copy = replacement;
       std::swap(copy, value_ref_());
       return Some<T>(std::move(copy));
     } else {
-      new (&storage_value_) T(replacement);
-      is_none_ = false;
+      this->_emplace(replacement);
       return None;
     }
   }
@@ -1382,7 +1666,7 @@ struct [[nodiscard]] Option {
   /// ASSERT_DEATH(divide(0.0, 1.0).expect_none());
   /// ASSERT_NO_THROW(divide(1.0, 0.0).expect_none());
   /// ```
-  void expect_none(std::string_view const& msg)&& {
+  void constexpr expect_none(std::string_view const& msg)&& {
     if (is_some()) {
       internal::option::expect_none_failed(msg);
     }
@@ -1408,7 +1692,7 @@ struct [[nodiscard]] Option {
   /// ASSERT_DEATH(divide(0.0, 1.0).unwrap_none());
   /// ASSERT_NO_THROW(divide(1.0, 0.0).unwrap_none());
   /// ```
-  void unwrap_none()&& {
+  void constexpr unwrap_none()&& {
     if (is_some()) {
       internal::option::no_none();
     }
@@ -1509,21 +1793,18 @@ struct [[nodiscard]] Option {
   }
 
  private:
-  union {
-    T storage_value_;
-  };
 
-  bool is_none_;
-
-  [[nodiscard]] constexpr T& value_ref_() { return storage_value_; }
+  [[nodiscard]] constexpr T& value_ref_() { return this->_get_mut(); }
 
   [[nodiscard]] constexpr T const& value_cref_() const {
-    return storage_value_;
+    return this->_get();
   }
 
   template <typename Tp>
   friend Tp&& internal::option::unsafe_value_move(Option<Tp>&);
 };
+template <typename T>
+Option(Some<T>) -> Option<T>;
 
 template <typename U, typename T>
 [[nodiscard]] STX_FORCE_INLINE constexpr bool operator==(
@@ -1640,7 +1921,7 @@ inline Er&& unsafe_err_move(Result<Tp, Er>&);
 //!
 template <typename T, typename E>
 struct [[nodiscard]] Result {
- public:
+public:
   static_assert(movable<T>,
                 "Value type 'T' for 'Result<T, E>' must be movable");
   static_assert(movable<E>,
@@ -1661,35 +1942,33 @@ struct [[nodiscard]] Result {
   using value_type = T;
   using error_type = E;
 
-  constexpr Result(Ok<T> && result)
+  STX_RESULT_CONSTEXPR Result(Ok<T> && result)
       : storage_value_(std::forward<T>(result.value_)), is_ok_(true) {}
 
-  constexpr Result(Err<E> && err)
+  STX_RESULT_CONSTEXPR Result(Err<E> && err)
       : storage_err_(std::forward<E>(err.value_)), is_ok_(false) {}
 
-  // not possible as constexpr yet:
-  // 1 - we need to check which variant is present
-  // 2 - the union will be default-constructed (empty) and we thus need to call
-  // placement-new in the constructor block
+  STX_RESULT_CONSTEXPR
   Result(Result && rhs) : is_ok_(rhs.is_ok_) {
     if (rhs.is_ok()) {
-      new (&storage_value_) T(std::move(rhs.storage_value_));
+      internal::construct_at(std::addressof(storage_value_), std::move(rhs.storage_value_));
     } else {
-      new (&storage_err_) E(std::move(rhs.storage_err_));
+      internal::construct_at(std::addressof(storage_err_), std::move(rhs.storage_err_));
     }
   }
 
+  STX_RESULT_CONSTEXPR
   Result& operator=(Result&& rhs) {
     if (is_ok() && rhs.is_ok()) {
       std::swap(value_ref_(), rhs.value_ref_());
     } else if (is_ok() && rhs.is_err()) {
       // we need to place a new value in here (discarding old value)
       storage_value_.~T();
-      new (&storage_err_) E(std::move(rhs.storage_err_));
+      internal::construct_at(std::addressof(storage_err_), std::move(rhs.storage_err_));
       is_ok_ = false;
     } else if (is_err() && rhs.is_ok()) {
       storage_err_.~E();
-      new (&storage_value_) T(std::move(rhs.storage_value_));
+      internal::construct_at(std::addressof(storage_value_), std::move(rhs.storage_value_));
       is_ok_ = true;
     } else {
       // both are errs
@@ -1710,8 +1989,9 @@ struct [[nodiscard]] Result {
     }
   };
 
+
   template <typename U>
-  [[nodiscard]] constexpr bool operator==(Ok<U> const& cmp) const {
+  [[nodiscard]] STX_RESULT_CONSTEXPR bool operator==(Ok<U> const& cmp) const {
     static_assert(equality_comparable<T, U>);
     if (is_ok()) {
       return value_cref_() == cmp.value();
@@ -1721,7 +2001,7 @@ struct [[nodiscard]] Result {
   }
 
   template <typename U>
-  [[nodiscard]] constexpr bool operator!=(Ok<U> const& cmp) const {
+  [[nodiscard]] STX_RESULT_CONSTEXPR bool operator!=(Ok<U> const& cmp) const {
     static_assert(equality_comparable<T, U>);
     if (is_ok()) {
       return value_cref_() != cmp.value();
@@ -1731,7 +2011,7 @@ struct [[nodiscard]] Result {
   }
 
   template <typename F>
-  [[nodiscard]] constexpr bool operator==(Err<F> const& cmp) const {
+  [[nodiscard]] STX_RESULT_CONSTEXPR bool operator==(Err<F> const& cmp) const {
     static_assert(equality_comparable<E, F>);
     if (is_ok()) {
       return false;
@@ -1741,7 +2021,7 @@ struct [[nodiscard]] Result {
   }
 
   template <typename F>
-  [[nodiscard]] constexpr bool operator!=(Err<F> const& cmp) const {
+  [[nodiscard]] STX_RESULT_CONSTEXPR bool operator!=(Err<F> const& cmp) const {
     static_assert(equality_comparable<E, F>);
     if (is_ok()) {
       return true;
@@ -1751,7 +2031,7 @@ struct [[nodiscard]] Result {
   }
 
   template <typename U, typename F>
-  [[nodiscard]] constexpr bool operator==(Result<U, F> const& cmp) const {
+  [[nodiscard]] STX_RESULT_CONSTEXPR bool operator==(Result<U, F> const& cmp) const {
     static_assert(equality_comparable<T, U>);
     static_assert(equality_comparable<E, F>);
 
@@ -1765,7 +2045,7 @@ struct [[nodiscard]] Result {
   }
 
   template <typename U, typename F>
-  [[nodiscard]] constexpr bool operator!=(Result<U, F> const& cmp) const {
+  [[nodiscard]] STX_RESULT_CONSTEXPR bool operator!=(Result<U, F> const& cmp) const {
     static_assert(equality_comparable<T, U>);
     static_assert(equality_comparable<E, F>);
 
@@ -1792,7 +2072,7 @@ struct [[nodiscard]] Result {
   /// Result<int, string_view> y = Err("Some error message"sv);
   /// ASSERT_FALSE(y.is_ok());
   /// ```
-  [[nodiscard]] constexpr bool is_ok() const noexcept { return is_ok_; }
+  [[nodiscard]] STX_RESULT_CONSTEXPR bool is_ok() const noexcept { return is_ok_; }
 
   /// Returns `true` if the result is `Err<T>`.
   ///
@@ -1807,9 +2087,9 @@ struct [[nodiscard]] Result {
   /// Result<int, string_view> y = Err("Some error message"sv);
   /// ASSERT_TRUE(y.is_err());
   /// ```
-  [[nodiscard]] constexpr bool is_err() const noexcept { return !is_ok(); }
+  [[nodiscard]] STX_RESULT_CONSTEXPR bool is_err() const noexcept { return !is_ok(); }
 
-  [[nodiscard]] operator bool() const noexcept { return is_ok(); }
+  [[nodiscard]] STX_RESULT_CONSTEXPR operator bool() const noexcept { return is_ok(); }
 
   /// Returns `true` if the result is an `Ok<T>` variant and contains the given
   /// value.
@@ -1830,7 +2110,7 @@ struct [[nodiscard]] Result {
   /// ASSERT_FALSE(z.contains(2));
   /// ```
   template <typename CmpType>
-  [[nodiscard]] constexpr bool contains(CmpType const& cmp) const {
+  [[nodiscard]] STX_RESULT_CONSTEXPR bool contains(CmpType const& cmp) const {
     static_assert(equality_comparable<T, CmpType>);
     if (is_ok()) {
       return value_cref_() == cmp;
@@ -1858,7 +2138,7 @@ struct [[nodiscard]] Result {
   /// ASSERT_FALSE(z.contains_err("Some error message"s));
   /// ```
   template <typename ErrCmp>
-  [[nodiscard]] constexpr bool contains_err(ErrCmp const& cmp) const {
+  [[nodiscard]] STX_RESULT_CONSTEXPR bool contains_err(ErrCmp const& cmp) const {
     static_assert(equality_comparable<E, ErrCmp>);
     if (is_ok()) {
       return false;
@@ -1882,7 +2162,7 @@ struct [[nodiscard]] Result {
   ///
   /// ```
   template <typename UnaryPredicate>
-  [[nodiscard]] constexpr bool exists(UnaryPredicate && predicate) const {
+  [[nodiscard]] STX_RESULT_CONSTEXPR bool exists(UnaryPredicate && predicate) const {
     static_assert(invocable<UnaryPredicate&&, T const&>);
     static_assert(convertible<invoke_result<UnaryPredicate&&, T const&>, bool>);
 
@@ -1908,7 +2188,7 @@ struct [[nodiscard]] Result {
   ///
   /// ```
   template <typename UnaryPredicate>
-  [[nodiscard]] constexpr bool err_exists(UnaryPredicate && predicate) const {
+  [[nodiscard]] STX_RESULT_CONSTEXPR bool err_exists(UnaryPredicate && predicate) const {
     static_assert(invocable<UnaryPredicate&&, E const&>);
     static_assert(convertible<invoke_result<UnaryPredicate&&, E const&>, bool>);
 
@@ -2036,7 +2316,7 @@ struct [[nodiscard]] Result {
   /// Result<int, string> y = Err("Nothing here"s);
   /// ASSERT_EQ(move(y).ok(), None);
   /// ```
-  [[nodiscard]] constexpr auto ok()&&->Option<T> {
+  [[nodiscard]] STX_RESULT_CONSTEXPR auto ok()&&->Option<T> {
     if (is_ok()) {
       return Some<T>(std::move(value_ref_()));
     } else {
@@ -2060,7 +2340,7 @@ struct [[nodiscard]] Result {
   /// Result<int, string> y = Err("Nothing here"s);
   /// ASSERT_EQ(move(y).err(), Some("Nothing here"s));
   /// ```
-  [[nodiscard]] constexpr auto err()&&->Option<E> {
+  [[nodiscard]] STX_RESULT_CONSTEXPR auto err()&&->Option<E> {
     if (is_ok()) {
       return None;
     } else {
@@ -2084,7 +2364,7 @@ struct [[nodiscard]] Result {
   /// Result<int, string> y = Err("Error"s);
   /// ASSERT_EQ(y.as_cref().unwrap_err().get(), "Error"s);
   /// ```
-  [[nodiscard]] constexpr auto as_cref()
+  [[nodiscard]] STX_RESULT_CONSTEXPR auto as_cref()
       const& noexcept->Result<ConstRef<T>, ConstRef<E>> {
     if (is_ok()) {
       return Ok<ConstRef<T>>(ConstRef<T>(value_cref_()));
@@ -2097,7 +2377,7 @@ struct [[nodiscard]] Result {
       "calling Result::as_cref() on an r-value, and "
       "therefore binding an l-value reference to an object that is marked to "
       "be moved")]]  //
-  [[nodiscard]] constexpr auto
+  [[nodiscard]] STX_RESULT_CONSTEXPR auto
   as_cref() const&& noexcept->Result<ConstRef<T>, ConstRef<E>> = delete;
 
   /// Converts from `Result<T, E> &` to `Result<MutRef<T>, MutRef<E>>`.
@@ -2120,7 +2400,7 @@ struct [[nodiscard]] Result {
   /// mutate(y);
   /// ASSERT_EQ(y, Err(0));
   /// ```
-  [[nodiscard]] constexpr auto as_ref()& noexcept
+  [[nodiscard]] STX_RESULT_CONSTEXPR auto as_ref()& noexcept
       ->Result<MutRef<T>, MutRef<E>> {
     if (is_ok()) {
       return Ok<MutRef<T>>(MutRef<T>(value_ref_()));
@@ -2129,7 +2409,7 @@ struct [[nodiscard]] Result {
     }
   }
 
-  [[nodiscard]] constexpr auto as_ref()
+  [[nodiscard]] STX_RESULT_CONSTEXPR auto as_ref()
       const& noexcept->Result<ConstRef<T>, ConstRef<E>> {
     return as_cref();
   }
@@ -2137,13 +2417,13 @@ struct [[nodiscard]] Result {
   [[deprecated(
       "calling Result::as_ref() on an r-value, and therefore binding a "
       "reference to an object that is marked to be moved")]]  //
-  [[nodiscard]] constexpr auto
+  [[nodiscard]] STX_RESULT_CONSTEXPR auto
   as_ref()&& noexcept->Result<MutRef<T>, MutRef<E>> = delete;
 
   [[deprecated(
       "calling Result::as_ref() on an r-value, and therefore binding a "
       "reference to an object that is marked to be moved")]]  //
-  [[nodiscard]] constexpr auto
+  [[nodiscard]] STX_RESULT_CONSTEXPR auto
   as_ref() const&& noexcept->Result<ConstRef<T>, ConstRef<E>> = delete;
 
   /// Maps a `Result<T, E>` to `Result<U, E>` by applying the function `op` to
@@ -2172,7 +2452,7 @@ struct [[nodiscard]] Result {
   /// ASSERT_EQ(content_type, Ok("multipart/form-data"sv));
   /// ```
   template <typename Fn>
-  [[nodiscard]] constexpr auto map(Fn &&
+  [[nodiscard]] STX_RESULT_CONSTEXPR auto map(Fn &&
                                    op)&&->Result<invoke_result<Fn&&, T&&>, E> {
     static_assert(invocable<Fn&&, T&&>);
     if (is_ok()) {
@@ -2199,7 +2479,7 @@ struct [[nodiscard]] Result {
   /// ASSERT_EQ(move(y).map_or(map_fn, 42UL), 42UL);
   /// ```
   template <typename Fn, typename AltType>
-  [[nodiscard]] constexpr auto map_or(
+  [[nodiscard]] STX_RESULT_CONSTEXPR auto map_or(
       Fn && op, AltType && alt)&&->invoke_result<Fn&&, T&&> {
     static_assert(invocable<Fn&&, T&&>);
     if (is_ok()) {
@@ -2232,7 +2512,7 @@ struct [[nodiscard]] Result {
   /// ASSERT_EQ(move(y).map_or_else(map_fn, else_fn), 42);
   /// ```
   template <typename Fn, typename A>
-  [[nodiscard]] constexpr auto map_or_else(
+  [[nodiscard]] STX_RESULT_CONSTEXPR auto map_or_else(
       Fn && op, A && alt_op)&&->invoke_result<Fn&&, T&&> {
     static_assert(invocable<Fn&&, T&&>);
     static_assert(invocable<A&&, E&&>);
@@ -2265,7 +2545,7 @@ struct [[nodiscard]] Result {
   /// ASSERT_EQ(move(y).map_err(stringify), Err("error code: 404"s));
   /// ```
   template <typename Fn>
-  [[nodiscard]] constexpr auto map_err(
+  [[nodiscard]] STX_RESULT_CONSTEXPR auto map_err(
       Fn && op)&&->Result<T, invoke_result<Fn&&, E&&>> {
     static_assert(invocable<Fn&&, E&&>);
     if (is_ok()) {
@@ -2302,7 +2582,7 @@ struct [[nodiscard]] Result {
   /// ```
   // a copy attempt like passing a const could cause an error
   template <typename U, typename F>
-  [[nodiscard]] constexpr auto AND(Result<U, F> && res)&&->Result<U, F> {
+  [[nodiscard]] STX_RESULT_CONSTEXPR auto AND(Result<U, F> && res)&&->Result<U, F> {
     static_assert(convertible<E&&, F>);
     if (is_ok()) {
       return std::forward<Result<U, F>&&>(res);
@@ -2330,7 +2610,7 @@ struct [[nodiscard]] Result {
   /// ASSERT_EQ(make_err(3).and_then(sq).and_then(sq), Err(3));
   /// ```
   template <typename Fn>
-  [[nodiscard]] constexpr auto and_then(
+  [[nodiscard]] STX_RESULT_CONSTEXPR auto and_then(
       Fn && op)&&->Result<invoke_result<Fn&&, T&&>, E> {
     static_assert(invocable<Fn&&, T&&>);
     if (is_ok()) {
@@ -2371,7 +2651,7 @@ struct [[nodiscard]] Result {
   /// ```
   // passing a const ref will cause an error
   template <typename U, typename F>
-  [[nodiscard]] constexpr auto OR(Result<U, F> && alt)&&->Result<U, F> {
+  [[nodiscard]] STX_RESULT_CONSTEXPR auto OR(Result<U, F> && alt)&&->Result<U, F> {
     static_assert(convertible<T&&, U>);
     if (is_ok()) {
       return Ok<U>(std::move(static_cast<U>(std::move(value_ref_()))));
@@ -2401,7 +2681,7 @@ struct [[nodiscard]] Result {
   /// ASSERT_EQ(make_err(3).or_else(err).or_else(err), Err(3));
   /// ```
   template <typename Fn>
-  [[nodiscard]] constexpr auto or_else(Fn && op)&&->invoke_result<Fn&&, E&&> {
+  [[nodiscard]] STX_RESULT_CONSTEXPR auto or_else(Fn && op)&&->invoke_result<Fn&&, E&&> {
     static_assert(invocable<Fn&&, E&&>);
     if (is_ok()) {
       return Ok<T>(std::move(value_ref_()));
@@ -2430,7 +2710,7 @@ struct [[nodiscard]] Result {
   /// Result<int, string_view> y = Err("error"sv);
   /// ASSERT_EQ(move(y).unwrap_or(move(alt_b)), 2);
   /// ```
-  [[nodiscard]] constexpr auto unwrap_or(T && alt)&&->T {
+  [[nodiscard]] STX_RESULT_CONSTEXPR auto unwrap_or(T && alt)&&->T {
     if (is_ok()) {
       return std::move(value_ref_());
     } else {
@@ -2454,7 +2734,7 @@ struct [[nodiscard]] Result {
   /// 4);
   /// ```
   template <typename Fn>
-  [[nodiscard]] constexpr auto unwrap_or_else(Fn && op)&&->T {
+  [[nodiscard]] STX_RESULT_CONSTEXPR auto unwrap_or_else(Fn && op)&&->T {
     static_assert(invocable<Fn&&, E&&>);
     if (is_ok()) {
       return std::move(value_ref_());
@@ -2479,7 +2759,7 @@ struct [[nodiscard]] Result {
   /// Result<int, string_view> x = Err("emergency failure"sv);
   /// ASSERT_DEATH(move(x).unwrap());
   /// ```
-  [[nodiscard]] auto unwrap()&&->T {
+  [[nodiscard]] STX_RESULT_CONSTEXPR auto unwrap()&&->T {
     if (is_err()) {
       internal::result::no_value(err_cref_());
     }
@@ -2501,7 +2781,7 @@ struct [[nodiscard]] Result {
   /// Result<int, string_view> x = Err("emergency failure"sv);
   /// ASSERT_DEATH(move(x).expect("Testing expect"));
   /// ```
-  [[nodiscard]] auto expect(std::string_view const& msg)&&->T {
+  [[nodiscard]] STX_RESULT_CONSTEXPR auto expect(std::string_view const& msg)&&->T {
     if (is_err()) {
       internal::result::expect_value_failed(msg, err_cref_());
     }
@@ -2527,7 +2807,7 @@ struct [[nodiscard]] Result {
   /// Result<int, string_view> y = Err("emergency failure"sv);
   /// ASSERT_EQ(move(y).unwrap_err(), "emergency failure");
   /// ```
-  [[nodiscard]] auto unwrap_err()&&->E {
+  [[nodiscard]] STX_RESULT_CONSTEXPR auto unwrap_err()&&->E {
     if (is_ok()) {
       internal::result::no_err();
     }
@@ -2552,7 +2832,7 @@ struct [[nodiscard]] Result {
   ///                                                         // expect_err:
   ///                                                         // 10"
   /// ```
-  [[nodiscard]] auto expect_err(std::string_view const& msg)&&->E {
+  [[nodiscard]] STX_RESULT_CONSTEXPR auto expect_err(std::string_view const& msg)&&->E {
     if (is_ok()) {
       internal::result::expect_err_failed(msg);
     }
@@ -2579,7 +2859,7 @@ struct [[nodiscard]] Result {
   ///                                                     // value
   ///                                                     // for a C++ string
   /// ```
-  [[nodiscard]] constexpr auto unwrap_or_default()&&->T {
+  [[nodiscard]] STX_RESULT_CONSTEXPR auto unwrap_or_default()&&->T {
     static_assert(default_constructible<T>);
     if (is_ok()) {
       return std::move(value_ref_());
@@ -2620,7 +2900,7 @@ struct [[nodiscard]] Result {
   /// function arguments `some_fn` and `none_fn`.
   ///
   template <typename OkFn, typename ErrFn>
-  [[nodiscard]] constexpr auto match(
+  [[nodiscard]] STX_RESULT_CONSTEXPR auto match(
       OkFn && ok_fn, ErrFn && err_fn)&&->invoke_result<OkFn&&, T&&> {
     static_assert(invocable<OkFn&&, T&&>);
     static_assert(invocable<ErrFn&&, E&&>);
@@ -2633,7 +2913,7 @@ struct [[nodiscard]] Result {
   }
 
   template <typename OkFn, typename ErrFn>
-  [[nodiscard]] constexpr auto match(
+  [[nodiscard]] STX_RESULT_CONSTEXPR auto match(
       OkFn && ok_fn, ErrFn && err_fn)&->invoke_result<OkFn&&, T&> {
     static_assert(invocable<OkFn&&, T&>);
     static_assert(invocable<ErrFn&&, E&>);
@@ -2646,7 +2926,7 @@ struct [[nodiscard]] Result {
   }
 
   template <typename OkFn, typename ErrFn>
-  [[nodiscard]] constexpr auto match(OkFn && ok_fn, ErrFn && err_fn)
+  [[nodiscard]] STX_RESULT_CONSTEXPR auto match(OkFn && ok_fn, ErrFn && err_fn)
       const&->invoke_result<OkFn&&, T const&> {
     static_assert(invocable<OkFn&&, T const&>);
     static_assert(invocable<ErrFn&&, E const&>);
@@ -2669,7 +2949,7 @@ struct [[nodiscard]] Result {
   ///
   /// ASSERT_EQ(x, x.clone());
   /// ```
-  [[nodiscard]] constexpr auto clone() const->Result<T, E> {
+  [[nodiscard]] STX_RESULT_CONSTEXPR auto clone() const->Result<T, E> {
     static_assert(copy_constructible<T>);
     static_assert(copy_constructible<E>);
 
@@ -2688,15 +2968,15 @@ struct [[nodiscard]] Result {
 
   bool is_ok_;
 
-  [[nodiscard]] constexpr T& value_ref_() noexcept { return storage_value_; }
+  [[nodiscard]] STX_RESULT_CONSTEXPR T& value_ref_() noexcept { return storage_value_; }
 
-  [[nodiscard]] constexpr T const& value_cref_() const noexcept {
+  [[nodiscard]] STX_RESULT_CONSTEXPR T const& value_cref_() const noexcept {
     return storage_value_;
   }
 
-  [[nodiscard]] constexpr E& err_ref_() noexcept { return storage_err_; }
+  [[nodiscard]] STX_RESULT_CONSTEXPR E& err_ref_() noexcept { return storage_err_; }
 
-  [[nodiscard]] constexpr E const& err_cref_() const noexcept {
+  [[nodiscard]] STX_RESULT_CONSTEXPR E const& err_cref_() const noexcept {
     return storage_err_;
   }
 
@@ -2708,25 +2988,25 @@ struct [[nodiscard]] Result {
 };
 
 template <typename U, typename T, typename E>
-[[nodiscard]] STX_FORCE_INLINE constexpr bool operator==(
+[[nodiscard]] STX_FORCE_INLINE STX_RESULT_CONSTEXPR bool operator==(
     Ok<U> const& cmp, Result<T, E> const& result) {
   return result == cmp;
 }
 
 template <typename U, typename T, typename E>
-[[nodiscard]] STX_FORCE_INLINE constexpr bool operator!=(
+[[nodiscard]] STX_FORCE_INLINE STX_RESULT_CONSTEXPR bool operator!=(
     Ok<U> const& cmp, Result<T, E> const& result) {
   return result != cmp;
 }
 
 template <typename F, typename T, typename E>
-[[nodiscard]] STX_FORCE_INLINE constexpr bool operator==(
+[[nodiscard]] STX_FORCE_INLINE STX_RESULT_CONSTEXPR bool operator==(
     Err<F> const& cmp, Result<T, E> const& result) {
   return result == cmp;
 }
 
 template <typename F, typename T, typename E>
-[[nodiscard]] STX_FORCE_INLINE constexpr bool operator!=(
+[[nodiscard]] STX_FORCE_INLINE STX_RESULT_CONSTEXPR bool operator!=(
     Err<F> const& cmp, Result<T, E> const& result) {
   return result != cmp;
 }
@@ -2798,7 +3078,7 @@ template <typename T>
 /// C++ 20 and above
 ///
 template <typename T>
-[[nodiscard]] STX_FORCE_INLINE constexpr auto make_none() noexcept
+[[nodiscard]] STX_FORCE_INLINE STX_OPTION_CONSTEXPR auto make_none() noexcept
     -> Option<T> {
   return None;
 }
@@ -2835,7 +3115,7 @@ template <typename T>
 /// C++ 20 and above
 ///
 template <typename T, typename E>
-[[nodiscard]] STX_FORCE_INLINE constexpr auto make_ok(T value) -> Result<T, E> {
+[[nodiscard]] STX_FORCE_INLINE STX_RESULT_CONSTEXPR auto make_ok(T value) -> Result<T, E> {
   return Ok<T>(std::forward<T>(value));
 }
 
@@ -2870,7 +3150,7 @@ template <typename T, typename E>
 /// C++ 20 and above
 ///
 template <typename T, typename E>
-[[nodiscard]] STX_FORCE_INLINE constexpr auto make_err(E err) -> Result<T, E> {
+[[nodiscard]] STX_FORCE_INLINE STX_RESULT_CONSTEXPR auto make_err(E err) -> Result<T, E> {
   return Err<E>(std::forward<E>(err));
 }
 
@@ -2895,7 +3175,7 @@ template <typename T, typename E>
 /// ```
 ///
 template <typename T>
-STX_FORCE_INLINE auto some_ref(T& value) noexcept {
+STX_FORCE_INLINE constexpr auto some_ref(T& value) noexcept {
   return Some<Ref<T>>(std::forward<T&>(value));
 }
 
@@ -2920,7 +3200,7 @@ STX_FORCE_INLINE auto some_ref(T& value) noexcept {
 /// ```
 ///
 template <typename T>
-STX_FORCE_INLINE auto ok_ref(T& value) noexcept {
+STX_FORCE_INLINE constexpr auto ok_ref(T& value) noexcept {
   return Ok<Ref<T>>(std::forward<T&>(value));
 }
 
@@ -2945,7 +3225,7 @@ STX_FORCE_INLINE auto ok_ref(T& value) noexcept {
 /// ```
 ///
 template <typename E>
-STX_FORCE_INLINE auto err_ref(E& value) noexcept {
+STX_FORCE_INLINE constexpr auto err_ref(E& value) noexcept {
   return Err<Ref<E>>(std::forward<E&>(value));
 }
 

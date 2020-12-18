@@ -30,10 +30,32 @@
 #include "stx/option.h"
 #include "stx/result.h"
 
-#if STX_OPTION_IS_CONSTEXPR && STX_RESULT_IS_CONSTEXPR  // check if it'll work
-
 using stx::Ok, stx::Err, stx::Result;
 using stx::Some, stx::None, stx::Option;
+
+struct PartlyNonTrivial {
+  PartlyNonTrivial();                        // nontrivial
+  PartlyNonTrivial(PartlyNonTrivial const&); // nontrivial
+  PartlyNonTrivial(PartlyNonTrivial&&);      // nontrivial
+  PartlyNonTrivial& operator=(PartlyNonTrivial&&); // nontrivial
+  PartlyNonTrivial& operator=(PartlyNonTrivial const&) = default; // trivial
+};
+
+static_assert(std::is_trivially_copyable_v<Option<int>>);
+static_assert(!std::is_trivially_copyable_v<Option<PartlyNonTrivial>>);
+static_assert(!std::is_trivially_move_assignable_v<Option<PartlyNonTrivial>>);
+static_assert(!std::is_trivially_move_constructible_v<Option<PartlyNonTrivial>>);
+static_assert(std::is_trivially_copy_assignable_v<Option<PartlyNonTrivial>>);
+
+template <typename T>
+constexpr auto copy(T const& arg) {
+  return arg;
+}
+
+template <typename T>
+constexpr auto move(T&& arg) {
+  return std::move(arg);
+}
 
 constexpr auto divide(int x, int y) -> Option<int> {
   if (y == 0) return None;
@@ -41,12 +63,36 @@ constexpr auto divide(int x, int y) -> Option<int> {
 }
 
 static_assert(divide(56, 1).unwrap_or_default() == 56);
+static_assert(
+    Option<int>(copy(divide(56, 1))).unwrap_or_default() ==
+    56); // copy ctor
+
+
+static_assert(
+    Option<int>(move(divide(56, 1))).unwrap_or_default() ==
+    56); // move ctor
 static_assert(divide(56, 0).unwrap_or_default() == 0);
 
 static_assert(divide(56, 10).match([](int v) { return v; },
                                    []() { return -1; }) == 5);
 static_assert(divide(56, 0).match([](int v) { return v; },
                                   []() { return -1; }) == -1);
+
+struct NonTrivial {
+  constexpr NonTrivial() {}
+  constexpr NonTrivial(NonTrivial&&) {}
+  constexpr NonTrivial(NonTrivial const&) {}
+  constexpr NonTrivial& operator=(NonTrivial const&) { return *this; }
+  constexpr NonTrivial& operator=(NonTrivial&&) { return *this; }
+  constexpr operator bool() const { return true; }
+};
+static_assert(NonTrivial{});
+static_assert(!Option<NonTrivial>{});
+static_assert(Option(Some(NonTrivial{})).unwrap());
+
+#if STX_OPTION_IS_CONSTEXPR && STX_RESULT_IS_CONSTEXPR  // check if it'll work
+static_assert((copy(Option(Some(NonTrivial{}))).unwrap()));
+static_assert((move(Option(Some(NonTrivial{}))).unwrap()));
 
 enum class Error { Range };
 
