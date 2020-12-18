@@ -512,7 +512,7 @@ struct OptionStorageBasePre {
   };
   bool engaged_ = false;
 
-  constexpr OptionStorageBasePre(){};
+  constexpr OptionStorageBasePre() noexcept {};
   template <typename U>
   constexpr OptionStorageBasePre(U&& val) noexcept(
       nothrow_constructible<T, decltype((std::declval<U&&>().value_))>)
@@ -543,9 +543,28 @@ struct OptionStorageBasePre<T, false> {
       : storage_value_{std::forward<U&&>(val).value_}, engaged_{true} {}
 };
 
+template <typename T, bool = constructible<T, T const&>>
+struct OptionStorageBasePre2 : OptionStorageBasePre<T> {
+  OptionStorageBasePre2() = default;
+  constexpr OptionStorageBasePre2(Some<T> const& arg) noexcept(
+      nothrow_constructible<T, T const&>)
+      : OptionStorageBasePre<T>(arg) {}
+  constexpr OptionStorageBasePre2(Some<T>&& arg) noexcept(
+      nothrow_constructible<T, T&&>)
+      : OptionStorageBasePre<T>(std::move(arg)) {}
+};
+
 template <typename T>
-struct OptionStorageBase<T, false> : OptionStorageBasePre<T> {
-  using OptionStorageBasePre<T>::OptionStorageBasePre;
+struct OptionStorageBasePre2<T, false> : OptionStorageBasePre<T> {
+  OptionStorageBasePre2() = default;
+  constexpr OptionStorageBasePre2(Some<T>&& arg) noexcept(
+      nothrow_constructible<T, T&&>)
+      : OptionStorageBasePre<T>(std::move(arg)) {}
+};
+
+template <typename T>
+struct OptionStorageBase<T, false> : OptionStorageBasePre2<T> {
+  using OptionStorageBasePre2<T>::OptionStorageBasePre2;
 
 private:
   using OptionStorageBasePre<T>::storage_value_;
