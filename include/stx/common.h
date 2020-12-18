@@ -39,6 +39,46 @@ STX_BEGIN_NAMESPACE
 template <typename Fn, typename... Args>
 using invoke_result = typename std::invoke_result<Fn, Args...>::type;
 
+template <typename T>
+inline constexpr bool destructible = std::is_destructible<T>::value;
+
+template <typename T>
+inline constexpr bool nothrow_destructible =
+    std::is_nothrow_destructible<T>::value;
+
+template <typename T, typename U>
+inline constexpr bool assignable = std::is_assignable<T, U>::value;
+
+template <typename T, typename U>
+inline constexpr bool nothrow_assignable =
+    std::is_nothrow_assignable<T, U>::value;
+
+namespace internal {
+namespace traits {
+enum expr_trait { invalid, valid, nothrow_valid };
+template <typename Enable, typename T, typename... Args>
+inline constexpr expr_trait _constructible = invalid;
+
+template <typename T, typename... Args>
+inline constexpr expr_trait _constructible<
+    std::void_t<decltype(new (static_cast<void*>(nullptr))
+                             T(std::declval<Args>()...))>,
+    T,
+    Args...> = noexcept(new (static_cast<void*>(nullptr))
+                            T(std::declval<Args>()...))
+                   ? nothrow_valid
+                   : valid;
+} // namespace traits
+} // namespace internal
+template <typename T, typename... Args>
+inline constexpr bool constructible =
+    internal::traits::_constructible<void, T, Args...> != internal::traits::invalid;
+
+template <typename T, typename... Args>
+inline constexpr bool nothrow_constructible =
+    internal::traits::_constructible<void, T, Args...> ==
+    internal::traits::nothrow_valid;
+
 template <typename Fn, typename... Args>
 constexpr bool invocable = std::is_invocable<Fn, Args...>::value;
 
