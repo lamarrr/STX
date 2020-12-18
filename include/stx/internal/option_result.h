@@ -449,7 +449,7 @@ struct Setter {
   constexpr void operator()() noexcept { ref = value; }
 };
 
-template <typename T, bool = std::is_trivial_v<T> && constructible<T>>
+template <typename T, bool = std::is_trivial_v<T> && nothrow_constructible<T>>
 struct OptionStorageBase {
 private:
   T storage_value_{};
@@ -536,7 +536,7 @@ struct OptionStorageBasePre<T, false> {
       static_cast<OptionStorageBase<T>&>(*this)._destroy();
     }
   }
-  constexpr OptionStorageBasePre(){};
+  constexpr OptionStorageBasePre() noexcept {};
   template <typename U>
   constexpr OptionStorageBasePre(U&& val) noexcept(
       nothrow_constructible<T, decltype((std::declval<U&&>().value_))>)
@@ -802,7 +802,7 @@ public:
       "type wrappers like std::reference_wrapper (stx::Ref) or any of the "
       "`stx::ConstRef` or `stx::MutRef` specialized aliases instead");
 
-  constexpr Option() noexcept = default;
+  constexpr Option() = default;
 
   using internal::option::OptionMoveAssignBase<T>::OptionMoveAssignBase;
 
