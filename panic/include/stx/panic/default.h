@@ -66,6 +66,7 @@ inline void panic_default(std::string_view const& info,
 
   static constexpr const auto kThreadIdHasher = std::hash<std::thread::id>{};
 
+  // TODO(lamarrr): this doesn't work since different threads own it
   static std::mutex stderr_lock;
 
   // we use this buffer for all formatting operations. as it is implementation

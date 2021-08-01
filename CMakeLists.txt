@@ -35,6 +35,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
 include(CMakeDependentOption)
 include(HandleFlags)
 include(CheckCXXSourceCompiles)
+include(add_project_library)
 
 # we have to inform the user of the standards version change, else it'll cause
 # possible compatibility issues
@@ -61,8 +62,6 @@ endif()
 #
 # ===============================================
 
-option(STX_BUILD_SHARED "Build STX as a shared library" OFF)
-
 option(STX_BUILD_TESTS "Build tests" OFF)
 
 option(STX_ENABLE_DEBUG_ASSERTIONS "Enable debug mode assertions"
@@ -87,8 +86,7 @@ option(
 # hooks visible enables you to control the panic behaviour of the dynamically
 # loaded library that depends on STX, i.e. for device drivers you might not want
 # them to cause the whole program to fail on a panic.
-option(STX_VISIBLE_PANIC_HOOK "Make runtime panic hook visible"
-       ${STX_BUILD_SHARED})
+option(STX_VISIBLE_PANIC_HOOK "Make runtime panic hook visible")
 
 # enables the backtrace library, we won't allow it to work by default when built
 # as a shared library for now until we find a reason to, If you find it
@@ -108,7 +106,6 @@ cmake_dependent_option(
 #
 # ===============================================
 
-message(STATUS "[STX] Build as a shared library: " ${STX_BUILD_SHARED})
 message(STATUS "[STX] Build tests: " ${STX_BUILD_TESTS})
 message(STATUS "[STX] Enable debug mode assertions: "
                ${STX_ENABLE_DEBUG_ASSERTIONS})
@@ -123,7 +120,7 @@ message(STATUS "[STX] Enable panic backtrace: " ${STX_ENABLE_PANIC_BACKTRACE})
 
 # ===============================================
 #
-# === Flags and Global Definitions
+# === Flags and Global DefinitionsW
 #
 # ===============================================
 
@@ -148,10 +145,6 @@ else()
   append_flags_if_supported(STX_WARNING_FLAGS "-Wpedantic" "-Wall" "-Wextra")
 endif()
 
-# if available, add MSVC equivalent
-append_flags_if_supported(STX_TEST_WARNING_FLAGS "-Wno-unused-result"
-                          "-Wno-unused-variable")
-
 # ===============================================
 #
 # === Configuration Definitions and Platform Support
@@ -166,6 +159,7 @@ if(STX_OVERRIDE_PANIC_HANDLER)
   list(APPEND STX_COMPILER_DEFS "STX_OVERRIDE_PANIC_HANDLER")
 endif()
 
+# remove this
 if(STX_VISIBLE_PANIC_HOOK)
   list(APPEND STX_COMPILER_DEFS "STX_VISIBLE_PANIC_HOOK")
 endif()
@@ -228,23 +222,11 @@ endif()
 #
 # ===============================================
 
-if(STX_ENABLE_BACKTRACE)
-  list(APPEND STX_SRCS src/backtrace.cc)
-endif()
-
-list(APPEND STX_SRCS src/panic/hook.cc src/panic.cc)
-
 # ===============================================
 #
 # === Library Setup
 #
 # ===============================================
-
-if(STX_BUILD_SHARED)
-  add_library(stx SHARED ${STX_SRCS})
-else()
-  add_library(stx STATIC ${STX_SRCS})
-endif()
 
 target_include_directories(stx PUBLIC include)
 target_compile_options(stx PRIVATE ${STX_FLAGS} ${STX_WARNING_FLAGS})
@@ -324,15 +306,16 @@ endif()
 # ===============================================
 
 list(
-  APPEND STX_TEST_SRCS
-         tests/common_test.cc
-         tests/constexpr_test.cc
-         tests/option_test.cc
-         tests/panic_test.cc
-         tests/report_test.cc
-         tests/result_test.cc
-         tests/span_test.cc
-         tests/tests.cc)
+  APPEND
+  STX_TEST_SRCS
+  tests/common_test.cc
+  tests/constexpr_test.cc
+  tests/option_test.cc
+  tests/panic_test.cc
+  tests/report_test.cc
+  tests/result_test.cc
+  tests/span_test.cc
+  tests/tests.cc)
 
 if(STX_ENABLE_BACKTRACE)
   list(APPEND STX_TEST_SRCS tests/backtrace_test.cc)

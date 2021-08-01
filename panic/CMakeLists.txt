@@ -1,0 +1,1 @@
+add_project_library(stx panic)
