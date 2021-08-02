@@ -50,15 +50,15 @@ STX_BEGIN_NAMESPACE
 struct [[nodiscard]] SourceLocation {
   static constexpr SourceLocation current(
 #if STX_HAS_BUILTIN(FILE)
-      const char* file = __builtin_FILE(),
+      char const* file = __builtin_FILE(),
 #else
-      const char* file = "unknown",
+      char const* file = "unknown",
 #endif
 
 #if STX_HAS_BUILTIN(FUNCTION)
-      const char* func = __builtin_FUNCTION(),
+      char const* func = __builtin_FUNCTION(),
 #else
-      const char* func = "unknown",
+      char const* func = "unknown",
 #endif
 
 #if STX_HAS_BUILTIN(LINE)
@@ -90,16 +90,16 @@ struct [[nodiscard]] SourceLocation {
   constexpr uint_least32_t line() const { return line_; }
 
   /// return the file name represented by this object
-  constexpr const char* file_name() const { return file_; }
+  constexpr char const* file_name() const { return file_; }
 
   /// return the name of the function represented by this object, if any
-  constexpr const char* function_name() const { return func_; }
+  constexpr char const* function_name() const { return func_; }
 
  private:
   uint_least32_t line_;
   uint_least32_t column_;
-  const char* file_;
-  const char* func_;
+  char const* file_;
+  char const* func_;
 };
 
 STX_END_NAMESPACE
