@@ -58,11 +58,6 @@
 
 STX_BEGIN_NAMESPACE
 
-#if defined(STX_VISIBLE_PANIC_HOOK)
-constexpr bool kPanicHookVisible = true;
-#else
-constexpr bool kPanicHookVisible = false;
-#endif
 
 // multiple threads can try to modify/read the hook at once.
 using PanicHook = decltype(panic_handler)*;
@@ -76,7 +71,7 @@ namespace this_thread {
 ///
 /// Yes
 ///
-[[nodiscard]] STX_EXPORT bool is_panicking() noexcept;
+[[nodiscard]] STX_DLL_EXPORT bool is_panicking() noexcept;
 }  // namespace this_thread
 
 /// Checks if panic hooks are visible to be attached-to when loaded as a dynamic
@@ -87,7 +82,7 @@ namespace this_thread {
 ///
 /// Yes
 ///
-[[nodiscard]] STX_EXPORT bool panic_hook_visible() noexcept;
+[[nodiscard]] STX_DLL_EXPORT bool panic_hook_visible() noexcept;
 
 /// Attaches a new panic hook, the attached panic hook is called in place of the
 /// default panic hook.
@@ -99,15 +94,7 @@ namespace this_thread {
 ///
 /// Yes
 ///
-[[nodiscard]]
-#if defined(STX_VISIBLE_PANIC_HOOK)
-STX_EXPORT
-#else
-STX_LOCAL
-#endif
-
-    bool
-    attach_panic_hook(PanicHook hook) noexcept;
+[[nodiscard]] STX_DLL_EXPORT bool attach_panic_hook(PanicHook hook) noexcept;
 
 /// Removes the registered panic hook (if any) and resets it to the
 /// default panic hook.
@@ -120,14 +107,6 @@ STX_LOCAL
 ///
 /// Yes
 ///
-[[nodiscard]]
-#if defined(STX_VISIBLE_PANIC_HOOK)
-STX_EXPORT
-#else
-STX_LOCAL
-#endif
-
-    bool
-    take_panic_hook(PanicHook* hook) noexcept;
+[[nodiscard]] STX_DLL_EXPORT bool take_panic_hook(PanicHook* hook) noexcept;
 
 STX_END_NAMESPACE
