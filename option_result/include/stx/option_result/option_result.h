@@ -775,7 +775,7 @@ struct [[nodiscard]] Option {
   ///                                                          // the world is
   ///                                                          // ending
   /// ```
-  [[nodiscard]] auto expect(std::string_view const& msg)&&->T {
+  [[nodiscard]] auto expect(std::string_view msg)&&->T {
     if (is_some()) {
       return std::move(value_ref_());
     } else {
@@ -1364,7 +1364,7 @@ struct [[nodiscard]] Option {
   /// ASSERT_DEATH(divide(0.0, 1.0).expect_none());
   /// ASSERT_NO_THROW(divide(1.0, 0.0).expect_none());
   /// ```
-  void expect_none(std::string_view const& msg)&& {
+  void expect_none(std::string_view msg)&& {
     if (is_some()) {
       internal::option::expect_none_failed(msg);
     }
@@ -2483,7 +2483,7 @@ struct [[nodiscard]] Result {
   /// Result<int, string_view> x = Err("emergency failure"sv);
   /// ASSERT_DEATH(move(x).expect("Testing expect"));
   /// ```
-  [[nodiscard]] auto expect(std::string_view const& msg)&&->T {
+  [[nodiscard]] auto expect(std::string_view msg)&&->T {
     if (is_err()) {
       internal::result::expect_value_failed(msg, err_cref_());
     }
@@ -2534,7 +2534,7 @@ struct [[nodiscard]] Result {
   ///                                                         // expect_err:
   ///                                                         // 10"
   /// ```
-  [[nodiscard]] auto expect_err(std::string_view const& msg)&&->E {
+  [[nodiscard]] auto expect_err(std::string_view msg)&&->E {
     if (is_ok()) {
       internal::result::expect_err_failed(msg);
     }

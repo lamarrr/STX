@@ -20,8 +20,8 @@ STX_BEGIN_NAMESPACE
 /// It is advisable to be avoid heap memory allocation of any sort and be
 /// conscious of shared state as it can be called from mulitple threads.
 ///
-void panic_handler(std::string_view const& info, ReportPayload const& payload,
-                   SourceLocation const& location) noexcept;
+void panic_handler(std::string_view info, ReportPayload const& payload,
+                   SourceLocation location) noexcept;
 
 /// Handles and dispatches the panic handler. The debugging breakpoint should be
 /// attached to this function to investigate panics.
@@ -30,9 +30,9 @@ void panic_handler(std::string_view const& info, ReportPayload const& payload,
 ///
 /// DO NOT INVOKE THIS FUNCTION!!!
 ///
-[[noreturn]] STX_DLL_EXPORT void begin_panic(
-    std::string_view const& info, ReportPayload const& payload,
-    SourceLocation const& location) noexcept;
+[[noreturn]] STX_DLL_EXPORT void begin_panic(std::string_view info,
+                                             ReportPayload const& payload,
+                                             SourceLocation location) noexcept;
 
 /// This allows a program to terminate immediately and provide feedback to the
 /// caller of the program. `panic` should be used when a program reaches an
@@ -43,15 +43,15 @@ void panic_handler(std::string_view const& info, ReportPayload const& payload,
 ///
 template <typename T>
 [[noreturn]] STX_FORCE_INLINE void panic(
-    std::string_view const& info, T const& value,
-    SourceLocation const& location = SourceLocation::current()) noexcept {
+    std::string_view info, T const& value,
+    SourceLocation location = SourceLocation::current()) noexcept {
   begin_panic(info, ReportPayload(report_query >> value), location);
 }
 
 template <typename T = void>
 [[noreturn]] STX_FORCE_INLINE void panic(
-    std::string_view const& info = "explicit panic",
-    SourceLocation const& location = SourceLocation::current()) noexcept {
+    std::string_view info = "explicit panic",
+    SourceLocation location = SourceLocation::current()) noexcept {
   begin_panic(info, ReportPayload(SpanReport()), location);
 }
 
