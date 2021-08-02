@@ -309,7 +309,7 @@ struct Span {
   }
 
   template <size_type Offset>
-  constexpr Span<T> subspan() {
+  constexpr Span<T> subspan() const {
     static_assert((extent == dynamic_extent ? true : (Offset < extent)),
                   "Offset is greater than extent");
     return Span < T,
@@ -319,7 +319,7 @@ struct Span {
   }
 
   template <size_type Offset, size_type Length>
-  constexpr Span<T> subspan() {
+  constexpr Span<T> subspan() const {
     static_assert((extent == dynamic_extent ? true : (Offset < extent)),
                   "Offset is greater than extent");
     static_assert(
