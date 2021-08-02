@@ -9,7 +9,7 @@
  *
  */
 
-#include "stx/common.h"
+#include "stx/utils/common.h"
 
 #include <memory>
 #include <vector>

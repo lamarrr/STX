@@ -9,7 +9,7 @@
  *
  */
 
-#include "stx/report.h"
+#include "stx/panic/report.h"
 
 #include <limits>
 #include <sstream>
