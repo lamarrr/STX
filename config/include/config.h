@@ -262,24 +262,6 @@
 #endif
 #endif
 
-/*********************** SHARED LIBRARY SUPPORT ***********************/
-
-#if CFG(OS, WINDOWS) || CFG(OS, CYGWIN)
-#define STX_IMPORT __declspec(dllimport)
-#define STX_EXPORT __declspec(dllexport)
-#define STX_LOCAL
-#else
-#if __has_cpp_attribute(gnu::visibility)
-#define STX_IMPORT [[gnu::visibility("default")]]
-#define STX_EXPORT [[gnu::visibility("default")]]
-#define STX_LOCAL [[gnu::visibility("hidden")]]
-#else
-#define STX_IMPORT
-#define STX_EXPORT
-#define STX_LOCAL
-#endif
-#endif
-
 /*********************** BINARY FORMATS ***********************/
 
 #if defined(__wasm__)  // Web Assembly
@@ -308,6 +290,25 @@
 #define STX_TOOLCHAIN_LLVM 0
 #endif
 
+/*********************** SHARED LIBRARY (DLL) SUPPORT ***********************/
+
+#if CFG(OS, WINDOWS) || CFG(OS, CYGWIN)
+// symbols are hidden by default on windows DLLs
+#define STX_DLL_IMPORT __declspec(dllimport)
+#define STX_DLL_EXPORT __declspec(dllexport)
+#define STX_DLL_HIDDEN
+#else
+#if CFG(COMPILER, GNUC)
+// symbols are visible by default on GNUC DLLs
+#define STX_DLL_IMPORT __attribute__((visibility("default")))
+#define STX_DLL_EXPORT __attribute__((visibility("default")))
+#define STX_DLL_HIDDEN __attribute__((visibility("hidden")))
+#else
+#define STX_DLL_IMPORT
+#define STX_DLL_EXPORT
+#define STX_DLL_HIDDEN
+#endif
+#endif
 
 /*********************** INLINING MACROS ***********************/
 
