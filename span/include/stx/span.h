@@ -71,25 +71,23 @@ struct is_container_impl<T, decltype((type_ptr_and_size(
 template <typename T>
 constexpr bool is_container = is_container_impl<T>::value;
 
-template<typename Element, typename OtherElement>
-constexpr bool is_compatible = std::is_convertible_v<
-  OtherElement(*)[],
-  Element(*)[]
->;
-
+template <typename Element, typename OtherElement>
+constexpr bool is_compatible =
+    std::is_convertible_v<OtherElement (*)[], Element (*)[]>;
 
 template <typename T, typename Element, typename = void>
 struct is_compatible_container_impl : std::false_type {};
 
 template <typename T, typename Element>
-struct is_compatible_container_impl<T, Element, std::void_t<decltype(std::data(std::declval<T>()))>>
-   : std::bool_constant<is_compatible<
-    Element,
-    std::remove_pointer_t<decltype(std::data(std::declval<T>()))>
-   >> {};
+struct is_compatible_container_impl<
+    T, Element, std::void_t<decltype(std::data(std::declval<T>()))>>
+    : std::bool_constant<is_compatible<
+          Element,
+          std::remove_pointer_t<decltype(std::data(std::declval<T>()))>>> {};
 
-template<typename T, typename Element>
-constexpr bool is_compatible_container = is_compatible_container_impl<T, Element>::value;
+template <typename T, typename Element>
+constexpr bool is_compatible_container =
+    is_compatible_container_impl<T, Element>::value;
 
 }  // namespace internal
 
@@ -163,7 +161,8 @@ struct Span {
   using cv_match_ = internal::match_cv<element_type, T>;
 
   template <typename T>
-  constexpr static bool is_compatible = internal::is_compatible<element_type, T>;
+  constexpr static bool is_compatible =
+      internal::is_compatible<element_type, T>;
 
   static constexpr size_type byte_extent_ =
       Extent * (sizeof(element_type) / sizeof(std::byte));
@@ -177,7 +176,7 @@ struct Span {
   /// (compile-time bounds-checked).
   template <typename SrcElement, size_type SrcExtent,
             std::enable_if_t<is_compatible<SrcElement>, int> = 0>
-  constexpr Span(Span<SrcElement, SrcExtent> const& src) noexcept
+  constexpr Span(Span<SrcElement, SrcExtent> const& src)
       : data_{static_cast<pointer>(src.data())} {
     static_assert(Extent <= SrcExtent,
                   "performing a subspan from a static-extent span source of "
@@ -189,7 +188,7 @@ struct Span {
   template <typename SrcElement, size_type SrcExtent,
             std::enable_if_t<is_compatible<SrcElement>, int> = 0>
   static STX_OPTION_CONSTEXPR Option<Span> try_init(
-      Span<SrcElement, SrcExtent> const& src) noexcept {
+      Span<SrcElement, SrcExtent> const& src) {
     if constexpr (Extent > SrcExtent) return None;
     return Some(Span(src));
   }
@@ -200,7 +199,7 @@ struct Span {
   /// Also, see: bounds-checked `Span::try_init`.
   template <typename SrcElement,
             std::enable_if_t<is_compatible<SrcElement>, int> = 0>
-  explicit constexpr Span(Span<SrcElement, dynamic_extent> const& src) noexcept
+  explicit constexpr Span(Span<SrcElement, dynamic_extent> const& src)
       : data_{static_cast<pointer>(src.data())} {}
 
   /// factory function for copy-constructing a static-extent span from a
@@ -208,19 +207,19 @@ struct Span {
   template <typename SrcElement,
             std::enable_if_t<is_compatible<SrcElement>, int> = 0>
   static STX_OPTION_CONSTEXPR Option<Span> try_init(
-      Span<SrcElement, dynamic_extent> const& src) noexcept {
+      Span<SrcElement, dynamic_extent> const& src) {
     if (Extent > src.size()) return None;
     return Some(Span(src));
   }
 
   /// construct static-extent span from iterator/raw-pointer (not
   /// bounds-checked).
-  constexpr Span(iterator begin) noexcept : data_{begin} {};
+  constexpr Span(iterator begin) : data_{begin} {};
 
   /// construct static-extent span from array (compile-time bounds-checked).
   template <typename SrcElement, size_type Length,
             std::enable_if_t<is_compatible<SrcElement>, int> = 0>
-  constexpr Span(SrcElement (&array)[Length]) noexcept
+  constexpr Span(SrcElement (&array)[Length])
       : data_{static_cast<pointer>(array)} {
     static_assert(Extent <= Length,
                   "Span extent is more than static array length");
@@ -230,7 +229,7 @@ struct Span {
   template <typename SrcElement, size_type Length,
             std::enable_if_t<is_compatible<SrcElement>, int> = 0>
   static STX_OPTION_CONSTEXPR Option<Span> try_init(
-      SrcElement (&array)[Length]) noexcept {
+      SrcElement (&array)[Length]) {
     if constexpr (Extent > Length) return None;
     return Some(Span(static_cast<pointer>(array)));
   }
@@ -239,7 +238,7 @@ struct Span {
   /// bounds-checked).
   template <typename SrcElement, size_type Length,
             std::enable_if_t<is_compatible<SrcElement>, int> = 0>
-  constexpr Span(std::array<SrcElement, Length>& array) noexcept
+  constexpr Span(std::array<SrcElement, Length>& array)
       : data_{static_cast<pointer>(array.data())} {
     static_assert(Extent <= Length,
                   "Span extent is more than std::array's length");
@@ -249,7 +248,7 @@ struct Span {
   template <typename SrcElement, size_type Length,
             std::enable_if_t<is_compatible<SrcElement>, int> = 0>
   static STX_OPTION_CONSTEXPR Option<Span> try_init(
-      std::array<SrcElement, Length>& array) noexcept {
+      std::array<SrcElement, Length>& array) {
     if constexpr (Extent > Length) return None;
     return Some(Span(static_cast<pointer>(array.data())));
   }
@@ -258,7 +257,7 @@ struct Span {
   /// bounds-checked).
   template <typename SrcElement, size_type Length,
             std::enable_if_t<is_compatible<SrcElement const>, int> = 0>
-  constexpr Span(std::array<SrcElement, Length> const& array) noexcept
+  constexpr Span(std::array<SrcElement, Length> const& array)
       : data_{static_cast<pointer>(array.data())} {
     static_assert(Extent <= Length,
                   "Span extent is more than std::array's length");
@@ -268,17 +267,17 @@ struct Span {
   template <typename SrcElement, size_type Length,
             std::enable_if_t<is_compatible<SrcElement const>, int> = 0>
   static STX_OPTION_CONSTEXPR Option<Span> try_init(
-      std::array<SrcElement, Length> const& array) noexcept {
+      std::array<SrcElement, Length> const& array) {
     if constexpr (Extent > Length) return None;
     return Some(Span(static_cast<pointer>(array.data())));
   }
 
   template <typename SrcElement, size_type Length>
-  constexpr Span(std::array<SrcElement, Length>&& array) noexcept = delete;
+  constexpr Span(std::array<SrcElement, Length>&& array) = delete;
 
   template <typename SrcElement, size_type Length>
   static STX_OPTION_CONSTEXPR Option<Span> try_init(
-      std::array<SrcElement, Length>&& array) noexcept = delete;
+      std::array<SrcElement, Length>&& array) = delete;
 
   /// construct static-extent span from any container (not bounds-checked).
   ///
@@ -289,78 +288,73 @@ struct Span {
   /// use only for containers storing a contiguous sequence of elements.
   template <typename Container,
             std::enable_if_t<
-              internal::is_container<Container&> &&
-              internal::is_compatible_container<Container&, element_type>, int> = 0>
-  explicit constexpr Span(Container& container) noexcept
+                internal::is_container<Container&> &&
+                    internal::is_compatible_container<Container&, element_type>,
+                int> = 0>
+  explicit constexpr Span(Container& container)
       : data_{static_cast<pointer>(std::data(container))} {}
 
   /// factory function for constructing a static-extent span from any container
   /// (bounds-checked).
   template <typename Container,
             std::enable_if_t<
-              internal::is_container<Container&> &&
-              internal::is_compatible_container<Container&, element_type>, int> = 0>
-  static STX_OPTION_CONSTEXPR Option<Span> try_init(
-      Container& container) noexcept {
+                internal::is_container<Container&> &&
+                    internal::is_compatible_container<Container&, element_type>,
+                int> = 0>
+  static STX_OPTION_CONSTEXPR Option<Span> try_init(Container& container) {
     if (Extent > std::size(container)) return None;
     return Some(Span(std::data(container)));
   }
 
-  constexpr Span(Span const&) noexcept = default;
-  constexpr Span(Span&&) noexcept = default;
-  constexpr Span& operator=(Span const&) noexcept = default;
-  constexpr Span& operator=(Span&&) noexcept = default;
-  ~Span() noexcept = default;
+  constexpr Span(Span const&) = default;
+  constexpr Span(Span&&) = default;
+  constexpr Span& operator=(Span const&) = default;
+  constexpr Span& operator=(Span&&) = default;
+  ~Span() = default;
 
   /// returns a pointer to the beginning of the sequence of elements.
-  constexpr pointer data() const noexcept { return data_; };
+  constexpr pointer data() const { return data_; };
 
   /// returns the number of elements in the sequence.
-  constexpr size_type size() const noexcept { return size_; };
+  constexpr size_type size() const { return size_; };
 
   /// returns the size of the sequence in bytes.
-  constexpr size_type size_bytes() const noexcept { return byte_extent_; }
+  constexpr size_type size_bytes() const { return byte_extent_; }
 
   /// checks if the sequence is empty.
-  constexpr bool empty() const noexcept { return size() == 0; };
+  constexpr bool empty() const { return size() == 0; };
 
   /// returns an iterator to the beginning.
-  constexpr iterator begin() const noexcept { return data_; };
+  constexpr iterator begin() const { return data_; };
 
   /// returns an iterator to the end.
-  constexpr iterator end() const noexcept { return begin() + size(); };
+  constexpr iterator end() const { return begin() + size(); };
 
   /// returns a constant iterator to the beginning.
-  constexpr const_iterator cbegin() const noexcept { return begin(); };
+  constexpr const_iterator cbegin() const { return begin(); };
 
   /// returns a constant iterator to the end.
-  constexpr const_iterator cend() const noexcept { return end(); };
+  constexpr const_iterator cend() const { return end(); };
 
   /// returns a reverse iterator to the beginning.
-  constexpr reverse_iterator rbegin() const noexcept {
-    return reverse_iterator(end());
-  };
+  constexpr reverse_iterator rbegin() const { return reverse_iterator(end()); };
 
   /// returns a reverse iterator to the end.
-  constexpr reverse_iterator rend() const noexcept {
-    return reverse_iterator(begin());
-  };
+  constexpr reverse_iterator rend() const { return reverse_iterator(begin()); };
 
   /// returns a constant reverse iterator to the beginning.
-  constexpr const_reverse_iterator crbegin() const noexcept {
-    return rbegin();
-  };
+  constexpr const_reverse_iterator crbegin() const { return rbegin(); };
 
   /// returns a constant reverse iterator to the end.
-  constexpr const_reverse_iterator crend() const noexcept { return rend(); };
+  constexpr const_reverse_iterator crend() const { return rend(); };
 
   /// accesses an element of the sequence (not bounds-checked).
-  constexpr reference operator[](index_type index) const noexcept {
+  constexpr reference operator[](index_type index) const {
     return data()[index];
   };
 
   /// accesses an element of the sequence (bounds-checked).
-  STX_OPTION_CONSTEXPR auto at(index_type index) const noexcept
+  STX_OPTION_CONSTEXPR auto at(index_type index) const
       -> Option<Ref<element_type>> {
     if (index < size()) {
       return Some<Ref<element_type>>(data()[index]);
@@ -371,7 +365,7 @@ struct Span {
 
   /// accesses an element of the sequence (bounds-checked).
   template <index_type Pos>
-  STX_OPTION_CONSTEXPR auto at() const noexcept -> Option<Ref<element_type>> {
+  STX_OPTION_CONSTEXPR auto at() const -> Option<Ref<element_type>> {
     if constexpr (Pos < Extent) {
       return Some<Ref<element_type>>(data()[Pos]);
     } else {
@@ -380,20 +374,20 @@ struct Span {
   }
 
   /// obtains a subspan starting at an offset (not bounds-checked).
-  constexpr Span<element_type> subspan(index_type offset) const noexcept {
+  constexpr Span<element_type> subspan(index_type offset) const {
     return Span<element_type>(begin() + offset, end());
   };
 
   /// obtains a subspan starting at an offset and with a length
   /// (not bounds-checked).
   constexpr Span<element_type> subspan(index_type offset,
-                                       size_type length) const noexcept {
+                                       size_type length) const {
     return Span<element_type>(begin() + offset, length);
   };
 
   /// obtains a subspan starting at an offset (bounds-checked).
   STX_OPTION_CONSTEXPR Option<Span<element_type>> try_subspan(
-      index_type offset) const noexcept {
+      index_type offset) const {
     if (offset >= size()) return None;
     return Some(subspan(offset));
   };
@@ -401,7 +395,7 @@ struct Span {
   /// obtains a subspan starting at an offset and with a length
   /// (bounds-checked).
   STX_OPTION_CONSTEXPR Option<Span<element_type>> try_subspan(
-      index_type offset, size_type length) const noexcept {
+      index_type offset, size_type length) const {
     if (offset >= size()) return None;
     if (begin() + offset + length > end()) return None;
     return Some(subspan(offset, length));
@@ -410,7 +404,7 @@ struct Span {
   /// obtains a subspan with offset provided via a template parameter
   /// (compile-time bounds-checked).
   template <index_type Offset>
-  constexpr Span<element_type, (Extent - Offset)> subspan() const noexcept {
+  constexpr Span<element_type, (Extent - Offset)> subspan() const {
     static_assert(Offset < Extent,
                   "Offset can not be greater than static-extent span's size");
     return Span<element_type, (Extent - Offset)>(begin() + Offset);
@@ -419,7 +413,7 @@ struct Span {
   /// obtains a subspan with offset and length provided via a template
   /// parameter (compile-time bounds-checked).
   template <index_type Offset, size_type Length>
-  constexpr Span<element_type, Length> subspan() const noexcept {
+  constexpr Span<element_type, Length> subspan() const {
     static_assert(Offset < Extent,
                   "Offset can not be greater than static-extent span's size");
     static_assert(Offset + Length <= Extent,
@@ -431,7 +425,7 @@ struct Span {
   /// (bounds-checked).
   template <index_type Offset>
   STX_OPTION_CONSTEXPR Option<Span<element_type, (Extent - Offset)>>
-  try_subspan() const noexcept {
+  try_subspan() const {
     if constexpr (Offset >= Extent) return None;
     return Some(Span<element_type, (Extent - Offset)>(begin() + Offset));
   }
@@ -439,8 +433,7 @@ struct Span {
   /// obtains a subspan with offset and length provided via a template parameter
   /// (bounds-checked).
   template <index_type Offset, size_type Length>
-  STX_OPTION_CONSTEXPR Option<Span<element_type, Length>> try_subspan()
-      const noexcept {
+  STX_OPTION_CONSTEXPR Option<Span<element_type, Length>> try_subspan() const {
     if constexpr (Offset >= Extent) return None;
     if (begin() + Offset + Length > end()) return None;
     return Some(Span<element_type, Length>(begin() + Offset));
@@ -448,27 +441,25 @@ struct Span {
 
   /// converts the span into a view of its underlying bytes (represented with
   /// `std::byte`).
-  constexpr Span<cv_match_<std::byte>, byte_extent_> as_bytes() const noexcept {
+  constexpr Span<cv_match_<std::byte>, byte_extent_> as_bytes() const {
     return Span<cv_match_<std::byte>, byte_extent_>(
         reinterpret_cast<cv_match_<std::byte>*>(data()));
   }
 
   /// converts the span into a view of its underlying bytes (represented with
   /// `uint8_t`).
-  constexpr Span<cv_match_<uint8_t>, u8_extent_> as_u8() const noexcept {
+  constexpr Span<cv_match_<uint8_t>, u8_extent_> as_u8() const {
     return Span<cv_match_<uint8_t>, u8_extent_>(
         reinterpret_cast<cv_match_<uint8_t>*>(data()));
   }
 
   /// converts the span into an immutable span.
-  constexpr Span<element_type const, Extent> as_const() const noexcept {
-    return *this;
-  }
+  constexpr Span<element_type const, Extent> as_const() const { return *this; }
 
   /// converts the span into another span in which reads
   /// and writes to the contiguous sequence are performed as volatile
   /// operations.
-  constexpr Span<element_type volatile, Extent> as_volatile() const noexcept {
+  constexpr Span<element_type volatile, Extent> as_volatile() const {
     return *this;
   }
 
@@ -501,46 +492,46 @@ struct Span<Element, dynamic_extent> {
   using cv_match_ = internal::match_cv<element_type, T>;
 
   template <typename T>
-  constexpr static bool is_compatible = internal::is_compatible<element_type, T>;
+  constexpr static bool is_compatible =
+      internal::is_compatible<element_type, T>;
 
  public:
-  constexpr Span() noexcept : data_{nullptr}, size_{0} {}
+  constexpr Span() : data_{nullptr}, size_{0} {}
 
   /// copy-construct dynamic-extent span from a static-extent span.
   template <typename SrcElement, size_type SrcExtent,
             std::enable_if_t<is_compatible<SrcElement>, int> = 0>
-  constexpr Span(Span<SrcElement, SrcExtent> const& src) noexcept
+  constexpr Span(Span<SrcElement, SrcExtent> const& src)
       : data_{static_cast<pointer>(src.data())}, size_{SrcExtent} {}
 
   /// copy-construct dynamic-extent span from another dynamic-extent span.
   template <typename SrcElement,
             std::enable_if_t<is_compatible<SrcElement>, int> = 0>
-  constexpr Span(Span<SrcElement, dynamic_extent> const& src) noexcept
+  constexpr Span(Span<SrcElement, dynamic_extent> const& src)
       : data_{static_cast<pointer>(src.data())}, size_{src.size()} {}
 
   /// construct dynamic-extent span with an iterator/raw-pointer and a size
-  template <
-      typename Iterator,
-      std::enable_if_t<
-        std::is_convertible_v<Iterator&, iterator> &&
-        is_compatible<typename std::iterator_traits<Iterator>::value_type>, int> = 0>
-  constexpr Span(Iterator begin, size_type size) noexcept
+  template <typename Iterator,
+            std::enable_if_t<std::is_convertible_v<Iterator&, iterator> &&
+                                 is_compatible<typename std::iterator_traits<
+                                     Iterator>::value_type>,
+                             int> = 0>
+  constexpr Span(Iterator begin, size_type size)
       : data_{static_cast<iterator>(begin)}, size_{size} {}
 
   /// construct dynamic-extent span with an iterator/raw-pointer and a size
-  constexpr Span(iterator begin, size_type size) noexcept
-      : data_{begin}, size_{size} {}
+  constexpr Span(iterator begin, size_type size) : data_{begin}, size_{size} {}
 
   /// construct dynamic-extent span from two iterators/raw-pointers.
   /// `end` must be greater than `begin`. (unchecked)
   ///
   /// Also, see checked `Span::try_init`.
-  template <
-      typename Iterator,
-      std::enable_if_t<
-        std::is_convertible_v<Iterator&, iterator> &&
-        is_compatible<typename std::iterator_traits<Iterator>::value_type>, int> = 0>
-  constexpr Span(Iterator begin, Iterator end) noexcept
+  template <typename Iterator,
+            std::enable_if_t<std::is_convertible_v<Iterator&, iterator> &&
+                                 is_compatible<typename std::iterator_traits<
+                                     Iterator>::value_type>,
+                             int> = 0>
+  constexpr Span(Iterator begin, Iterator end)
       : data_{begin},
         size_{static_cast<size_type>(static_cast<iterator>(end) -
                                      static_cast<iterator>(begin))} {}
@@ -549,21 +540,20 @@ struct Span<Element, dynamic_extent> {
   /// `end` must be greater than `begin`. (unchecked)
   ///
   /// Also, see checked `Span::try_init`.
-  constexpr Span(iterator begin, iterator end) noexcept
-      : data_{begin},
-        size_{static_cast<size_type>(end - begin)} {}
+  constexpr Span(iterator begin, iterator end)
+      : data_{begin}, size_{static_cast<size_type>(end - begin)} {}
 
   /// factory function for constructing a span from two iterators/raw-pointers
   /// (checked).
   //
   /// constexpr since C++20.
-  template <
-      typename Iterator,
-      std::enable_if_t<
-        std::is_convertible_v<Iterator&, iterator> &&
-        is_compatible<typename std::iterator_traits<Iterator>::value_type>, int> = 0>
+  template <typename Iterator,
+            std::enable_if_t<std::is_convertible_v<Iterator&, iterator> &&
+                                 is_compatible<typename std::iterator_traits<
+                                     Iterator>::value_type>,
+                             int> = 0>
   static STX_OPTION_CONSTEXPR Option<Span> try_init(Iterator begin,
-                                                    Iterator end) noexcept {
+                                                    Iterator end) {
     if (end < begin) return None;
     return Some(Span(static_cast<iterator>(begin), static_cast<iterator>(end)));
   }
@@ -581,69 +571,64 @@ struct Span<Element, dynamic_extent> {
   /// use only for containers storing a contiguous sequence of elements.
   template <typename Container,
             std::enable_if_t<
-              internal::is_container<Container&> &&
-              internal::is_compatible_container<Container&, element_type>, int> = 0>
+                internal::is_container<Container&> &&
+                    internal::is_compatible_container<Container&, element_type>,
+                int> = 0>
   constexpr Span(Container& container)
       : data_{static_cast<pointer>(std::data(container))},
         size_{std::size(container)} {}
 
-  constexpr Span(Span const&) noexcept = default;
-  constexpr Span(Span&&) noexcept = default;
-  constexpr Span& operator=(Span const&) noexcept = default;
-  constexpr Span& operator=(Span&&) noexcept = default;
-  ~Span() noexcept = default;
+  constexpr Span(Span const&) = default;
+  constexpr Span(Span&&) = default;
+  constexpr Span& operator=(Span const&) = default;
+  constexpr Span& operator=(Span&&) = default;
+  ~Span() = default;
 
   /// returns a pointer to the beginning of the sequence of elements.
-  constexpr pointer data() const noexcept { return data_; };
+  constexpr pointer data() const { return data_; };
 
   /// returns the number of elements in the sequence.
-  constexpr size_type size() const noexcept { return size_; };
+  constexpr size_type size() const { return size_; };
 
   /// returns the size of the sequence in bytes.
-  constexpr size_type size_bytes() const noexcept {
+  constexpr size_type size_bytes() const {
     return size() * sizeof(element_type);
   }
 
   /// checks if the sequence is empty.
-  constexpr bool empty() const noexcept { return size() == 0; };
+  constexpr bool empty() const { return size() == 0; };
 
   /// returns an iterator to the beginning.
-  constexpr iterator begin() const noexcept { return data_; };
+  constexpr iterator begin() const { return data_; };
 
   /// returns an iterator to the end.
-  constexpr iterator end() const noexcept { return begin() + size(); };
+  constexpr iterator end() const { return begin() + size(); };
 
   /// returns a constant iterator to the beginning.
-  constexpr const_iterator cbegin() const noexcept { return begin(); };
+  constexpr const_iterator cbegin() const { return begin(); };
 
   /// returns a constant iterator to the end.
-  constexpr const_iterator cend() const noexcept { return end(); };
+  constexpr const_iterator cend() const { return end(); };
 
   /// returns a reverse iterator to the beginning.
-  constexpr reverse_iterator rbegin() const noexcept {
-    return reverse_iterator(end());
-  };
+  constexpr reverse_iterator rbegin() const { return reverse_iterator(end()); };
 
   /// returns a reverse iterator to the end.
-  constexpr reverse_iterator rend() const noexcept {
-    return reverse_iterator(begin());
-  };
+  constexpr reverse_iterator rend() const { return reverse_iterator(begin()); };
 
   /// returns a constant reverse iterator to the beginning.
-  constexpr const_reverse_iterator crbegin() const noexcept {
-    return rbegin();
-  };
+  constexpr const_reverse_iterator crbegin() const { return rbegin(); };
 
   /// returns a constant reverse iterator to the end.
-  constexpr const_reverse_iterator crend() const noexcept { return rend(); };
+  constexpr const_reverse_iterator crend() const { return rend(); };
 
   /// accesses an element of the sequence (not bounds-checked).
-  constexpr reference operator[](index_type index) const noexcept {
+  constexpr reference operator[](index_type index) const {
     return data()[index];
   };
 
   /// accesses an element of the sequence (bounds-checked).
-  STX_OPTION_CONSTEXPR auto at(index_type index) const noexcept
+  STX_OPTION_CONSTEXPR auto at(index_type index) const
       -> Option<Ref<element_type>> {
     if (index < size()) {
       return Some<Ref<element_type>>(data()[index]);
@@ -654,7 +639,7 @@ struct Span<Element, dynamic_extent> {
 
   /// accesses an element of the sequence (bounds-checked).
   template <index_type Pos>
-  STX_OPTION_CONSTEXPR auto at() const noexcept -> Option<Ref<element_type>> {
+  STX_OPTION_CONSTEXPR auto at() const -> Option<Ref<element_type>> {
     if (Pos < size()) {
       return Some<Ref<element_type>>(data()[Pos]);
     } else {
@@ -663,20 +648,20 @@ struct Span<Element, dynamic_extent> {
   }
 
   /// obtains a subspan starting at an offset (not bounds-checked).
-  constexpr Span<element_type> subspan(index_type offset) const noexcept {
+  constexpr Span<element_type> subspan(index_type offset) const {
     return Span<element_type>(begin() + offset, end());
   };
 
   /// obtains a subspan starting at an offset and with a length
   /// (not bounds-checked).
   constexpr Span<element_type> subspan(index_type offset,
-                                       size_type length) const noexcept {
+                                       size_type length) const {
     return Span<element_type>(begin() + offset, length);
   };
 
   /// obtains a subspan starting at an offset (bounds-checked).
   STX_OPTION_CONSTEXPR Option<Span<element_type>> try_subspan(
-      index_type offset) const noexcept {
+      index_type offset) const {
     if (offset >= size()) return None;
     return Some(subspan(offset));
   };
@@ -684,7 +669,7 @@ struct Span<Element, dynamic_extent> {
   /// obtains a subspan starting at an offset and with a length
   /// (bounds-checked).
   STX_OPTION_CONSTEXPR Option<Span<element_type>> try_subspan(
-      index_type offset, size_type length) const noexcept {
+      index_type offset, size_type length) const {
     if (offset >= size()) return None;
     if (begin() + offset + length > end()) return None;
     return Some(subspan(offset, length));
@@ -693,21 +678,21 @@ struct Span<Element, dynamic_extent> {
   /// obtains a subspan with offset provided via a template parameter
   /// (compile-time bounds-checked).
   template <index_type Offset>
-  constexpr Span<element_type> subspan() const noexcept {
+  constexpr Span<element_type> subspan() const {
     return Span<element_type>(begin() + Offset, size() - Offset);
   }
 
   /// obtains a subspan with offset provided via a template parameter
   /// (compile-time bounds-checked).
   template <index_type Offset, size_type Length>
-  constexpr Span<element_type, Length> subspan() const noexcept {
+  constexpr Span<element_type, Length> subspan() const {
     return Span<element_type, Length>(begin() + Offset);
   }
 
   /// obtains a subspan with offset provided via a template parameter
   /// (bounds-checked).
   template <index_type Offset>
-  STX_OPTION_CONSTEXPR Option<Span<element_type>> try_subspan() const noexcept {
+  STX_OPTION_CONSTEXPR Option<Span<element_type>> try_subspan() const {
     if (Offset >= size()) return None;
     return Some(Span<element_type>(begin() + Offset));
   }
@@ -715,8 +700,7 @@ struct Span<Element, dynamic_extent> {
   /// obtains a subspan with offset and length provided via a template parameter
   /// (bounds-checked).
   template <index_type Offset, size_type Length>
-  STX_OPTION_CONSTEXPR Option<Span<element_type, Length>> try_subspan()
-      const noexcept {
+  STX_OPTION_CONSTEXPR Option<Span<element_type, Length>> try_subspan() const {
     if (Offset >= size()) return None;
     if (begin() + Offset + Length > end()) return None;
     return Some(Span<element_type, Length>(begin() + Offset));
@@ -724,27 +708,25 @@ struct Span<Element, dynamic_extent> {
 
   /// converts the span into a view of its underlying bytes (represented with
   /// `std::byte`).
-  constexpr Span<cv_match_<std::byte>> as_bytes() const noexcept {
+  constexpr Span<cv_match_<std::byte>> as_bytes() const {
     return Span<cv_match_<std::byte>>(
         reinterpret_cast<cv_match_<std::byte>*>(data()), size_bytes());
   }
 
   /// converts the span into a view of its underlying bytes (represented with
   /// `uint8_t`).
-  constexpr Span<cv_match_<uint8_t>> as_u8() const noexcept {
+  constexpr Span<cv_match_<uint8_t>> as_u8() const {
     return Span<cv_match_<uint8_t>>(
         reinterpret_cast<cv_match_<uint8_t>*>(data()), size_bytes());
   }
 
   /// converts the span into an immutable span.
-  constexpr Span<element_type const> as_const() const noexcept { return *this; }
+  constexpr Span<element_type const> as_const() const { return *this; }
 
   /// converts the span into another span in which reads
   /// and writes to the contiguous sequence are performed as volatile
   /// operations.
-  constexpr Span<element_type volatile> as_volatile() const noexcept {
-    return *this;
-  }
+  constexpr Span<element_type volatile> as_volatile() const { return *this; }
 
  private:
   pointer data_;
@@ -752,15 +734,15 @@ struct Span<Element, dynamic_extent> {
 };
 
 template <typename SrcElement, size_t Length>
-Span(SrcElement (&)[Length]) -> Span<SrcElement, Length>;
+Span(SrcElement (&)[Length])->Span<SrcElement, Length>;
 
 template <typename SrcElement, size_t Length>
-Span(std::array<SrcElement, Length>&) -> Span<SrcElement, Length>;
+Span(std::array<SrcElement, Length>&)->Span<SrcElement, Length>;
 
 template <typename SrcElement, size_t Length>
-Span(std::array<SrcElement, Length> const&) -> Span<SrcElement const, Length>;
+Span(std::array<SrcElement, Length> const&)->Span<SrcElement const, Length>;
 
-template<typename Container>
-Span(Container& cont) -> Span<std::remove_pointer_t<decltype(std::data(cont))>>;
+template <typename Container>
+Span(Container& cont)->Span<std::remove_pointer_t<decltype(std::data(cont))>>;
 
 STX_END_NAMESPACE
