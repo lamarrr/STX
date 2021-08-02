@@ -37,7 +37,7 @@ namespace this_thread {
 namespace {
 
 /// increases the panic count for this thread by `step`
-STX_LOCAL size_t step_panic_count(size_t step) noexcept {
+size_t step_panic_count(size_t step) noexcept {
   thread_local static size_t panic_count = 0;
   panic_count += step;
   return panic_count;
@@ -45,43 +45,29 @@ STX_LOCAL size_t step_panic_count(size_t step) noexcept {
 }  // namespace
 }  // namespace this_thread
 
-STX_LOCAL AtomicPanicHook& panic_hook_ref() noexcept {
+STX_DLL_EXPORT AtomicPanicHook& panic_hook_ref() noexcept {
   static AtomicPanicHook hook{nullptr};
   return hook;
 }
 
-STX_EXPORT bool panic_hook_visible() noexcept { return kPanicHookVisible; }
-
-STX_EXPORT bool this_thread::is_panicking() noexcept {
+STX_DLL_EXPORT bool this_thread::is_panicking() noexcept {
   return this_thread::step_panic_count(0) != 0;
 }
 
 // the panic hook takes higher precedence over the panic handler
-STX_LOCAL void default_panic_hook(std::string_view const& info,
-                                  ReportPayload const& payload,
-                                  SourceLocation const& location) noexcept {
+void default_panic_hook(std::string_view const& info,
+                        ReportPayload const& payload,
+                        SourceLocation const& location) noexcept {
   panic_handler(info, payload, location);
 }
 
-#if defined(STX_VISIBLE_PANIC_HOOK)
-STX_EXPORT
-#else
-STX_LOCAL
-#endif
-
-bool attach_panic_hook(PanicHook hook) noexcept {
+STX_DLL_EXPORT bool attach_panic_hook(PanicHook hook) noexcept {
   if (this_thread::is_panicking()) return false;
   panic_hook_ref().exchange(hook, std::memory_order_seq_cst);
   return true;
 }
 
-#if defined(STX_VISIBLE_PANIC_HOOK)
-STX_EXPORT
-#else
-STX_LOCAL
-#endif
-
-bool take_panic_hook(PanicHook* out) noexcept {
+STX_DLL_EXPORT bool take_panic_hook(PanicHook* out) noexcept {
   if (this_thread::is_panicking()) return false;
   auto hook = panic_hook_ref().exchange(nullptr, std::memory_order_seq_cst);
   if (hook == nullptr) {
@@ -92,15 +78,9 @@ bool take_panic_hook(PanicHook* out) noexcept {
   return true;
 }
 
-[[noreturn]]
-#if defined(STX_VISIBLE_PANIC_HOOK)
-STX_EXPORT
-#else
-STX_LOCAL
-#endif
-void begin_panic(std::string_view const& info,
-                              ReportPayload const& payload,
-                              SourceLocation const& location) noexcept {
+[[noreturn]] STX_DLL_EXPORT void begin_panic(
+    std::string_view const& info, ReportPayload const& payload,
+    SourceLocation const& location) noexcept {
   // TODO(lamarrr): We probably need a method for stack unwinding, So we can
   // free held resources
 
