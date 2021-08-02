@@ -246,25 +246,6 @@
 
 #endif
 
-/*********************** UTILITY MACROS ***********************/
-
-// also used for hiding static variables and hookable functions that should not
-// be touched but should reside in the binary
-// GNUC doesn't mean GCC!, it's also present in clang
-#if __has_cpp_attribute(gnu::always_inline)
-#define STX_FORCE_INLINE [[gnu::always_inline]] inline
-#else
-#if CFG(COMPILER, MSVC)
-#define STX_FORCE_INLINE __forceinline
-#else
-#if CFG(COMPILER, NVCC)
-#define STX_FORCE_INLINE __forcinline__
-#else
-#define STX_FORCE_INLINE inline
-#endif
-#endif
-#endif
-
 /*********************** ATTRIBUTE REQUIREMENTS ***********************/
 
 #if defined(__has_cpp_attribute)
@@ -325,6 +306,26 @@
 #define STX_TOOLCHAIN_LLVM 1
 #else
 #define STX_TOOLCHAIN_LLVM 0
+#endif
+
+
+/*********************** INLINING MACROS ***********************/
+
+// also used for hiding static variables and hookable functions that should not
+// be touched but should reside in the binary
+// GNUC doesn't mean GCC!, it's also present in clang
+#if __has_cpp_attribute(gnu::always_inline)
+#define STX_FORCE_INLINE [[gnu::always_inline]] inline
+#else
+#if CFG(COMPILER, MSVC)
+#define STX_FORCE_INLINE __forceinline
+#else
+#if CFG(COMPILER, NVCC)
+#define STX_FORCE_INLINE __forcinline__
+#else
+#define STX_FORCE_INLINE inline
+#endif
+#endif
 #endif
 
 /*********************** VERSIONING ***********************/
