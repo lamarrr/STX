@@ -35,7 +35,7 @@
 #include <string>
 #include <string_view>
 
-#include "stx/common.h"
+#include "stx/utils/common.h"
 
 STX_BEGIN_NAMESPACE
 
