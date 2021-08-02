@@ -38,7 +38,7 @@
 
 STX_BEGIN_NAMESPACE
 
-namespace internal {
+namespace impl {
 template <typename T, typename U>
 struct match_cv_impl {
   using type = U;
@@ -95,7 +95,7 @@ template <typename T, typename Element>
 constexpr bool is_compatible_container =
     is_compatible_container_impl<T, Element>::value;
 
-}  // namespace internal
+}  // namespace impl
 
 constexpr size_t dynamic_extent = std::numeric_limits<size_t>::max();
 
