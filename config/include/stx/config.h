@@ -218,6 +218,8 @@
 #define STX_HAS_BUILTIN(feature) 0
 #endif
 
+// TODO(lamarrr): remove these macros
+
 // From non-trivial constexpr paper
 #if __cpp_constexpr >= 201807L
 
@@ -315,14 +317,14 @@
 // also used for hiding static variables and hookable functions that should not
 // be touched but should reside in the binary
 // GNUC doesn't mean GCC!, it's also present in clang
-#if __has_cpp_attribute(gnu::always_inline)
-#define STX_FORCE_INLINE [[gnu::always_inline]] inline
+#if CFG(COMPILER, GNUC)
+#define STX_FORCE_INLINE __attribute__((always_inline)) inline
 #else
 #if CFG(COMPILER, MSVC)
-#define STX_FORCE_INLINE __forceinline
+#define STX_FORCE_INLINE __forceinline inline
 #else
 #if CFG(COMPILER, NVCC)
-#define STX_FORCE_INLINE __forcinline__
+#define STX_FORCE_INLINE __forceinline__ inline
 #else
 #define STX_FORCE_INLINE inline
 #endif
