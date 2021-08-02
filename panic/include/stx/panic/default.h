@@ -25,6 +25,8 @@
 
 STX_BEGIN_NAMESPACE
 
+// TODO(lamarrr): move this to a source file
+
 // here, we can avoid any form of memory allocation that might be needed,
 // therefore deferring the info string and report payload to the callee and can
 // also use a stack allocated string especially in cases where dynamic memory
@@ -37,9 +39,8 @@ STX_BEGIN_NAMESPACE
 // at once as the buffer can likely not be enough, instead we reuse the buffer.
 // May not be fast, but it is a panic anyway.
 //
-inline void panic_default(std::string_view const& info,
-                          ReportPayload const& payload,
-                          SourceLocation const& location) noexcept {
+inline void panic_default(std::string_view info, ReportPayload const& payload,
+                          SourceLocation location) noexcept {
   // probably too much, but enough
   // this will at least hold a formatted uint128_t (40 digits)
   static constexpr const int kFmtBufferSize = 64;

@@ -37,9 +37,8 @@ STX_DLL_EXPORT bool this_thread::is_panicking() noexcept {
 }
 
 // the panic hook takes higher precedence over the panic handler
-void default_panic_hook(std::string_view const& info,
-                        ReportPayload const& payload,
-                        SourceLocation const& location) noexcept {
+void default_panic_hook(std::string_view info, ReportPayload const& payload,
+                        SourceLocation location) noexcept {
   panic_handler(info, payload, location);
 }
 
@@ -60,9 +59,9 @@ STX_DLL_EXPORT bool take_panic_hook(PanicHook* out) noexcept {
   return true;
 }
 
-[[noreturn]] STX_DLL_EXPORT void begin_panic(
-    std::string_view const& info, ReportPayload const& payload,
-    SourceLocation const& location) noexcept {
+[[noreturn]] STX_DLL_EXPORT void begin_panic(std::string_view info,
+                                             ReportPayload const& payload,
+                                             SourceLocation location) noexcept {
   // TODO(lamarrr): We probably need a method for stack unwinding, So we can
   // free held resources
 

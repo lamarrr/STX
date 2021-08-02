@@ -9,18 +9,17 @@
  *
  */
 
-#ifndef STX_CUSTOM_PANIC_HANDLER
-
 #include "stx/panic.h"
+
+#ifndef STX_CUSTOM_PANIC_HANDLER
 
 #include "stx/panic/default.h"
 
 STX_BEGIN_NAMESPACE
 
-
 // TODO(lamarrr): make weak
-void panic_handler(std::string_view const& info, ReportPayload const& payload,
-                   SourceLocation const& location) noexcept {
+void panic_handler(std::string_view info, ReportPayload const& payload,
+                   SourceLocation location) noexcept {
   panic_default(info, payload, location);
 }
 
