@@ -214,7 +214,7 @@ struct Span {
 
   /// construct static-extent span from iterator/raw-pointer (not
   /// bounds-checked).
-  constexpr Span(iterator begin) : data_{begin} {};
+  constexpr Span(iterator begin) : data_{begin} {}
 
   /// construct static-extent span from array (compile-time bounds-checked).
   template <typename SrcElement, size_type Length,
@@ -288,8 +288,8 @@ struct Span {
   /// use only for containers storing a contiguous sequence of elements.
   template <typename Container,
             std::enable_if_t<
-                internal::is_container<Container&> &&
-                    internal::is_compatible_container<Container&, element_type>,
+                impl::is_container<Container&> &&
+                    impl::is_compatible_container<Container&, element_type>,
                 int> = 0>
   explicit constexpr Span(Container& container)
       : data_{static_cast<pointer>(std::data(container))} {}
@@ -298,8 +298,8 @@ struct Span {
   /// (bounds-checked).
   template <typename Container,
             std::enable_if_t<
-                internal::is_container<Container&> &&
-                    internal::is_compatible_container<Container&, element_type>,
+                impl::is_container<Container&> &&
+                    impl::is_compatible_container<Container&, element_type>,
                 int> = 0>
   static STX_OPTION_CONSTEXPR Option<Span> try_init(Container& container) {
     if (Extent > std::size(container)) return None;
@@ -313,45 +313,45 @@ struct Span {
   ~Span() = default;
 
   /// returns a pointer to the beginning of the sequence of elements.
-  constexpr pointer data() const { return data_; };
+  constexpr pointer data() const { return data_; }
 
   /// returns the number of elements in the sequence.
-  constexpr size_type size() const { return size_; };
+  constexpr size_type size() const { return size_; }
 
   /// returns the size of the sequence in bytes.
   constexpr size_type size_bytes() const { return byte_extent_; }
 
   /// checks if the sequence is empty.
-  constexpr bool empty() const { return size() == 0; };
+  constexpr bool empty() const { return size() == 0; }
 
   /// returns an iterator to the beginning.
-  constexpr iterator begin() const { return data_; };
+  constexpr iterator begin() const { return data_; }
 
   /// returns an iterator to the end.
-  constexpr iterator end() const { return begin() + size(); };
+  constexpr iterator end() const { return begin() + size(); }
 
   /// returns a constant iterator to the beginning.
-  constexpr const_iterator cbegin() const { return begin(); };
+  constexpr const_iterator cbegin() const { return begin(); }
 
   /// returns a constant iterator to the end.
-  constexpr const_iterator cend() const { return end(); };
+  constexpr const_iterator cend() const { return end(); }
 
   /// returns a reverse iterator to the beginning.
-  constexpr reverse_iterator rbegin() const { return reverse_iterator(end()); };
+  constexpr reverse_iterator rbegin() const { return reverse_iterator(end()); }
 
   /// returns a reverse iterator to the end.
-  constexpr reverse_iterator rend() const { return reverse_iterator(begin()); };
+  constexpr reverse_iterator rend() const { return reverse_iterator(begin()); }
 
   /// returns a constant reverse iterator to the beginning.
-  constexpr const_reverse_iterator crbegin() const { return rbegin(); };
+  constexpr const_reverse_iterator crbegin() const { return rbegin(); }
 
   /// returns a constant reverse iterator to the end.
-  constexpr const_reverse_iterator crend() const { return rend(); };
+  constexpr const_reverse_iterator crend() const { return rend(); }
 
   /// accesses an element of the sequence (not bounds-checked).
   constexpr reference operator[](index_type index) const {
     return data()[index];
-  };
+  }
 
   /// accesses an element of the sequence (bounds-checked).
   STX_OPTION_CONSTEXPR auto at(index_type index) const
@@ -361,7 +361,7 @@ struct Span {
     } else {
       return None;
     }
-  };
+  }
 
   /// accesses an element of the sequence (bounds-checked).
   template <index_type Pos>
@@ -376,21 +376,21 @@ struct Span {
   /// obtains a subspan starting at an offset (not bounds-checked).
   constexpr Span<element_type> subspan(index_type offset) const {
     return Span<element_type>(begin() + offset, end());
-  };
+  }
 
   /// obtains a subspan starting at an offset and with a length
   /// (not bounds-checked).
   constexpr Span<element_type> subspan(index_type offset,
                                        size_type length) const {
     return Span<element_type>(begin() + offset, length);
-  };
+  }
 
   /// obtains a subspan starting at an offset (bounds-checked).
   STX_OPTION_CONSTEXPR Option<Span<element_type>> try_subspan(
       index_type offset) const {
     if (offset >= size()) return None;
     return Some(subspan(offset));
-  };
+  }
 
   /// obtains a subspan starting at an offset and with a length
   /// (bounds-checked).
@@ -571,8 +571,8 @@ struct Span<Element, dynamic_extent> {
   /// use only for containers storing a contiguous sequence of elements.
   template <typename Container,
             std::enable_if_t<
-                internal::is_container<Container&> &&
-                    internal::is_compatible_container<Container&, element_type>,
+                impl::is_container<Container&> &&
+                    impl::is_compatible_container<Container&, element_type>,
                 int> = 0>
   constexpr Span(Container& container)
       : data_{static_cast<pointer>(std::data(container))},
@@ -585,10 +585,10 @@ struct Span<Element, dynamic_extent> {
   ~Span() = default;
 
   /// returns a pointer to the beginning of the sequence of elements.
-  constexpr pointer data() const { return data_; };
+  constexpr pointer data() const { return data_; }
 
   /// returns the number of elements in the sequence.
-  constexpr size_type size() const { return size_; };
+  constexpr size_type size() const { return size_; }
 
   /// returns the size of the sequence in bytes.
   constexpr size_type size_bytes() const {
@@ -596,36 +596,36 @@ struct Span<Element, dynamic_extent> {
   }
 
   /// checks if the sequence is empty.
-  constexpr bool empty() const { return size() == 0; };
+  constexpr bool empty() const { return size() == 0; }
 
   /// returns an iterator to the beginning.
-  constexpr iterator begin() const { return data_; };
+  constexpr iterator begin() const { return data_; }
 
   /// returns an iterator to the end.
-  constexpr iterator end() const { return begin() + size(); };
+  constexpr iterator end() const { return begin() + size(); }
 
   /// returns a constant iterator to the beginning.
-  constexpr const_iterator cbegin() const { return begin(); };
+  constexpr const_iterator cbegin() const { return begin(); }
 
   /// returns a constant iterator to the end.
-  constexpr const_iterator cend() const { return end(); };
+  constexpr const_iterator cend() const { return end(); }
 
   /// returns a reverse iterator to the beginning.
-  constexpr reverse_iterator rbegin() const { return reverse_iterator(end()); };
+  constexpr reverse_iterator rbegin() const { return reverse_iterator(end()); }
 
   /// returns a reverse iterator to the end.
-  constexpr reverse_iterator rend() const { return reverse_iterator(begin()); };
+  constexpr reverse_iterator rend() const { return reverse_iterator(begin()); }
 
   /// returns a constant reverse iterator to the beginning.
-  constexpr const_reverse_iterator crbegin() const { return rbegin(); };
+  constexpr const_reverse_iterator crbegin() const { return rbegin(); }
 
   /// returns a constant reverse iterator to the end.
-  constexpr const_reverse_iterator crend() const { return rend(); };
+  constexpr const_reverse_iterator crend() const { return rend(); }
 
   /// accesses an element of the sequence (not bounds-checked).
   constexpr reference operator[](index_type index) const {
     return data()[index];
-  };
+  }
 
   /// accesses an element of the sequence (bounds-checked).
   STX_OPTION_CONSTEXPR auto at(index_type index) const
@@ -635,7 +635,7 @@ struct Span<Element, dynamic_extent> {
     } else {
       return None;
     }
-  };
+  }
 
   /// accesses an element of the sequence (bounds-checked).
   template <index_type Pos>
@@ -650,21 +650,21 @@ struct Span<Element, dynamic_extent> {
   /// obtains a subspan starting at an offset (not bounds-checked).
   constexpr Span<element_type> subspan(index_type offset) const {
     return Span<element_type>(begin() + offset, end());
-  };
+  }
 
   /// obtains a subspan starting at an offset and with a length
   /// (not bounds-checked).
   constexpr Span<element_type> subspan(index_type offset,
                                        size_type length) const {
     return Span<element_type>(begin() + offset, length);
-  };
+  }
 
   /// obtains a subspan starting at an offset (bounds-checked).
   STX_OPTION_CONSTEXPR Option<Span<element_type>> try_subspan(
       index_type offset) const {
     if (offset >= size()) return None;
     return Some(subspan(offset));
-  };
+  }
 
   /// obtains a subspan starting at an offset and with a length
   /// (bounds-checked).
@@ -673,7 +673,7 @@ struct Span<Element, dynamic_extent> {
     if (offset >= size()) return None;
     if (begin() + offset + length > end()) return None;
     return Some(subspan(offset, length));
-  };
+  }
 
   /// obtains a subspan with offset provided via a template parameter
   /// (compile-time bounds-checked).
