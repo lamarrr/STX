@@ -82,7 +82,7 @@ Failure reporting varies from project to project, suppose you want to log the er
 
 **NOTE**: A panic handler can only be defined once (One Definition Rule).
 
-Firstly via your project's CMake build file, set the `STX_OVERRIDE_PANIC_HANDLER` option to `ON` , and then define the panic handler in your executable.
+Firstly via your project's CMake build file, set the `STX_CUSTOM_PANIC_HANDLER` option to `ON` , and then define the panic handler in your executable.
 
 See the [`panic_handler`](https://github.com/lamarrr/STX/tree/master/examples) example project that illustrates how to do this.
 
