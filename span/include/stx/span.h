@@ -28,7 +28,10 @@
  */
 
 #pragma once
+#include <array>
 #include <cinttypes>
+#include <cstddef>
+#include <iterator>
 #include <limits>
 #include <type_traits>
 
