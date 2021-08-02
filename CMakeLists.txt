@@ -37,25 +37,6 @@ include(HandleFlags)
 include(CheckCXXSourceCompiles)
 include(add_project_library)
 
-# we have to inform the user of the standards version change, else it'll cause
-# possible compatibility issues
-if(NOT CMAKE_CXX_STANDARD OR CMAKE_CXX_STANDARD LESS 17)
-  if(CMAKE_CXX_STANDARD)
-    message(
-      WARNING
-        "[STX] STX requires at least C++ 17 but 'CMAKE_CXX_STANDARD' was set to ${CMAKE_CXX_STANDARD} (C++ ${CMAKE_CXX_STANDARD}), 'CMAKE_CXX_STANDARD' will be set to 17 (C++ 17). Set 'CMAKE_CXX_STANDARD' to 17 (C++ 17) or later standards to silence this warning"
-    )
-  else()
-    message(
-      WARNING
-        "[STX] STX requires at least C++ 17 but 'CMAKE_CXX_STANDARD' was not set. 'CMAKE_CXX_STANDARD' will be set to 17 (C++ 17). Set 'CMAKE_CXX_STANDARD' to 17 (C++ 17) or later standards to silence this warning"
-    )
-  endif()
-
-  set(CMAKE_CXX_STANDARD 17)
-  set(CMAKE_CXX_STANDARD_REQUIRED ON)
-endif()
-
 # ===============================================
 #
 # === Configuration Options
