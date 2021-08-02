@@ -38,27 +38,31 @@ using namespace std;
 using namespace string_literals;
 using namespace stx;
 
-static_assert(internal::is_container<std::array<int, 8>>);
-static_assert(!internal::is_container<int>);
-static_assert(!internal::is_container<int*>);
-static_assert(!internal::is_container<int[6]>);
-static_assert(internal::is_container<vector<int>>);
+static_assert(impl::is_span_container<std::array<int, 8>>);
+static_assert(!impl::is_span_container<int>);
+static_assert(!impl::is_span_container<int *>);
+static_assert(!impl::is_span_container<int[6]>);
+static_assert(impl::is_span_container<vector<int>>);
+static_assert(impl::is_span_container<vector<int> &>);
+static_assert(impl::is_span_convertible<int, volatile int>);
+static_assert(impl::is_span_compatible_container<int, vector<int> &>);
+static_assert(impl::is_span_compatible_container<volatile int, vector<int> &>);
 
 TEST(SpanTest, CopyConstructor) {
   vector<int> vec{1, 2, 3, 4, 5};
 
   {
-    auto a = Span<int, 5>(vec);
+    Span a = Span<int, 5>(vec);
 
-    Span<volatile int, 3> b = a;
+    Span<volatile int, 3> b{a};
 
-    Span<int, 1> c = a;
+    Span<int, 1> c{a};
 
-    Span<int, 5> d = Span<int>(vec);
+    Span<int, 5> d{Span<int>(vec)};
 
-    Span<int, 5> e = a;
+    Span<int, 5> e{a};
 
-    auto f = Span<int, 8>::try_init(Span<int>(vec));
+    auto f = make_checked_span<int, 8>(vec);
 
     EXPECT_EQ(a.data(), vec.data());
     EXPECT_EQ(a.data(), b.data());
@@ -114,16 +118,13 @@ TEST(DynamicSpanTest, ConstructorIterator) {
   }
 
   {
-    Span<int> a{nullptr, nullptr};
+    Span<int volatile> a{(int *)nullptr, (int *)nullptr};
     Span<int> b{tmp, tmp + size(tmp)};
     EXPECT_EQ(a.data(), nullptr);
     EXPECT_EQ(a.size(), 0);
 
     EXPECT_EQ(b.data(), tmp);
     EXPECT_EQ(b.size(), size(tmp));
-
-    EXPECT_NE(Span<int>::try_init(tmp, tmp + size(tmp)), None);
-    EXPECT_EQ(Span<int>::try_init(tmp + size(tmp), tmp), None);
   }
 }
 
@@ -136,11 +137,11 @@ TEST(SpanTest, ConstructorCArray) {
     EXPECT_EQ(b.data(), tmp);
     EXPECT_EQ(b.size(), 3);
 
-    auto c = Span<int, 5>::try_init(tmp);
+    auto c = make_checked_span<int, 5>(stx::Span(tmp));
 
     EXPECT_EQ(c, None);
 
-    auto d = Span<int, 4>::try_init(tmp);
+    auto d = make_checked_span<int, 4>(stx::Span(tmp));
 
     EXPECT_NE(d, None);
   }
@@ -168,10 +169,10 @@ TEST(SpanTest, ConstructorStdArray) {
     EXPECT_EQ(b.data(), tmp.data());
     EXPECT_EQ(b.size(), 3);
 
-    auto c = Span<int, 5>::try_init(tmp);
+    auto c = make_checked_span<int, 5>(stx::Span(tmp));
     EXPECT_EQ(c, None);
 
-    auto d = Span<int, 4>::try_init(tmp);
+    auto d = make_checked_span<int, 4>(stx::Span(tmp));
     EXPECT_NE(d, None);
   }
 }
@@ -204,15 +205,15 @@ TEST(SpanTest, ConstructorContainer) {
     }
 
     {
-      Span<T, 3> a (vec);
+      Span<T, 3> a(vec);
 
       Span<volatile T, 3> b = a;
       Span<T const, 3> c = a;
       Span<volatile const T, 3> d = c;
       Span<volatile const T, 3> e = b;
-      auto f = Span<T, 10>::try_init(vec);
-      auto g = Span<T, 2>::try_init(vec);
-      auto h = Span<T, 5>::try_init(vec);
+      auto f = make_checked_span<T, 10>(vec);
+      auto g = make_checked_span<T, 2>(vec);
+      auto h = make_checked_span<T, 5>(vec);
 
       EXPECT_EQ(a.data(), vec.data());
       EXPECT_EQ(a.data(), b.data());
@@ -255,9 +256,6 @@ TEST(SpanTest, At) {
 
     EXPECT_EQ(a.at(4), None);
     EXPECT_EQ(a.at(3), Some(4));
-
-    EXPECT_EQ(a.at<4>(), None);
-    EXPECT_EQ(a.at<3>(), Some(4));
   }
 
   {
@@ -265,9 +263,6 @@ TEST(SpanTest, At) {
 
     EXPECT_EQ(a.at(4), None);
     EXPECT_EQ(a.at(3), Some(4));
-
-    EXPECT_EQ(a.at<4>(), None);
-    EXPECT_EQ(a.at<3>(), Some(4));
   }
 }
 
@@ -282,7 +277,7 @@ TEST(SpanTest, As) {
 
     Span<byte const volatile> b = a.as_u8().as_volatile().as_const().as_bytes();
 
-    EXPECT_EQ(reinterpret_cast<byte const volatile*>(a.data()), b.data());
+    EXPECT_EQ(reinterpret_cast<byte const volatile *>(a.data()), b.data());
     EXPECT_EQ(a.size_bytes(), b.size());
     EXPECT_EQ(a.size() * 4, b.size());
   }
@@ -351,6 +346,7 @@ TEST(SpanTest, Subspan) {
 }
 
 namespace cxpr1 {
+
 template <size_t Offset>
 constexpr result_t StaticSpan_Subspan() {
   int tmp[] = {1, 2, 3, 4};
@@ -369,6 +365,7 @@ constexpr result_t DynamicSpan_Subspan() {
 
   return {h.subspan<Offset>().size(), h.subspan<Offset>()[0]};
 }
+
 }  // namespace cxpr1
 
 TEST(SpanTest, ConstexprSubspan) {
