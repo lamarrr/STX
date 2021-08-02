@@ -29,4 +29,4 @@
 
 #pragma once
 
-#include "stx/internal/option_result.h"
+#include "stx/option_result/option_result.h"

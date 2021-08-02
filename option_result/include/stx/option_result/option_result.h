@@ -31,7 +31,7 @@
 
 #include <utility>
 
-#include "stx/internal/panic_helpers.h"
+#include "stx/option_result/impl/panic_helpers.h"
 
 // Why so long? Option and Result depend on each other. I don't know of a
 // way to break the cyclic dependency, primarily because they are templated
@@ -2952,4 +2952,4 @@ STX_FORCE_INLINE auto err_ref(E& value) noexcept {
 STX_END_NAMESPACE
 
 // Error propagation macros
-#include "stx/internal/try.h"
+#include "stx/option_result/try.h"
