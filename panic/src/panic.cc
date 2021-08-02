@@ -31,7 +31,7 @@
 
 #include "stx/panic.h"
 
-#include "stx/panic/handlers/default/default.h"
+#include "stx/panic/default.h"
 
 STX_BEGIN_NAMESPACE
 

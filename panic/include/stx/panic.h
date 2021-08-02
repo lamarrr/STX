@@ -29,7 +29,7 @@
 
 #pragma once
 
-#include "stx/report.h"
+#include "stx/panic/report.h"
 #include "stx/source_location.h"
 
 STX_BEGIN_NAMESPACE

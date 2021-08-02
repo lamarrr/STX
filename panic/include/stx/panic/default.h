@@ -35,7 +35,7 @@
 #endif
 
 #include "stx/panic.h"
-#include "stx/panic/handlers/print.h"
+#include "stx/panic/print.h"
 
 #if defined(STX_ENABLE_PANIC_BACKTRACE)
 #include "stx/backtrace.h"
