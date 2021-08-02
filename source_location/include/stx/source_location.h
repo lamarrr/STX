@@ -72,7 +72,7 @@ struct [[nodiscard]] SourceLocation {
 #else
       uint_least32_t column = 0
 #endif
-          ) noexcept {
+  ) {
     SourceLocation loc{};
     loc.line_ = line;
     loc.column_ = column;
@@ -81,28 +81,19 @@ struct [[nodiscard]] SourceLocation {
     return loc;
   }
 
-  // implementation-defined
-  constexpr SourceLocation() noexcept
-      : line_(), column_(), file_("\0"), func_("\0") {}
-  constexpr SourceLocation(SourceLocation const& other) noexcept = default;
-  constexpr SourceLocation(SourceLocation && other) noexcept = default;
-  constexpr SourceLocation& operator=(SourceLocation const& other) noexcept =
-      default;
-  constexpr SourceLocation& operator=(SourceLocation&& other) noexcept =
-      default;
-  ~SourceLocation() noexcept = default;
+  constexpr SourceLocation() : line_{0}, column_{0}, file_{""}, func_{""} {}
 
   /// return the column number represented by this object
-  constexpr uint_least32_t column() const noexcept { return column_; }
+  constexpr uint_least32_t column() const { return column_; }
 
   /// return the line number represented by this object
-  constexpr uint_least32_t line() const noexcept { return line_; }
+  constexpr uint_least32_t line() const { return line_; }
 
   /// return the file name represented by this object
-  constexpr const char* file_name() const noexcept { return file_; }
+  constexpr const char* file_name() const { return file_; }
 
   /// return the name of the function represented by this object, if any
-  constexpr const char* function_name() const noexcept { return func_; }
+  constexpr const char* function_name() const { return func_; }
 
  private:
   uint_least32_t line_;
