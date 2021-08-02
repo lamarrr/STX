@@ -165,7 +165,7 @@ struct [[nodiscard]] Some {
   STX_OPTION_CONSTEXPR ~Some() = default;
 
   [[nodiscard]] constexpr T const& value() const& noexcept { return value_; }
-  [[nodiscard]] constexpr T& value()& noexcept { return value_; }
+  [[nodiscard]] constexpr T& value() & noexcept { return value_; }
   [[nodiscard]] constexpr T const value() const&& { return std::move(value_); }
   [[nodiscard]] constexpr T value()&& { return std::move(value_); }
 
@@ -269,7 +269,7 @@ struct [[nodiscard]] Ok {
   }
 
   [[nodiscard]] constexpr T const& value() const& noexcept { return value_; }
-  [[nodiscard]] constexpr T& value()& noexcept { return value_; }
+  [[nodiscard]] constexpr T& value() & noexcept { return value_; }
   [[nodiscard]] constexpr T const value() const&& { return std::move(value_); }
   [[nodiscard]] constexpr T value()&& { return std::move(value_); }
 
@@ -354,7 +354,7 @@ struct [[nodiscard]] Err {
   }
 
   [[nodiscard]] constexpr E const& value() const& noexcept { return value_; }
-  [[nodiscard]] constexpr E& value()& noexcept { return value_; }
+  [[nodiscard]] constexpr E& value() & noexcept { return value_; }
   [[nodiscard]] constexpr E const value() const&& { return std::move(value_); }
   [[nodiscard]] constexpr E value()&& { return std::move(value_); }
 
@@ -658,7 +658,7 @@ struct [[nodiscard]] Option {
   ///
   /// ASSERT_EQ(x, Some(2));
   /// ```
-  [[nodiscard]] T& value()& noexcept {
+  [[nodiscard]] T& value() & noexcept {
     if (is_none()) internal::option::no_lref();
     return value_ref_();
   }
@@ -696,7 +696,7 @@ struct [[nodiscard]] Option {
   /// # NOTE
   /// `ConstRef<T>` is an alias for `std::reference_wrapper<T const>` and
   /// guides against reference-collapsing
-  [[nodiscard]] constexpr auto as_cref() const& noexcept->Option<ConstRef<T>> {
+  [[nodiscard]] constexpr auto as_cref() const & noexcept->Option<ConstRef<T>> {
     if (is_some()) {
       return Some<ConstRef<T>>(ConstRef<T>(value_cref_()));
     } else {
@@ -707,8 +707,9 @@ struct [[nodiscard]] Option {
   [[deprecated(
       "calling Option::as_cref() on an r-value, and therefore binding a "
       "reference to an object that is marked to be moved")]]  //
-  [[nodiscard]] constexpr auto
-  as_cref() const&& noexcept->Option<ConstRef<T>> = delete;
+      [[nodiscard]] constexpr auto
+      as_cref() const &&
+      noexcept->Option<ConstRef<T>> = delete;
 
   /// Converts from `Option<T>` to `Option<MutRef<T>>`.
   ///
@@ -730,7 +731,7 @@ struct [[nodiscard]] Option {
   /// mutate(y);
   /// ASSERT_EQ(y, None);
   /// ```
-  [[nodiscard]] constexpr auto as_ref()& noexcept->Option<MutRef<T>> {
+  [[nodiscard]] constexpr auto as_ref() & noexcept->Option<MutRef<T>> {
     if (is_some()) {
       return Some<MutRef<T>>(MutRef<T>(value_ref_()));
     } else {
@@ -738,21 +739,23 @@ struct [[nodiscard]] Option {
     }
   }
 
-  [[nodiscard]] constexpr auto as_ref() const& noexcept->Option<ConstRef<T>> {
+  [[nodiscard]] constexpr auto as_ref() const & noexcept->Option<ConstRef<T>> {
     return as_cref();
   }
 
   [[deprecated(
       "calling Option::as_ref() on an r-value, and therefore binding a "
       "reference to an object that is marked to be moved")]]  //
-  [[nodiscard]] constexpr auto
-  as_ref()&& noexcept->Option<MutRef<T>> = delete;
+      [[nodiscard]] constexpr auto
+      as_ref() &&
+      noexcept->Option<MutRef<T>> = delete;
 
   [[deprecated(
       "calling Option::as_ref() on an r-value, and therefore binding a "
       "reference to an object that is marked to be moved")]]  //
-  [[nodiscard]] constexpr auto
-  as_ref() const&& noexcept->Option<ConstRef<T>> = delete;
+      [[nodiscard]] constexpr auto
+      as_ref() const &&
+      noexcept->Option<ConstRef<T>> = delete;
 
   /// Unwraps an option, yielding the content of a `Some`.
   ///
@@ -1919,7 +1922,7 @@ struct [[nodiscard]] Result {
   ///
   /// ASSERT_EQ(result, Ok(97));
   /// ```
-  [[nodiscard]] T& value()& noexcept {
+  [[nodiscard]] T& value() & noexcept {
     if (is_err()) internal::result::no_lref(err_cref_());
     return value_ref_();
   }
@@ -1969,7 +1972,7 @@ struct [[nodiscard]] Result {
   ///
   /// ASSERT_EQ(result, Err(46));
   /// ```
-  [[nodiscard]] E& err_value()& noexcept {
+  [[nodiscard]] E& err_value() & noexcept {
     if (is_ok()) internal::result::no_err_lref();
     return err_ref_();
   }
@@ -2066,8 +2069,8 @@ struct [[nodiscard]] Result {
   /// Result<int, string> y = Err("Error"s);
   /// ASSERT_EQ(y.as_cref().unwrap_err().get(), "Error"s);
   /// ```
-  [[nodiscard]] constexpr auto as_cref()
-      const& noexcept->Result<ConstRef<T>, ConstRef<E>> {
+  [[nodiscard]] constexpr auto as_cref() const &
+      noexcept->Result<ConstRef<T>, ConstRef<E>> {
     if (is_ok()) {
       return Ok<ConstRef<T>>(ConstRef<T>(value_cref_()));
     } else {
@@ -2079,8 +2082,9 @@ struct [[nodiscard]] Result {
       "calling Result::as_cref() on an r-value, and "
       "therefore binding an l-value reference to an object that is marked to "
       "be moved")]]  //
-  [[nodiscard]] constexpr auto
-  as_cref() const&& noexcept->Result<ConstRef<T>, ConstRef<E>> = delete;
+      [[nodiscard]] constexpr auto
+      as_cref() const &&
+      noexcept->Result<ConstRef<T>, ConstRef<E>> = delete;
 
   /// Converts from `Result<T, E> &` to `Result<MutRef<T>, MutRef<E>>`.
   ///
@@ -2102,8 +2106,8 @@ struct [[nodiscard]] Result {
   /// mutate(y);
   /// ASSERT_EQ(y, Err(0));
   /// ```
-  [[nodiscard]] constexpr auto as_ref()& noexcept
-      ->Result<MutRef<T>, MutRef<E>> {
+  [[nodiscard]] constexpr auto as_ref() &
+      noexcept->Result<MutRef<T>, MutRef<E>> {
     if (is_ok()) {
       return Ok<MutRef<T>>(MutRef<T>(value_ref_()));
     } else {
@@ -2111,22 +2115,24 @@ struct [[nodiscard]] Result {
     }
   }
 
-  [[nodiscard]] constexpr auto as_ref()
-      const& noexcept->Result<ConstRef<T>, ConstRef<E>> {
+  [[nodiscard]] constexpr auto as_ref() const &
+      noexcept->Result<ConstRef<T>, ConstRef<E>> {
     return as_cref();
   }
 
   [[deprecated(
       "calling Result::as_ref() on an r-value, and therefore binding a "
       "reference to an object that is marked to be moved")]]  //
-  [[nodiscard]] constexpr auto
-  as_ref()&& noexcept->Result<MutRef<T>, MutRef<E>> = delete;
+      [[nodiscard]] constexpr auto
+      as_ref() &&
+      noexcept->Result<MutRef<T>, MutRef<E>> = delete;
 
   [[deprecated(
       "calling Result::as_ref() on an r-value, and therefore binding a "
       "reference to an object that is marked to be moved")]]  //
-  [[nodiscard]] constexpr auto
-  as_ref() const&& noexcept->Result<ConstRef<T>, ConstRef<E>> = delete;
+      [[nodiscard]] constexpr auto
+      as_ref() const &&
+      noexcept->Result<ConstRef<T>, ConstRef<E>> = delete;
 
   /// Maps a `Result<T, E>` to `Result<U, E>` by applying the function `op` to
   /// the contained `Ok<T>` value, leaving an `Err<E>` value untouched.
