@@ -27,7 +27,7 @@
  *
  */
 
-#ifndef STX_OVERRIDE_PANIC_HANDLER
+#ifndef STX_CUSTOM_PANIC_HANDLER
 
 #include "stx/panic.h"
 

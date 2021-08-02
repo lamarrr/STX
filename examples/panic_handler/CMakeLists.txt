@@ -11,7 +11,7 @@ execute_process(
   COMMAND git clone https://github.com/lamarrr/STX.git third_party/STX
   WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 
-set(STX_OVERRIDE_PANIC_HANDLER
+set(STX_CUSTOM_PANIC_HANDLER
     ON
     CACHE BOOL "Override the default panic handler" FORCE)
 
