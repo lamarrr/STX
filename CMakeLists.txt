@@ -26,7 +26,6 @@ include(add_project_library)
 # ===============================================
 
 set(CMAKE_CXX_STANDARD 17)
-set(STX_CXX_STANDARD 17)
 
 option(STX_BUILD_TESTS "Build tests" OFF)
 
