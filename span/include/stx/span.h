@@ -300,10 +300,9 @@ struct Span {
   /// factory function for constructing a static-extent span from any container
   /// (bounds-checked).
   template <typename Container,
-            std::enable_if_t<
-                impl::is_container<Container&> &&
-                    impl::is_compatible_container<Container&, element_type>,
-                int> = 0>
+            STX_ENABLE_IF(
+                impl::is_container<Container&>&&
+                    impl::is_compatible_container<Container&, element_type>)>
   static STX_OPTION_CONSTEXPR Option<Span> try_init(Container& container) {
     if (Extent > std::size(container)) return None;
     return Some(Span(std::data(container)));
@@ -512,11 +511,10 @@ struct Span<Element, dynamic_extent> {
       : data_{static_cast<pointer>(src.data())}, size_{src.size()} {}
 
   /// construct dynamic-extent span with an iterator/raw-pointer and a size
-  template <typename Iterator,
-            std::enable_if_t<std::is_convertible_v<Iterator&, iterator> &&
-                                 is_compatible<typename std::iterator_traits<
-                                     Iterator>::value_type>,
-                             int> = 0>
+  template <
+      typename Iterator,
+      STX_ENABLE_IF(std::is_convertible_v<Iterator&, iterator>&& is_compatible<
+                    typename std::iterator_traits<Iterator>::value_type>)>
   constexpr Span(Iterator begin, size_type size)
       : data_{static_cast<iterator>(begin)}, size_{size} {}
 
@@ -527,11 +525,11 @@ struct Span<Element, dynamic_extent> {
   /// `end` must be greater than `begin`. (unchecked)
   ///
   /// Also, see checked `Span::try_init`.
-  template <typename Iterator,
-            std::enable_if_t<std::is_convertible_v<Iterator&, iterator> &&
-                                 is_compatible<typename std::iterator_traits<
-                                     Iterator>::value_type>,
-                             int> = 0>
+  template <
+      typename Iterator,
+      STX_ENABLE_IF(std::is_convertible_v<Iterator&, iterator>&& is_compatible<
+                        typename std::iterator_traits<Iterator>::value_type> &&
+                    !std::is_convertible_v<Iterator&, size_type>)>
   constexpr Span(Iterator begin, Iterator end)
       : data_{begin},
         size_{static_cast<size_type>(static_cast<iterator>(end) -
@@ -571,10 +569,9 @@ struct Span<Element, dynamic_extent> {
   ///
   /// use only for containers storing a contiguous sequence of elements.
   template <typename Container,
-            std::enable_if_t<
-                impl::is_container<Container&> &&
-                    impl::is_compatible_container<Container&, element_type>,
-                int> = 0>
+            STX_ENABLE_IF(
+                impl::is_container<Container&>&&
+                    impl::is_compatible_container<Container&, element_type>)>
   constexpr Span(Container& container)
       : data_{static_cast<pointer>(std::data(container))},
         size_{std::size(container)} {}
