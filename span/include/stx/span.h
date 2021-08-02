@@ -164,11 +164,10 @@ struct Span {
  private:
   // i.e. if `Element` is const or const-volatile, make `T` same
   template <typename T>
-  using cv_match_ = internal::match_cv<element_type, T>;
+  using cv_match_ = impl::match_cv<element_type, T>;
 
   template <typename T>
-  constexpr static bool is_compatible =
-      internal::is_compatible<element_type, T>;
+  constexpr static bool is_compatible = impl::is_compatible<element_type, T>;
 
   static constexpr size_type byte_extent_ =
       Extent * (sizeof(element_type) / sizeof(std::byte));
@@ -493,11 +492,10 @@ struct Span<Element, dynamic_extent> {
  private:
   // i.e. if `Element` is const or const-volatile, make `T` same
   template <typename T>
-  using cv_match_ = internal::match_cv<element_type, T>;
+  using cv_match_ = impl::match_cv<element_type, T>;
 
   template <typename T>
-  constexpr static bool is_compatible =
-      internal::is_compatible<element_type, T>;
+  constexpr static bool is_compatible = impl::is_compatible<element_type, T>;
 
  public:
   constexpr Span() : data_{nullptr}, size_{0} {}
