@@ -34,6 +34,7 @@
 
 #include "stx/config.h"
 #include "stx/option.h"
+#include "stx/utils/enable_if.h"
 
 STX_BEGIN_NAMESPACE
 
@@ -175,7 +176,7 @@ struct Span {
   /// copy-construct static-extent span from another static-extent span
   /// (compile-time bounds-checked).
   template <typename SrcElement, size_type SrcExtent,
-            std::enable_if_t<is_compatible<SrcElement>, int> = 0>
+            STX_ENABLE_IF(is_compatible<SrcElement>)>
   constexpr Span(Span<SrcElement, SrcExtent> const& src)
       : data_{static_cast<pointer>(src.data())} {
     static_assert(Extent <= SrcExtent,
@@ -186,7 +187,7 @@ struct Span {
   /// factory function for copy-constructing a static-extent span from another
   /// static-extent span (bounds-checked).
   template <typename SrcElement, size_type SrcExtent,
-            std::enable_if_t<is_compatible<SrcElement>, int> = 0>
+            STX_ENABLE_IF(is_compatible<SrcElement>)>
   static STX_OPTION_CONSTEXPR Option<Span> try_init(
       Span<SrcElement, SrcExtent> const& src) {
     if constexpr (Extent > SrcExtent) return None;
@@ -197,15 +198,13 @@ struct Span {
   /// bounds-checked).
   ///
   /// Also, see: bounds-checked `Span::try_init`.
-  template <typename SrcElement,
-            std::enable_if_t<is_compatible<SrcElement>, int> = 0>
+  template <typename SrcElement, STX_ENABLE_IF(is_compatible<SrcElement>)>
   explicit constexpr Span(Span<SrcElement, dynamic_extent> const& src)
       : data_{static_cast<pointer>(src.data())} {}
 
   /// factory function for copy-constructing a static-extent span from a
   /// dynamic-extent span (bounds-checked).
-  template <typename SrcElement,
-            std::enable_if_t<is_compatible<SrcElement>, int> = 0>
+  template <typename SrcElement, STX_ENABLE_IF(is_compatible<SrcElement>)>
   static STX_OPTION_CONSTEXPR Option<Span> try_init(
       Span<SrcElement, dynamic_extent> const& src) {
     if (Extent > src.size()) return None;
@@ -218,7 +217,7 @@ struct Span {
 
   /// construct static-extent span from array (compile-time bounds-checked).
   template <typename SrcElement, size_type Length,
-            std::enable_if_t<is_compatible<SrcElement>, int> = 0>
+            STX_ENABLE_IF(is_compatible<SrcElement>)>
   constexpr Span(SrcElement (&array)[Length])
       : data_{static_cast<pointer>(array)} {
     static_assert(Extent <= Length,
@@ -227,7 +226,7 @@ struct Span {
 
   /// construct static-extent span from array (bounds-checked).
   template <typename SrcElement, size_type Length,
-            std::enable_if_t<is_compatible<SrcElement>, int> = 0>
+            STX_ENABLE_IF(is_compatible<SrcElement>)>
   static STX_OPTION_CONSTEXPR Option<Span> try_init(
       SrcElement (&array)[Length]) {
     if constexpr (Extent > Length) return None;
@@ -237,7 +236,7 @@ struct Span {
   /// construct static-extent span from std::array (compile-time
   /// bounds-checked).
   template <typename SrcElement, size_type Length,
-            std::enable_if_t<is_compatible<SrcElement>, int> = 0>
+            STX_ENABLE_IF(is_compatible<SrcElement>)>
   constexpr Span(std::array<SrcElement, Length>& array)
       : data_{static_cast<pointer>(array.data())} {
     static_assert(Extent <= Length,
@@ -246,7 +245,7 @@ struct Span {
 
   /// construct static-extent span from std::array (bounds-checked).
   template <typename SrcElement, size_type Length,
-            std::enable_if_t<is_compatible<SrcElement>, int> = 0>
+            STX_ENABLE_IF(is_compatible<SrcElement>)>
   static STX_OPTION_CONSTEXPR Option<Span> try_init(
       std::array<SrcElement, Length>& array) {
     if constexpr (Extent > Length) return None;
@@ -256,7 +255,7 @@ struct Span {
   /// construct static-extent span from std::array (compile-time
   /// bounds-checked).
   template <typename SrcElement, size_type Length,
-            std::enable_if_t<is_compatible<SrcElement const>, int> = 0>
+            STX_ENABLE_IF(is_compatible<SrcElement const>)>
   constexpr Span(std::array<SrcElement, Length> const& array)
       : data_{static_cast<pointer>(array.data())} {
     static_assert(Extent <= Length,
@@ -265,7 +264,7 @@ struct Span {
 
   /// construct static-extent span from std::array (bounds-checked).
   template <typename SrcElement, size_type Length,
-            std::enable_if_t<is_compatible<SrcElement const>, int> = 0>
+            STX_ENABLE_IF(is_compatible<SrcElement const>)>
   static STX_OPTION_CONSTEXPR Option<Span> try_init(
       std::array<SrcElement, Length> const& array) {
     if constexpr (Extent > Length) return None;
@@ -500,13 +499,12 @@ struct Span<Element, dynamic_extent> {
 
   /// copy-construct dynamic-extent span from a static-extent span.
   template <typename SrcElement, size_type SrcExtent,
-            std::enable_if_t<is_compatible<SrcElement>, int> = 0>
+            STX_ENABLE_IF(is_compatible<SrcElement>)>
   constexpr Span(Span<SrcElement, SrcExtent> const& src)
       : data_{static_cast<pointer>(src.data())}, size_{SrcExtent} {}
 
   /// copy-construct dynamic-extent span from another dynamic-extent span.
-  template <typename SrcElement,
-            std::enable_if_t<is_compatible<SrcElement>, int> = 0>
+  template <typename SrcElement, STX_ENABLE_IF(is_compatible<SrcElement>)>
   constexpr Span(Span<SrcElement, dynamic_extent> const& src)
       : data_{static_cast<pointer>(src.data())}, size_{src.size()} {}
 
@@ -560,7 +558,7 @@ struct Span<Element, dynamic_extent> {
 
   /// construct dynamic-extent span from array
   template <typename SrcElement, size_type Length,
-            std::enable_if_t<is_compatible<SrcElement>, int> = 0>
+            STX_ENABLE_IF(is_compatible<SrcElement>)>
   constexpr Span(SrcElement (&array)[Length])
       : data_{static_cast<pointer>(array)}, size_{Length} {}
 
