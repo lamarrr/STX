@@ -333,13 +333,13 @@
 
 /*********************** VERSIONING ***********************/
 
-#define STX_VERSION v1
+#define STX_VERSION v2_rc1
 
-#define STX_VERSION_STRING "v1"
+#define STX_VERSION_STRING "v2_rc1"
 
 #define STX_BEGIN_NAMESPACE \
   namespace stx {           \
-  inline namespace v1 {
+  inline namespace v2_rc1 {
 
 #define STX_END_NAMESPACE \
   }                       \
