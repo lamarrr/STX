@@ -50,6 +50,11 @@ struct match_cv_impl<T const, U> {
 };
 
 template <typename T, typename U>
+struct match_cv_impl<T volatile, U> {
+  using type = U volatile;
+};
+
+template <typename T, typename U>
 struct match_cv_impl<T const volatile, U> {
   using type = U const volatile;
 };
