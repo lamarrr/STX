@@ -290,10 +290,9 @@ struct Span {
   ///
   /// use only for containers storing a contiguous sequence of elements.
   template <typename Container,
-            std::enable_if_t<
-                impl::is_container<Container&> &&
-                    impl::is_compatible_container<Container&, element_type>,
-                int> = 0>
+            STX_ENABLE_IF(
+                impl::is_container<Container&>&&
+                    impl::is_compatible_container<Container&, element_type>)>
   explicit constexpr Span(Container& container)
       : data_{static_cast<pointer>(std::data(container))} {}
 
