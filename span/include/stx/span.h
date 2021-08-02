@@ -63,37 +63,37 @@ template <typename T, typename U>
 using match_cv = typename match_cv_impl<T, U>::type;
 
 template <typename T>
-void type_ptr_and_size(T*, size_t) {}
+constexpr inline void span_type_ptr_and_size(T*, size_t) {}
 
 template <typename T, typename = void>
-struct is_container_impl : std::false_type {};
+struct is_span_container_impl : std::false_type {};
 
 template <typename T>
-struct is_container_impl<T, decltype((type_ptr_and_size(
-                                         std::data(std::declval<T>()),
-                                         std::size(std::declval<T>()))),
-                                     (void)0)> : std::true_type {};
+struct is_span_container_impl<T, decltype((span_type_ptr_and_size(
+                                              std::data(std::declval<T>()),
+                                              std::size(std::declval<T>()))),
+                                          (void)0)> : std::true_type {};
 
 template <typename T>
-constexpr bool is_container = is_container_impl<T>::value;
+constexpr bool is_span_container = is_span_container_impl<T>::value;
 
-template <typename Element, typename OtherElement>
-constexpr bool is_compatible =
-    std::is_convertible_v<OtherElement (*)[], Element (*)[]>;
+template <typename Source, typename Target>
+constexpr bool is_span_convertible =
+    std::is_convertible_v<Source (*)[], Target (*)[]>;
 
-template <typename T, typename Element, typename = void>
-struct is_compatible_container_impl : std::false_type {};
+template <typename Target, typename Container, typename = void>
+struct is_span_compatible_container_impl : std::false_type {};
 
-template <typename T, typename Element>
-struct is_compatible_container_impl<
-    T, Element, std::void_t<decltype(std::data(std::declval<T>()))>>
-    : std::bool_constant<is_compatible<
-          Element,
-          std::remove_pointer_t<decltype(std::data(std::declval<T>()))>>> {};
+template <typename Target, typename Container>
+struct is_span_compatible_container_impl<
+    Target, Container, decltype(std::data(std::declval<Container>()), (void)0)>
+    : std::bool_constant<is_span_convertible<
+          std::remove_pointer_t<decltype(std::data(std::declval<Container>()))>,
+          Target>> {};
 
-template <typename T, typename Element>
-constexpr bool is_compatible_container =
-    is_compatible_container_impl<T, Element>::value;
+template <typename Target, typename Container>
+constexpr bool is_span_compatible_container =
+    is_span_compatible_container_impl<Target, Container>::value;
 
 }  // namespace impl
 
