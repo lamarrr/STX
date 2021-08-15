@@ -40,7 +40,7 @@ STX_BEGIN_NAMESPACE
 // May not be fast, but it is a panic anyway.
 //
 inline void panic_default(std::string_view info, ReportPayload const& payload,
-                          SourceLocation location) noexcept {
+                          SourceLocation location) {
   // probably too much, but enough
   // this will at least hold a formatted uint128_t (40 digits)
   static constexpr const int kFmtBufferSize = 64;

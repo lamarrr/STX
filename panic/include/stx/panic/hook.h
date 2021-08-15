@@ -52,7 +52,7 @@ namespace this_thread {
 ///
 /// Yes
 ///
-[[nodiscard]] STX_DLL_EXPORT bool is_panicking() noexcept;
+[[nodiscard]] STX_DLL_EXPORT bool is_panicking();
 }  // namespace this_thread
 
 /// Checks if panic hooks are visible to be attached-to when loaded as a dynamic
@@ -63,7 +63,7 @@ namespace this_thread {
 ///
 /// Yes
 ///
-[[nodiscard]] STX_DLL_EXPORT bool panic_hook_visible() noexcept;
+[[nodiscard]] STX_DLL_EXPORT bool panic_hook_visible();
 
 /// Attaches a new panic hook, the attached panic hook is called in place of the
 /// default panic hook.
@@ -75,7 +75,7 @@ namespace this_thread {
 ///
 /// Yes
 ///
-[[nodiscard]] STX_DLL_EXPORT bool attach_panic_hook(PanicHook hook) noexcept;
+[[nodiscard]] STX_DLL_EXPORT bool attach_panic_hook(PanicHook hook);
 
 /// Removes the registered panic hook (if any) and resets it to the
 /// default panic hook.
@@ -88,6 +88,6 @@ namespace this_thread {
 ///
 /// Yes
 ///
-[[nodiscard]] STX_DLL_EXPORT bool take_panic_hook(PanicHook* hook) noexcept;
+[[nodiscard]] STX_DLL_EXPORT bool take_panic_hook(PanicHook* hook);
 
 STX_END_NAMESPACE

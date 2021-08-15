@@ -38,7 +38,7 @@ struct MoveOnly {
     return *this;
   }
   MoveOnly& operator=(MoveOnly&&) = default;
-  ~MoveOnly() noexcept = default;
+  ~MoveOnly() = default;
 
   void done() const {
     // cout << "\t>> MoveOnly<" << to_string(ID) << "> Done!" << std::endl;

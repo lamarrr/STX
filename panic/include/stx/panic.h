@@ -21,7 +21,7 @@ STX_BEGIN_NAMESPACE
 /// conscious of shared state as it can be called from mulitple threads.
 ///
 void panic_handler(std::string_view info, ReportPayload const& payload,
-                   SourceLocation location) noexcept;
+                   SourceLocation location);
 
 /// Handles and dispatches the panic handler. The debugging breakpoint should be
 /// attached to this function to investigate panics.
@@ -32,7 +32,7 @@ void panic_handler(std::string_view info, ReportPayload const& payload,
 ///
 [[noreturn]] STX_DLL_EXPORT void begin_panic(std::string_view info,
                                              ReportPayload const& payload,
-                                             SourceLocation location) noexcept;
+                                             SourceLocation location);
 
 /// This allows a program to terminate immediately and provide feedback to the
 /// caller of the program. `panic` should be used when a program reaches an
@@ -44,14 +44,14 @@ void panic_handler(std::string_view info, ReportPayload const& payload,
 template <typename T>
 [[noreturn]] inline void panic(
     std::string_view info, T const& value,
-    SourceLocation location = SourceLocation::current()) noexcept {
+    SourceLocation location = SourceLocation::current()) {
   begin_panic(info, ReportPayload(report_query >> value), location);
 }
 
 template <typename T = void>
 [[noreturn]] inline void panic(
     std::string_view info = "explicit panic",
-    SourceLocation location = SourceLocation::current()) noexcept {
+    SourceLocation location = SourceLocation::current()) {
   begin_panic(info, ReportPayload(SpanReport()), location);
 }
 

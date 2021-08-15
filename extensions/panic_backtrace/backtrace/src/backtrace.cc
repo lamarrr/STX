@@ -32,7 +32,7 @@
 
 STX_BEGIN_NAMESPACE
 
-auto backtrace::Symbol::raw() const noexcept -> std::string_view {
+auto backtrace::Symbol::raw() const -> std::string_view {
   return std::string_view(symbol_.data(), symbol_.size());
 }
 
@@ -146,7 +146,7 @@ NOTE: ip => Instruction Pointer,  sp => Stack Pointer
 }
 }  // namespace
 
-auto backtrace::handle_signal(int signal) noexcept
+auto backtrace::handle_signal(int signal)
     -> Result<void (*)(int), SignalError> {
   if (signal != SIGSEGV && signal != SIGILL && signal != SIGFPE)
     return Err(SignalError::Unknown);

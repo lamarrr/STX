@@ -83,12 +83,12 @@ constexpr ReportQuery const report_query{};
 ///     int error;
 ///
 ///     // formats error message
-///     void format_into(const char*, size_t size) const noexcept;
+///     void format_into(const char*, size_t size) const ;
 ///
 /// };
 ///
 ///
-/// inline FixedReport operator>>(ReportQuery, Error const& err) noexcept {
+/// inline FixedReport operator>>(ReportQuery, Error const& err)  {
 ///    char buffer[64];
 ///    err.format_into(buffer, 64);
 ///    return FixedReport(buffer, 64);
@@ -106,15 +106,15 @@ constexpr ReportQuery const report_query{};
 struct [[nodiscard]] FixedReport {
   using storage_type = char[kReportReserveSize];
 
-  constexpr FixedReport() noexcept : reserve_{}, report_size_{0} {}
+  constexpr FixedReport() : reserve_{}, report_size_{0} {}
 
   /// size: string size excluding null-terminator
-  constexpr FixedReport(const char* str, size_t size) noexcept
+  constexpr FixedReport(const char* str, size_t size)
       : reserve_{}, report_size_{size} {
     *this = FixedReport(std::string_view(str, size));
   }
 
-  explicit constexpr FixedReport(std::string_view const& info) noexcept
+  explicit constexpr FixedReport(std::string_view const& info)
       : reserve_{}, report_size_{0} {
     // account for truncation
     // check bounds
@@ -139,13 +139,7 @@ struct [[nodiscard]] FixedReport {
     report_size_ = pos;
   }
 
-  constexpr FixedReport(FixedReport const&) noexcept = default;
-  constexpr FixedReport(FixedReport &&) noexcept = default;
-  constexpr FixedReport& operator=(FixedReport const&) noexcept = default;
-  constexpr FixedReport& operator=(FixedReport&&) noexcept = default;
-  ~FixedReport() noexcept = default;
-
-  [[nodiscard]] constexpr std::string_view what() const noexcept {
+  [[nodiscard]] constexpr std::string_view what() const {
     return std::string_view(reserve_, report_size_);
   };
 
@@ -186,7 +180,7 @@ struct [[nodiscard]] FixedReport {
 ///
 /// };
 ///
-/// SpanReport operator>>(ReportQuery, net::Error const& err) noexcept {
+/// SpanReport operator>>(ReportQuery, net::Error const& err)  {
 ///   switch(err){
 ///          case net::Error::ConnectionError:
 ///            return SpanReport("Connection error occurred");
@@ -208,15 +202,15 @@ struct [[nodiscard]] FixedReport {
 ///      class Error {
 ///
 ///           // returns a reference to the error string
-///           std::string const & what() const noexcept;
+///           std::string const & what() const ;
 ///
 ///
 ///            // returns a string_view to the error string
-///           std::string_view better_what() const noexcept;
+///           std::string_view better_what() const ;
 ///
 ///
 ///            // returns a const string_view reference of the error
-///           std::string_view const& best_what() const noexcept;
+///           std::string_view const& best_what() const ;
 ///
 ///
 ///           // `dangerous_what` creates a new string and returns it, totally
@@ -227,14 +221,14 @@ struct [[nodiscard]] FixedReport {
 ///           query
 ///           // below.
 ///           //
-///           std::string dangerous_what() const noexcept;
+///           std::string dangerous_what() const ;
 ///       };
 ///
 /// };
 ///
 ///
 ///
-/// SpanReport operator>>(ReportQuery, net::Error const& err) noexcept {
+/// SpanReport operator>>(ReportQuery, net::Error const& err)  {
 ///   return SpanReport(err.what());
 /// }
 ///
@@ -250,24 +244,24 @@ struct [[nodiscard]] SpanReport {
   // it does not own the contents, so make sure the referenced buffer lives
   // longer than this object
 
-  constexpr SpanReport() noexcept : custom_payload_{nullptr}, report_size_{0} {}
+  constexpr SpanReport() : custom_payload_{nullptr}, report_size_{0} {}
 
   /// size: string size excluding null-terminator
-  constexpr SpanReport(const char* str, size_t size) noexcept
+  constexpr SpanReport(const char* str, size_t size)
       : custom_payload_{str}, report_size_{size} {}
 
-  explicit constexpr SpanReport(std::string_view const& str) noexcept
+  explicit constexpr SpanReport(std::string_view const& str)
       : custom_payload_{str.data()}, report_size_{str.size()} {}
 
-  [[nodiscard]] constexpr std::string_view what() const noexcept {
+  [[nodiscard]] constexpr std::string_view what() const {
     return std::string_view(custom_payload_, report_size_);
   };
 
-  constexpr SpanReport(SpanReport const&) noexcept = default;
-  constexpr SpanReport(SpanReport &&) noexcept = default;
-  constexpr SpanReport& operator=(SpanReport const&) noexcept = default;
-  constexpr SpanReport& operator=(SpanReport&&) noexcept = default;
-  ~SpanReport() noexcept = default;
+  constexpr SpanReport(SpanReport const&) = default;
+  constexpr SpanReport(SpanReport &&) = default;
+  constexpr SpanReport& operator=(SpanReport const&) = default;
+  constexpr SpanReport& operator=(SpanReport&&) = default;
+  ~SpanReport() = default;
 
  private:
   const char* custom_payload_;
@@ -284,19 +278,19 @@ struct [[nodiscard]] SpanReport {
 ///
 class [[nodiscard]] ReportPayload {
  public:
-  explicit constexpr ReportPayload(FixedReport const& report) noexcept
+  explicit constexpr ReportPayload(FixedReport const& report)
       : content_{report.what()} {}
 
-  explicit constexpr ReportPayload(SpanReport const& report) noexcept
+  explicit constexpr ReportPayload(SpanReport const& report)
       : content_{report.what()} {}
 
-  constexpr ReportPayload(ReportPayload const&) noexcept = default;
-  constexpr ReportPayload(ReportPayload &&) noexcept = default;
-  constexpr ReportPayload& operator=(ReportPayload const&) noexcept = default;
-  constexpr ReportPayload& operator=(ReportPayload&&) noexcept = default;
-  ~ReportPayload() noexcept = default;
+  constexpr ReportPayload(ReportPayload const&) = default;
+  constexpr ReportPayload(ReportPayload &&) = default;
+  constexpr ReportPayload& operator=(ReportPayload const&) = default;
+  constexpr ReportPayload& operator=(ReportPayload&&) = default;
+  ~ReportPayload() = default;
 
-  [[nodiscard]] constexpr std::string_view const& data() const noexcept {
+  [[nodiscard]] constexpr std::string_view const& data() const {
     return content_;
   }
 
@@ -309,7 +303,7 @@ constexpr char const kFormatError[] = "<format error>";
 constexpr size_t const kFormatErrorSize = sizeof(kFormatError) - 1;
 
 template <typename T>
-[[nodiscard]] inline SpanReport operator>>(ReportQuery, T const&) noexcept {
+[[nodiscard]] inline SpanReport operator>>(ReportQuery, T const&) {
   return SpanReport();
 }
 
@@ -325,58 +319,49 @@ template <typename T>
   }
 
 template <typename T>
-[[nodiscard]] inline FixedReport operator>>(ReportQuery,
-                                            T const* const& ptr) noexcept {
+[[nodiscard]] inline FixedReport operator>>(ReportQuery, T const* const& ptr) {
   STX_INTERNAL_MAKE_REPORT_(internal::kxPtrFmtSize, "0x%" PRIxPTR,
                             reinterpret_cast<uintptr_t const>(ptr));
 }
 
 template <typename T>
-[[nodiscard]] inline FixedReport operator>>(ReportQuery,
-                                            T* const& ptr) noexcept {
+[[nodiscard]] inline FixedReport operator>>(ReportQuery, T* const& ptr) {
   STX_INTERNAL_MAKE_REPORT_(internal::kxPtrFmtSize, "0x%" PRIxPTR,
                             reinterpret_cast<uintptr_t>(ptr));
 }
 
-[[nodiscard]] inline FixedReport operator>>(ReportQuery,
-                                            int8_t const& v) noexcept {
+[[nodiscard]] inline FixedReport operator>>(ReportQuery, int8_t const& v) {
   STX_INTERNAL_MAKE_REPORT_(internal::kI8FmtSize, "%" PRIi8, v);
 }
 
-[[nodiscard]] inline FixedReport operator>>(ReportQuery,
-                                            uint8_t const& v) noexcept {
+[[nodiscard]] inline FixedReport operator>>(ReportQuery, uint8_t const& v) {
   STX_INTERNAL_MAKE_REPORT_(internal::kU8FmtSize, "%" PRIu8, v);
 }
 
-[[nodiscard]] inline FixedReport operator>>(ReportQuery,
-                                            int16_t const& v) noexcept {
+[[nodiscard]] inline FixedReport operator>>(ReportQuery, int16_t const& v) {
   STX_INTERNAL_MAKE_REPORT_(internal::kI16FmtSize, "%" PRIi16, v);
 }
 
-[[nodiscard]] inline FixedReport operator>>(ReportQuery,
-                                            uint16_t const& v) noexcept {
+[[nodiscard]] inline FixedReport operator>>(ReportQuery, uint16_t const& v) {
   STX_INTERNAL_MAKE_REPORT_(internal::kU16FmtSize, "%" PRIu16, v);
 }
 
-[[nodiscard]] inline FixedReport operator>>(ReportQuery,
-                                            int32_t const& v) noexcept {
+[[nodiscard]] inline FixedReport operator>>(ReportQuery, int32_t const& v) {
   STX_INTERNAL_MAKE_REPORT_(internal::kI32FmtSize, "%" PRIi32, v);
 }
 
-[[nodiscard]] inline FixedReport operator>>(ReportQuery,
-                                            uint32_t const& v) noexcept {
+[[nodiscard]] inline FixedReport operator>>(ReportQuery, uint32_t const& v) {
   STX_INTERNAL_MAKE_REPORT_(internal::kU32FmtSize, "%" PRIu32, v);
 }
 
 #undef STX_INTERNAL_MAKE_REPORT_
 
 [[nodiscard]] inline SpanReport operator>>(ReportQuery,
-                                           std::string_view const& v) noexcept {
+                                           std::string_view const& v) {
   return SpanReport(v);
 }
 
-[[nodiscard]] inline SpanReport operator>>(ReportQuery,
-                                           std::string const& v) noexcept {
+[[nodiscard]] inline SpanReport operator>>(ReportQuery, std::string const& v) {
   return SpanReport(v);
 }
 

@@ -19,7 +19,7 @@ namespace this_thread {
 namespace {
 
 /// increases the panic count for this thread by `step`
-size_t step_panic_count(size_t step) noexcept {
+size_t step_panic_count(size_t step) {
   thread_local static size_t panic_count = 0;
   panic_count += step;
   return panic_count;
@@ -27,28 +27,28 @@ size_t step_panic_count(size_t step) noexcept {
 }  // namespace
 }  // namespace this_thread
 
-STX_DLL_EXPORT AtomicPanicHook& panic_hook_ref() noexcept {
+STX_DLL_EXPORT AtomicPanicHook& panic_hook_ref() {
   static AtomicPanicHook hook{nullptr};
   return hook;
 }
 
-STX_DLL_EXPORT bool this_thread::is_panicking() noexcept {
+STX_DLL_EXPORT bool this_thread::is_panicking() {
   return this_thread::step_panic_count(0) != 0;
 }
 
 // the panic hook takes higher precedence over the panic handler
 void default_panic_hook(std::string_view info, ReportPayload const& payload,
-                        SourceLocation location) noexcept {
+                        SourceLocation location) {
   panic_handler(info, payload, location);
 }
 
-STX_DLL_EXPORT bool attach_panic_hook(PanicHook hook) noexcept {
+STX_DLL_EXPORT bool attach_panic_hook(PanicHook hook) {
   if (this_thread::is_panicking()) return false;
   panic_hook_ref().exchange(hook, std::memory_order_seq_cst);
   return true;
 }
 
-STX_DLL_EXPORT bool take_panic_hook(PanicHook* out) noexcept {
+STX_DLL_EXPORT bool take_panic_hook(PanicHook* out) {
   if (this_thread::is_panicking()) return false;
   auto hook = panic_hook_ref().exchange(nullptr, std::memory_order_seq_cst);
   if (hook == nullptr) {
@@ -63,7 +63,7 @@ STX_END_NAMESPACE
 
     [[noreturn]] STX_DLL_EXPORT void
     stx::begin_panic(std::string_view info, stx::ReportPayload const& payload,
-                     stx::SourceLocation location) noexcept {
+                     stx::SourceLocation location) {
   // TODO(lamarrr): We probably need a method for stack unwinding, So we can
   // free held resources
 

@@ -36,7 +36,7 @@ enum class SignalError {
   SigErr
 };
 
-inline SpanReport operator>>(ReportQuery, SignalError const &err) noexcept {
+inline SpanReport operator>>(ReportQuery, SignalError const &err) {
   switch (err) {
     case SignalError::Unknown:
       return SpanReport(
@@ -54,14 +54,14 @@ inline SpanReport operator>>(ReportQuery, SignalError const &err) noexcept {
 /// `std::string`.
 struct Symbol {
   /// gets the raw symbol name, the symbol is pre-demangled if possible.
-  auto raw() const noexcept -> std::string_view;
+  auto raw() const -> std::string_view;
 
   /// construct the `Symbol` object from the raw undemangled symbol name
   /// requires that `sym`'s `data` member is not a `nullptr` and is
   /// null-terminated.
   ///
   /// UNCHECKED!
-  explicit Symbol(Span<char> sym) noexcept : symbol_{sym} {};
+  explicit Symbol(Span<char> sym) : symbol_{sym} {};
 
  private:
   Span<char> symbol_;
@@ -146,7 +146,7 @@ int trace(Callback callback, int skip_count = 0);
 ///
 /// ```
 ///
-auto handle_signal(int signal) noexcept -> Result<void (*)(int), SignalError>;
+auto handle_signal(int signal) -> Result<void (*)(int), SignalError>;
 
 }  // namespace backtrace
 

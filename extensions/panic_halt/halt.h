@@ -22,7 +22,7 @@ STX_BEGIN_NAMESPACE
 /// abort.
 inline void panic_halt(std::string_view const& info,
                        ReportPayload const& payload,
-                       SourceLocation const& location) noexcept {
+                       SourceLocation const& location) {
   (void)info;
   (void)payload;
   (void)location;

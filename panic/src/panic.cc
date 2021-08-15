@@ -18,7 +18,7 @@
 // TODO(lamarrr): make weak
 void stx::panic_handler(std::string_view info,
                         stx::ReportPayload const& payload,
-                        stx::SourceLocation location) noexcept {
+                        stx::SourceLocation location) {
   stx::panic_default(info, payload, location);
 }
 

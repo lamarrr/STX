@@ -1091,7 +1091,7 @@ constexpr auto make_none() -> Option<T> {
 /// ```
 ///
 template <typename T>
-constexpr auto some_ref(T& value) noexcept {
+constexpr auto some_ref(T& value) {
   return Some(Ref<T>{value});
 }
 

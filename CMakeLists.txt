@@ -278,3 +278,7 @@ endif()
 # try_add_sanitized_test(thread) endif()
 
 # endif()
+
+
+# find . -regex '.*\.\(cpp\|h\|cc\|cxx\)' -exec clang-format -style=file -i {} \;
+# clang-format-all

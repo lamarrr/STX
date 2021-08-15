@@ -21,7 +21,7 @@ using namespace std::literals;
 
 // https://en.cppreference.com/w/cpp/string/basic_string_view/ends_with
 STX_FORCE_INLINE bool ends_with(std::string_view const& str,
-                                std::string_view const& sv) noexcept {
+                                std::string_view const& sv) {
   return str.size() >= sv.size() &&
          str.compare(str.size() - sv.size(), std::string_view::npos, sv) == 0;
 }
@@ -36,7 +36,7 @@ std::string to_string(T const& value) {
 enum class IoError { EoF = 1, NotExists = 2, InvalidPath = 4, __Reserved };
 enum class Dummy {};
 
-SpanReport operator>>(ReportQuery, IoError const& v) noexcept {
+SpanReport operator>>(ReportQuery, IoError const& v) {
   switch (v) {
     case IoError::EoF:
       return SpanReport("End of File");

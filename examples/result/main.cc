@@ -13,10 +13,10 @@ using Result = stx::Result<T, Error>;
 
 // this is just a mock
 struct File {
-  explicit File(std::string_view) noexcept {}
+  explicit File(std::string_view) {}
 };
 
-auto open(std::string_view path) noexcept -> Result<File> {
+auto open(std::string_view path) -> Result<File> {
   if (path.empty()) return Err(Error::InvalidPath);
 
   File file{path};
