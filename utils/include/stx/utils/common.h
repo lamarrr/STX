@@ -38,11 +38,12 @@ constexpr bool default_constructible = std::is_default_constructible<T>::value;
 template <typename From, typename To>
 constexpr bool convertible = std::is_convertible<From, To>::value;
 
+namespace impl {
 template <typename T, typename Cmp = T, typename = void>
-struct is_equality_comparable : std::false_type {};
+struct equality_comparable_impl : std::false_type {};
 
 template <typename T, typename Cmp>
-struct is_equality_comparable<
+struct equality_comparable_impl<
     T, Cmp,
     typename std::enable_if_t<
         true,
@@ -52,9 +53,12 @@ struct is_equality_comparable<
                       std::declval<std::remove_reference_t<Cmp> const&>()),
                  (void)0)>> : std::true_type {};
 
+}  // namespace impl
+
 /// Checks if the type has a compatible 'operator ==' and 'operator!='
 template <typename T, typename Cmp = T>
-constexpr bool equality_comparable = is_equality_comparable<T, Cmp>::value;
+constexpr bool equality_comparable =
+    impl::equality_comparable_impl<T, Cmp>::value;
 
 template <typename T>
 constexpr bool is_reference = std::is_reference<T>::value;
@@ -64,23 +68,6 @@ constexpr bool is_reference = std::is_reference<T>::value;
 /// To offer stronger guarantees prefer `ConstRef` and `MutRef`
 template <typename T>
 using Ref = std::reference_wrapper<T>;
-
-/// `ConstRef` is an always-const `Ref`.
-template <typename T>
-using ConstRef =
-    std::reference_wrapper<std::add_const_t<std::remove_reference_t<T>>>;
-
-/// `MutRef` is an always-mutable `Ref`
-template <typename T>
-using MutRef =
-    std::reference_wrapper<std::remove_const_t<std::remove_reference_t<T>>>;
-
-#if defined(__cpp_concepts)
-#if __cpp_concepts >= 201907L
-template <typename T, typename Base>
-concept Impl = std::is_base_of<Base, T>::value;
-#endif
-#endif
 
 namespace internal {
 

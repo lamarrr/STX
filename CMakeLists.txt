@@ -160,12 +160,25 @@ endif()
 #
 # ===============================================
 
+
+
+
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+  add_compile_options(-fdiagnostics-color=always)
+elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
+  add_compile_options(-fcolor-diagnostics)
+endif()
+
+
 add_subdirectory(config)
 add_subdirectory(option_result)
 add_subdirectory(panic)
 add_subdirectory(source_location)
 add_subdirectory(span)
 add_subdirectory(utils)
+add_subdirectory(deferred_init)
+
+
 
 if(STX_ENABLE_BACKTRACE)
   if(NOT EXISTS third_party/abseil)

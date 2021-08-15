@@ -15,14 +15,12 @@
 
 #include "stx/panic/default.h"
 
-STX_BEGIN_NAMESPACE
-
 // TODO(lamarrr): make weak
-void panic_handler(std::string_view info, ReportPayload const& payload,
-                   SourceLocation location) noexcept {
-  panic_default(info, payload, location);
+void stx::panic_handler(std::string_view info,
+                        stx::ReportPayload const& payload,
+                        stx::SourceLocation location) noexcept {
+  stx::panic_default(info, payload, location);
 }
 
-STX_END_NAMESPACE
-
 #endif
+

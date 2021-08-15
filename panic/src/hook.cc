@@ -59,9 +59,11 @@ STX_DLL_EXPORT bool take_panic_hook(PanicHook* out) noexcept {
   return true;
 }
 
-[[noreturn]] STX_DLL_EXPORT void begin_panic(std::string_view info,
-                                             ReportPayload const& payload,
-                                             SourceLocation location) noexcept {
+STX_END_NAMESPACE
+
+    [[noreturn]] STX_DLL_EXPORT void
+    stx::begin_panic(std::string_view info, stx::ReportPayload const& payload,
+                     stx::SourceLocation location) noexcept {
   // TODO(lamarrr): We probably need a method for stack unwinding, So we can
   // free held resources
 
@@ -74,15 +76,13 @@ STX_DLL_EXPORT bool take_panic_hook(PanicHook* out) noexcept {
   }
 
   // all threads use the same panic hook
-  PanicHook hook = panic_hook_ref().load(std::memory_order_seq_cst);
+  PanicHook hook = stx::panic_hook_ref().load(std::memory_order_seq_cst);
 
   if (hook != nullptr) {
     hook(info, payload, location);
   } else {
-    default_panic_hook(info, payload, location);
+    stx::default_panic_hook(info, payload, location);
   }
 
   std::abort();
 }
-
-STX_END_NAMESPACE

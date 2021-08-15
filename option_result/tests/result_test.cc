@@ -11,8 +11,8 @@
 
 #include "stx/result.h"
 
-#include <numeric>
 #include <algorithm>
+#include <numeric>
 
 #include "gtest/gtest.h"
 
@@ -236,6 +236,7 @@ TEST(ResultTest, ErrExists) {
            .err_exists(all_even)));
 }
 
+/*
 TEST(ResultTest, Ok) {
   EXPECT_EQ((make_ok<int, int>(20).ok().unwrap()), 20);
   EXPECT_EQ((make_err<int, int>(90).ok()), None);
@@ -270,6 +271,7 @@ TEST(ResultTest, Err) {
       (vector{1, 2, 3, 4}));
   EXPECT_EQ((make_ok<vector<int>, vector<int>>(vector{78, 67}).err()), None);
 }
+*/
 
 TEST(ResultTest, AsConstRef) {
   auto const a = make_ok<int, int>(68);
@@ -672,6 +674,8 @@ auto ok_try_b(int x) -> stx::Result<int, int> {
     return Err(-1);
   }
 }
+
+#include "stx/try_ok.h"
 
 auto ok_try_a(int m) -> stx::Result<int, int> {
   // clang-format off

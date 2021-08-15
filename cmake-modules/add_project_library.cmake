@@ -13,7 +13,7 @@ macro(add_project_library target_project_name target_library_name)
   message(VERBOSE "${library_name} source files: "
           ${${library_name}_SOURCE_FILES})
 
-  add_library(${library_name} OBJECT ${${library_name}_SOURCE_FILES})
+  add_library(${library_name} STATIC ${${library_name}_SOURCE_FILES})
   add_library(${library_alias} ALIAS ${library_name})
   set_target_properties(${library_name} PROPERTIES CXX_STANDARD 17)
 
