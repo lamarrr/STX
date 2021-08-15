@@ -40,7 +40,6 @@
 
 STX_BEGIN_NAMESPACE
 
-
 // multiple threads can try to modify/read the hook at once.
 using PanicHook = decltype(panic_handler)*;
 using AtomicPanicHook = std::atomic<PanicHook>;

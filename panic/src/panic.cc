@@ -23,4 +23,3 @@ void stx::panic_handler(std::string_view info,
 }
 
 #endif
-

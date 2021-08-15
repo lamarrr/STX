@@ -42,14 +42,14 @@ void panic_handler(std::string_view info, ReportPayload const& payload,
 /// `panic` when they are set to `None` or `Err` variants.
 ///
 template <typename T>
-[[noreturn]] STX_FORCE_INLINE void panic(
+[[noreturn]] inline void panic(
     std::string_view info, T const& value,
     SourceLocation location = SourceLocation::current()) noexcept {
   begin_panic(info, ReportPayload(report_query >> value), location);
 }
 
 template <typename T = void>
-[[noreturn]] STX_FORCE_INLINE void panic(
+[[noreturn]] inline void panic(
     std::string_view info = "explicit panic",
     SourceLocation location = SourceLocation::current()) noexcept {
   begin_panic(info, ReportPayload(SpanReport()), location);
