@@ -29,10 +29,6 @@
 // possible
 // - We also try to prevent you from shooting yourself in the foot, especially
 // with references and implicit copies
-// - Many are marked constexpr but won't work in a constexpr context in C++ 17
-// mode. They work in C++ 20 and we don't want macros for that. To add, many
-// compilers labelled with 'C++20' might not have non-trivial constexpr
-// destructors.
 
 //! @file
 //!
