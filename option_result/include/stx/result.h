@@ -20,15 +20,6 @@
 #include "stx/option_result/impl/result_storage.h"
 #include "stx/utils/common.h"
 
-// Why so long? Option and Result depend on each other. I don't know of a
-// way to break the cyclic dependency, primarily because they are templated
-//
-// Lifetime notes:
-// - Every change of state must be followed by a destruction (and construction
-// if it has a non-null variant)
-// - The object must be destroyed immediately after the contained value is moved
-// from it.
-//
 // Notes:
 // - Result is an object-forwarding type. It is unique to an
 // interaction. It functions like a std::unique_ptr, as it doesn't allow
