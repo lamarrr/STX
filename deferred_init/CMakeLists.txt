@@ -1,2 +1,0 @@
-add_project_library(stx deferred_init)
-target_link_libraries(stx_deferred_init stx::config)

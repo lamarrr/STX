@@ -168,7 +168,6 @@ add_subdirectory(panic)
 add_subdirectory(source_location)
 add_subdirectory(span)
 add_subdirectory(utils)
-add_subdirectory(deferred_init)
 
 if(STX_ENABLE_BACKTRACE)
   if(NOT EXISTS third_party/abseil)

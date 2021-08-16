@@ -4,7 +4,6 @@
 #include <utility>
 
 #include "stx/config.h"
-#include "stx/deferred_init.h"
 #include "stx/none.h"
 #include "stx/some.h"
 
@@ -39,8 +38,6 @@ struct OptionStorage {
 
     return *this;
   }
-
-  explicit constexpr OptionStorage(deferred_init_tag) {}
 
   explicit constexpr OptionStorage(NoneType) : is_none_{true} {}
 
@@ -95,8 +92,6 @@ struct OptionStorage<T, true> {
 
   constexpr OptionStorage(OptionStorage&&) = default;
   constexpr OptionStorage& operator=(OptionStorage&&) = default;
-
-  explicit constexpr OptionStorage(deferred_init_tag) {}
 
   explicit constexpr OptionStorage(NoneType) : is_none_{true} {}
 

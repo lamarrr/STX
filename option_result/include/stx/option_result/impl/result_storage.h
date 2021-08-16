@@ -4,7 +4,6 @@
 #include <utility>
 
 #include "stx/config.h"
-#include "stx/deferred_init.h"
 #include "stx/err.h"
 #include "stx/ok.h"
 
