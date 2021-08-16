@@ -19,13 +19,42 @@ struct ResultStorage {
 
   bool is_ok_;
 
-  explicit constexpr ResultStorage(deferred_init_tag) {}
+  constexpr ResultStorage(ResultStorage&& other) {
+    if (other.is_ok_) {
+      finally_init(std::move(other.ok_));
+    } else {
+      finally_init(std::move(other.err_));
+    }
+  }
+
+  constexpr ResultStorage& operator=(ResultStorage&& other) {
+    if (other.is_ok_) {
+      assign(std::move(other.ok_));
+    } else {
+      assign(std::move(other.err_));
+    }
+
+    return *this;
+  }
 
   explicit constexpr ResultStorage(Ok<T>&& ok)
       : ok_{std::move(ok)}, is_ok_{true} {}
 
   explicit constexpr ResultStorage(Err<E>&& err)
       : err_{std::move(err)}, is_ok_{false} {}
+
+  constexpr ResultStorage(ResultStorage const&) = delete;
+  constexpr ResultStorage& operator=(ResultStorage const&) = delete;
+
+  constexpr ResultStorage() = delete;
+
+  ~ResultStorage() {
+    if (is_ok_) {
+      ok_.ref().~T();
+    } else {
+      err_.ref().~E();
+    }
+  }
 
   void finally_init(Ok<T>&& ok) {
     new (&ok_) Ok{std::move(ok)};
@@ -58,14 +87,6 @@ struct ResultStorage {
       is_ok_ = false;
     }
   }
-
-  ~ResultStorage() {
-    if (is_ok_) {
-      ok_.ref().~T();
-    } else {
-      err_.ref().~E();
-    }
-  }
 };
 
 template <typename T, typename E>
@@ -77,13 +98,19 @@ struct ResultStorage<T, E, true> {
 
   bool is_ok_;
 
-  explicit constexpr ResultStorage(deferred_init_tag) {}
+  constexpr ResultStorage(ResultStorage&&) = default;
+  constexpr ResultStorage& operator=(ResultStorage&&) = default;
 
   explicit constexpr ResultStorage(Ok<T>&& ok)
       : ok_{std::move(ok)}, is_ok_{true} {}
 
   explicit constexpr ResultStorage(Err<E>&& err)
       : err_{std::move(err)}, is_ok_{false} {}
+
+  constexpr ResultStorage(ResultStorage const&) = delete;
+  constexpr ResultStorage& operator=(ResultStorage const&) = delete;
+
+  constexpr ResultStorage() = delete;
 
   constexpr void finally_init(Ok<T>&& ok) {
     ok_ = std::move(ok);
@@ -98,8 +125,6 @@ struct ResultStorage<T, E, true> {
   constexpr void assign(Ok<T>&& ok) { finally_init(std::move(ok)); }
 
   constexpr void assign(Err<T>&& err) { finally_init(std::move(err)); }
-
-  ResultStorage() = default;
 };
 
 STX_END_NAMESPACE

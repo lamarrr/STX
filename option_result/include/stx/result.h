@@ -154,14 +154,6 @@ struct [[nodiscard]] Result
 
   constexpr Result(Err<E> && err) : storage{std::move(err)} {}
 
-  constexpr Result(Result && other) : storage{deferred_init} {
-    if (other.is_ok()) {
-      storage::finally_init(std::move(other.ok_));
-    } else {
-      storage::finally_init(std::move(other.err_));
-    }
-  }
-
   constexpr Result& operator=(Ok<T>&& other) {
     storage::assign(std::move(other));
 
@@ -174,21 +166,12 @@ struct [[nodiscard]] Result
     return *this;
   }
 
-  constexpr Result& operator=(Result&& other) {
-    if (other.is_ok()) {
-      storage::assign(std::move(other.ok_));
-    } else {
-      storage::assign(std::move(other.err_));
-    }
-
-    return *this;
-  }
+  constexpr Result(Result &&) = default;
+  constexpr Result& operator=(Result&&) = default;
 
   constexpr Result() = delete;
   constexpr Result(Result const& other) = delete;
   constexpr Result& operator=(Result const& other) = delete;
-
-  ~Result() = default;
 
   /// Returns `true` if the result is an `Ok<T>` variant.
   ///

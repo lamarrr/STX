@@ -19,6 +19,27 @@ struct OptionStorage {
 
   bool is_none_;
 
+  OptionStorage(OptionStorage const&) = delete;
+  OptionStorage& operator=(OptionStorage const&) = delete;
+
+  constexpr OptionStorage(OptionStorage&& other) {
+    if (other.is_none_) {
+      finally_init(None);
+    } else {
+      finally_init(std::move(other.some_));
+    }
+  }
+
+  constexpr OptionStorage& operator=(OptionStorage&& other) {
+    if (other.is_none_) {
+      assign(None);
+    } else {
+      assign(Some(std::move(other.some_)));
+    }
+
+    return *this;
+  }
+
   explicit constexpr OptionStorage(deferred_init_tag) {}
 
   explicit constexpr OptionStorage(NoneType) : is_none_{true} {}
@@ -68,6 +89,12 @@ struct OptionStorage<T, true> {
   bool is_none_;
 
   static constexpr bool is_trivial = true;
+
+  OptionStorage(OptionStorage const&) = delete;
+  OptionStorage& operator=(OptionStorage const&) = delete;
+
+  constexpr OptionStorage(OptionStorage&&) = default;
+  constexpr OptionStorage& operator=(OptionStorage&&) = default;
 
   explicit constexpr OptionStorage(deferred_init_tag) {}
 

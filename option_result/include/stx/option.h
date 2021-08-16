@@ -83,14 +83,6 @@ struct [[nodiscard]] Option : impl::check_value_type<T>,
 
   constexpr Option(NoneType) : storage{None} {}
 
-  constexpr Option(Option && other) : storage{deferred_init} {
-    if (other.is_some()) {
-      storage::finally_init(std::move(other.some_));
-    } else {
-      storage::finally_init(None);
-    }
-  }
-
   constexpr Option& operator=(Some<T>&& other) {
     storage::assign(std::move(other));
     return *this;
@@ -101,20 +93,11 @@ struct [[nodiscard]] Option : impl::check_value_type<T>,
     return *this;
   }
 
-  constexpr Option& operator=(Option&& other) {
-    if (other.is_some()) {
-      storage::assign(Some(std::move(other.some_)));
-    } else {
-      storage::assign(None);
-    }
-
-    return *this;
-  }
+  constexpr Option(Option &&) = default;
+  constexpr Option& operator=(Option&&) = default;
 
   constexpr Option(Option const&) = delete;
   constexpr Option& operator=(Option const&) = delete;
-
-  ~Option() = default;
 
   /// Returns `true` if this Option is a `Some` value.
   ///
