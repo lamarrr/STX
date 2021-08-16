@@ -24,7 +24,7 @@
 // - Result is an object-forwarding type. It is unique to an
 // interaction. It functions like a std::unique_ptr, as it doesn't allow
 // implicitly copying its data content. Unless explicitly stated via the
-// .clone() method
+// .copy() method
 // - We strive to make lifetime paths as visible and predictable as
 // possible
 // - We also try to prevent you from shooting yourself in the foot, especially
@@ -133,7 +133,6 @@ struct [[nodiscard]] Result
 
  private:
   using storage::err_;
-  using storage::is_ok_;
   using storage::ok_;
 
  public:
@@ -174,7 +173,7 @@ struct [[nodiscard]] Result
   /// Result<int, string_view> y = Err("Some error message"sv);
   /// ASSERT_FALSE(y.is_ok());
   /// ```
-  [[nodiscard]] constexpr bool is_ok() const { return is_ok_; }
+  [[nodiscard]] constexpr bool is_ok() const { return storage::is_ok_; }
 
   /// Returns `true` if the result is `Err<T>`.
   ///
@@ -960,9 +959,9 @@ struct [[nodiscard]] Result
   /// ``` cpp
   /// Result<int, int> x  = Ok(8);
   ///
-  /// ASSERT_EQ(x, x.clone());
+  /// ASSERT_EQ(x, x.copy());
   /// ```
-  constexpr auto clone() const->Result<T, E> {
+  constexpr auto copy() const->Result<T, E> {
     static_assert(copy_constructible<T>);
     static_assert(copy_constructible<E>);
 

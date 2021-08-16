@@ -127,7 +127,7 @@ struct [[nodiscard]] Option : impl::check_value_type<T>,
   /// Option<int> y = None;
   /// ASSERT_TRUE(y.is_none());
   /// ```
-  [[nodiscard]] constexpr bool is_none() const { return is_none_; }
+  [[nodiscard]] constexpr bool is_none() const { return storage::is_none_; }
 
   [[nodiscard]] constexpr operator bool() const { return is_some(); }
 
@@ -726,31 +726,6 @@ struct [[nodiscard]] Option : impl::check_value_type<T>,
   /// ```
   auto replace(T const& replacement)->Option { return replace(T{replacement}); }
 
-  /// Returns a copy of the option and its contents.
-  ///
-  /// # Examples
-  ///
-  /// Basic usage:
-  ///
-  /// ``` cpp
-  /// Option x  = Some(8);
-  ///
-  /// ASSERT_EQ(x, x.copy());
-  /// ```
-  constexpr auto copy() const->Option {
-    // TODO(lamarrr): we need to be able to check for this. this would cause a
-    // compiler error on some types
-    if (is_some()) {
-      return Some(T{some_.cref()});
-    } else {
-      return None;
-    }
-  }
-
-  constexpr auto move()&->Option<T>&& { return std::move(*this); }
-
-  constexpr auto move()&&->Option<T>&& = delete;
-
   /// Unwraps an option, expecting `None` and returning nothing.
   ///
   /// # Panics
@@ -896,6 +871,23 @@ struct [[nodiscard]] Option : impl::check_value_type<T>,
       return std::invoke(std::forward<NoneFn>(none_fn));
     }
   }
+
+  /// Returns a copy of the option and its contents.
+  ///
+  /// # Examples
+  ///
+  /// Basic usage:
+  ///
+  /// ``` cpp
+  /// Option x  = Some(8);
+  ///
+  /// ASSERT_EQ(x, x.copy());
+  /// ```
+  constexpr auto copy() const->Option { return *this; }
+
+  constexpr auto move()&->Option<T>&& { return std::move(*this); }
+
+  constexpr auto move()&&->Option<T>&& = delete;
 
   constexpr Some<T>& unsafe_some_ref() { return some_; }
 
