@@ -87,10 +87,10 @@ template <typename E>
   panic("called `Result::unwrap_err()` on an `Ok` value", location);
 }
 
-/// panic helper for `Result<T, E>::err_value()` when no value is present
+/// panic helper for `Result<T, E>::err()` when no value is present
 [[noreturn]] inline void no_err_lref(
     SourceLocation location = SourceLocation::current()) {
-  panic("called `Result::err_value()` on an `Ok` value", location);
+  panic("called `Result::err()` on an `Ok` value", location);
 }
 
 }  // namespace result

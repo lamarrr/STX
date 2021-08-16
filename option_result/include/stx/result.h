@@ -347,22 +347,22 @@ struct [[nodiscard]] Result
   ///
   /// ``` cpp
   /// auto result = make_err<int, int>(9);
-  /// int& err = result.err_value();
+  /// int& err = result.err();
   /// err = 46;
   ///
   /// ASSERT_EQ(result, Err(46));
   /// ```
-  [[nodiscard]] E& err_value()& {
+  [[nodiscard]] E& err()& {
     if (is_ok()) impl::result::no_err_lref();
     return err_.ref();
   }
 
-  [[nodiscard]] E const& err_value() const& {
+  [[nodiscard]] E const& err() const& {
     if (is_ok()) impl::result::no_err_lref();
     return err_.cref();
   }
 
-  [[nodiscard]] E&& err_value()&& {
+  [[nodiscard]] E&& err()&& {
     if (is_ok()) impl::result::no_err_lref();
     return err_.move();
   }
