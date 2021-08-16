@@ -53,8 +53,19 @@ MoveOnly<id> make_mv() {
   return MoveOnly<id>(id);
 }
 
+struct NonTrivial {
+  NonTrivial(NonTrivial&&) {}
+
+  NonTrivial& operator=(NonTrivial&&) {}
+};
+
 static_assert(std::is_swappable_v<MoveOnly<0>>);
 static_assert(stx::equality_comparable<MoveOnly<0>>);
+
+static_assert(std::is_trivially_move_constructible_v<Option<int>>);
+static_assert(std::is_trivially_move_assignable_v<Option<int>>);
+static_assert(!std::is_trivially_move_constructible_v<NonTrivial>);
+static_assert(!std::is_trivially_move_assignable_v<NonTrivial>);
 
 struct FnMut {
   int call_times;

@@ -20,6 +20,25 @@ using namespace std;
 using namespace string_literals;
 using namespace stx;
 
+struct NonTrivial {
+  NonTrivial(NonTrivial&&) {}
+
+  NonTrivial& operator=(NonTrivial&&) {}
+};
+
+static_assert(std::is_trivially_move_constructible_v<Result<int, int>>);
+static_assert(std::is_trivially_move_assignable_v<Result<int, int>>);
+static_assert(!std::is_trivially_move_constructible_v<Result<int, NonTrivial>>);
+static_assert(!std::is_trivially_move_assignable_v<Result<int, NonTrivial>>);
+
+static_assert(!std::is_trivially_move_constructible_v<Result<NonTrivial, int>>);
+static_assert(!std::is_trivially_move_assignable_v<Result<NonTrivial, int>>);
+
+static_assert(
+    !std::is_trivially_move_constructible_v<Result<NonTrivial, NonTrivial>>);
+static_assert(
+    !std::is_trivially_move_assignable_v<Result<NonTrivial, NonTrivial>>);
+
 TEST(ResultTest, Equality) {
   //
   EXPECT_EQ((make_ok<int, int>(78)), Ok(78));
