@@ -202,7 +202,7 @@ struct [[nodiscard]] Option : impl::check_value_type<T>,
   ///
   /// ASSERT_EQ(x, Some(2));
   /// ```
-  [[nodiscard]] T& value()& {
+  T& value()& {
     if (is_none()) impl::option::no_lref();
     return some_.ref();
   }
@@ -224,7 +224,7 @@ struct [[nodiscard]] Option : impl::check_value_type<T>,
   ///
   /// ASSERT_EQ(y, 9);
   /// ```
-  [[nodiscard]] T const& value() const& {
+  T const& value() const& {
     if (is_none()) impl::option::no_lref();
     return some_.cref();
   }
@@ -317,7 +317,7 @@ struct [[nodiscard]] Option : impl::check_value_type<T>,
   ///                                                          // the world is
   ///                                                          // ending
   /// ```
-  [[nodiscard]] auto expect(std::string_view msg)&&->T {
+  auto expect(std::string_view msg)&&->T {
     if (is_some()) {
       return some_.move();
     } else {
@@ -347,7 +347,7 @@ struct [[nodiscard]] Option : impl::check_value_type<T>,
   /// Option<string> y = None;
   /// ASSERT_DEATH(move(y).unwrap());
   /// ```
-  [[nodiscard]] auto unwrap()&&->T {
+  auto unwrap()&&->T {
     if (is_some()) {
       return some_.move();
     } else {
@@ -370,7 +370,7 @@ struct [[nodiscard]] Option : impl::check_value_type<T>,
   /// ASSERT_EQ(Option(Some("car"s)).unwrap_or("bike"), "car");
   /// ASSERT_EQ(make_none<string>().unwrap_or("bike"), "bike");
   /// ```
-  [[nodiscard]] constexpr auto unwrap_or(T && alt)&&->T {
+  constexpr auto unwrap_or(T && alt)&&->T {
     if (is_some()) {
       return some_.move();
     } else {
@@ -392,7 +392,7 @@ struct [[nodiscard]] Option : impl::check_value_type<T>,
   /// ASSERT_EQ(make_none<int>().unwrap_or_else(alt), 20);
   /// ```
   template <typename Fn>
-  [[nodiscard]] constexpr auto unwrap_or_else(Fn && op)&&->T {
+  constexpr auto unwrap_or_else(Fn && op)&&->T {
     static_assert(invocable<Fn&&>);
     if (is_some()) {
       return some_.move();
@@ -449,8 +449,7 @@ struct [[nodiscard]] Option : impl::check_value_type<T>,
   /// ASSERT_EQ(move(y).map_or(alt_fn, 42UL), 42UL);
   /// ```
   template <typename Fn, typename Alt>
-  [[nodiscard]] constexpr auto map_or(Fn && op,
-                                      Alt && alt)&&->invoke_result<Fn&&, T&&> {
+  constexpr auto map_or(Fn && op, Alt && alt)&&->invoke_result<Fn&&, T&&> {
     static_assert(invocable<Fn&&, T&&>);
     if (is_some()) {
       return std::invoke(std::forward<Fn>(op), some_.move());
@@ -478,8 +477,8 @@ struct [[nodiscard]] Option : impl::check_value_type<T>,
   /// ASSERT_EQ(move(y).map_or_else(map_fn, alt_fn), 42);
   /// ```
   template <typename Fn, typename AltFn>
-  [[nodiscard]] constexpr auto map_or_else(
-      Fn && op, AltFn && alt_fn)&&->invoke_result<Fn&&, T&&> {
+  constexpr auto map_or_else(Fn && op,
+                             AltFn && alt_fn)&&->invoke_result<Fn&&, T&&> {
     static_assert(invocable<Fn&&, T&&>);
     static_assert(invocable<AltFn&&>);
 
@@ -544,7 +543,7 @@ struct [[nodiscard]] Option : impl::check_value_type<T>,
   /// ASSERT_EQ(make_none<int>().and_then(sq).and_then(sq), None);
   /// ```
   template <typename Fn>
-  [[nodiscard]] constexpr auto and_then(Fn && op)&&->invoke_result<Fn&&, T&&> {
+  constexpr auto and_then(Fn && op)&&->invoke_result<Fn&&, T&&> {
     static_assert(invocable<Fn&&, T&&>);
     if (is_some()) {
       return std::invoke(std::forward<Fn>(op), some_.move());
@@ -823,7 +822,7 @@ struct [[nodiscard]] Option : impl::check_value_type<T>,
   /// ASSERT_EQ(move(x).unwrap_or_default(), "Ten"s);
   /// ASSERT_EQ(move(y).unwrap_or_default(), ""s);
   /// ```
-  [[nodiscard]] constexpr auto unwrap_or_default()&&->T {
+  constexpr auto unwrap_or_default()&&->T {
     static_assert(default_constructible<T>);
     if (is_some()) {
       return some_.move();
@@ -861,8 +860,8 @@ struct [[nodiscard]] Option : impl::check_value_type<T>,
   /// function arguments `some_fn` and `none_fn`.
   ///
   template <typename SomeFn, typename NoneFn>
-  [[nodiscard]] constexpr auto match(
-      SomeFn && some_fn, NoneFn && none_fn)&&->invoke_result<SomeFn&&, T&&> {
+  constexpr auto match(SomeFn && some_fn,
+                       NoneFn && none_fn)&&->invoke_result<SomeFn&&, T&&> {
     static_assert(invocable<SomeFn&&, T&&>);
     static_assert(invocable<NoneFn&&>);
 
@@ -874,8 +873,8 @@ struct [[nodiscard]] Option : impl::check_value_type<T>,
   }
 
   template <typename SomeFn, typename NoneFn>
-  [[nodiscard]] constexpr auto match(
-      SomeFn && some_fn, NoneFn && none_fn)&->invoke_result<SomeFn&&, T&> {
+  constexpr auto match(SomeFn && some_fn,
+                       NoneFn && none_fn)&->invoke_result<SomeFn&&, T&> {
     static_assert(invocable<SomeFn&&, T&>);
     static_assert(invocable<NoneFn&&>);
 
@@ -887,7 +886,7 @@ struct [[nodiscard]] Option : impl::check_value_type<T>,
   }
 
   template <typename SomeFn, typename NoneFn>
-  [[nodiscard]] constexpr auto match(SomeFn && some_fn, NoneFn && none_fn)
+  constexpr auto match(SomeFn && some_fn, NoneFn && none_fn)
       const&->invoke_result<SomeFn&&, T const&> {
     static_assert(invocable<SomeFn&&, T const&>);
     static_assert(invocable<NoneFn&&>);
