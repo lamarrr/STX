@@ -29,8 +29,8 @@ set(CMAKE_CXX_STANDARD 17)
 
 option(STX_BUILD_TESTS "Build tests" OFF)
 
-option(STX_ENABLE_DEBUG_ASSERTIONS "Enable debug mode assertions"
-       ${STX_BUILD_TESTS})
+# option(STX_ENABLE_DEBUG_ASSERTIONS "Enable debug mode assertions"
+# ${STX_BUILD_TESTS})
 
 option(STX_BUILD_DOCS "Build documentation" OFF)
 
@@ -51,21 +51,20 @@ option(
 # hooks visible enables you to control the panic behaviour of the dynamically
 # loaded library that depends on STX, i.e. for device drivers you might not want
 # them to cause the whole program to fail on a panic.
-option(STX_VISIBLE_PANIC_HOOK "Make runtime panic hook visible")
+# option(STX_VISIBLE_PANIC_HOOK "Make runtime panic hook visible")
 
 # STX_PANIC_INCLUDE_BACKTRACE
 
 # enables the backtrace library, we won't allow it to work by default when built
 # as a shared library for now until we find a reason to, If you find it
-# inconvenient please drop a PR!.
-option(STX_ENABLE_BACKTRACE "Enables the backtrace feature" OFF)
+# inconvenient please drop a PR!. option(STX_ENABLE_BACKTRACE "Enables the
+# backtrace feature" OFF)
 
 # disables printing backtraces on panic by the default panic handler. This
 # requires that panic backtraces are enabled and that the panic handler is not
-# overriden.
-#cmake_dependent_option(
-#  STX_ENABLE_PANIC_BACKTRACE "Enables the panic backtrace feature" ON
-#  "STX_ENABLE_BACKTRACE;NOT STX_CUSTOM_PANIC_HANDLER" OFF)
+# overriden. cmake_dependent_option( STX_ENABLE_PANIC_BACKTRACE "Enables the
+# panic backtrace feature" ON "STX_ENABLE_BACKTRACE;NOT
+# STX_CUSTOM_PANIC_HANDLER" OFF)
 
 # ===============================================
 #
@@ -74,15 +73,15 @@ option(STX_ENABLE_BACKTRACE "Enables the backtrace feature" OFF)
 # ===============================================
 
 message(STATUS "[STX] Build tests: " ${STX_BUILD_TESTS})
-message(STATUS "[STX] Enable debug mode assertions: "
-               ${STX_ENABLE_DEBUG_ASSERTIONS})
+# message(STATUS "[STX] Enable debug mode assertions: "
+# ${STX_ENABLE_DEBUG_ASSERTIONS})
 message(STATUS "[STX] Build documentation: " ${STX_BUILD_DOCS})
 message(STATUS "[STX] Build benchmarks: " ${STX_BUILD_BENCHMARKS})
 message(STATUS "[STX] Build sanitized tests: " ${STX_SANITIZE_TESTS})
 message(STATUS "[STX] Override panic handler: " ${STX_CUSTOM_PANIC_HANDLER})
 message(STATUS "[STX] Make runtime panic hook visible: "
                ${STX_VISIBLE_PANIC_HOOK})
-message(STATUS "[STX] Enable backtrace: " ${STX_ENABLE_BACKTRACE})
+# message(STATUS "[STX] Enable backtrace: " ${STX_ENABLE_BACKTRACE})
 message(STATUS "[STX] Enable panic backtrace: " ${STX_ENABLE_PANIC_BACKTRACE})
 
 # ===============================================
@@ -122,18 +121,15 @@ if(STX_CUSTOM_PANIC_HANDLER)
   list(APPEND STX_COMPILER_DEFS "STX_CUSTOM_PANIC_HANDLER")
 endif()
 
-# remove this
-if(STX_VISIBLE_PANIC_HOOK)
-  list(APPEND STX_COMPILER_DEFS "STX_VISIBLE_PANIC_HOOK")
-endif()
+# remove this if(STX_VISIBLE_PANIC_HOOK) list(APPEND STX_COMPILER_DEFS
+# "STX_VISIBLE_PANIC_HOOK") endif()
 
-if(STX_ENABLE_PANIC_BACKTRACE)
-  list(APPEND STX_COMPILER_DEFS "STX_ENABLE_PANIC_BACKTRACE")
-endif()
+# if(STX_ENABLE_PANIC_BACKTRACE) list(APPEND STX_COMPILER_DEFS
+# "STX_ENABLE_PANIC_BACKTRACE") endif()
 
-if(STX_ENABLE_BACKTRACE)
-  # TODO(lamarrr): check platform support
-endif()
+# if(STX_ENABLE_BACKTRACE)
+# TODO(lamarrr): check platform support
+# endif()
 
 # some microcontroller platforms 'arm-gcc-none especially" may not have
 # std::thread enabled if so, we remove the thread facilities, this will cause
@@ -160,15 +156,11 @@ endif()
 #
 # ===============================================
 
-
-
-
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
   add_compile_options(-fdiagnostics-color=always)
 elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
   add_compile_options(-fcolor-diagnostics)
 endif()
-
 
 add_subdirectory(config)
 add_subdirectory(option_result)
@@ -178,8 +170,6 @@ add_subdirectory(span)
 add_subdirectory(utils)
 add_subdirectory(deferred_init)
 
-
-
 if(STX_ENABLE_BACKTRACE)
   if(NOT EXISTS third_party/abseil)
     execute_process(
@@ -187,16 +177,6 @@ if(STX_ENABLE_BACKTRACE)
       WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
   endif()
   add_subdirectory(third_party/abseil)
-endif()
-
-# the atomics library doesn't automatically link on my Android phone
-if(ANDROID)
-  message(STATUS "[STX] Checking for Android's libatomic")
-  find_library(LibAtomic atomic)
-
-  if(NOT LibAtomic)
-    message(WARNING "[STX] Android's libatomic was not found")
-  endif()
 endif()
 
 # ===============================================
@@ -281,6 +261,5 @@ endif()
 
 # endif()
 
-
-# find . -regex '.*\.\(cpp\|h\|cc\|cxx\)' -exec clang-format -style=file -i {} \;
-# clang-format-all
+# find . -regex '.*\.\(cpp\|h\|cc\|cxx\)' -exec clang-format -style=file -i {}
+# \; clang-format-all
