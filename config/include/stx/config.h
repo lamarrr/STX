@@ -12,7 +12,7 @@
 #pragma once
 
 /// configuration macro
-#define CFG(param, value) STX_##param##_##value
+#define STX_CFG(param, value) STX_##param##_##value
 
 #if (__cplusplus < 201700L)
 #error "STX only supports C++17 and above"
@@ -230,7 +230,7 @@
 #define STX_BINARY_ELF 0
 #endif
 
-#if CFG(OS, WINDOWS)  // Windows Portable Executable
+#if STX_CFG(OS, WINDOWS)  // Windows Portable Executable
 #define STX_BINARY_EXE 1
 #else
 #define STX_BINARY_EXE 0
@@ -246,13 +246,13 @@
 
 /*********************** SHARED LIBRARY (DLL) SUPPORT ***********************/
 
-#if CFG(OS, WINDOWS) || CFG(OS, CYGWIN)
+#if STX_CFG(OS, WINDOWS) || STX_CFG(OS, CYGWIN)
 // symbols are hidden by default on windows DLLs
 #define STX_DLL_IMPORT __declspec(dllimport)
 #define STX_DLL_EXPORT __declspec(dllexport)
 #define STX_DLL_HIDDEN
 #else
-#if CFG(COMPILER, GNUC)
+#if STX_CFG(COMPILER, GNUC)
 // symbols are visible by default on GNUC DLLs
 #define STX_DLL_IMPORT __attribute__((visibility("default")))
 #define STX_DLL_EXPORT __attribute__((visibility("default")))
@@ -269,13 +269,13 @@
 // also used for hiding static variables and hookable functions that should not
 // be touched but should reside in the binary
 // GNUC doesn't mean GCC!, it's also present in clang
-#if CFG(COMPILER, GNUC)
+#if STX_CFG(COMPILER, GNUC)
 #define STX_FORCE_INLINE __attribute__((always_inline)) inline
 #else
-#if CFG(COMPILER, MSVC)
+#if STX_CFG(COMPILER, MSVC)
 #define STX_FORCE_INLINE __forceinline inline
 #else
-#if CFG(COMPILER, NVCC)
+#if STX_CFG(COMPILER, NVCC)
 #define STX_FORCE_INLINE __forceinline__ inline
 #else
 #define STX_FORCE_INLINE inline
