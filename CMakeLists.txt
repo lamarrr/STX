@@ -227,8 +227,10 @@ endif()
 if(STX_BUILD_TESTS)
   if(NOT EXISTS third_party/googletest)
     execute_process(
-      COMMAND git submodule update --init --recursive third_party/googletest
+      COMMAND git clone -b release-1.11.0
+              https://github.com/google/googletest.git third_party/googletest
       WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+
   endif()
 
   set(BUILD_GMOCK
