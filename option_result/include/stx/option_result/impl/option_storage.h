@@ -18,8 +18,23 @@ struct OptionStorage {
 
   bool is_none_;
 
-  OptionStorage(OptionStorage const&) = delete;
-  OptionStorage& operator=(OptionStorage const&) = delete;
+  OptionStorage(OptionStorage const& other) {
+    if (other.is_none_) {
+      finally_init(None);
+    } else {
+      finally_init(Some(other.some_));
+    }
+  }
+
+  OptionStorage& operator=(OptionStorage const& other) {
+    if (other.is_none_) {
+      assign(None);
+    } else {
+      assign(Some(other.some_));
+    }
+
+    return *this;
+  }
 
   constexpr OptionStorage(OptionStorage&& other) {
     if (other.is_none_) {
@@ -87,8 +102,8 @@ struct OptionStorage<T, true> {
 
   static constexpr bool is_trivial = true;
 
-  OptionStorage(OptionStorage const&) = delete;
-  OptionStorage& operator=(OptionStorage const&) = delete;
+  OptionStorage(OptionStorage const&) = default;
+  OptionStorage& operator=(OptionStorage const&) = default;
 
   constexpr OptionStorage(OptionStorage&&) = default;
   constexpr OptionStorage& operator=(OptionStorage&&) = default;

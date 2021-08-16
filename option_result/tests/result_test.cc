@@ -670,16 +670,16 @@ TEST(ResultTest, Match) {
   EXPECT_EQ(c, -1);
 }
 
-TEST(ResultTest, Clone) {
+TEST(ResultTest, Copy) {
   auto const a = make_ok<int, int>(89);
-  auto b = a.clone();
+  auto b = a.copy();
   EXPECT_EQ(b, Ok(89));
   b.as_ref().unwrap().get() = 124;
   EXPECT_EQ(b, Ok(124));
   EXPECT_EQ(a, Ok(89));
 
   auto const c = make_ok<vector<int>, int>({89, 89, 120});
-  auto d = c.clone();
+  auto d = c.copy();
   EXPECT_EQ(c, Ok(vector<int>{89, 89, 120}));
   d.as_ref().unwrap().get() = vector<int>{124, 125, 126};
   EXPECT_EQ(d, Ok(vector<int>{124, 125, 126}));

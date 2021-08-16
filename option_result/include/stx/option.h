@@ -73,7 +73,6 @@ struct [[nodiscard]] Option : impl::check_value_type<T>,
   using storage = OptionStorage<T, std::is_trivial_v<T>>;
 
  private:
-  using storage::is_none_;
   using storage::some_;
 
  public:
@@ -96,8 +95,8 @@ struct [[nodiscard]] Option : impl::check_value_type<T>,
   constexpr Option(Option &&) = default;
   constexpr Option& operator=(Option&&) = default;
 
-  constexpr Option(Option const&) = delete;
-  constexpr Option& operator=(Option const&) = delete;
+  constexpr Option(Option const&) = default;
+  constexpr Option& operator=(Option const&) = default;
 
   /// Returns `true` if this Option is a `Some` value.
   ///

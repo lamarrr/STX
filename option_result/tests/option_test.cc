@@ -107,25 +107,49 @@ TEST(OptionTest, ObjectConstructionTest) {
 }
 
 TEST(OptionTest, CopyConstructionTest) {
-  Option<int> a = None;
-  Option<int> b = a.copy();
-  EXPECT_EQ(a, b);
+  {
+    Option<int> a = None;
+    Option<int> b = a.copy();
+    EXPECT_EQ(a, b);
 
-  Option<int> c = Some(98);
-  b = c.copy();
-  EXPECT_EQ(b, c);
-  EXPECT_NE(a, c);
-  EXPECT_NE(a, b);
+    Option<int> c = Some(98);
+    b = c.copy();
+    EXPECT_EQ(b, c);
+    EXPECT_NE(a, c);
+    EXPECT_NE(a, b);
 
-  Option<vector<int>> d = None;
-  Option<vector<int>> e = d.copy();
-  EXPECT_EQ(d, e);
+    Option<vector<int>> d = None;
+    Option<vector<int>> e = d.copy();
+    EXPECT_EQ(d, e);
 
-  Option f = Some(vector{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
-  e = f.copy();
-  EXPECT_EQ(e, f);
-  EXPECT_NE(d, e);
-  EXPECT_NE(d, f);
+    Option f = Some(vector{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
+    e = f.copy();
+    EXPECT_EQ(e, f);
+    EXPECT_NE(d, e);
+    EXPECT_NE(d, f);
+  }
+
+  {
+    Option<int> a = None;
+    Option<int> b = a;
+    EXPECT_EQ(a, b);
+
+    Option<int> c = Some(98);
+    b = c;
+    EXPECT_EQ(b, c);
+    EXPECT_NE(a, c);
+    EXPECT_NE(a, b);
+
+    Option<vector<int>> d = None;
+    Option<vector<int>> e = d;
+    EXPECT_EQ(d, e);
+
+    Option f = Some(vector{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
+    e = f;
+    EXPECT_EQ(e, f);
+    EXPECT_NE(d, e);
+    EXPECT_NE(d, f);
+  }
 }
 
 TEST(OptionTest, ObjectForwardingTest) {
