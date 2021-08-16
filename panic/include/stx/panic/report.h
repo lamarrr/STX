@@ -141,7 +141,7 @@ struct [[nodiscard]] FixedReport {
 
   [[nodiscard]] constexpr std::string_view what() const {
     return std::string_view(reserve_, report_size_);
-  };
+  }
 
  private:
   storage_type reserve_;
