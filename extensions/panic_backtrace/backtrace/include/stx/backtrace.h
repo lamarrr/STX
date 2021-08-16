@@ -77,13 +77,6 @@ struct Frame {
   Option<uintptr_t> offset;
   /// function's symbol name. possibly demangled.
   Option<Symbol> symbol;
-
-  constexpr explicit Frame() = default;
-  Frame(Frame &&) = default;
-  Frame &operator=(Frame &&) = default;
-  Frame(Frame const &) = default;
-  Frame &operator=(Frame const &) = default;
-  ~Frame() = default;
 };
 
 using Callback = bool (*)(Frame, int);
