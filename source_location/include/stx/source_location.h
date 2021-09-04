@@ -17,30 +17,6 @@
 
 STX_BEGIN_NAMESPACE
 
-#if STX_HAS_BUILTIN(FUNCTION)
-#define STX_BUILTIN_FUNCTION() __builtin_FUNCTION()
-#else
-#define STX_BUILTIN_FUNCTION() "unknown function"
-#endif
-
-#if STX_HAS_BUILTIN(FILE)
-#define STX_BUILTIN_FILE() __builtin_FILE()
-#else
-#define STX_BUILTIN_FILE() "unknown file"
-#endif
-
-#if STX_HAS_BUILTIN(LINE)
-#define STX_BUILTIN_LINE() __builtin_LINE()
-#else
-#define STX_BUILTIN_LINE() 0
-#endif
-
-#if STX_HAS_BUILTIN(LINE)
-#define STX_BUILTIN_COLUMN() __builtin_COLUMN()
-#else
-#define STX_BUILTIN_COLUMN() 0
-#endif
-
 ///
 /// The `SourceLocation`  class represents certain information about the source
 /// code, such as file names, line numbers, and function names. Previously,
@@ -55,10 +31,30 @@ STX_BEGIN_NAMESPACE
 // It's equivalent to GCC's implementation
 struct [[nodiscard]] SourceLocation {
   static constexpr SourceLocation current(
-      char const* file = STX_BUILTIN_FILE(),
-      char const* func = STX_BUILTIN_FUNCTION(),
-      uint_least32_t line = STX_BUILTIN_LINE(),
-      uint_least32_t column = STX_BUILTIN_COLUMN()) {
+#if STX_HAS_BUILTIN(FILE)
+      char const* file = __builtin_FILE(),
+#else
+      char const* file = "unknown",
+#endif
+
+#if STX_HAS_BUILTIN(FUNCTION)
+      char const* func = __builtin_FUNCTION(),
+#else
+      char const* func = "unknown",
+#endif
+
+#if STX_HAS_BUILTIN(LINE)
+      uint_least32_t line = __builtin_LINE(),
+#else
+      uint_least32_t line = 0,
+#endif
+
+#if STX_HAS_BUILTIN(COLUMN)
+      uint_least32_t column = __builtin_COLUMN()
+#else
+      uint_least32_t column = 0
+#endif
+  ) {
     SourceLocation loc{};
     loc.line_ = line;
     loc.column_ = column;
