@@ -169,14 +169,22 @@ add_subdirectory(source_location)
 add_subdirectory(span)
 add_subdirectory(utils)
 
-if(STX_ENABLE_BACKTRACE)
-  if(NOT EXISTS third_party/abseil)
-    execute_process(
-      COMMAND git submodule update --init --recursive third_party/abseil
-      WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
-  endif()
-  add_subdirectory(third_party/abseil)
-endif()
+# download all dependencies irregardless of flags
+
+execute_process(
+  COMMAND git clone -b master https://github.com/abseil/abseil-cpp.git
+          third_party/abseil WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+
+execute_process(
+  COMMAND git clone -b release-1.11.0 https://github.com/google/googletest.git
+          third_party/googletest WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+
+set(BUILD_GMOCK
+    OFF
+    CACHE BOOL "Build GMOCK" FORCE)
+set(INSTALL_GTEST
+    OFF
+    CACHE BOOL "Install GTest" FORCE)
 
 # ===============================================
 #
@@ -203,21 +211,12 @@ endif()
 #
 # ===============================================
 
+if(STX_ENABLE_BACKTRACE)
+  add_subdirectory(third_party/abseil)
+endif()
+
 if(STX_BUILD_TESTS)
-  if(NOT EXISTS third_party/googletest)
-    execute_process(
-      COMMAND git clone -b release-1.11.0
-              https://github.com/google/googletest.git third_party/googletest
-      WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 
-  endif()
-
-  set(BUILD_GMOCK
-      OFF
-      CACHE BOOL "Build GMOCK" FORCE)
-  set(INSTALL_GTEST
-      OFF
-      CACHE BOOL "Install GTest" FORCE)
   add_subdirectory(third_party/googletest)
 endif()
 
