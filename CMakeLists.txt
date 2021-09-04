@@ -128,8 +128,7 @@ endif()
 # "STX_ENABLE_PANIC_BACKTRACE") endif()
 
 # if(STX_ENABLE_BACKTRACE)
-# TODO(lamarrr): check platform support
-# endif()
+# TODO(lamarrr): check platform support endif()
 
 # some microcontroller platforms 'arm-gcc-none especially" may not have
 # std::thread enabled if so, we remove the thread facilities, this will cause
