@@ -1026,7 +1026,7 @@ template <typename U, typename T, typename E,
 }
 
 template <typename T, typename E, typename U,
-          STX_ENABLE_IF(equality_comparable<T, U>)>
+          STX_ENABLE_IF(equality_comparable<E, U>)>
 [[nodiscard]] constexpr bool operator==(Result<T, E> const& a,
                                         Err<U> const& b) {
   if (a.is_err()) {
@@ -1037,7 +1037,7 @@ template <typename T, typename E, typename U,
 }
 
 template <typename T, typename E, typename U,
-          STX_ENABLE_IF(equality_comparable<T, U>)>
+          STX_ENABLE_IF(equality_comparable<E, U>)>
 [[nodiscard]] constexpr bool operator!=(Result<T, E> const& a,
                                         Err<U> const& b) {
   if (a.is_err()) {
@@ -1048,7 +1048,7 @@ template <typename T, typename E, typename U,
 }
 
 template <typename U, typename T, typename E,
-          STX_ENABLE_IF(equality_comparable<U, T>)>
+          STX_ENABLE_IF(equality_comparable<U, E>)>
 [[nodiscard]] constexpr bool operator==(Err<U> const& a,
                                         Result<T, E> const& b) {
   if (b.is_err()) {
@@ -1059,7 +1059,7 @@ template <typename U, typename T, typename E,
 }
 
 template <typename U, typename T, typename E,
-          STX_ENABLE_IF(equality_comparable<U, T>)>
+          STX_ENABLE_IF(equality_comparable<U, E>)>
 [[nodiscard]] constexpr bool operator!=(Err<U> const& a,
                                         Result<T, E> const& b) {
   if (b.is_err()) {
