@@ -19,6 +19,9 @@ include(HandleFlags)
 include(CheckCXXSourceCompiles)
 include(add_project_library)
 
+find_package(GTest REQUIRED)
+find_package(absl REQUIRED)
+
 # ===============================================
 #
 # === Configuration Options
@@ -168,23 +171,6 @@ add_subdirectory(source_location)
 add_subdirectory(span)
 add_subdirectory(utils)
 
-# download all dependencies irregardless of flags
-
-execute_process(
-  COMMAND git clone -b master https://github.com/abseil/abseil-cpp.git
-          third_party/abseil WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
-
-execute_process(
-  COMMAND git clone -b release-1.11.0 https://github.com/google/googletest.git
-          third_party/googletest WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
-
-set(BUILD_GMOCK
-    OFF
-    CACHE BOOL "Build GMOCK" FORCE)
-set(INSTALL_GTEST
-    OFF
-    CACHE BOOL "Install GTest" FORCE)
-
 # ===============================================
 #
 # === Source Files
@@ -209,15 +195,6 @@ set(INSTALL_GTEST
 # === Test Dependencies
 #
 # ===============================================
-
-if(STX_ENABLE_BACKTRACE)
-  add_subdirectory(third_party/abseil)
-endif()
-
-if(STX_BUILD_TESTS)
-
-  add_subdirectory(third_party/googletest)
-endif()
 
 # ===============================================
 #

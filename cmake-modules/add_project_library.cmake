@@ -1,3 +1,4 @@
+# TODO(lamarrr): versioning
 macro(add_project_library target_project_name target_library_name)
   set(library_name ${target_project_name}_${target_library_name})
   set(library_alias ${target_project_name}::${target_library_name})
@@ -31,8 +32,8 @@ macro(add_project_library target_project_name target_library_name)
       add_executable(${library_name}_tests
                      ${${library_name}_TESTS_SOURCE_FILES_LIST})
       target_include_directories(${library_name}_tests PRIVATE tests)
-      target_link_libraries(${library_name}_tests gtest_main gtest
-                            ${library_alias})
+      target_link_libraries(${library_name}_tests GTest::gtest
+                            GTest::gtest_main ${library_alias})
     endif()
   endif()
 
