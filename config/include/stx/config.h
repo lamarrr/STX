@@ -285,13 +285,13 @@
 
 /*********************** VERSIONING ***********************/
 
-#define STX_VERSION v2_rc1
-
-#define STX_VERSION_STRING "v2_rc1"
+#define STX_VERSION v0
+#define STX_ABI_VERSION 0
+#define STX_VERSION_STRING "v0"
 
 #define STX_BEGIN_NAMESPACE \
   namespace stx {           \
-  inline namespace v2_rc1 {
+  inline namespace v0 {
 
 #define STX_END_NAMESPACE \
   }                       \

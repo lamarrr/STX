@@ -10,16 +10,38 @@
  */
 
 #pragma once
+#include <algorithm>
 #include <array>
 #include <cinttypes>
 #include <cstddef>
 #include <iterator>
 #include <limits>
 #include <type_traits>
+#include <utility>
 
 #include "stx/config.h"
 #include "stx/option.h"
 #include "stx/utils/enable_if.h"
+
+// TODO(lamarrr): use do{} while(0)
+#define STX_RAISE_BUG(evaluation_identifier, condition_violated, \
+                      violating_expression)                      \
+  do {                                                           \
+  } while (0)
+
+#define STX_RAISE_BUF_IF(...) \
+  do {                        \
+  } while (0)
+#define STX_SPAN_CHECK_BOUNDS(valid_span_size, span_index) \
+  do {                                                     \
+  } while (0)
+#define STX_SPAN_CHECK_RANGE() \
+  do {                         \
+  } while (0)
+
+#define STX_SPAN_CHECK_SIZE_EQ(...) \
+  do {                              \
+  } while (0)
 
 STX_BEGIN_NAMESPACE
 
@@ -47,42 +69,11 @@ struct match_cv_impl<T const volatile, U> {
 template <typename T, typename U>
 using match_cv = typename match_cv_impl<T, U>::type;
 
-template <typename T>
-constexpr inline void span_type_ptr_and_size(T*, size_t) {}
-
-template <typename T, typename = void>
-struct is_span_container_impl : std::false_type {};
-
-template <typename T>
-struct is_span_container_impl<T, decltype((span_type_ptr_and_size(
-                                              std::data(std::declval<T>()),
-                                              std::size(std::declval<T>()))),
-                                          (void)0)> : std::true_type {};
-
-template <typename T>
-constexpr bool is_span_container = is_span_container_impl<T>::value;
-
 template <typename Source, typename Target>
 constexpr bool is_span_convertible =
     std::is_convertible_v<Source (*)[], Target (*)[]>;
 
-template <typename Target, typename Container, typename = void>
-struct is_span_compatible_container_impl : std::false_type {};
-
-template <typename Target, typename Container>
-struct is_span_compatible_container_impl<
-    Target, Container, decltype(std::data(std::declval<Container>()), (void)0)>
-    : std::bool_constant<is_span_convertible<
-          std::remove_pointer_t<decltype(std::data(std::declval<Container>()))>,
-          Target>> {};
-
-template <typename Target, typename Container>
-constexpr bool is_span_compatible_container =
-    is_span_compatible_container_impl<Target, Container>::value;
-
 }  // namespace impl
-
-constexpr size_t dynamic_extent = std::numeric_limits<size_t>::max();
 
 //!
 //! # Span
@@ -128,260 +119,366 @@ constexpr size_t dynamic_extent = std::numeric_limits<size_t>::max();
 //!
 //! ```
 //!
-
-template <typename T, size_t E = dynamic_extent>
+//!
+//!
+// TODO(lamarrr): pointers given to span must be valid
+// pointers returned from span are always valid
+//
+//
+// iterators returned are always valid, except iterator returned from the
+// default-constructed span.
+//
+//
+template <typename T>
 struct Span {
-  using element_type = T;
-  using value_type = std::remove_cv_t<T>;
-  using reference = T&;
-  using pointer = T*;
-  using const_pointer = T const*;
-  using iterator = T*;
-  using const_iterator = T const*;
-  using reverse_iterator = std::reverse_iterator<iterator>;
-  using const_reverse_iterator = std::reverse_iterator<const_iterator>;
-  using size_type = size_t;
-  using index_type = size_t;
-  using difference_type = ptrdiff_t;
-
-  static constexpr size_t extent = E;
-  static constexpr size_t byte_extent =
-      (extent == dynamic_extent ? extent : (sizeof(T) * extent));
-  static constexpr bool is_dynamic_span = E == dynamic_extent;
+  using Type = T;
+  using Reference = T&;
+  using Iterator = T*;
+  using ConstIterator = T const*;
+  using Size = size_t;
+  using Index = size_t;
 
  private:
-  // i.e. if `T` is const or const-volatile, make `Y` same
-  template <typename Y>
-  using cv_match = impl::match_cv<T, Y>;
+  // i.e. if `T` is const, volatile, or const-volatile, make `U` same
+  template <typename U>
+  using ConstVolatileMatched = impl::match_cv<T, U>;
 
  public:
-  constexpr Span() : data_{nullptr}, size_{0} {
-    static_assert(
-        extent == 0 || extent == dynamic_extent,
-        "specified extent for Span but attempted to default-initialize it");
-  }
-
-  template <typename SrcT, size_type SrcE,
-            STX_ENABLE_IF(impl::is_span_convertible<SrcT, T>)>
-  constexpr Span(Span<SrcT, SrcE> src)
-      : data_{static_cast<pointer>(src.data())},
-        size_{(extent != dynamic_extent ? extent
-                                        : static_cast<size_type>(src.size()))} {
-    static_assert(
-        (extent == dynamic_extent ? true
-                                  : (extent <= static_cast<size_type>(SrcE))),
-        "performing a subspan from a span source of "
-        "smaller extent");
-  }
-
-  template <
-      typename Iterator,
-      STX_ENABLE_IF(
-          std::is_convertible_v<Iterator&, iterator>&&
-              impl::is_span_convertible<
-                  typename std::iterator_traits<Iterator>::value_type, T> &&
-          !std::is_convertible_v<Iterator&, size_type>)>
-  explicit constexpr Span(Iterator begin, Iterator end)
-      : data_{static_cast<iterator>(begin)},
-        size_{static_cast<size_type>(static_cast<iterator>(end) -
-                                     static_cast<iterator>(begin))} {}
-
-  template <
-      typename Iterator,
-      STX_ENABLE_IF(
-          std::is_convertible_v<Iterator&, iterator>&&
-              impl::is_span_convertible<
-                  typename std::iterator_traits<Iterator>::value_type, T>)>
-  explicit constexpr Span(Iterator begin, size_type size)
-      : data_{static_cast<iterator>(begin)},
-        size_{(extent != dynamic_extent ? extent : size)} {}
-
-  template <typename SrcT, size_type Length,
-            STX_ENABLE_IF(impl::is_span_convertible<SrcT, T>)>
-  constexpr Span(SrcT (&array)[Length])
-      : data_{static_cast<pointer>(array)},
-        size_{(extent != dynamic_extent ? extent : Length)} {
-    static_assert((extent == dynamic_extent ? true : (extent <= Length)),
-                  "Span extent is more than static array length");
-  }
-
-  template <typename SrcT, size_type Length,
-            STX_ENABLE_IF(impl::is_span_convertible<SrcT, T>)>
-  constexpr Span(std::array<SrcT, Length>& array)
-      : data_{static_cast<pointer>(array.data())},
-        size_{(extent != dynamic_extent ? extent : Length)} {
-    static_assert((extent == dynamic_extent ? true : (extent <= Length)),
-                  "Span extent is more than std::array's length");
-  }
-
-  template <typename SrcT, size_type Length,
-            STX_ENABLE_IF(impl::is_span_convertible<SrcT const, T>)>
-  constexpr Span(std::array<SrcT, Length> const& array)
-      : data_{static_cast<pointer>(array.data())},
-        size_{(extent != dynamic_extent ? extent : Length)} {
-    static_assert((extent == dynamic_extent ? true : (extent <= Length)),
-                  "Span extent is more than std::array's length");
-  }
-
-  template <typename SrcT, size_type Length>
-  constexpr Span(std::array<SrcT, Length>&& array) = delete;
-
-  template <typename Container,
-            STX_ENABLE_IF(impl::is_span_container<Container&>&& impl::
-                              is_span_compatible_container<T, Container&>)>
-  constexpr Span(Container& container)
-      : data_{static_cast<pointer>(std::data(container))},
-        size_{(extent != dynamic_extent
-                   ? extent
-                   : static_cast<size_type>(std::size(container)))} {}
-
+  constexpr Span() = default;
+  constexpr Span(Iterator data, Size size)
+      : ____iterator{data}, ____size{size} {}
   constexpr Span(Span const&) = default;
   constexpr Span(Span&&) = default;
   constexpr Span& operator=(Span const&) = default;
   constexpr Span& operator=(Span&&) = default;
 
-  constexpr pointer data() const { return data_; }
+  template <typename U, STX_ENABLE_IF(impl::is_span_convertible<U, T>)>
+  constexpr Span(Span<U> src)
+      : ____iterator{static_cast<Iterator>(src.____iterator)},
+        ____size{src.____size} {}
 
-  constexpr size_type size() const {
-    if constexpr (extent == dynamic_extent) {
-      return size_;
-    } else {
-      return extent;
-    }
+  template <Size Length>
+  constexpr Span(T (&array)[Length])
+      : ____iterator{static_cast<Iterator>(array)}, ____size{Length} {}
+
+  template <Size Length>
+  constexpr Span(std::array<T, Length>& array)
+      : ____iterator{static_cast<Iterator>(array.data())}, ____size{Length} {}
+
+  template <Size Length>
+  constexpr Span(std::array<T, Length> const& array)
+      : ____iterator{static_cast<Iterator>(array.data())}, ____size{Length} {}
+
+  template <typename U, Size Length>
+  constexpr Span(std::array<U, Length>&& array) = delete;
+
+  constexpr Iterator data() const { return ____iterator; }
+
+  constexpr Size size() const { return ____size; }
+
+  constexpr Size size_bytes() const { return ____size * sizeof(T); }
+
+  constexpr bool is_empty() const { return ____size == 0; }
+
+  constexpr Iterator begin() const { return ____iterator; }
+
+  constexpr Iterator end() const { return begin() + ____size; }
+
+  constexpr ConstIterator cbegin() const { return begin(); }
+
+  constexpr ConstIterator cend() const { return end(); }
+
+  constexpr Reference operator[](Index index) const {
+    STX_SPAN_CHECK_BOUNDS(____size, index);
+    return ____iterator[index];
   }
 
-  constexpr size_type size_bytes() const { return size() * sizeof(T); }
-
-  constexpr bool empty() const { return size() == 0; }
-
-  constexpr iterator begin() const { return data_; }
-
-  constexpr iterator end() const { return begin() + size(); }
-
-  constexpr const_iterator cbegin() const { return begin(); }
-
-  constexpr const_iterator cend() const { return end(); }
-
-  constexpr reverse_iterator rbegin() const { return reverse_iterator(end()); }
-
-  constexpr reverse_iterator rend() const { return reverse_iterator(begin()); }
-
-  constexpr const_reverse_iterator crbegin() const { return rbegin(); }
-
-  constexpr const_reverse_iterator crend() const { return rend(); }
-
-  constexpr reference operator[](index_type index) const {
-    return data_[index];
-  }
-
-  auto at(index_type index) const -> Option<Ref<T>> {
-    if (index < size_) {
-      return Some<Ref<T>>(data_[index]);
+  auto at(Index index) const -> Option<Ref<T>> {
+    if (index < ____size) {
+      return Some<Ref<T>>(____iterator[index]);
     } else {
       return None;
     }
   }
 
-  constexpr Span<T> subspan(index_type offset) const {
-    return Span<T>(begin() + offset, end());
+  //
+  //
+  // TODO(lamarrr): No naked moves
+  //
+  //
+  // Choices and implications -> Rust still doesn't solve this
+  //
+  //
+  //
+  //
+  // nested use-after-move that the compiler can't reach.
+  //
+  // it is very rare for a container or type to try to use a moved-from object.
+  //
+  //  overload doom
+  //
+  // application hierarchy and pointers/memory as the lowest level
+  //
+  //
+  // Inconsequantial Behaviour and requirements
+  //
+  // - I want std::vector, means I want a vectir that uses operator new,
+  // operator delete, and I want a const one.
+  //
+  // Multi-type template parameters
+  //
+  //
+  //
+  // Isolating static behaviour by naming
+  //
+  //
+  // Isolating undefined behavior
+  //
+  // Lifetimes
+  //
+  // You must not overload std::move
+  // move is a potentially destructive operation and moved-from objects must
+  // never be touched.
+  // containers must never define move operators.
+  //
+  // Objects must not have invalid state that invalidates
+  // their exposed operations by default Operations that invalidate returned
+  // data must use a move construct
+  //
+  //  constexpr void move_to(Span<T> output) const;
+
+  constexpr Span<T> copy(Span<T const> input) {
+    static_assert(std::is_copy_assignable_v<T>);
+    for (Index position = 0; position < std::min(size(), input.size());
+         position++) {
+      ____iterator[position] = input[position];
+    }
+
+    return *this;
   }
 
-  constexpr Span<T> subspan(index_type offset, size_type length) const {
-    return Span<T>(begin() + offset, length);
+  template <typename Predicate>
+  constexpr bool is_any(Predicate&& predicate) const {
+    static_assert(std::is_invocable_v<Predicate, T&>);
+    static_assert(std::is_same_v<std::invoke_result_t<Predicate, T&>, bool>);
+
+    for (T& element : *this) {
+      bool condition = std::forward<Predicate>(predicate)(element);
+      if (condition) return true;
+    }
+
+    return false;
   }
 
-  template <size_type Offset>
-  constexpr Span<T> subspan() const {
-    static_assert((extent == dynamic_extent ? true : (Offset < extent)),
-                  "Offset is greater than extent");
-    return Span < T,
-           extent == dynamic_extent
-               ? extent
-               : (extent - Offset) > (begin() + Offset, size() - Offset);
+  template <typename Predicate>
+  constexpr bool is_all(Predicate&& predicate) const {
+    static_assert(std::is_invocable_v<Predicate, T&>);
+    static_assert(std::is_same_v<std::invoke_result_t<Predicate, T&>, bool>);
+
+    for (T& element : *this) {
+      bool condition = std::forward<Predicate>(predicate)(element);
+      if (!condition) return false;
+    }
+
+    return !is_empty();
   }
 
-  template <size_type Offset, size_type Length>
-  constexpr Span<T> subspan() const {
-    static_assert((extent == dynamic_extent ? true : (Offset < extent)),
-                  "Offset is greater than extent");
+  template <typename Predicate>
+  constexpr bool is_none(Predicate&& predicate) const {
+    static_assert(std::is_invocable_v<Predicate, T&>);
+    static_assert(std::is_same_v<std::invoke_result_t<Predicate, T&>, bool>);
+
+    for (T& element : *this) {
+      bool condition = std::forward<Predicate>(predicate)(element);
+      if (condition) return false;
+    }
+
+    return true;
+  }
+
+  constexpr bool all_equals(T const& cmp) const {
+    return is_all([&cmp](T const& a) { return a == cmp; });
+  }
+
+  constexpr bool any_equals(T const& cmp) const {
+    return is_any([&cmp](T const& a) { return a == cmp; });
+  }
+
+  constexpr bool none_equals(T const& cmp) const {
+    return is_none([&cmp](T const& a) { return a == cmp; });
+  }
+
+  template <typename Func>
+  constexpr Span<T> apply(Func&& func) const {
+    static_assert(std::is_invocable_v<Func, T&>);
+    for (T& element : *this) {
+      std::forward<Func>(func)(element);
+    }
+
+    return *this;
+  }
+
+  template <typename Generator>
+  constexpr Span<T> generate(Generator&& generator) const {
+    static_assert(std::is_invocable_v<Generator, T&>);
+    static_assert(std::is_assignable_v<T, std::invoke_result_t<Generator, T&>>);
+
+    for (T& element : *this) {
+      element = std::forward<Generator>(generator)(element);
+    }
+
+    return *this;
+  }
+
+  constexpr Span<T> set(T const& value) const {
+    static_assert(std::is_copy_assignable_v<T>);
+
+    for (T& element : *this) {
+      element = value;
+    }
+
+    return *this;
+  }
+
+  // span of 1 element if found, otherwise span of zero elements
+  constexpr Span<T> find(T const& object) const {
+    // TODO(lamarrr): add equality comparable
+    for (T* iter = ____iterator; iter < (____iterator + ____size); iter++) {
+      if (*iter == object) {
+        return Span<T>{iter, 1};
+      }
+    }
+
+    return Span<T>{____iterator + ____size, 0};
+  }
+
+  template <typename Predicate>
+  constexpr Span<T> which(Predicate&& predicate) const {
+    static_assert(std::is_invocable_v<Predicate, T const&>);
     static_assert(
-        (extent == dynamic_extent ? true : ((Offset + Length) <= extent)),
-        "Length exceeds span extent");
-    return Span < T, extent == dynamic_extent
-                         ? extent
-                         : Length > (begin() + Offset, Length);
+        std::is_same_v<std::invoke_result_t<Predicate, T const&>, bool>);
+
+    for (T* iter = ____iterator; iter < (____iterator + ____size); iter++) {
+      if (std::forward<Predicate>(predicate)(*iter)) {
+        return Span<T>{iter, 1};
+      }
+    }
+
+    return Span<T>{____iterator + ____size, 0};
   }
 
-  constexpr Span<cv_match<std::byte>, byte_extent> as_bytes() const {
-    return Span<cv_match<std::byte>, byte_extent>(
-        reinterpret_cast<cv_match<std::byte>*>(data_), size_bytes());
+  constexpr Span<T> slice(Index offset) const {
+    STX_SPAN_CHECK_BOUNDS(____size, offset);
+    return Span<T>{____iterator + offset, ____size - offset};
+  }
+
+  constexpr Span<T> slice(Index offset, Size length_to_slice) const {
+    STX_SPAN_CHECK_BOUNDS(____size, offset);
+
+    if (length_to_slice > 0)
+      STX_SPAN_CHECK_BOUNDS(____size, offset + (length_to_slice - 1));
+
+    return Span<T>{____iterator + offset, length_to_slice};
+  }
+
+  template <typename Func, typename Output>
+  constexpr Span<Output> map(Func&& transformer, Span<Output> output) const {
+    static_assert(!std::is_const_v<Output>);
+    static_assert(std::is_move_assignable_v<Output>);
+    static_assert(std::is_invocable_v<Func, T&>);
+    static_assert(
+        std::is_assignable_v<Output&, std::invoke_result_t<Func, T&>>);
+
+    STX_SPAN_CHECK_SIZE_EQ(this->size(), output.size());
+
+    for (Index position = 0; position < size(); position++) {
+      output[position] =
+          std::forward<Func>(transformer)(____iterator[position]);
+    }
+
+    return output;
+  }
+
+  template <typename Predicate>
+  constexpr std::pair<Span<T>, Span<T>> partition(Predicate&& predicate) const {
+    auto first_partition_end =
+        std::stable_partition(____iterator, ____iterator + ____size,
+                              std::forward<Predicate>(predicate));
+
+    T* second_partition_end = ____iterator + ____size;
+
+    return std::make_pair(
+        Span<T>{____iterator,
+                static_cast<Size>(first_partition_end - ____iterator)},
+        Span<T>{first_partition_end,
+                static_cast<Size>(second_partition_end - first_partition_end)});
+  }
+
+  template <typename Predicate>
+  constexpr std::pair<Span<T>, Span<T>> unstable_partition(
+      Predicate&& predicate) const {
+    auto first_partition_end =
+        std::partition(____iterator, ____iterator + ____size,
+                       std::forward<Predicate>(predicate));
+
+    T* second_partition_end = ____iterator + ____size;
+
+    return std::make_pair(Span<T>{____iterator, first_partition_end},
+                          Span<T>{first_partition_end,
+                                  second_partition_end - first_partition_end});
+  }
+
+  // Span<T>, Span<T> get_partitions()
+  // might not be partitioned
+
+  // TODO(lamarrr): overlaps address, join two related spans, etc. must check
+  // order
+
+  constexpr Span<ConstVolatileMatched<std::byte> const> as_bytes() const {
+    return Span<ConstVolatileMatched<std::byte> const>(
+        reinterpret_cast<ConstVolatileMatched<std::byte> const*>(____iterator),
+        size_bytes());
   }
 
   /// converts the span into a view of its underlying bytes (represented with
   /// `uint8_t`).
-  constexpr Span<cv_match<uint8_t>, byte_extent> as_u8() const {
-    return Span<cv_match<uint8_t>, byte_extent>(
-        reinterpret_cast<cv_match<uint8_t>*>(data_), size_bytes());
+  constexpr Span<ConstVolatileMatched<uint8_t> const> as_u8() const {
+    return Span<ConstVolatileMatched<uint8_t> const>(
+        reinterpret_cast<ConstVolatileMatched<uint8_t> const*>(____iterator),
+        size_bytes());
   }
 
   /// converts the span into an immutable span.
-  constexpr Span<T const, extent> as_const() const { return *this; }
+  constexpr Span<T const> as_const() const { return *this; }
 
   /// converts the span into another span in which reads
   /// and writes to the contiguous sequence are performed as volatile
   /// operations.
-  constexpr Span<T volatile, extent> as_volatile() const { return *this; }
+  constexpr Span<T volatile> as_volatile() const { return *this; }
 
- private:
-  pointer data_;
-  size_type size_;
+  Iterator ____iterator = nullptr;
+  Size ____size = 0;
+
+ // static constexpr uint64_t ABI_TAG = STX_ABI_VERSION;
+  //
+  // we just need to be selective about what types we want to support across
+  // ABIs
+  //
+  // complex objects usually don't cross ABIs.
+  //
+  //
+  // Allocators and complex objects shouldn't decide the behavior of objects.
+  //
+  // enum class AbiTag
+  //
+  //
+  // template<typename Output, AbiTag tag>
+  // abi_cast( stx::Span<Output>  ) {
+  // }
+  //
+  // define own abi cast by accessing internal members. must be vetted.
+  //
+  //
 };
-
-template <typename T, size_t N, typename Container>
-inline stx::Option<stx::Span<T, N>> make_checked_span(Container& container) {
-  if (N > static_cast<size_t>(std::size(container))) {
-    return stx::None;
-  } else {
-    return stx::Some(stx::Span<T, N>(container));
-  }
-}
-
-template <typename T, size_t N>
-inline stx::Option<stx::Span<T, N>> make_checked_span(stx::Span<T> span) {
-  if (N > static_cast<size_t>(span.size())) {
-    return stx::None;
-  } else {
-    return stx::Some(stx::Span<T, N>(span));
-  }
-}
-
-template <typename T>
-inline stx::Option<stx::Span<T>> checked_subspan(stx::Span<T> source,
-                                                 size_t offset, size_t length) {
-  if (offset >= source.size() || (offset + length) > source.size()) {
-    return stx::None;
-  } else {
-    return source.subspan(offset, length);
-  }
-}
-
-template <typename T, size_t E>
-inline stx::Option<stx::Span<T>> checked_subspan(stx::Span<T, E> source,
-                                                 size_t offset) {
-  if (offset >= source.size()) return stx::None;
-  return checked_subspan(source, offset, source.size() - offset);
-}
-
-template <typename T, size_t E>
-Span(T (&)[E])->Span<T, E>;
-
-template <typename T, size_t E>
-Span(std::array<T, E>&)->Span<T, E>;
-
-template <typename T, size_t E>
-Span(std::array<T, E> const&)->Span<T const, E>;
-
-template <typename Container>
-Span(Container& cont)->Span<std::remove_pointer_t<decltype(std::data(cont))>>;
 
 STX_END_NAMESPACE
