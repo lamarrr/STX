@@ -22,7 +22,7 @@ struct OptionStorage {
     if (other.is_none_) {
       finally_init(None);
     } else {
-      finally_init(Some(other.some_));
+      finally_init(Some(other.some_.copy()));
     }
   }
 
@@ -30,7 +30,7 @@ struct OptionStorage {
     if (other.is_none_) {
       assign(None);
     } else {
-      assign(Some(other.some_));
+      assign(Some(other.some_.copy()));
     }
 
     return *this;
