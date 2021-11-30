@@ -13,6 +13,7 @@
 
 #include <array>
 #include <utility>
+#include <vector>
 
 #include "gtest/gtest.h"
 
@@ -21,6 +22,11 @@ using namespace string_literals;
 using namespace stx;
 
 static_assert(impl::is_span_convertible<int, volatile int>);
+
+TEST(SpanTest, ContainerConstructor) {
+  std::vector<int> a{1, 2, 3, 4, 5};
+  Span b = a;
+}
 
 TEST(SpanTest, CopyConstructor) {
   vector<int> vec{1, 2, 3, 4, 5};

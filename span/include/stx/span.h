@@ -73,6 +73,35 @@ template <typename Source, typename Target>
 constexpr bool is_span_convertible =
     std::is_convertible_v<Source (*)[], Target (*)[]>;
 
+template <typename T>
+void type_ptr_and_size(T*, size_t) {}
+
+template <typename T, typename = void>
+struct is_container_impl : std::false_type {};
+
+template <typename T>
+struct is_container_impl<T, decltype((type_ptr_and_size(
+                                         std::data(std::declval<T>()),
+                                         std::size(std::declval<T>()))),
+                                     (void)0)> : std::true_type {};
+
+template <typename T>
+constexpr bool is_container = is_container_impl<T>::value;
+
+template <typename T, typename Element, typename = void>
+struct is_compatible_container_impl : std::false_type {};
+
+template <typename T, typename Element>
+struct is_compatible_container_impl<
+    T, Element, std::void_t<decltype(std::data(std::declval<T>()))>>
+    : std::bool_constant<is_span_convertible<
+          Element,
+          std::remove_pointer_t<decltype(std::data(std::declval<T>()))>>> {};
+
+template <typename T, typename Element>
+constexpr bool is_compatible_container =
+    is_compatible_container_impl<T, Element>::value;
+
 }  // namespace impl
 
 //!
@@ -171,6 +200,14 @@ struct Span {
 
   template <typename U, Size Length>
   constexpr Span(std::array<U, Length>&& array) = delete;
+
+  template <typename Container,
+            std::enable_if_t<impl::is_container<Container&> &&
+                                 impl::is_compatible_container<Container&, T>,
+                             int> = 0>
+  constexpr Span(Container& container) noexcept
+      : ____iterator{static_cast<Iterator>(std::data(container))},
+        ____size{std::size(container)} {}
 
   constexpr Iterator data() const { return ____iterator; }
 
@@ -480,5 +517,17 @@ struct Span {
   //
   //
 };
+
+template <typename SrcElement, size_t Length>
+Span(SrcElement (&)[Length])->Span<SrcElement>;
+
+template <typename SrcElement, size_t Length>
+Span(std::array<SrcElement, Length>&)->Span<SrcElement>;
+
+template <typename SrcElement, size_t Length>
+Span(std::array<SrcElement, Length> const&)->Span<SrcElement const>;
+
+template <typename Container>
+Span(Container& cont)->Span<std::remove_pointer_t<decltype(std::data(cont))>>;
 
 STX_END_NAMESPACE
