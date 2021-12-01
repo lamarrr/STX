@@ -22,6 +22,8 @@ using namespace string_literals;
 using namespace stx;
 
 static_assert(impl::is_span_convertible<int, volatile int>);
+static_assert(impl::is_span_convertible<int, int const>);
+static_assert(impl::is_compatible_container<std::vector<int> &, int const>);
 
 TEST(SpanTest, ContainerConstructor) {
   std::vector<int> a{1, 2, 3, 4, 5};

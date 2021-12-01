@@ -95,8 +95,8 @@ template <typename T, typename Element>
 struct is_compatible_container_impl<
     T, Element, std::void_t<decltype(std::data(std::declval<T>()))>>
     : std::bool_constant<is_span_convertible<
-          Element,
-          std::remove_pointer_t<decltype(std::data(std::declval<T>()))>>> {};
+          std::remove_pointer_t<decltype(std::data(std::declval<T>()))>,
+          Element>> {};
 
 template <typename T, typename Element>
 constexpr bool is_compatible_container =
