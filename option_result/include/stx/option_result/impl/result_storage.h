@@ -76,7 +76,7 @@ struct ResultStorage {
     }
   }
 
-  void assign(Err<T>&& err) {
+  void assign(Err<E>&& err) {
     if (is_ok_) {
       ok_.ref().~T();
       finally_init(std::move(err));
