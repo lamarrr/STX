@@ -367,7 +367,7 @@ struct Span {
     return *this;
   }
 
-  constexpr Span<T> set(T const& value) const {
+  constexpr Span<T> fill(T const& value) const {
     static_assert(std::is_copy_assignable_v<T>);
 
     for (T& element : *this) {
@@ -496,7 +496,7 @@ struct Span {
   Iterator ____iterator = nullptr;
   Size ____size = 0;
 
- // static constexpr uint64_t ABI_TAG = STX_ABI_VERSION;
+  // static constexpr uint64_t ABI_TAG = STX_ABI_VERSION;
   //
   // we just need to be selective about what types we want to support across
   // ABIs

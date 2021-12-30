@@ -142,7 +142,7 @@ TEST(SpanTest, Algorithms) {
   Span<int> r{y};
   Span<int> e{};
 
-  r.set(8);
+  r.fill(8);
 
   for (auto &u : r) {
     std::cout << u << std::endl;
@@ -157,7 +157,7 @@ TEST(SpanTest, Algorithms) {
   EXPECT_TRUE(r.none_equals(0));
 
   EXPECT_TRUE(r.map([](int a) { return a + 1; }, r).all_equals(9));
-  r.find(9).set(64);
+  r.find(9).fill(64);
   EXPECT_EQ(r[0], 64);
 
   for (int &element : r.slice(1)) {
