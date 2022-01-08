@@ -9,13 +9,13 @@ enum Error { ZeroDivision, NoError };
 using std::variant, std::move;
 using stx::Result, stx::Ok, stx::Err, stx::make_ok, stx::make_err;
 
-auto variant_divide(double num, double div) noexcept -> variant<double, Error> {
+auto variant_divide(double num, double div) -> variant<double, Error> {
   if (div == 0.0) return Error::ZeroDivision;
   return num / div;
 }
 
 STX_FORCE_INLINE variant<double, Error> divide_by_variant(
-    double num, variant<double, Error>&& div) noexcept {
+    double num, variant<double, Error>&& div) {
   if (std::holds_alternative<double>(div)) {
     auto d = std::get<double>(div);
     if (d == 0.0) return Error::ZeroDivision;
@@ -36,14 +36,12 @@ STX_FORCE_INLINE double divide_by_exceptional(double num, double div) {
   return num / div;
 }
 
-Result<double, Error> result_divide(double numerator,
-                                    double&& denominator) noexcept {
+Result<double, Error> result_divide(double numerator, double&& denominator) {
   if (denominator == 0.0) return Err(Error::ZeroDivision);
   return Ok(numerator / denominator);
 }
 
-STX_FORCE_INLINE auto divide_by_result(double num,
-                                       Result<double, Error>&& div) noexcept
+STX_FORCE_INLINE auto divide_by_result(double num, Result<double, Error>&& div)
     -> Result<double, Error> {
   return move(div).match(
       [&](auto d) -> Result<double, Error> {
@@ -53,20 +51,20 @@ STX_FORCE_INLINE auto divide_by_result(double num,
       [](auto e) -> Result<double, Error> { return Err(move(e)); });
 }
 
-Error c_style_divide(double num, double div, double* result) noexcept {
+Error c_style_divide(double num, double div, double* result) {
   if (div == 0.0) return Error::ZeroDivision;
   *result = num / div;
   return Error::NoError;
 }
 
 STX_FORCE_INLINE Error divide_by_c_style(double num, double div,
-                                         double* result) noexcept {
+                                         double* result) {
   if (div == 0.0) return Error::ZeroDivision;
   *result = num / div;
   return Error::NoError;
 }
 
-void Variant_SuccessPath(benchmark::State& state) noexcept {  // NOLINT
+void Variant_SuccessPath(benchmark::State& state) {  // NOLINT
   for (auto _ : state) {
     auto result = divide_by_variant(5.0, variant_divide(0.444, 0.5));
 
@@ -97,7 +95,7 @@ void Exception_SuccessPath(benchmark::State& state) {  // NOLINT
   }
 }
 
-void Result_SuccessPath(benchmark::State& state) noexcept {  // NOLINT
+void Result_SuccessPath(benchmark::State& state) {  // NOLINT
   for (auto _ : state) {
     divide_by_result(5.0, result_divide(0.444, 0.5))
         .match([](auto v) { benchmark::DoNotOptimize(v); },
@@ -107,7 +105,7 @@ void Result_SuccessPath(benchmark::State& state) noexcept {  // NOLINT
   }
 }
 
-void CStyle_SuccessPath(benchmark::State& state) noexcept {  // NOLINT
+void CStyle_SuccessPath(benchmark::State& state) {  // NOLINT
   for (auto _ : state) {
     double result;
     auto err = c_style_divide(0.444, 0.5, &result);
@@ -123,7 +121,7 @@ void CStyle_SuccessPath(benchmark::State& state) noexcept {  // NOLINT
   }
 }
 
-void Variant_FailurePath(benchmark::State& state) noexcept {  // NOLINT
+void Variant_FailurePath(benchmark::State& state) {  // NOLINT
   for (auto _ : state) {
     auto result = divide_by_variant(5.0, variant_divide(0.0, 0.5));
 
@@ -154,7 +152,7 @@ void Exception_FailurePath(benchmark::State& state) {  // NOLINT
   }
 }
 
-void Result_FailurePath(benchmark::State& state) noexcept {  // NOLINT
+void Result_FailurePath(benchmark::State& state) {  // NOLINT
   for (auto _ : state) {
     divide_by_result(5.0, result_divide(0.0, 0.5))
         .match([](auto v) { benchmark::DoNotOptimize(v); },
@@ -164,7 +162,7 @@ void Result_FailurePath(benchmark::State& state) noexcept {  // NOLINT
   }
 }
 
-void CStyle_FailurePath(benchmark::State& state) noexcept {  // NOLINT
+void CStyle_FailurePath(benchmark::State& state) {  // NOLINT
   for (auto _ : state) {
     double result;
     auto err = c_style_divide(0.0, 0.5, &result);
