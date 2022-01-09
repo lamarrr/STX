@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Install Clang-9
-        run: sudo apt install clang-9
+        run: sudo apt install clang-9 libgtest-dev
 
       - name: Configure Build Directory
         run: mkdir build
