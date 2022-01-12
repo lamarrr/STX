@@ -32,6 +32,7 @@ jobs:
       - name: Run Tests 2
         run: .\backtrace\stx_backtrace_tests 
 
+<<<<<<< HEAD
       - name: Run Tests 3
         run: .\option_result\stx_option_result_tests
         
@@ -49,3 +50,20 @@ jobs:
       
       - name: Run Tests 8
         run: .\vec\stx_vec_tests
+=======
+      - name: Run Tests	
+        run: cd build && make stx_span_tests stx_option_result_tests && ./span/stx_span_tests && ./option_result/stx_option_result_tests
+
+
+      #- name: Run Address-sanitized Tests	
+      #  run: cd build && make stx_tests_address_sanitized && ./stx_tests_address_sanitized	
+
+      #- name: Run Leak-sanitized Tests	
+      #  run: cd build && make stx_tests_leak_sanitized && ./stx_tests_leak_sanitized	
+
+      #- name: Run Thread-sanitized Tests	
+      #  run: cd build && make stx_tests_thread_sanitized && ./stx_tests_thread_sanitized	
+
+      #- name: Run Undefined-sanitized Tests	
+      #  run: cd build && make stx_tests_undefined_sanitized && ./stx_tests_undefined_sanitized
+>>>>>>> c41df62 (Update cpp17-clang-macos-10.15.yml)
