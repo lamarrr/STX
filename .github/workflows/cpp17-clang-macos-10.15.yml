@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v2	
 
       - name: Configure Build Directory	
-        run: mkdir build && brew install googletest
+        run: mkdir build && brew install googletest && brew install abseil
         
       - name: Initialize CMake	
         run: cd build && export CC=clang CXX=clang++ && cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_mode }} -DSTX_BUILD_TESTS=ON -DSTX_ENABLE_BACKTRACE=${{ matrix.backtrace }} -DSTX_ENABLE_PANIC_BACKTRACE=${{ matrix.panic_backtrace }} -DSTX_SANITIZE_TESTS=ON -DCMAKE_CXX_STANDARD=17
