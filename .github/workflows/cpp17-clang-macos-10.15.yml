@@ -25,8 +25,9 @@ jobs:
       - name: Initialize CMake	
         run: cd build && export CC=clang CXX=clang++ && cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_mode }} -DSTX_BUILD_TESTS=ON -DSTX_ENABLE_BACKTRACE=${{ matrix.backtrace }} -DSTX_ENABLE_PANIC_BACKTRACE=${{ matrix.panic_backtrace }} -DSTX_SANITIZE_TESTS=ON -DCMAKE_CXX_STANDARD=17
 
-      - name: Run Unsanitized Tests	
-        run: cd build && make run_tests	
+      - name: Run Tests	
+        run: cd build && make stx_span_tests stx_option_result_tests && ./stx_span_tests && ./stx_option_result_tests
+
 
       #- name: Run Address-sanitized Tests	
       #  run: cd build && make stx_tests_address_sanitized && ./stx_tests_address_sanitized	
