@@ -23,7 +23,7 @@ jobs:
         run: git clone https://github.com/google/googletest.git && cd googletest && mkdir build && cd build && cmake ..   && sudo make install
 
       - name: Install Clang-9
-        run: sudo apt install clang-9 libabseil-dev
+        run: sudo apt install clang-9 libabsl-dev
 
       - name: Configure Build Directory
         run: mkdir build
