@@ -22,8 +22,13 @@ jobs:
       - name: Install GoogleTest
         run: git clone https://github.com/google/googletest.git && cd googletest && mkdir build && cd build && cmake ..   && sudo make install
 
+
+      - name: Install Abseil
+        run: git clone https://github.com/abseil/abseil-cpp.git && cd abseil-cpp && mkdir build && cd build && cmake ..   && sudo make install
+
+
       - name: Install Clang-9
-        run: sudo apt install clang-9 libabsl-dev
+        run: sudo apt install clang-9
 
       - name: Configure Build Directory
         run: mkdir build
