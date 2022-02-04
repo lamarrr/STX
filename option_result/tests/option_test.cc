@@ -56,7 +56,7 @@ MoveOnly<id> make_mv() {
 struct NonTrivial {
   NonTrivial(NonTrivial&&) {}
 
-  NonTrivial& operator=(NonTrivial&&) {}
+  NonTrivial& operator=(NonTrivial&&) { return *this; }
 };
 
 static_assert(std::is_swappable_v<MoveOnly<0>>);
