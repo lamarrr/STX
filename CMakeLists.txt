@@ -171,6 +171,21 @@ add_subdirectory(source_location)
 add_subdirectory(span)
 add_subdirectory(utils)
 
+add_subdirectory(allocator)
+add_subdirectory(async)
+add_subdirectory(enum)
+add_subdirectory(fn)
+add_subdirectory(limits)
+add_subdirectory(mem)
+add_subdirectory(resource)
+add_subdirectory(scheduler)
+add_subdirectory(spinlock)
+add_subdirectory("string")
+add_subdirectory(struct)
+add_subdirectory(task)
+add_subdirectory(vec)
+add_subdirectory(void)
+
 # ===============================================
 #
 # === Source Files

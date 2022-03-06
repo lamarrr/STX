@@ -102,8 +102,8 @@ struct OptionStorage<T, true> {
 
   static constexpr bool is_trivial = true;
 
-  OptionStorage(OptionStorage const&) = default;
-  OptionStorage& operator=(OptionStorage const&) = default;
+  constexpr OptionStorage(OptionStorage const&) = default;
+  constexpr OptionStorage& operator=(OptionStorage const&) = default;
 
   constexpr OptionStorage(OptionStorage&&) = default;
   constexpr OptionStorage& operator=(OptionStorage&&) = default;
