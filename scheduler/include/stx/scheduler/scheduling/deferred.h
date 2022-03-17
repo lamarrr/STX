@@ -8,6 +8,8 @@
 namespace stx {
 namespace sched {
 
+// prepare a deferred task. Deferred tasks run on the  main thread and are
+// typically used for dynamic scheduling.
 template <typename Fn, typename FirstInput, typename... OtherInputs>
 auto deferred(stx::TaskScheduler &scheduler, Fn schedule_task,
               Future<FirstInput> first_input,
@@ -17,6 +19,8 @@ auto deferred(stx::TaskScheduler &scheduler, Fn schedule_task,
 
   using output = std::invoke_result_t<Fn &, Future<FirstInput> &&,
                                       Future<OtherInputs> &&...>;
+
+  auto schedule_timepoint = std::chrono::steady_clock::now();
 
   stx::Promise promise =
       stx::make_promise<output>(scheduler.allocator).unwrap();
@@ -56,7 +60,8 @@ auto deferred(stx::TaskScheduler &scheduler, Fn schedule_task,
 
   scheduler.deferred_entries =
       stx::vec::push(std::move(scheduler.deferred_entries),
-                      DeferredTask{std::move(schedule), std::move(readiness)})
+                     DeferredTask{std::move(schedule), schedule_timepoint,
+                                  std::move(readiness)})
           .unwrap();
 
   return future;

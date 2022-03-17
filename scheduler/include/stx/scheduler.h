@@ -53,12 +53,7 @@ struct TaskTraceInfo {
       stx::string::rc::make_static_view("[Unspecified Purpose]");
 };
 
-namespace task_target {
-struct main_thread {};
-struct worker_threads {};
-}  // namespace task_target
-
-enum class TaskReady { No, Yes };
+enum class TaskReady : uint8_t { No, Yes };
 
 constexpr TaskReady task_is_ready(nanoseconds) { return TaskReady::Yes; }
 
@@ -80,32 +75,17 @@ struct Task {
   //
   RcFn<TaskReady(nanoseconds)> poll_ready;
 
+  // time since task was scheduled
   std::chrono::steady_clock::time_point schedule_timepoint;
 
   stx::PromiseAny scheduler_promise;
 
+  // the task's identifier
   stx::TaskId task_id{0};
 
+  // Priority to use in evaluating CPU-time worthiness
   TaskPriority priority = stx::NORMAL_PRIORITY;
 
-  TaskTraceInfo trace_info;
-};
-
-enum class StopStreaming { No, Yes };
-
-// this should run until we poll for data and told that the stream is closed.
-// ...
-//
-// Poll frequency???
-//
-struct StreamTask {
-  // throttle, map, reduce, forward, connect, split, etc.
-  // must only be invoked by one thread at a point in time.
-  RcFn<void()> function;
-  RcFn<StopStreaming(nanoseconds)> should_stop;
-  // will be used to schedule tasks onto threads once the stream chunks are
-  // available
-  TaskPriority priority = stx::NORMAL_PRIORITY;
   TaskTraceInfo trace_info;
 };
 
@@ -147,29 +127,14 @@ struct DeferredTask {
   //
   //
   RcFn<void()> schedule;
+
+  std::chrono::steady_clock::time_point schedule_timepoint;
+
   RcFn<TaskReady(nanoseconds)> poll_ready;
 };
 
-/*struct TaskData {
-  Task task;
-  // used to observe terminal state of the task by the scheduler,
-  //
-  // this is used for deferred_schedule and removing the task from the queue.
-  //
-  // shared across threads and needs to be captured by the packaged_task, thus
-  // requiring it to be placed in a different address space from the
-  // packaged_task.
-  //
-  //
-  // we also shouldn't be relying on this future as a source of truth?
-  // FutureAny future;
-
-  // FutureStatus status_capture = FutureStatus::Scheduled;
-};
-*/
-
-// TODO(lamarrr): scheduler just dispatches to the timeline once the tasks are
-// ready
+// scheduler just dispatches to the task timeline once the tasks are
+// ready for execution
 struct TaskScheduler {
   struct TaskThread {
     Rc<ThreadSlot*> task_slot;
@@ -190,10 +155,11 @@ struct TaskScheduler {
 
   void tick(nanoseconds interval) {
     timepoint present = std::chrono::steady_clock::now();
-    auto [___r, ready_tasks] =
+
+    auto [___x, ready_tasks] =
         entries.span().partition([present](Task const& task) {
-          return task.poll_ready.handle(present - task.schedule_timepoint) !=
-                 TaskReady::Yes;
+          return task.poll_ready.handle(present - task.schedule_timepoint) ==
+                 TaskReady::No;
         });
 
     for (auto& task : ready_tasks) {
@@ -208,6 +174,20 @@ struct TaskScheduler {
     timeline.tick(thread_pool.get_thread_slots(), present);
     thread_pool.tick(interval);
 
+    {  // run deferred scheduling tasks
+      auto [___x, ready_tasks] =
+          deferred_entries.span().partition([present](DeferredTask& task) {
+            return task.poll_ready.handle(present - task.schedule_timepoint) ==
+                   TaskReady::No;
+          });
+
+      for (auto& ready_task : ready_tasks) {
+        ready_task.schedule.handle();
+      }
+
+      deferred_entries =
+          stx::vec::erase(std::move(deferred_entries), ready_tasks);
+    }
     // if cancelation requested,
     // begin shutdown sequence
     // cancel non-critical tasks
@@ -225,8 +205,6 @@ struct TaskScheduler {
   Vec<DeferredTask> deferred_entries;
   ThreadPool thread_pool;
   Allocator allocator;
-
-  // Vec<Task> main_thread_tasks;
 };
 
 // Processes stream operations on every tick.
@@ -238,6 +216,25 @@ struct TaskScheduler {
 // fork
 // join
 /*
+
+enum class StopStreaming { No, Yes };
+
+// this should run until we poll for data and told that the stream is closed.
+// ...
+//
+// Poll frequency???
+//
+struct StreamTask {
+  // throttle, map, reduce, forward, connect, split, etc.
+  // must only be invoked by one thread at a point in time.
+  RcFn<void()> function;
+  RcFn<StopStreaming(nanoseconds)> should_stop;
+  // will be used to schedule tasks onto threads once the stream chunks are
+  // available
+  TaskPriority priority = stx::NORMAL_PRIORITY;
+  TaskTraceInfo trace_info;
+};
+
 struct StreamPipeline {
   template <typename Fn, typename T, typename U>
   void map(Fn&& transform, stx::Stream<T>&& input, stx::Generator<U>&& output) {
