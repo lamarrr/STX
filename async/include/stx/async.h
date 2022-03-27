@@ -133,7 +133,7 @@ enum class FutureStatus : uint8_t {
   /// `INTENDED FOR`: cancelable executors with prolonged or staged
   /// cancelation procedures.
   ///
-  ForceCanceling,
+  Suspending,
   /// the async operation is now being suspended.
   ///
   /// `REQUIRED STATE?`: No, can be skipped. Set only if the executor supports
@@ -144,42 +144,7 @@ enum class FutureStatus : uint8_t {
   ///
   /// `IMPLEMENTATION REQUIREMENT`: must be preceded by the `Executing` state.
   ///
-  Suspending,
-  /// the async operation is now being forced to suspend. typically known as
-  /// preemption.
-  ///
-  /// `REQUIRED STATE?`: No, can be skipped. Set only if the executor supports
-  /// suspension and suspension has been forced by the executor.
-  ///
-  /// `INTENDED FOR`: suspendable executors with prolonged or staged
-  /// suspension procedures.
-  ///
-  /// `IMPLEMENTATION REQUIREMENT`: must be preceded by the `Executing` and
-  /// `ForceSuspending` states.
-  ///
-  ForceSuspending,
-  /// the async operation has been suspended.
-  ///
-  /// `REQUIRED STATE?`: No, can be skipped. Set only if the executor supports
-  /// suspension and suspension has been requested.
-  ///
-  /// `INTENDED FOR`: suspendable executors.
-  ///
-  /// `IMPLEMENTATION REQUIREMENT`: must be preceded by the `Suspending` and
-  /// `Executing` states.
-  ///
   Suspended,
-  /// the async operation has been forcefully suspended.
-  ///
-  /// `REQUIRED STATE?`: No, can be skipped. Set only if the executor supports
-  /// suspension and suspension has forced by the executor.
-  ///
-  /// `INTENDED FOR`: suspendable executors.
-  ///
-  /// `IMPLEMENTATION REQUIREMENT`: must be preceded by the `ForceSuspending`
-  /// and `Executing` states.
-  ///
-  ForceSuspended,
   /// the async operation is being resumed.
   ///
   /// `REQUIRED STATE?`: No, can be skipped. Set only if the executor supports
@@ -192,18 +157,6 @@ enum class FutureStatus : uint8_t {
   /// `Suspending` states.
   ///
   Resuming,
-  /// the async operation is being forcefully resumed.
-  ///
-  /// `REQUIRED STATE?`: No, can be skipped. Set only if the executor supports
-  /// suspension and needs to force the async operation into resumption, i.e.
-  /// a prioritizing scheduler.
-  ///
-  /// `INTENDED FOR`: executors with prolonged or staged resumption procedure.
-  ///
-  /// `IMPLEMENTATION REQUIREMENT`: must be preceded by the `Executing`,
-  /// `ForceSuspending`, and `ForceSuspended` states.
-  ///
-  ForceResuming,
   /// the async operation has been canceled.
   ///
   /// `REQUIRED STATE?`: No, can be skipped. Set only if the executor supports
@@ -213,15 +166,6 @@ enum class FutureStatus : uint8_t {
   /// executors.
   ///
   Canceled,
-  /// the async operation has been forcefully canceled.
-  ///
-  /// `REQUIRED STATE?`: No, can be skipped. Set only if the executor supports
-  /// cancelation and cancelation has been forced by the executor.
-  ///
-  /// `IMPLEMENTATION REQUIREMENT`: must be a terminal state for cancelable
-  /// executors.
-  ///
-  ForceCanceled,
   /// the async operation is being completed.
   ///
   /// `REQUIRED STATE?`: No, can be skipped.
@@ -250,18 +194,13 @@ enum class InfoFutureStatus : uint8_t {
   Submitted = enum_uv(FutureStatus::Submitted),
   Executing = enum_uv(FutureStatus::Executing),
   Canceling = enum_uv(FutureStatus::Canceling),
-  ForceCanceling = enum_uv(FutureStatus::ForceCanceling),
   Suspending = enum_uv(FutureStatus::Suspending),
-  ForceSuspending = enum_uv(FutureStatus::ForceSuspending),
   Suspended = enum_uv(FutureStatus::Suspended),
-  ForceSuspended = enum_uv(FutureStatus::ForceSuspended),
   Resuming = enum_uv(FutureStatus::Resuming),
-  ForceResuming = enum_uv(FutureStatus::ForceResuming)
 };
 
 enum class TerminalFutureStatus : uint8_t {
   Canceled = enum_uv(FutureStatus::Canceled),
-  ForceCanceled = enum_uv(FutureStatus::ForceCanceled),
   Completing = enum_uv(FutureStatus::Completing),
   Completed = enum_uv(FutureStatus::Completed),
   Pending = enum_uv(FutureStatus::____Pending)
@@ -308,18 +247,6 @@ enum class RequestedSuspendState : uint8_t {
   Suspended
 };
 
-enum class RequestSource : uint8_t { User, Executor };
-
-struct CancelRequest {
-  RequestSource source = RequestSource::User;
-  RequestedCancelState state = RequestedCancelState::None;
-};
-
-struct SuspendRequest {
-  RequestSource source = RequestSource::User;
-  RequestedSuspendState state = RequestedSuspendState::None;
-};
-
 enum class RequestType : uint8_t { Suspend, Cancel };
 
 /// returned by functions to signify why they returned.
@@ -327,17 +254,16 @@ enum class RequestType : uint8_t { Suspend, Cancel };
 /// NOTE: this is a plain data structure and doesn't check if a request was sent
 /// or not
 struct ServiceToken {
-  explicit constexpr ServiceToken(CancelRequest request)
-      : type{RequestType::Cancel}, source{request.source} {}
+  explicit constexpr ServiceToken(RequestedCancelState)
+      : type{RequestType::Cancel} {}
 
-  explicit constexpr ServiceToken(SuspendRequest request)
-      : type{RequestType::Suspend}, source{request.source} {}
+  explicit constexpr ServiceToken(RequestedSuspendState)
+      : type{RequestType::Suspend} {}
 
   // invalid
   explicit constexpr ServiceToken() {}
 
   RequestType type = RequestType::Suspend;
-  RequestSource source = RequestSource::User;
 };
 
 // this struct helps gurantee ordering of instructions relative
@@ -367,48 +293,28 @@ struct FutureExecutionState {
     notify_info(InfoFutureStatus::Executing);
   }
 
-  void executor____notify_user_resumed() {
+  void executor____notify_resumed() {
     notify_info(InfoFutureStatus::Executing);
   }
 
-  void executor____notify_user_canceling() {
+  void executor____notify_canceling() {
     notify_info(InfoFutureStatus::Canceling);
   }
 
-  void executor____notify_force_canceling() {
-    notify_info(InfoFutureStatus::ForceCanceling);
-  }
-
-  void executor____notify_user_suspending() {
+  void executor____notify_suspending() {
     notify_info(InfoFutureStatus::Suspending);
   }
 
-  void executor____notify_force_suspending() {
-    notify_info(InfoFutureStatus::ForceSuspending);
-  }
-
-  void executor____notify_user_suspended() {
+  void executor____notify_suspended() {
     notify_info(InfoFutureStatus::Suspended);
   }
 
-  void executor____notify_force_suspended() {
-    notify_info(InfoFutureStatus::ForceSuspended);
-  }
-
-  void executor____notify_user_resuming() {
+  void executor____notify_resuming() {
     notify_info(InfoFutureStatus::Resuming);
   }
 
-  void executor____notify_force_resuming() {
-    notify_info(InfoFutureStatus::ForceResuming);
-  }
-
-  void executor____notify_user_canceled() {
+  void executor____notify_canceled() {
     notify_term_no_result(TerminalFutureStatus::Canceled);
-  }
-
-  void executor____notify_force_canceled() {
-    notify_term_no_result(TerminalFutureStatus::ForceCanceled);
   }
 
   void executor____complete____with_void() {
@@ -458,7 +364,6 @@ struct FutureExecutionState {
   bool user____is_done() const {
     switch (user____fetch_status____with_no_result()) {
       case FutureStatus::Canceled:
-      case FutureStatus::ForceCanceled:
       case FutureStatus::Completed:
         return true;
 
@@ -512,19 +417,11 @@ struct FutureRequestState {
   STX_DEFAULT_CONSTRUCTOR(FutureRequestState)
   STX_MAKE_PINNED(FutureRequestState)
 
-  CancelRequest proxy____fetch_cancel_request() const {
-    RequestedCancelState user_requested_state =
-        user_requested_cancel_state.load(std::memory_order_relaxed);
-    RequestedCancelState executor_requested_state =
-        executor_requested_cancel_state.load(std::memory_order_relaxed);
-
-    return executor_requested_state == RequestedCancelState::None
-               ? CancelRequest{RequestSource::User, user_requested_state}
-               : CancelRequest{RequestSource::Executor,
-                               executor_requested_state};
+  RequestedCancelState proxy____fetch_cancel_request() const {
+    return requested_cancel_state.load(std::memory_order_relaxed);
   }
 
-  SuspendRequest proxy____fetch_suspend_request() const {
+  RequestedSuspendState proxy____fetch_suspend_request() const {
     // when in a force suspended state, it is the sole responsibilty of the
     // executor to bring the async operation back to the resumed state and clear
     // the force suspend request
@@ -532,68 +429,42 @@ struct FutureRequestState {
 
     // satisfies: suspend and cancelation requests can come in any order and be
     // observed in any order.
-
-    RequestedSuspendState user_requested_state =
-        user_requested_suspend_state.load(std::memory_order_relaxed);
-    RequestedSuspendState executor_requested_state =
-        executor_requested_suspend_state.load(std::memory_order_relaxed);
-
-    return executor_requested_state == RequestedSuspendState::None
-               ? SuspendRequest{RequestSource::User, user_requested_state}
-               : SuspendRequest{RequestSource::Executor,
-                                executor_requested_state};
+    return requested_suspend_state.load(std::memory_order_relaxed);
   }
 
   void user____request_cancel() {
     // satisfies: cancelation request can only happen once and can't be cleared
-    user_requested_cancel_state.store(RequestedCancelState::Canceled,
-                                      std::memory_order_relaxed);
+    requested_cancel_state.store(RequestedCancelState::Canceled,
+                                 std::memory_order_relaxed);
   }
 
   void user____request_resume() {
     // satisfies: suspend and resume can be requested across threads
-    user_requested_suspend_state.store(RequestedSuspendState::Resumed,
-                                       std::memory_order_relaxed);
+    requested_suspend_state.store(RequestedSuspendState::Resumed,
+                                  std::memory_order_relaxed);
   }
 
   void user____request_suspend() {
     // satisfies: suspend and resume can be requested across threads
-    user_requested_suspend_state.store(RequestedSuspendState::Suspended,
-                                       std::memory_order_relaxed);
+    requested_suspend_state.store(RequestedSuspendState::Suspended,
+                                  std::memory_order_relaxed);
   }
 
-  void scheduler____request_force_cancel() {
-    executor_requested_cancel_state.store(RequestedCancelState::Canceled,
-                                          std::memory_order_relaxed);
-  }
-
-  void scheduler____request_force_resume() {
-    executor_requested_suspend_state.store(RequestedSuspendState::Resumed,
-                                           std::memory_order_relaxed);
-  }
-
-  void scheduler____request_force_suspend() {
-    executor_requested_suspend_state.store(RequestedSuspendState::Suspended,
-                                           std::memory_order_relaxed);
-  }
-
-  // this must happen before bringing the task back to the resumed state
-  void scheduler____clear_force_suspension_request() {
-    executor_requested_suspend_state.store(RequestedSuspendState::None,
-                                           std::memory_order_relaxed);
+  // this must happen before bringing the task back to the resumed state after a
+  // 'resume'.
+  // cancel state can not be cleared once set.
+  void scheduler____clear_suspension_request() {
+    requested_suspend_state.store(RequestedSuspendState::None,
+                                  std::memory_order_relaxed);
   }
 
  private:
   // not cacheline aligned since this is usually requested by a single thread
   // and serviced by a single thread and we aren't performing millions of
   // cancelation/suspend requests at once (cold path).
-  std::atomic<RequestedCancelState> user_requested_cancel_state{
+  std::atomic<RequestedCancelState> requested_cancel_state{
       RequestedCancelState::None};
-  std::atomic<RequestedSuspendState> user_requested_suspend_state{
-      RequestedSuspendState::None};
-  std::atomic<RequestedCancelState> executor_requested_cancel_state{
-      RequestedCancelState::None};
-  std::atomic<RequestedSuspendState> executor_requested_suspend_state{
+  std::atomic<RequestedSuspendState> requested_suspend_state{
       RequestedSuspendState::None};
 };
 
@@ -623,8 +494,7 @@ struct FutureState : public FutureBaseState {
         return Ok(unsafe_copy());
       }
 
-      case FutureStatus::Canceled:
-      case FutureStatus::ForceCanceled: {
+      case FutureStatus::Canceled: {
         return Err(FutureError::Canceled);
       }
 
@@ -643,8 +513,7 @@ struct FutureState : public FutureBaseState {
         return Ok(unsafe_move());
       }
 
-      case FutureStatus::Canceled:
-      case FutureStatus::ForceCanceled: {
+      case FutureStatus::Canceled: {
         return Err(FutureError::Canceled);
       }
 
@@ -663,8 +532,7 @@ struct FutureState : public FutureBaseState {
         return Ok(std::launder(reinterpret_cast<T*>(&storage)));
       }
 
-      case FutureStatus::Canceled:
-      case FutureStatus::ForceCanceled: {
+      case FutureStatus::Canceled: {
         return Err(FutureError::Canceled);
       }
 
@@ -672,9 +540,6 @@ struct FutureState : public FutureBaseState {
         return Err(FutureError::Pending);
     }
   }
-
-  // TODO(lamarrr):
-  // user___map
 
   // allow drain operation to modify object. alt: reap
   // allow inspect object to copy object.
@@ -893,77 +758,43 @@ struct PromiseBase {
     state.handle->executor____notify_executing();
   }
 
-  void notify_user_cancel_begin() const {
-    state.handle->executor____notify_user_canceling();
+  void notify_cancel_begin() const {
+    state.handle->executor____notify_canceling();
   }
 
-  void notify_user_canceled() const {
-    state.handle->executor____notify_user_canceled();
+  void notify_canceled() const { state.handle->executor____notify_canceled(); }
+
+  void notify_suspend_begin() const {
+    state.handle->executor____notify_suspending();
   }
 
-  void notify_force_cancel_begin() const {
-    state.handle->executor____notify_force_canceling();
+  void notify_suspended() const {
+    state.handle->executor____notify_suspended();
   }
 
-  void notify_force_canceled() const {
-    state.handle->executor____notify_force_canceled();
+  void notify_resume_begin() const {
+    state.handle->executor____notify_resuming();
   }
 
-  void notify_force_suspend_begin() const {
-    state.handle->executor____notify_force_suspending();
-  }
+  void notify_resumed() const { state.handle->executor____notify_resumed(); }
 
-  void notify_force_suspended() const {
-    state.handle->executor____notify_force_suspended();
-  }
+  void request_cancel() const { state.handle->scheduler____request_cancel(); }
 
-  void notify_force_resume_begin() const {
-    state.handle->executor____notify_force_resuming();
-  }
+  void request_suspend() const { state.handle->scheduler____request_suspend(); }
 
-  void notify_force_resumed() const {
-    state.handle->executor____notify_force_resuming();
-  }
-
-  void notify_user_suspend_begin() const {
-    state.handle->executor____notify_user_suspending();
-  }
-
-  void notify_user_suspended() const {
-    state.handle->executor____notify_user_suspended();
-  }
-
-  void notify_user_resume_begin() const {
-    state.handle->executor____notify_user_resuming();
-  }
-
-  void notify_user_resumed() const {
-    state.handle->executor____notify_user_resumed();
-  }
-
-  void request_force_cancel() const {
-    state.handle->scheduler____request_force_cancel();
-  }
-
-  void request_force_suspend() const {
-    state.handle->scheduler____request_force_suspend();
-  }
-
-  void request_force_resume() const {
-    state.handle->scheduler____request_force_resume();
-  }
+  void request_resume() const { state.handle->scheduler____request_resume(); }
 
   // after `request_force_suspend` or `request_force_resume` are called. all
   // tasks remain in the forced state until they are cleared.
-  void clear_force_suspension_request() const {
-    state.handle->scheduler____clear_force_suspension_request();
+  void clear_suspension_request() const {
+    state.handle->scheduler____clear_suspension_request();
   }
 
-  CancelRequest fetch_cancel_request() const {
+  RequestedCancelState fetch_cancel_request() const {
     return state.handle->proxy____fetch_cancel_request();
   }
 
-  SuspendRequest fetch_suspend_request() const {
+  RequestedSuspendState fetch_suspend_request() const {
     return state.handle->proxy____fetch_suspend_request();
   }
 
@@ -1032,77 +863,43 @@ struct PromiseAny {
     state.handle->executor____notify_executing();
   }
 
-  void notify_user_cancel_begin() const {
-    state.handle->executor____notify_user_canceling();
+  void notify_cancel_begin() const {
+    state.handle->executor____notify_canceling();
   }
 
-  void notify_user_canceled() const {
-    state.handle->executor____notify_user_canceled();
+  void notify_canceled() const { state.handle->executor____notify_canceled(); }
+
+  void notify_suspend_begin() const {
+    state.handle->executor____notify_suspending();
   }
 
-  void notify_force_cancel_begin() const {
-    state.handle->executor____notify_force_canceling();
+  void notify_suspended() const {
+    state.handle->executor____notify_suspended();
   }
 
-  void notify_force_canceled() const {
-    state.handle->executor____notify_force_canceled();
+  void notify_resume_begin() const {
+    state.handle->executor____notify_resuming();
   }
 
-  void notify_force_suspend_begin() const {
-    state.handle->executor____notify_force_suspending();
-  }
-
-  void notify_force_suspended() const {
-    state.handle->executor____notify_force_suspended();
-  }
-
-  void notify_force_resume_begin() const {
-    state.handle->executor____notify_force_resuming();
-  }
-
-  void notify_force_resumed() const {
-    state.handle->executor____notify_force_resuming();
-  }
-
-  void notify_user_suspend_begin() const {
-    state.handle->executor____notify_user_suspending();
-  }
-
-  void notify_user_suspended() const {
-    state.handle->executor____notify_user_suspended();
-  }
-
-  void notify_user_resume_begin() const {
-    state.handle->executor____notify_user_resuming();
-  }
-
-  void notify_user_resumed() const {
-    state.handle->executor____notify_user_resumed();
-  }
-
-  void request_force_cancel() const {
-    state.handle->scheduler____request_force_cancel();
-  }
-
-  void request_force_suspend() const {
-    state.handle->scheduler____request_force_suspend();
-  }
-
-  void request_force_resume() const {
-    state.handle->scheduler____request_force_resume();
-  }
+  void notify_resumed() const { state.handle->executor____notify_resumed(); }
 
   // after `request_force_suspend` or `request_force_resume` are called. all
   // tasks remain in the forced state until the force requests are cleared.
-  void clear_force_suspension_request() const {
-    state.handle->scheduler____clear_force_suspension_request();
+  void clear_suspension_request() const {
+    state.handle->scheduler____clear_suspension_request();
   }
 
-  CancelRequest fetch_cancel_request() const {
+  void request_cancel() const { state.handle->user____request_cancel(); }
+
+  void request_suspend() const { state.handle->user____request_suspend(); }
+
+  void request_resume() const { state.handle->user____request_resume(); }
+
+  RequestedCancelState fetch_cancel_request() const {
     return state.handle->proxy____fetch_cancel_request();
   }
 
-  SuspendRequest fetch_suspend_request() const {
+  RequestedSuspendState fetch_suspend_request() const {
     return state.handle->proxy____fetch_suspend_request();
   }
 
@@ -1136,11 +933,11 @@ struct RequestProxy {
   explicit RequestProxy(Rc<FutureBaseState*> istate)
       : state{std::move(istate)} {}
 
-  CancelRequest fetch_cancel_request() const {
+  RequestedCancelState fetch_cancel_request() const {
     return state.handle->proxy____fetch_cancel_request();
   }
 
-  SuspendRequest fetch_suspend_request() const {
+  RequestedSuspendState fetch_suspend_request() const {
     return state.handle->proxy____fetch_suspend_request();
   }
 
