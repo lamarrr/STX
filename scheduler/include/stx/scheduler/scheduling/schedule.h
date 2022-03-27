@@ -9,7 +9,6 @@ namespace stx {
 
 using stx::Promise;
 using stx::RequestProxy;
-using stx::RequestSource;
 using stx::ServiceToken;
 
 namespace sched {
@@ -83,18 +82,11 @@ auto chain(TaskScheduler &scheduler, Chain<Fn, OtherFns...> chain,
             // suspended or canceled
             if (state_.next_phase_index < num_phases) {
               ServiceToken service_token = state_.service_token;
-              if (service_token.source == RequestSource::Executor) {
-                if (service_token.type == stx::RequestType::Cancel) {
-                  promise_.notify_force_canceled();
-                } else {
-                  promise_.notify_force_suspended();
-                }
+
+              if (service_token.type == stx::RequestType::Cancel) {
+                promise_.notify_canceled();
               } else {
-                if (service_token.type == stx::RequestType::Cancel) {
-                  promise_.notify_user_canceled();
-                } else {
-                  promise_.notify_user_suspended();
-                }
+                promise_.notify_suspended();
               }
             } else {
               // completed

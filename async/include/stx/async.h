@@ -778,11 +778,11 @@ struct PromiseBase {
 
   void notify_resumed() const { state.handle->executor____notify_resumed(); }
 
-  void request_cancel() const { state.handle->scheduler____request_cancel(); }
+  void request_cancel() const { state.handle->user____request_cancel(); }
 
-  void request_suspend() const { state.handle->scheduler____request_suspend(); }
+  void request_suspend() const { state.handle->user____request_suspend(); }
 
-  void request_resume() const { state.handle->scheduler____request_resume(); }
+  void request_resume() const { state.handle->user____request_resume(); }
 
   // after `request_force_suspend` or `request_force_resume` are called. all
   // tasks remain in the forced state until they are cleared.

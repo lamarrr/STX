@@ -191,7 +191,7 @@ struct TaskScheduler {
     // if cancelation requested,
     // begin shutdown sequence
     // cancel non-critical tasks
-    if (cancelation_promise.fetch_cancel_request().state ==
+    if (cancelation_promise.fetch_cancel_request() ==
         RequestedCancelState::Canceled) {
       thread_pool.get_future().request_cancel();
     }

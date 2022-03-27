@@ -86,55 +86,58 @@ struct ThreadPool {
     }
 
     for (size_t i = 0; i < num_threads; i++) {
-      threads =
-          stx::vec::push_inplace(std::move(threads), [slot =
-                                                          &thread_slots
-                                                               .span()[i]
-                                                               .handle->slot] {
-            // TODO(lamarrr): separate this and ensure no thread panics whilst
-            // holding a lock or even communicating
-            uint64_t eventless_polls = 0;
-            while (true) {
-              stx::CancelRequest request = slot->promise.fetch_cancel_request();
+      threads = stx::vec::push_inplace(
+                    std::move(threads),
+                    [slot = &thread_slots.span()[i].handle->slot] {
+                      // TODO(lamarrr): separate this and ensure no thread
+                      // panics whilst holding a lock or even communicating
+                      uint64_t eventless_polls = 0;
+                      while (true) {
+                        stx::RequestedCancelState requested_cancel_state =
+                            slot->promise.fetch_cancel_request();
 
-              if (request.state == stx::RequestedCancelState::Canceled) {
-                // always from user
-                slot->promise.notify_user_canceled();
-                return;
-              }
+                        if (requested_cancel_state ==
+                            stx::RequestedCancelState::Canceled) {
+                          // always from user
+                          slot->promise.notify_canceled();
+                          return;
+                        }
 
-              timepoint task_poll_begin = std::chrono::steady_clock::now();
+                        timepoint task_poll_begin =
+                            std::chrono::steady_clock::now();
 
-              // keep polling for tasks and executing them as long as we are
-              // within the time limit.
-              //
-              // once the time limit is reached we need to poll for cancelation
-              // of the thread
-              //
-              auto now = task_poll_begin;
-              while ((now - task_poll_begin) < CANCELATION_POLL_MIN_PERIOD) {
-                Option task = slot->try_pop_task();
-                if (task.is_some()) {
-                  task.value().handle();
-                  eventless_polls = 0;
-                } else {
-                  eventless_polls++;
-                  milliseconds sleep_duration =
-                      impl::bounded_exponential_backoff(eventless_polls,
-                                                        STALL_TIMEOUT);
-                  std::this_thread::sleep_until(now + sleep_duration);
-                }
+                        // keep polling for tasks and executing them as long as
+                        // we are within the time limit.
+                        //
+                        // once the time limit is reached we need to poll for
+                        // cancelation of the thread
+                        //
+                        auto now = task_poll_begin;
+                        while ((now - task_poll_begin) <
+                               CANCELATION_POLL_MIN_PERIOD) {
+                          Option task = slot->try_pop_task();
+                          if (task.is_some()) {
+                            task.value().handle();
+                            eventless_polls = 0;
+                          } else {
+                            eventless_polls++;
+                            milliseconds sleep_duration =
+                                impl::bounded_exponential_backoff(
+                                    eventless_polls, STALL_TIMEOUT);
+                            std::this_thread::sleep_until(now + sleep_duration);
+                          }
 
-                now = std::chrono::steady_clock::now();
-              }
-            }
-          }).unwrap();
+                          now = std::chrono::steady_clock::now();
+                        }
+                      }
+                    })
+                    .unwrap();
     }
   }
 
   ~ThreadPool() {
     for (auto& slot : thread_slots.span()) {
-      slot.handle->slot.promise.request_force_cancel();
+      slot.handle->slot.promise.request_cancel();
     }
 
     for (std::thread& thread : threads.span()) {
@@ -151,7 +154,7 @@ struct ThreadPool {
   void tick(nanoseconds) {
     switch (state) {
       case State::Running: {
-        if (promise.fetch_cancel_request().state ==
+        if (promise.fetch_cancel_request() ==
             stx::RequestedCancelState::Canceled) {
           for (auto& slot : thread_slots.span()) {
             slot.handle->slot.promise.get_future().request_cancel();
@@ -168,7 +171,7 @@ struct ThreadPool {
                           return slot.handle->slot.promise.is_done();
                         })) {
           state = State::Shutdown;
-          promise.notify_user_canceled();
+          promise.notify_canceled();
         }
 
         return;
