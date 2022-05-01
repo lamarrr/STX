@@ -19,6 +19,10 @@ jobs:
     steps:	
       - uses: actions/checkout@v2	
 
+      - name: Install GoogleTest
+        run: git clone https://github.com/google/googletest.git && cd googletest && mkdir build && cd build && cmake --target install && cd .. && cd ..
+
+
       - name: Configure Build Directory	
         run: mkdir build	
 
