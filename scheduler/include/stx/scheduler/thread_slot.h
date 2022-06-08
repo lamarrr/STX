@@ -11,15 +11,6 @@
 #define STX_STUB_ENSURE(...)
 namespace stx {
 
-using stx::LockGuard;
-using stx::None;
-using stx::Option;
-using stx::Promise;
-using stx::RcFn;
-using stx::Some;
-using stx::SpinLock;
-using stx::TaskId;
-
 struct ThreadSlot {
   STX_MAKE_PINNED(ThreadSlot)
 
@@ -41,7 +32,7 @@ struct ThreadSlot {
   struct ____ThreadSlot {
     STX_MAKE_PINNED(____ThreadSlot)
 
-    explicit ____ThreadSlot(stx::Promise<void>&& ipromise)
+    explicit ____ThreadSlot(Promise<void>&& ipromise)
         : promise{std::move(ipromise)} {}
 
     // sorts the executing and pending task.

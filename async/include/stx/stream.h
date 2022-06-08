@@ -207,6 +207,9 @@ struct [[nodiscard]] StreamChunk {
 // can't afford the scenario where it is as expensive as O(n).
 //
 //
+// Essentially a linked list
+//
+//
 template <typename T>
 struct [[nodiscard]] StreamState {
   static_assert(!std::is_void_v<T>);
@@ -610,6 +613,7 @@ Result<MemoryBackedGenerator<T>, AllocError> make_memory_backed_generator(
   return make_memory_backed_generator<T>(allocator, std::move(buffer_memory));
 }
 
+// TODO(lamarrr): only have generator.get_stream as the way to make a stream
 template <typename T>
 struct [[nodiscard]] Stream {
   STX_DEFAULT_MOVE(Stream)
@@ -629,6 +633,12 @@ struct [[nodiscard]] Stream {
 
   Rc<StreamState<T> *> state;
 };
+
+template <typename T>
+Result<Generator<T>, AllocError> make_generator(Allocator allocator) {
+  TRY_OK(state, rc::make_inplace<StreamState>(allocator));
+  return Generator<T>{std::move(state)};
+}
 
 template <typename T>
 Stream<T> make_stream(Generator<T> const &generator) {

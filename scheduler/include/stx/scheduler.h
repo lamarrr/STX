@@ -26,25 +26,8 @@
 namespace stx {
 
 using namespace std::chrono_literals;
-using std::string_view;
 using std::chrono::nanoseconds;
-using stx::Chain;
-using stx::Fn;
-using stx::Future;
-using stx::FutureAny;
-using stx::FutureStatus;
-using stx::Promise;
-using stx::PromiseAny;
-using stx::Rc;
-using stx::RcFn;
-using stx::String;
-using stx::StringView;
-using stx::TaskPriority;
-using stx::Vec;
-using stx::Void;
 using timepoint = std::chrono::steady_clock::time_point;
-using stx::AllocError;
-using stx::Result;
 
 struct TaskTraceInfo {
   Rc<StringView> content =
@@ -64,7 +47,7 @@ struct Task {
   // this is the final task to be executed on the target thread.
   // must only be invoked by one thread at a point in time.
   //
-  RcFn<void()> function;
+  RcFn<void()> function = stx::fn::rc::make_static([]() {});
 
   // used to ask if the task is ready for execution.
   // called on scheduler thread.
@@ -73,10 +56,11 @@ struct Task {
   //
   // this is used for awaiting of futures or events.
   //
-  RcFn<TaskReady(nanoseconds)> poll_ready;
+  RcFn<TaskReady(nanoseconds)> poll_ready =
+      stx::fn::rc::make_static(task_is_ready);
 
   // time since task was scheduled
-  std::chrono::steady_clock::time_point schedule_timepoint;
+  std::chrono::steady_clock::time_point schedule_timepoint{};
 
   stx::PromiseAny scheduler_promise;
 
@@ -86,7 +70,7 @@ struct Task {
   // Priority to use in evaluating CPU-time worthiness
   TaskPriority priority = stx::NORMAL_PRIORITY;
 
-  TaskTraceInfo trace_info;
+  TaskTraceInfo trace_info{};
 };
 
 // used for:
@@ -126,11 +110,16 @@ struct DeferredTask {
   //
   //
   //
-  RcFn<void()> schedule;
+  RcFn<void()> schedule = stx::fn::rc::make_static([]() {});
 
-  std::chrono::steady_clock::time_point schedule_timepoint;
+  std::chrono::steady_clock::time_point schedule_timepoint{};
 
-  RcFn<TaskReady(nanoseconds)> poll_ready;
+  RcFn<TaskReady(nanoseconds)> poll_ready =
+      stx::fn::rc::make_static(task_is_ready);
+
+  stx::TaskId task_id{0};
+
+  TaskTraceInfo trace_info{};
 };
 
 // scheduler just dispatches to the task timeline once the tasks are
@@ -174,7 +163,8 @@ struct TaskScheduler {
     timeline.tick(thread_pool.get_thread_slots(), present);
     thread_pool.tick(interval);
 
-    {  // run deferred scheduling tasks
+    {
+      // run deferred scheduling tasks
       auto [___x, ready_tasks] =
           deferred_entries.span().partition([present](DeferredTask& task) {
             return task.poll_ready.handle(present - task.schedule_timepoint) ==
@@ -188,6 +178,7 @@ struct TaskScheduler {
       deferred_entries =
           stx::vec::erase(std::move(deferred_entries), ready_tasks);
     }
+
     // if cancelation requested,
     // begin shutdown sequence
     // cancel non-critical tasks

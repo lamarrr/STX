@@ -16,22 +16,6 @@ namespace stx {
 using timepoint = std::chrono::steady_clock::time_point;
 using namespace std::chrono_literals;
 using std::chrono::nanoseconds;
-using stx::Allocator;
-using stx::AllocError;
-using stx::FutureStatus;
-using stx::Ok;
-using stx::Option;
-using stx::PromiseAny;
-using stx::Rc;
-using stx::RcFn;
-using stx::RequestedCancelState;
-using stx::RequestedSuspendState;
-using stx::Result;
-using stx::Span;
-using stx::TaskId;
-using stx::TaskPriority;
-using stx::Vec;
-using stx::Void;
 
 enum class ThreadId : uint32_t {};
 
@@ -55,7 +39,7 @@ struct ScheduleTimeline {
       INTERRUPT_PERIOD * STARVATION_FACTOR;
 
   struct Task {
-    RcFn<void()> fn;
+    RcFn<void()> fn = stx::fn::rc::make_static([]() {});
 
     PromiseAny promise;
 
@@ -131,12 +115,6 @@ struct ScheduleTimeline {
       // the status could have been modified in another thread, so we need
       // to fetch the status
       FutureStatus new_status = task.promise.fetch_status();
-
-      // TODO(lamarrr): forward events to scheduler trace system.
-      // though this would mean we won't be able to observe the task's state
-      // immediately after the event happens?? but that's okay????
-      //
-      //
 
       // if preempt timepoint not already updated, update it
       if (task.last_status_poll != FutureStatus::Suspended &&

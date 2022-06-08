@@ -16,20 +16,8 @@
 namespace stx {
 using std::chrono::milliseconds;
 using std::chrono::nanoseconds;
-using stx::FutureAny;
-using stx::LockGuard;
-using stx::None;
-using stx::Option;
-using stx::Promise;
-using stx::PromiseAny;
-using stx::Rc;
-using stx::RcFn;
-using stx::Some;
-using stx::SpinLock;
+
 using timepoint = std::chrono::steady_clock::time_point;
-using stx::Allocator;
-using stx::FixedVec;
-using stx::Vec;
 
 namespace impl {
 
@@ -54,8 +42,6 @@ constexpr milliseconds bounded_exponential_backoff(uint64_t iteration,
 // NOTE: `std::thread` performs memory allocations, and possibly throws. we can
 // afford this since it'd happen at program startup anyway.
 //
-//
-// TODO(lamarrr): allocator for promises
 //
 struct ThreadPool {
   enum class State : uint8_t { Running, ShuttingDown, Shutdown };
@@ -98,7 +84,6 @@ struct ThreadPool {
 
                         if (requested_cancel_state ==
                             stx::RequestedCancelState::Canceled) {
-                          // always from user
                           slot->promise.notify_canceled();
                           return;
                         }
