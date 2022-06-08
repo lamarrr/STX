@@ -637,7 +637,7 @@ struct [[nodiscard]] Stream {
 template <typename T>
 Result<Generator<T>, AllocError> make_generator(Allocator allocator) {
   TRY_OK(state, rc::make_inplace<StreamState<T>>(allocator));
-  return Generator<T>{std::move(state)};
+  return Ok{Generator<T>{std::move(state)}};
 }
 
 template <typename T>
