@@ -35,6 +35,7 @@ option(
   STX_CUSTOM_PANIC_HANDLER
   "Override the default panic behaviour by implementing a custom panic handler. The default behavior is to print the panic report and abort the program. (You can read the docs for more details)"
   OFF)
+option(STX_ENABLE_PANIC_BACKTRACE "Enable panic backtrace")
 
 # ===============================================
 #
@@ -46,6 +47,7 @@ message(STATUS "[STX] Sanitize build: " ${STX_SANITIZE_BUILD})
 message(STATUS "[STX] Build documentation: " ${STX_BUILD_DOCS})
 message(STATUS "[STX] Build benchmarks: " ${STX_BUILD_BENCHMARKS})
 message(STATUS "[STX] Override panic handler: " ${STX_CUSTOM_PANIC_HANDLER})
+message(STATUS "[STX] Enable panic backtrace: " ${STX_ENABLE_PANIC_BACKTRACE})
 
 # ===============================================
 #
@@ -71,8 +73,6 @@ endif()
 # === Configuration Definitions and Platform Support
 #
 # ===============================================
-# if(STX_ENABLE_PANIC_BACKTRACE) list(APPEND STX_COMPILER_DEFS
-# "STX_ENABLE_PANIC_BACKTRACE") endif()
 
 # some microcontroller platforms 'arm-gcc-none especially" may not have
 # std::thread enabled if so, we remove the thread facilities, this will cause
@@ -121,8 +121,5 @@ add_subdirectory(task)
 add_subdirectory(utils)
 add_subdirectory(vec)
 add_subdirectory(void)
-
-# if(STX_ENABLE_BACKTRACE) target_link_libraries(stx absl::stacktrace
-# absl::symbolize) endif()
 
 # if(ANDROID) target_link_libraries(stx ${LibAtomic}) endif()
