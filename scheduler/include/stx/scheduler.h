@@ -136,8 +136,8 @@ struct TaskScheduler {
   TaskScheduler(timepoint ireference_timepoint, Allocator iallocator)
       : reference_timepoint{ireference_timepoint},
         entries{iallocator},
-        cancelation_promise{stx::make_promise<void>(iallocator).unwrap()},
         timeline{iallocator},
+        cancelation_promise{stx::make_promise<void>(iallocator).unwrap()},
         deferred_entries{iallocator},
         thread_pool{iallocator},
         allocator{iallocator} {}
