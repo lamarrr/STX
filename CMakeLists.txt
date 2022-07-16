@@ -102,6 +102,7 @@ endif()
 
 add_subdirectory(allocator)
 add_subdirectory(async)
+add_subdirectory(backtrace)
 add_subdirectory(config)
 add_subdirectory(enum)
 add_subdirectory(fn)

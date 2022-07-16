@@ -13,8 +13,9 @@
 
 #include <cstdint>
 
-#include "stx/internal/option_result.h"
-#include "stx/report.h"
+#include "stx/fn.h"
+#include "stx/option.h"
+#include "stx/panic/report.h"
 #include "stx/span.h"
 
 //! @file
@@ -36,7 +37,7 @@ enum class SignalError {
   SigErr
 };
 
-inline SpanReport operator>>(ReportQuery, SignalError const &err) {
+inline SpanReport operator>>(ReportQuery, SignalError const& err) {
   switch (err) {
     case SignalError::Unknown:
       return SpanReport(
@@ -54,17 +55,17 @@ inline SpanReport operator>>(ReportQuery, SignalError const &err) {
 /// `std::string`.
 struct Symbol {
   /// gets the raw symbol name, the symbol is pre-demangled if possible.
-  auto raw() const -> std::string_view;
+  std::string_view raw() const;
 
   /// construct the `Symbol` object from the raw undemangled symbol name
   /// requires that `sym`'s `data` member is not a `nullptr` and is
   /// null-terminated.
   ///
   /// UNCHECKED!
-  explicit Symbol(Span<char> sym) : symbol_{sym} {};
+  explicit Symbol(Span<char const> sym) : symbol_{sym} {};
 
  private:
-  Span<char> symbol_;
+  Span<char const> symbol_;
 };
 
 /// reperesents an active stack frame.
@@ -78,8 +79,6 @@ struct Frame {
   /// function's symbol name. possibly demangled.
   Option<Symbol> symbol;
 };
-
-using Callback = bool (*)(Frame, int);
 
 /// Gets a backtrace within the current machine's state.
 /// This function walks down the stack, and calls callback on each stack frame
@@ -122,24 +121,7 @@ using Callback = bool (*)(Frame, int);
 ///
 // all memory passed to the callback is cleared after each call. Hence we only
 // use one stack memory for the callback feed-loop.
-int trace(Callback callback, int skip_count = 0);
-
-/// Installs an handler for the specified signal that prints a backtrace
-/// whenever the signal is raised. It can and will only handle `SIGSEGV`,
-/// `SIGILL`, and `SIGFPE`. It returns the previous signal handler if
-/// successful, else returns the error.
-///
-/// # Example
-///
-/// ``` cpp
-/// // immediately after program startup
-/// handle_signal(SIGILL).unwrap();
-/// handle_signal(SIGSEGV).unwrap();
-/// handle_signal(SIGFPE).unwrap();
-///
-/// ```
-///
-auto handle_signal(int signal) -> Result<void (*)(int), SignalError>;
+int trace(stx::Fn<bool(Frame, int)> const& callback, int skip_count = 0);
 
 }  // namespace backtrace
 
