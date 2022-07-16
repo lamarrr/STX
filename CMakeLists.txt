@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2020-2021 Basit Ayantunde
+# Copyright (c) 2020-2022 Basit Ayantunde
 #
 
 cmake_minimum_required(VERSION 3.13)
@@ -14,7 +14,6 @@ project(
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
 
-include(CMakeDependentOption)
 include(CheckCXXSourceCompiles)
 include(add_project_library)
 
@@ -32,19 +31,10 @@ option(STX_BUILD_DOCS "Build documentation" OFF)
 option(STX_BUILD_BENCHMARKS "Build benchmarks" OFF)
 option(
   STX_CUSTOM_PANIC_HANDLER
-  "Override the default panic behaviour by providing a custom panic handler (You can read the docs for more details)"
+  "Override the default panic behaviour by implementing a custom panic handler. The default behavior is to print the panic report and abort the program. (You can read the docs for more details)"
   OFF)
 
-# this feature replaces the default panic handler, by default it is set to print
-# the panic report and abort the program. The handler is thread-safe.
-
-# the default panic hook calls the provided panic handler. the behaviour can be
-# changed at runtime especially when built as a shared library. Making panic
-# hooks visible enables you to control the panic behaviour of the dynamically
-# loaded library that depends on STX, i.e. for device drivers you might not want
-# them to cause the whole program to fail on a panic.
-#
-# option(STX_VISIBLE_PANIC_HOOK "Make runtime panic hook visible")
+# this feature replaces the default panic handler,  The handler is thread-safe.
 
 # STX_PANIC_INCLUDE_BACKTRACE
 
