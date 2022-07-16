@@ -4,11 +4,13 @@
 #include <cstddef>
 #include <cstdint>
 #include <new>
+#include <string_view>
 #include <utility>
 
 #include "stx/enum.h"
 #include "stx/limits.h"
 #include "stx/mem.h"
+#include "stx/panic/report.h"
 #include "stx/result.h"
 #include "stx/spinlock.h"
 #include "stx/struct.h"
@@ -206,7 +208,6 @@ enum class TerminalFutureStatus : uint8_t {
   Pending = enum_uv(FutureStatus::____Pending)
 };
 
-// TODO(lamarrr): error enum stringify
 enum class FutureError : uint8_t {
   /// the async operation is pending and not yet finalized
   Pending,
