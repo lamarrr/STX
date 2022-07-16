@@ -236,16 +236,6 @@ float result = safe_divide(n, d).value(); // this won't compile as 'value' alway
 * Git
 * Doxygen and Graphviz (for documentation)
 
-## Tested-on Compilers
-
-| Compiler  | x86-64 | arm-linux | aarch64-linux |
-| --------- | ------ | --------- | ------------- |
-| Clang-10  | YES    | NO        | NO            |
-| Clang-9   | YES    | YES       | YES           |
-| GCC-9     | YES    | YES       | YES           |
-| GCC-8     | YES    | YES       | YES           |
-| GCC-7     | YES    | NO        | NO            |
-| MSVC-2019 | YES    | NO        | NO            |
 
 ## License
 
