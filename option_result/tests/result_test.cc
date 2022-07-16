@@ -23,7 +23,7 @@ using namespace stx;
 struct NonTrivial {
   NonTrivial(NonTrivial&&) {}
 
-  NonTrivial& operator=(NonTrivial&&) {}
+  NonTrivial& operator=(NonTrivial&&) { return *this; }
 };
 
 static_assert(std::is_trivially_move_constructible_v<Result<int, int>>);
