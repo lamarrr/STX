@@ -23,6 +23,7 @@ TEST(SchedulerTest, Main) {
                             return 2;
                           },
                           [](int a) {
+                            (void)a;
                             STX_LOG("second");
                             return stx::Void{};
                           }},
