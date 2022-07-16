@@ -75,7 +75,7 @@ struct [[nodiscard]] StreamChunk {
   STX_MAKE_PINNED(StreamChunk)
 
   template <typename... Args>
-  explicit StreamChunk(Manager imanager, Args && ... iargs)
+  explicit StreamChunk(Manager imanager, Args &&...iargs)
       : manager{imanager}, data{std::forward<Args>(iargs)...} {}
 
   // used for sorting ordered and sequential streams.
@@ -225,7 +225,7 @@ struct [[nodiscard]] StreamState {
   // if any executor yields before the close request is serviced, they will
   // still be able to yield to the stream.
   //
-  void generator____yield(StreamChunk<T> * chunk_handle, bool should_close) {
+  void generator____yield(StreamChunk<T> *chunk_handle, bool should_close) {
     bool was_added = false;
 
     WITH_LOCK(lock, {
@@ -312,7 +312,7 @@ struct [[nodiscard]] StreamState {
   // the chunks. since the the top-most element refers to the next one,
   // otherwise we'd risk a use-after-unref (use-after-free).
   //
-  void unref_pass(StreamChunk<T> * chunk_handle) const {
+  void unref_pass(StreamChunk<T> *chunk_handle) const {
     if (chunk_handle != nullptr) {
       unref_pass(chunk_handle->next);
 
@@ -338,7 +338,7 @@ struct [[nodiscard]] BufferMemory {
 
   BufferMemory() : memory{Memory{noop_allocator, nullptr}}, capacity{0} {}
 
-  BufferMemory(BufferMemory && other)
+  BufferMemory(BufferMemory &&other)
       : memory{std::move(other.memory)}, capacity{other.capacity} {
     other.memory.handle = nullptr;
     other.memory.allocator = noop_allocator;
@@ -388,7 +388,7 @@ struct [[nodiscard]] SmpRingBuffer {
   uint64_t next_destruct_index = 0;
 
   template <typename... Args>
-  Result<T *, RingBufferError> manager____push_inplace(Args && ... args) {
+  Result<T *, RingBufferError> manager____push_inplace(Args &&...args) {
     uint64_t selected = u64_max;
 
     WITH_LOCK(lock, {
@@ -408,7 +408,7 @@ struct [[nodiscard]] SmpRingBuffer {
     return Ok(static_cast<T *>(placement));
   }
 
-  Result<T *, RingBufferError> manager____push(T && value) {
+  Result<T *, RingBufferError> manager____push(T &&value) {
     return manager____push_inplace(std::move(value));
   }
 
@@ -492,10 +492,10 @@ struct [[nodiscard]] Generator {
   STX_DEFAULT_MOVE(Generator)
   STX_DISABLE_COPY(Generator)
 
-  explicit Generator(Rc<StreamState<T> *> && istate)
+  explicit Generator(Rc<StreamState<T> *> &&istate)
       : state{std::move(istate)} {}
 
-  Result<Void, AllocError> yield(Allocator allocator, T && value,
+  Result<Void, AllocError> yield(Allocator allocator, T &&value,
                                  bool should_close = false) const {
     TRY_OK(memory,
            mem::allocate(
@@ -548,8 +548,8 @@ struct [[nodiscard]] MemoryBackedGenerator {
       : generator{std::move(igenerator)},
         ring_buffer_manager{std::move(iring_buffer_manager)} {}
 
-  Result<Void, RingBufferError> yield(T && value, bool should_close = false)
-      const {
+  Result<Void, RingBufferError> yield(T &&value,
+                                      bool should_close = false) const {
     Manager manager{*ring_buffer_manager.handle};
 
     TRY_OK(placement,
@@ -606,7 +606,7 @@ struct [[nodiscard]] Stream {
   STX_DEFAULT_MOVE(Stream)
   STX_DISABLE_COPY(Stream)
 
-  explicit Stream(Rc<StreamState<T> *> && istate) : state{std::move(istate)} {}
+  explicit Stream(Rc<StreamState<T> *> &&istate) : state{std::move(istate)} {}
 
   Result<T, StreamError> pop() const { return state.handle->stream____pop(); }
 
