@@ -214,6 +214,17 @@ enum class FutureError : uint8_t {
   Canceled
 };
 
+inline std::string_view operator>>(ReportQuery, FutureError const& error) {
+  switch (error) {
+    case FutureError::Canceled:
+      return "Canceled";
+    case FutureError::Pending:
+      return "Pending";
+    default:
+      return "";
+  }
+}
+
 /// the executor might not be able to immediately respond to the requested
 /// states of the async operations. the executor might not even be able to
 /// attend to it at all.
