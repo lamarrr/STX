@@ -36,16 +36,16 @@ std::string to_string(T const& value) {
 enum class IoError { EoF = 1, NotExists = 2, InvalidPath = 4, __Reserved };
 enum class Dummy {};
 
-SpanReport operator>>(ReportQuery, IoError const& v) {
+std::string_view operator>>(ReportQuery, IoError const& v) {
   switch (v) {
     case IoError::EoF:
-      return SpanReport("End of File");
+      return "End of File";
     case IoError::NotExists:
-      return SpanReport("File does not exist");
+      return "File does not exist";
     case IoError::InvalidPath:
-      return SpanReport("Invalid Path provided");
+      return "Invalid Path provided";
     default:
-      return SpanReport("Unknown Error");
+      return "Unknown Error";
   }
 }
 
