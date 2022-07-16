@@ -15,7 +15,7 @@ float rawrrr(float arg) {
   return arg;
 }
 
-void gggg() { 
+void gggg() {
   stx::Promise promise = stx::make_promise<int>(stx::os_allocator).unwrap();
   stx::Future future = promise.get_future();
   // auto [future2, promise2] = stx::make_future<void>();
@@ -67,42 +67,42 @@ void gggg() {
 promise.notify_completed(8);
 promise2.notify_completed();
 */
-  /*
-    sched.schedule(stx::make_static_fn([]() { return; }),
-                   stx::TaskPriority::Background, {});
-    sched.schedule_chain(vlk::Chain{[](vlk::Void) -> int {
-                                      STX_LOG("executing 1 ...");
-                                      std::this_thread::sleep_for(1s);
-                                      return 0;
-                                    },
-                                    [](int x) {
-                                      STX_LOG("executing 2 ...");
-                                      std::this_thread::sleep_for(1s);
-                                      return x + 1;
-                                    },
-                                    [](int x) {
-                                      STX_LOG("executing 3 ...");
-                                      std::this_thread::sleep_for(1s);
-                                      return x + 2.5;
-                                    },
-                                    [](float y) {
-                                      STX_LOG("executing 4 ...");
-                                      std::this_thread::sleep_for(1s);
-                                      return y + 5;
-                                    },
-                                    rawrrr},
-                         stx::TaskPriority::Critical, vlk::TaskTraceInfo{});
+/*
+  sched.schedule(stx::make_static_fn([]() { return; }),
+                 stx::TaskPriority::Background, {});
+  sched.schedule_chain(vlk::Chain{[](vlk::Void) -> int {
+                                    STX_LOG("executing 1 ...");
+                                    std::this_thread::sleep_for(1s);
+                                    return 0;
+                                  },
+                                  [](int x) {
+                                    STX_LOG("executing 2 ...");
+                                    std::this_thread::sleep_for(1s);
+                                    return x + 1;
+                                  },
+                                  [](int x) {
+                                    STX_LOG("executing 3 ...");
+                                    std::this_thread::sleep_for(1s);
+                                    return x + 2.5;
+                                  },
+                                  [](float y) {
+                                    STX_LOG("executing 4 ...");
+                                    std::this_thread::sleep_for(1s);
+                                    return y + 5;
+                                  },
+                                  rawrrr},
+                       stx::TaskPriority::Critical, vlk::TaskTraceInfo{});
 
-    for (auto& task : sched.entries) {
-      if (task.state == vlk::TaskScheduler::EntryState::Scheduled &&
-          task.is_ready.get()()) {
-        task.state = vlk::TaskScheduler::EntryState::Executing;
-        task.packaged_task.get()();
-      } else if (true) {
-        // ... and others
-      }
+  for (auto& task : sched.entries) {
+    if (task.state == vlk::TaskScheduler::EntryState::Scheduled &&
+        task.is_ready.get()()) {
+      task.state = vlk::TaskScheduler::EntryState::Executing;
+      task.packaged_task.get()();
+    } else if (true) {
+      // ... and others
     }
-    */
+  }
+  */
 
 #include "gtest/gtest.h"
 #include "stx/scheduler/timeline.h"
