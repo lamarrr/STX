@@ -1,10 +1,14 @@
 // #include "stx/dynamic.h"
+#include <iostream>
+
 #include "stx/scheduler.h"
 #include "stx/scheduler/scheduling/deferred.h"
-
 using namespace std::chrono_literals;
 
-#define STX_LOG(...) 
+#define STX_LOG(str) std::cout << str << std::endl;
+
+/*
+#define
 
 float rawrrr(float arg) {
   STX_LOG("rawwwrrrrrrr!!!!!!!!!!!!! {}", arg);
@@ -12,7 +16,6 @@ float rawrrr(float arg) {
 }
 
 void gggg() { 
-
   stx::Promise promise = stx::make_promise<int>(stx::os_allocator).unwrap();
   stx::Future future = promise.get_future();
   // auto [future2, promise2] = stx::make_future<void>();
@@ -57,7 +60,7 @@ void gggg() {
              rawrrr};
 
   // d.get()();
-  /*
+
   stx::TaskPriority::Background, vlk::TaskTraceInfo{}, future,
   future2);
 
@@ -100,7 +103,6 @@ promise2.notify_completed();
       }
     }
     */
-}
 
 #include "gtest/gtest.h"
 #include "stx/scheduler/timeline.h"
@@ -274,22 +276,22 @@ TEST(Timeline, Sample) {
 
   ScheduleTimeline timeline{stx::os_allocator};
 
-  timeline.add_task(
+  (void)timeline.add_task(
       stx::fn::rc::make_static([]() { STX_LOG("1"); }),
       stx::PromiseAny{stx::make_promise<void>(stx::os_allocator).unwrap()},
       std::chrono::steady_clock::now(), stx::TaskId{1}, stx::NORMAL_PRIORITY);
 
-  timeline.add_task(
+  (void)timeline.add_task(
       stx::fn::rc::make_static([]() { STX_LOG("2"); }),
       stx::PromiseAny{stx::make_promise<void>(stx::os_allocator).unwrap()},
       std::chrono::steady_clock::now(), stx::TaskId{2}, stx::NORMAL_PRIORITY);
 
-  timeline.add_task(
+  (void)timeline.add_task(
       stx::fn::rc::make_static([]() { STX_LOG("3"); }),
       stx::PromiseAny{stx::make_promise<void>(stx::os_allocator).unwrap()},
       std::chrono::steady_clock::now(), stx::TaskId{3}, stx::NORMAL_PRIORITY);
 
-  timeline.add_task(
+  (void)timeline.add_task(
       stx::fn::rc::make_static([]() { STX_LOG("4"); }),
       stx::PromiseAny{stx::make_promise<void>(stx::os_allocator).unwrap()},
       std::chrono::steady_clock::now(), stx::TaskId{4}, stx::NORMAL_PRIORITY);
