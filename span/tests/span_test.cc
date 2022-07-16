@@ -28,6 +28,9 @@ static_assert(impl::is_compatible_container<std::vector<int> &, int const>);
 TEST(SpanTest, ContainerConstructor) {
   std::vector<int> a{1, 2, 3, 4, 5};
   Span b = a;
+
+  EXPECT_EQ(b.size(), a.size());
+  EXPECT_EQ(b.data(), a.data());
 }
 
 TEST(SpanTest, CopyConstructor) {
@@ -96,6 +99,11 @@ TEST(SpanTest, As) {
     Span<byte const> tmp_b = a.as_bytes();
     Span<uint8_t const> tmp_c = a.as_u8();
     Span<volatile int32_t> tmp_d = a.as_volatile();
+
+    (void)tmp_a;
+    (void)tmp_b;
+    (void)tmp_c;
+    (void)tmp_d;
 
     Span<byte const volatile> b = a.as_u8().as_volatile().as_const().as_bytes();
 
