@@ -12,6 +12,7 @@
 #pragma once
 
 #include "stx/panic.h"
+#include "stx/source_location.h"
 
 STX_BEGIN_NAMESPACE
 
