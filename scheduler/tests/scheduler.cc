@@ -6,7 +6,6 @@
 #include "stx/scheduler/scheduling/delay.h"
 #include "stx/scheduler/scheduling/schedule.h"
 
-
 // TODO(lamarrr): implement or totally remove logging
 #define STX_LOG(...)
 
