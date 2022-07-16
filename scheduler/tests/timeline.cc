@@ -1,8 +1,15 @@
-// #include "stx/dynamic.h"
+
+#include "stx/scheduler/timeline.h"
+
 #include <iostream>
 
+#include "gtest/gtest.h"
 #include "stx/scheduler.h"
+#include "stx/scheduler/scheduling/await.h"
 #include "stx/scheduler/scheduling/deferred.h"
+#include "stx/scheduler/scheduling/delay.h"
+#include "stx/scheduler/scheduling/schedule.h"
+
 using namespace std::chrono_literals;
 
 #define STX_LOG(str) std::cout << str << std::endl;
@@ -104,9 +111,6 @@ promise2.notify_completed();
   }
   */
 
-#include "gtest/gtest.h"
-#include "stx/scheduler/timeline.h"
-
 struct alignas(64) fuck {
   int y;
 };
@@ -177,10 +181,6 @@ TEST(ScheduleTimelineTest, Tick) {
 
   EXPECT_FALSE(h.starts_with("Hello world"));
 }
-
-#include "stx/scheduler/scheduling/await.h"
-#include "stx/scheduler/scheduling/delay.h"
-#include "stx/scheduler/scheduling/schedule.h"
 
 void brr() {}
 int rx() { return 0; }
@@ -317,20 +317,20 @@ TEST(Timeline, Sample) {
   timeline.tick(stx::Span{slot.data(), slot.size()},
                 std::chrono::steady_clock::now());
 
-  EXPECT_FALSE(slot[0].handle->slot.query().can_push);
-  EXPECT_FALSE(slot[1].handle->slot.query().can_push);
-  EXPECT_FALSE(slot[2].handle->slot.query().can_push);
-  EXPECT_FALSE(slot[3].handle->slot.query().can_push);
+  EXPECT_TRUE(slot[0].handle->slot.query().can_push);
+  EXPECT_TRUE(slot[1].handle->slot.query().can_push);
+  EXPECT_TRUE(slot[2].handle->slot.query().can_push);
+  EXPECT_TRUE(slot[3].handle->slot.query().can_push);
 
   EXPECT_FALSE(slot[0].handle->slot.query().executing_task.is_some());
   EXPECT_FALSE(slot[1].handle->slot.query().executing_task.is_some());
   EXPECT_FALSE(slot[2].handle->slot.query().executing_task.is_some());
   EXPECT_FALSE(slot[3].handle->slot.query().executing_task.is_some());
 
-  EXPECT_TRUE(slot[0].handle->slot.query().pending_task.is_some());
-  EXPECT_TRUE(slot[1].handle->slot.query().pending_task.is_some());
-  EXPECT_TRUE(slot[2].handle->slot.query().pending_task.is_some());
-  EXPECT_TRUE(slot[3].handle->slot.query().pending_task.is_some());
+  EXPECT_FALSE(slot[0].handle->slot.query().pending_task.is_some());
+  EXPECT_FALSE(slot[1].handle->slot.query().pending_task.is_some());
+  EXPECT_FALSE(slot[2].handle->slot.query().pending_task.is_some());
+  EXPECT_FALSE(slot[3].handle->slot.query().pending_task.is_some());
 
   EXPECT_TRUE(std::is_sorted(
       timeline.starvation_timeline.iterator____begin(),
