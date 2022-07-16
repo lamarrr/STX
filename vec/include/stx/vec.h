@@ -199,7 +199,7 @@ Result<Vec<T>, AllocError> make(Allocator allocator, size_t capacity = 0) {
 
 template <typename T>
 Result<FixedVec<T>, AllocError> make_fixed(Allocator allocator,
-                                            size_t capacity = 0) {
+                                           size_t capacity = 0) {
   TRY_OK(memory, mem::allocate(allocator, capacity * sizeof(T)));
 
   return Ok(FixedVec<T>{std::move(memory), 0, capacity});
@@ -302,8 +302,7 @@ template <typename T>
 Result<Vec<T>, AllocError> push(Vec<T>&& vec, T& value) = delete;
 
 template <typename T, typename... Args>
-Result<FixedVec<T>, VecError> push_inplace(FixedVec<T>&& vec,
-                                             Args&&... args) {
+Result<FixedVec<T>, VecError> push_inplace(FixedVec<T>&& vec, Args&&... args) {
   static_assert(std::is_constructible_v<T, Args&&...>);
   size_t const target_size = vec.size_ + 1;
 
@@ -347,7 +346,7 @@ Result<FixedVec<T>, VecError> push(FixedVec<T>&& vec, T& value) = delete;
 
 template <typename T>
 Result<Vec<T>, AllocError> resize(Vec<T>&& vec, size_t target_size,
-                                   T const& to_copy = {}) {
+                                  T const& to_copy = {}) {
   size_t const previous_size = vec.size();
 
   if (target_size > previous_size) {
@@ -380,7 +379,7 @@ Result<Vec<T>, AllocError> resize(Vec<T>&& vec, size_t target_size,
 // smaller size or zero?
 template <typename T>
 Result<Void, VecError> resize(FixedVec<T>&& vec, size_t target_size,
-                               T const& to_copy = {}) {
+                              T const& to_copy = {}) {
   size_t const previous_size = vec.size();
 
   if (target_size > previous_size) {
