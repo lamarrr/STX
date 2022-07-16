@@ -13,19 +13,6 @@
 
 namespace stx {
 
-template <typename Index, typename T>
-struct [[nodiscard]] Enumerated {
-  template <typename... Args>
-  explicit Enumerated(Index iindex, Args && ... args)
-      : index{iindex}, value{std::forward<Args>(args)...} {}
-
-  Index index = 0;
-  T value;
-};
-
-template <typename I, typename T>
-Enumerated(I, T)->Enumerated<I, T>;
-
 enum class [[nodiscard]] YieldAllocError : uint8_t{MemoryFull};
 enum class [[nodiscard]] StreamError : uint8_t{Pending, Closed};
 
