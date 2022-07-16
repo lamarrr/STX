@@ -1,1 +1,0 @@
-add_project_library(stx_ext backtrace)
