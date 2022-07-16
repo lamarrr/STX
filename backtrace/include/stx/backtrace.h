@@ -12,6 +12,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string_view>
 
 #include "stx/fn.h"
 #include "stx/option.h"
@@ -37,16 +38,15 @@ enum class SignalError {
   SigErr
 };
 
-inline SpanReport operator>>(ReportQuery, SignalError const& err) {
+inline std::string_view operator>>(ReportQuery, SignalError const& err) {
   switch (err) {
     case SignalError::Unknown:
-      return SpanReport(
-          "Uknown signal given, 'handle_signal' can only handle 'SIGSEGV', "
-          "'SIGILL' and 'SIGFPE'.");
+      return "Uknown signal given, 'handle_signal' can only handle 'SIGSEGV', "
+             "'SIGILL' and 'SIGFPE'.";
     case SignalError::SigErr:
-      return SpanReport("'std::signal' returned 'SIGERR'");
+      return "'std::signal' returned 'SIGERR'";
     default:
-      return SpanReport();
+      return "";
   }
 }
 
