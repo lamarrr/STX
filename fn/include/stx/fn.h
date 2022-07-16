@@ -186,7 +186,7 @@ auto make_functor(Functor& functor) {
   using fn = typename traits::fn;
   using dispatcher = typename traits::dispatcher;
 
-  return fn{&dispatcher::dispatch, &functor};
+  return fn{&dispatcher::dispatch, reinterpret_cast<void*>(&functor)};
 }
 
 // make a function view from a raw function pointer.
@@ -197,7 +197,7 @@ auto make_static(RawFunctionType* function_pointer) {
   using fn = typename traits::fn;
   using dispatcher = typename traits::dispatcher;
 
-  return fn{&dispatcher::dispatch, function_pointer};
+  return fn{&dispatcher::dispatch, reinterpret_cast<void*>(function_pointer)};
 }
 
 // make a function view from a data-less functor (i.e. lambda's without data)
