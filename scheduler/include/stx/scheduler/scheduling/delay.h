@@ -1,9 +1,10 @@
 #include <chrono>
 #include <utility>
 
+#include "stx/config.h"
 #include "stx/scheduler.h"
 
-namespace stx {
+STX_BEGIN_NAMESPACE
 
 using namespace std::chrono_literals;
 using std::chrono::nanoseconds;
@@ -46,9 +47,9 @@ auto delay(TaskScheduler &scheduler, Fn fn_task, TaskPriority priority,
 
   scheduler.entries =
       stx::vec::push(std::move(scheduler.entries),
-                      Task{std::move(sched_fn), std::move(readiness_fn),
-                           timepoint, std::move(scheduler_promise), task_id,
-                           priority, std::move(trace_info)})
+                     Task{std::move(sched_fn), std::move(readiness_fn),
+                          timepoint, std::move(scheduler_promise), task_id,
+                          priority, std::move(trace_info)})
           .unwrap();
 
   return future;
@@ -56,4 +57,4 @@ auto delay(TaskScheduler &scheduler, Fn fn_task, TaskPriority priority,
 
 }  // namespace sched
 
-}  // namespace stx
+STX_END_NAMESPACE

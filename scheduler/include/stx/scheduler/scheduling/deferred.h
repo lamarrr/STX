@@ -3,9 +3,11 @@
 #include <tuple>
 #include <utility>
 
+#include "stx/config.h"
 #include "stx/scheduler.h"
 
-namespace stx {
+STX_BEGIN_NAMESPACE
+
 namespace sched {
 
 // prepare a deferred task. Deferred tasks run on the  main thread and are
@@ -68,4 +70,5 @@ auto deferred(stx::TaskScheduler &scheduler, Fn schedule_task,
 }
 
 }  // namespace sched
-}  // namespace stx
+
+STX_END_NAMESPACE

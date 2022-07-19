@@ -2,7 +2,9 @@
 
 #include <utility>
 
-namespace stx {
+#include "stx/config.h"
+
+STX_BEGIN_NAMESPACE
 
 /// A handle/abstract interface to a polymorphic resource manager.
 ///
@@ -149,4 +151,4 @@ inline constexpr const Manager noop_manager{
 inline constexpr const Manager manager_stub{
     const_cast<ManagerStub&>(manager_stub_handle)};
 
-}  // namespace stx
+STX_END_NAMESPACE

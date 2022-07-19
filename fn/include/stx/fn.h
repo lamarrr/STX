@@ -4,9 +4,10 @@
 #include <type_traits>
 #include <utility>
 
+#include "stx/config.h"
 #include "stx/mem.h"
 
-namespace stx {
+STX_BEGIN_NAMESPACE
 
 template <typename Signature>
 struct Fn {};
@@ -262,7 +263,8 @@ auto make_static(StaticFunctor functor) {
 
 }  // namespace rc
 }  // namespace fn
-}  // namespace stx
+
+STX_END_NAMESPACE
 
 // (1) fn::make(Functor<R(A...)>) -> Fn<R(A...)>; functors
 //

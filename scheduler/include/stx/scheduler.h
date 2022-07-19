@@ -10,6 +10,7 @@
 #include <variant>
 
 #include "stx/async.h"
+#include "stx/config.h"
 #include "stx/fn.h"
 #include "stx/mem.h"
 #include "stx/option.h"
@@ -23,7 +24,7 @@
 #include "stx/vec.h"
 #include "stx/void.h"
 
-namespace stx {
+STX_BEGIN_NAMESPACE
 
 using namespace std::chrono_literals;
 using std::chrono::nanoseconds;
@@ -269,4 +270,5 @@ struct StreamPipeline {
   stx::Vec<stx::RcFn<void()>> jobs;
 };
 */
-}  // namespace stx
+
+STX_END_NAMESPACE

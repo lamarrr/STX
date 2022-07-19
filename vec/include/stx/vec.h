@@ -4,6 +4,7 @@
 #include <utility>
 
 #include "stx/allocator.h"
+#include "stx/config.h"
 #include "stx/result.h"
 #include "stx/span.h"
 #include "stx/struct.h"
@@ -23,7 +24,7 @@
 // TODO
 #define STX_ENSURE(condition, error_message)
 
-namespace stx {
+STX_BEGIN_NAMESPACE
 
 // TODO(lamarrr): we should find another name other than Vec
 //
@@ -465,7 +466,8 @@ Vec<T> erase(FixedVec<T>&& vec, Span<T> range) {
 }
 
 }  // namespace vec
-}  // namespace stx
+
+STX_END_NAMESPACE
 
 // TODO(lamarrr): this should be handled by span.
 // all element accessing content should be handled by span

@@ -6,10 +6,11 @@
 #include <variant>
 
 #include "stx/async.h"
+#include "stx/config.h"
 #include "stx/fn.h"
 #include "stx/void.h"
 
-namespace stx {
+STX_BEGIN_NAMESPACE
 
 template <typename T, typename... Ts>
 struct filter_duplicates {
@@ -102,7 +103,7 @@ struct ChainPhase {
   using last_phase_result_type =
       typename next_phase_type::last_phase_result_type;
 
-  explicit constexpr ChainPhase(Fn &&ifn, OtherFns &&... iothers)
+  explicit constexpr ChainPhase(Fn &&ifn, OtherFns &&...iothers)
       : fn{std::move(ifn)}, next_phase{std::move(iothers)...} {}
 
   template <typename Variant>
@@ -177,7 +178,7 @@ struct Chain : check_chain_valid<Void, Fn, OtherFns...> {
   using stack_type = chain_stack_variant<stx::Void, Fn, OtherFns...>;
   using last_phase_result_type = typename phases_type::last_phase_result_type;
 
-  explicit constexpr Chain(Fn &&fn, OtherFns &&... others)
+  explicit constexpr Chain(Fn &&fn, OtherFns &&...others)
       : phases{std::move(fn), std::move(others)...} {}
 
   Chain(Chain const &) = delete;
@@ -193,4 +194,4 @@ struct Chain : check_chain_valid<Void, Fn, OtherFns...> {
   phases_type phases;
 };
 
-}  // namespace stx
+STX_END_NAMESPACE

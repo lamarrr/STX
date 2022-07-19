@@ -5,11 +5,12 @@
 #include <cstdlib>
 #include <utility>
 
+#include "stx/config.h"
 #include "stx/enum.h"
 #include "stx/result.h"
 #include "stx/void.h"
 
-namespace stx {
+STX_BEGIN_NAMESPACE
 
 // any memory handle (contextual, i.e. read-only or writable)
 using memory_handle = void *;
@@ -289,4 +290,5 @@ inline Result<Void, AllocError> reallocate(Memory &memory, size_t new_size) {
 }
 
 }  // namespace mem
-}  // namespace stx
+
+STX_END_NAMESPACE

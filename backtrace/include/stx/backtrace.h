@@ -14,6 +14,7 @@
 #include <cstdint>
 #include <string_view>
 
+#include "stx/config.h"
 #include "stx/fn.h"
 #include "stx/option.h"
 #include "stx/panic/report.h"

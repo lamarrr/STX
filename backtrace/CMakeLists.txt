@@ -6,4 +6,5 @@ target_link_libraries(
   stx::option_result
   stx::panic
   stx::span
-  stx::fn)
+  stx::fn
+  stx::config)

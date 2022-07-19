@@ -1,8 +1,9 @@
 #pragma once
 
+#include "stx/config.h"
 #include "stx/limits.h"
 
-namespace stx {
+STX_BEGIN_NAMESPACE
 
 /// Some tasks can take an unreasonably long time to complete. and we can't wait
 /// for them to complete, we therefore need these priorities along with a
@@ -34,4 +35,4 @@ constexpr TaskPriority INTERACTIVE_PRIORITY{1};
 //
 constexpr TaskPriority CRITICAL_PRIORITY{stx::u8_max};
 
-}  // namespace stx
+STX_END_NAMESPACE

@@ -8,4 +8,5 @@ target_link_libraries(
   stx::task
   stx::vec
   "stx::string"
-  stx::void)
+  stx::void
+  stx::config)

@@ -3,13 +3,15 @@
 #include <utility>
 
 #include "stx/async.h"
+#include "stx/config.h"
 #include "stx/fn.h"
 #include "stx/option.h"
 #include "stx/spinlock.h"
 #include "stx/task/id.h"
 
 #define STX_STUB_ENSURE(...)
-namespace stx {
+
+STX_BEGIN_NAMESPACE
 
 struct ThreadSlot {
   STX_MAKE_PINNED(ThreadSlot)
@@ -85,4 +87,4 @@ struct ThreadSlot {
   STX_CACHELINE_ALIGNED ____ThreadSlot slot;
 };
 
-}  // namespace stx
+STX_END_NAMESPACE

@@ -3,9 +3,11 @@
 #include <type_traits>
 #include <utility>
 
+#include "stx/config.h"
 #include "stx/manager.h"
 
-namespace stx {
+STX_BEGIN_NAMESPACE
+
 /// Handles refer to a representation of a resource that needs to be managed.
 /// this resource can be memory, C-API resource, etc.
 ///
@@ -166,4 +168,4 @@ constexpr Unique<Target> cast(Unique<Source>&& source) {
   return transmute(std::move(target), std::move(source));
 }
 
-}  // namespace stx
+STX_END_NAMESPACE

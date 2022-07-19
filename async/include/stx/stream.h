@@ -11,7 +11,7 @@
 #include "stx/rc.h"
 #include "stx/spinlock.h"
 
-namespace stx {
+STX_BEGIN_NAMESPACE
 
 enum class [[nodiscard]] YieldAllocError : uint8_t{MemoryFull};
 enum class [[nodiscard]] StreamError : uint8_t{Pending, Closed};
@@ -228,7 +228,7 @@ struct [[nodiscard]] StreamState {
   void generator____yield(StreamChunk<T> *chunk_handle, bool should_close) {
     bool was_added = false;
 
-    WITH_LOCK(lock, {
+    STX_WITH_LOCK(lock, {
       if (closed) {
         was_added = false;
         break;
@@ -261,7 +261,7 @@ struct [[nodiscard]] StreamState {
   }
 
   void generator____close() {
-    WITH_LOCK(lock, {
+    STX_WITH_LOCK(lock, {
       //
       closed = true;
     });
@@ -269,7 +269,7 @@ struct [[nodiscard]] StreamState {
 
   // NOTE that it might still have items in the stream
   bool stream____is_closed() {
-    WITH_LOCK(lock, {
+    STX_WITH_LOCK(lock, {
       //
       return closed;
     });
@@ -282,7 +282,7 @@ struct [[nodiscard]] StreamState {
   Result<T, StreamError> stream____pop() {
     StreamChunk<T> *chunk = nullptr;
 
-    WITH_LOCK(lock, {
+    STX_WITH_LOCK(lock, {
       if (pop_it == nullptr) break;
 
       chunk = pop_it;
@@ -391,7 +391,7 @@ struct [[nodiscard]] SmpRingBuffer {
   Result<T *, RingBufferError> manager____push_inplace(Args &&...args) {
     uint64_t selected = u64_max;
 
-    WITH_LOCK(lock, {
+    STX_WITH_LOCK(lock, {
       if (num_available == 0) break;
 
       selected = available_start;
@@ -415,7 +415,7 @@ struct [[nodiscard]] SmpRingBuffer {
   void manager____pop() {
     uint64_t to_destroy = 0;
 
-    WITH_LOCK(lock, {
+    STX_WITH_LOCK(lock, {
       // get the next object that needs destruction and memory release
       to_destroy = next_destruct_index;
 
@@ -438,7 +438,7 @@ struct [[nodiscard]] SmpRingBuffer {
     //
     memory[to_destroy]->~T();
 
-    WITH_LOCK(lock, {
+    STX_WITH_LOCK(lock, {
       // only declared as re-usable memory once the object is destroyed.
       num_available = (num_available + 1) % memory.capacity;
     });
@@ -711,4 +711,4 @@ enum class StreamTag : uint8_t {
 //
 //
 
-}  // namespace stx
+STX_END_NAMESPACE

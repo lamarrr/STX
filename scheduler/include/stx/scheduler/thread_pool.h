@@ -6,6 +6,7 @@
 #include <utility>
 
 #include "stx/async.h"
+#include "stx/config.h"
 #include "stx/fn.h"
 #include "stx/mem.h"
 #include "stx/option.h"
@@ -13,7 +14,8 @@
 #include "stx/spinlock.h"
 #include "stx/vec.h"
 
-namespace stx {
+STX_BEGIN_NAMESPACE
+
 using std::chrono::milliseconds;
 using std::chrono::nanoseconds;
 
@@ -182,4 +184,4 @@ struct ThreadPool {
   State state = State::Running;
 };
 
-}  // namespace stx
+STX_END_NAMESPACE

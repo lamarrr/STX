@@ -3,9 +3,10 @@
 
 #include <utility>
 
+#include "stx/config.h"
 #include "stx/scheduler.h"
 
-namespace stx {
+STX_BEGIN_NAMESPACE
 
 using stx::Promise;
 using stx::RequestProxy;
@@ -108,4 +109,5 @@ auto chain(TaskScheduler &scheduler, Chain<Fn, OtherFns...> chain,
 }
 
 }  // namespace sched
-}  // namespace stx
+
+STX_END_NAMESPACE

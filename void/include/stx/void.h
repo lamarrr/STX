@@ -1,9 +1,11 @@
 #pragma once
 
-namespace stx {
+#include "stx/config.h"
+
+STX_BEGIN_NAMESPACE
 
 struct Void {};
 
 constexpr Void void_tag{};
 
-}  // namespace stx
+STX_END_NAMESPACE

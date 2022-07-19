@@ -3,9 +3,10 @@
 #include <tuple>
 #include <utility>
 
+#include "stx/config.h"
 #include "stx/scheduler.h"
 
-namespace stx {
+STX_BEGIN_NAMESPACE
 
 namespace sched {
 template <typename Fn, typename FirstInput, typename... OtherInputs>
@@ -61,9 +62,9 @@ auto await(stx::TaskScheduler &scheduler, Fn task, TaskPriority priority,
 
   scheduler.entries =
       stx::vec::push(std::move(scheduler.entries),
-                      Task{std::move(fn), std::move(readiness_fn), timepoint,
-                           std::move(task_promise), task_id, priority,
-                           std::move(trace_info)})
+                     Task{std::move(fn), std::move(readiness_fn), timepoint,
+                          std::move(task_promise), task_id, priority,
+                          std::move(trace_info)})
           .unwrap();
 
   return future;
@@ -121,13 +122,14 @@ auto await_any(stx::TaskScheduler &scheduler, Fn task, TaskPriority priority,
 
   scheduler.entries =
       stx::vec::push(std::move(scheduler.entries),
-                      Task{std::move(fn), std::move(readiness_fn), timepoint,
-                           std::move(task_promise), task_id, priority,
-                           std::move(trace_info)})
+                     Task{std::move(fn), std::move(readiness_fn), timepoint,
+                          std::move(task_promise), task_id, priority,
+                          std::move(trace_info)})
           .unwrap();
 
   return future;
 }
 
 }  // namespace sched
-}  // namespace stx
+
+STX_END_NAMESPACE

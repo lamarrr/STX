@@ -4,6 +4,7 @@
 #include <cinttypes>
 #include <utility>
 
+#include "stx/config.h"
 #include "stx/lock_status.h"
 #include "stx/struct.h"
 
@@ -17,12 +18,11 @@
 // short-lived. you either be able to say specifically what amount of time it
 // takes or not.
 //
-#define CRITICAL_SECTION(...) \
-  do                          \
-    __VA_ARGS__               \
+#define STX_CRITICAL_SECTION(...) \
+  do __VA_ARGS__                  \
   while (false)
 
-namespace stx {
+STX_BEGIN_NAMESPACE
 
 // a rarely-contended lock.
 //
@@ -70,11 +70,11 @@ struct LockGuard {
   Resource* resource;
 };
 
-}  // namespace stx
+STX_END_NAMESPACE
 
-#define WITH_LOCK(lock, ...) \
-  CRITICAL_SECTION({         \
-    LockGuard guard{lock};   \
-                             \
-    __VA_ARGS__              \
+#define STX_WITH_LOCK(lock, ...) \
+  STX_CRITICAL_SECTION({         \
+    stx::LockGuard guard{lock};  \
+                                 \
+    __VA_ARGS__                  \
   })

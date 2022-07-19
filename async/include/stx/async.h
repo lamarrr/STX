@@ -7,6 +7,7 @@
 #include <string_view>
 #include <utility>
 
+#include "stx/config.h"
 #include "stx/enum.h"
 #include "stx/limits.h"
 #include "stx/mem.h"
@@ -18,7 +19,7 @@
 // exception-safety: absolute zero
 // we don't use exceptions and neither do we plan to support it
 
-namespace stx {
+STX_BEGIN_NAMESPACE
 
 // interactions are ordered in such a way that the executor will not get in the
 // way of the user and the user will not get in the way of the executor. this is
@@ -40,7 +41,7 @@ constexpr size_t HARDWARE_DESTRUCTIVE_INTERFERENCE_SIZE =
     2 * sizeof(std::max_align_t);
 #endif
 
-}  // namespace stx
+STX_END_NAMESPACE
 
 // each CPU core has its cache line, cache lines optimize for reading and
 // writing to main memory which is slow. while multi-threading or using async,
@@ -60,7 +61,7 @@ constexpr size_t HARDWARE_DESTRUCTIVE_INTERFERENCE_SIZE =
 #define STX_CACHELINE_ALIGNED \
   alignas(stx::HARDWARE_DESTRUCTIVE_INTERFERENCE_SIZE)
 
-namespace stx {
+STX_BEGIN_NAMESPACE
 
 /// the future's status are mutually exclusive. i.e. no two can exist at once.
 /// and some states might be skipped or never occur or observed during the async
@@ -964,4 +965,4 @@ Result<Promise<T>, AllocError> make_promise(Allocator allocator) {
   return Ok(Promise<T>{std::move(shared_state)});
 }
 
-}  // namespace stx
+STX_END_NAMESPACE

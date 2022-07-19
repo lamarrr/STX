@@ -6,12 +6,13 @@
 #include <utility>
 
 #include "stx/async.h"
+#include "stx/config.h"
 #include "stx/scheduler/thread_slot.h"
 #include "stx/task/id.h"
 #include "stx/task/priority.h"
 #include "stx/vec.h"
 
-namespace stx {
+STX_BEGIN_NAMESPACE
 
 using timepoint = std::chrono::steady_clock::time_point;
 using namespace std::chrono_literals;
@@ -276,4 +277,4 @@ struct ScheduleTimeline {
 // they need to sleep if no task is available
 //
 
-}  // namespace stx
+STX_END_NAMESPACE

@@ -1,7 +1,10 @@
 #pragma once
 #include <type_traits>
 
-namespace stx {
+#include "stx/config.h"
+
+STX_BEGIN_NAMESPACE
+
 template <typename EnumType>
 using enum_ut = std::underlying_type_t<EnumType>;
 
@@ -60,4 +63,4 @@ constexpr EnumType enum_and(EnumType a, EnumType b) {
     return a;                                                                \
   }
 
-}  // namespace stx
+STX_END_NAMESPACE

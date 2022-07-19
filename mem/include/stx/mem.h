@@ -11,7 +11,7 @@
 #include "stx/struct.h"
 #include "stx/try_ok.h"
 
-namespace stx {
+STX_BEGIN_NAMESPACE
 
 /// thread-safe
 ///
@@ -267,4 +267,5 @@ Unique<T*> make_unique_static(T& object) {
 }
 
 }  // namespace rc
-}  // namespace stx
+
+STX_END_NAMESPACE

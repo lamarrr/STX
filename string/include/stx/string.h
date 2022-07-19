@@ -7,12 +7,13 @@
 #include <utility>
 
 #include "stx/allocator.h"
+#include "stx/config.h"
 #include "stx/mem.h"
 #include "stx/option.h"
 #include "stx/rc.h"
 #include "stx/span.h"
 
-namespace stx {
+STX_BEGIN_NAMESPACE
 
 constexpr char const empty_string[] = "";
 
@@ -174,4 +175,5 @@ inline RcStringView make_static_view(StaticStringView str) {
 
 }  // namespace rc
 }  // namespace string
-}  // namespace stx
+
+STX_END_NAMESPACE

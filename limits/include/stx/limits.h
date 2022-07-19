@@ -4,7 +4,10 @@
 #include <cstdint>
 #include <limits>
 
-namespace stx {
+#include "stx/config.h"
+
+STX_BEGIN_NAMESPACE
+
 constexpr auto u8_min = std::numeric_limits<uint8_t>::min();
 constexpr auto u8_max = std::numeric_limits<uint8_t>::max();
 constexpr auto u16_min = std::numeric_limits<uint16_t>::min();
@@ -27,4 +30,5 @@ constexpr auto i64_max = std::numeric_limits<int64_t>::max();
 
 constexpr auto f32_epsilon = std::numeric_limits<float>::epsilon();
 constexpr auto f64_epsilon = std::numeric_limits<double>::epsilon();
-}  // namespace stx
+
+STX_END_NAMESPACE
