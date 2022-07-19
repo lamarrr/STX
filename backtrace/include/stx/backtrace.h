@@ -32,25 +32,6 @@ STX_BEGIN_NAMESPACE
 
 namespace backtrace {
 
-enum class SignalError {
-  /// An Unknown error occurred
-  Unknown,
-  /// `std::signal` returned `SIG_ERR`
-  SigErr
-};
-
-inline std::string_view operator>>(ReportQuery, SignalError const& err) {
-  switch (err) {
-    case SignalError::Unknown:
-      return "Uknown signal given, 'handle_signal' can only handle 'SIGSEGV', "
-             "'SIGILL' and 'SIGFPE'.";
-    case SignalError::SigErr:
-      return "'std::signal' returned 'SIGERR'";
-    default:
-      return "";
-  }
-}
-
 /// `Symbol` contains references to buffers and as such should not be copied nor
 /// moved as a reference. Its raw data content can also be copied as a
 /// `std::string`.
