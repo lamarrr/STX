@@ -110,12 +110,12 @@ struct Frame {
 ///
 /// ```cpp
 ///
-///   stx::backtrace::trace([](Frame frame, int) {
+///   stx::backtrace::trace(stx::fn::make_static([](Frame frame, int) {
 ///    std::cout << "Instruction Pointer="
 ///              << frame.ip.copy().unwrap()
 ///              << std::endl;
 ///    return false;
-///  });
+///  }));
 ///
 /// ```
 ///
