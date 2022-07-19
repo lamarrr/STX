@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.13)
 
 project(
   Stx
-  VERSION 2.0.0
+  VERSION 1.0.0
   DESCRIPTION "A set of utility extensions to the C++ Standard Library"
   HOMEPAGE_URL "https://github.com/lamarrr/STX"
   LANGUAGES CXX)
