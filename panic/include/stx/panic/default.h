@@ -43,11 +43,11 @@ inline void panic_default(std::string_view info, std::string_view error_report,
                           SourceLocation location) {
   // probably too much, but enough
   // this will at least hold a formatted uint128_t (40 digits)
-  static constexpr const int kFmtBufferSize = 64;
+  static constexpr const int FMT_BUFFER_SIZE = 64;
 
 #if !defined(STX_NO_STD_THREAD_MUTEX)
 
-  static constexpr const auto kThreadIdHasher = std::hash<std::thread::id>{};
+  static constexpr const auto THREAD_ID_HASHER = std::hash<std::thread::id>{};
 
   // TODO(lamarrr): this doesn't work since different threads own it
   static std::mutex stderr_lock;
@@ -55,12 +55,12 @@ inline void panic_default(std::string_view info, std::string_view error_report,
   // we use this buffer for all formatting operations. as it is implementation
   // defined whether fprintf uses dynamic mem alloc
   // only one thread can print at a time so this is safe
-  static char fmt_buffer[kFmtBufferSize];
+  static char fmt_buffer[FMT_BUFFER_SIZE];
 
   stderr_lock.lock();
 
   thread_local size_t const thread_id_hash =
-      kThreadIdHasher(std::this_thread::get_id());
+      THREAD_ID_HASHER(std::this_thread::get_id());
 
 #else
 
@@ -76,7 +76,7 @@ inline void panic_default(std::string_view info, std::string_view error_report,
 
   std::fputs(" with hash: '", stderr);
 
-  STX_PANIC_EPRINTF_WITH(fmt_buffer, kFmtBufferSize, "%zu", thread_id_hash);
+  STX_PANIC_EPRINTF_WITH(fmt_buffer, FMT_BUFFER_SIZE, "%zu", thread_id_hash);
 
 #endif
 
@@ -107,7 +107,7 @@ inline void panic_default(std::string_view info, std::string_view error_report,
   auto line = location.line();
 
   if (line != 0) {
-    STX_PANIC_EPRINTF_WITH(fmt_buffer, kFmtBufferSize, "%" PRIuLEAST32, line);
+    STX_PANIC_EPRINTF_WITH(fmt_buffer, FMT_BUFFER_SIZE, "%" PRIuLEAST32, line);
   } else {
     std::fputs("unknown", stderr);
   }
@@ -117,7 +117,8 @@ inline void panic_default(std::string_view info, std::string_view error_report,
   auto column = location.column();
 
   if (column != 0) {
-    STX_PANIC_EPRINTF_WITH(fmt_buffer, kFmtBufferSize, "%" PRIuLEAST32, column);
+    STX_PANIC_EPRINTF_WITH(fmt_buffer, FMT_BUFFER_SIZE, "%" PRIuLEAST32,
+                           column);
   } else {
     std::fputs("unknown", stderr);
   }
@@ -125,6 +126,9 @@ inline void panic_default(std::string_view info, std::string_view error_report,
   std::fputs("]\n", stderr);
 
   std::fflush(stderr);
+
+  // TODO(lamarrr): this presently raises a compile error as this code section
+  // hasn't been updated yet
 
 #if defined(STX_ENABLE_PANIC_BACKTRACE)
 
