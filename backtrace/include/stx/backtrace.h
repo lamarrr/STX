@@ -81,10 +81,9 @@ struct Frame {
 /// callback, nor bind a reference to them.
 ///
 ///
-/// # Panic and Exception Tolerance
+/// # Panicking
 ///
-/// The function is non-panicking as long as the callback doesn't panic. The
-/// callback can throw an exception.
+/// The function is non-panicking as long as the callback doesn't panic.
 ///
 ///
 ///
