@@ -17,7 +17,6 @@
 #include "stx/config.h"
 #include "stx/fn.h"
 #include "stx/option.h"
-#include "stx/panic/report.h"
 #include "stx/span.h"
 
 //! @file
@@ -51,6 +50,8 @@ struct Symbol {
 };
 
 /// reperesents an active stack frame.
+// all members are optional meaning the information they represent might not be
+// available
 struct Frame {
   /// instruction pointer
   Option<uintptr_t> ip;
