@@ -15,7 +15,7 @@
 
 STX_BEGIN_NAMESPACE
 
-constexpr char const empty_string[] = "";
+constexpr char const EMPTY_STRING[] = "";
 
 #define STX_ENSURE(condition, error_message)
 
@@ -51,7 +51,7 @@ using RcStringView = Rc<StringView>;
 //
 //
 struct String {
-  String() : memory_{static_storage_allocator, empty_string}, size_{0} {}
+  String() : memory_{static_storage_allocator, EMPTY_STRING}, size_{0} {}
 
   String(ReadOnlyMemory memory, size_t size)
       : memory_{std::move(memory)}, size_{size} {}
@@ -62,7 +62,7 @@ struct String {
   String(String&& other)
       : memory_{std::move(other.memory_)}, size_{other.size_} {
     other.memory_.allocator = static_storage_allocator;
-    other.memory_.handle = empty_string;
+    other.memory_.handle = EMPTY_STRING;
     other.size_ = 0;
   }
 
