@@ -43,8 +43,7 @@ auto await(stx::TaskScheduler &scheduler, Fn task, TaskPriority priority,
 
   Promise promise = stx::make_promise<output>(scheduler.allocator).unwrap();
   Future future = promise.get_future();
-
-  PromiseAny task_promise = PromiseAny{promise.share()};
+  PromiseAny task_promise{promise.share()};
 
   RcFn<void()> fn =
       stx::fn::rc::make_functor(scheduler.allocator, [task_ = std::move(task),
@@ -103,7 +102,7 @@ auto await_any(stx::TaskScheduler &scheduler, Fn task, TaskPriority priority,
       std::move(first_input), std::move(other_inputs)...};
 
   Promise promise = stx::make_promise<output>(scheduler.allocator).unwrap();
-  Future future = promise.get_future();
+  Future future{promise.get_future()};
   PromiseAny task_promise{promise.share()};
 
   RcFn<void()> fn =

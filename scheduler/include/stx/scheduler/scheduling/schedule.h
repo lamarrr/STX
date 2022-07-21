@@ -24,8 +24,8 @@ auto fn(TaskScheduler &scheduler, Fn fn_task, TaskPriority priority,
 
   using output = std::invoke_result_t<Fn &>;
 
-  Promise promise = stx::make_promise<output>(scheduler.allocator).unwrap();
-  Future future = promise.get_future();
+  Promise promise{stx::make_promise<output>(scheduler.allocator).unwrap()};
+  Future future{promise.get_future()};
   PromiseAny scheduler_promise{promise.share()};
 
   RcFn<void()> sched_fn =
@@ -66,9 +66,7 @@ auto chain(TaskScheduler &scheduler, Chain<Fn, OtherFns...> chain,
 
   Promise promise =
       stx::make_promise<result_type>(scheduler.allocator).unwrap();
-
-  Future future = promise.get_future();
-
+  Future future{promise.get_future()};
   PromiseAny scheduler_promise{promise.share()};
 
   RcFn<void()> fn =

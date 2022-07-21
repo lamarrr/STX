@@ -22,8 +22,8 @@ auto delay(TaskScheduler &scheduler, Fn fn_task, TaskPriority priority,
 
   using output = std::invoke_result_t<Fn &>;
 
-  Promise promise = stx::make_promise<output>(scheduler.allocator).unwrap();
-  Future future = promise.get_future();
+  Promise promise{stx::make_promise<output>(scheduler.allocator).unwrap()};
+  Future future{promise.get_future()};
   PromiseAny scheduler_promise{promise.share()};
 
   RcFn<TaskReady(nanoseconds)> readiness_fn =

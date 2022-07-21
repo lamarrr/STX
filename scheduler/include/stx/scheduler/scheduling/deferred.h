@@ -24,9 +24,8 @@ auto deferred(stx::TaskScheduler &scheduler, Fn schedule_task,
 
   auto schedule_timepoint = std::chrono::steady_clock::now();
 
-  stx::Promise promise =
-      stx::make_promise<output>(scheduler.allocator).unwrap();
-  stx::Future future = promise.get_future();
+  stx::Promise promise{stx::make_promise<output>(scheduler.allocator).unwrap()};
+  stx::Future future{promise.get_future()};
 
   std::array<FutureAny, 1 + sizeof...(OtherInputs)> await{
       FutureAny{first_input.share()}, FutureAny{other_inputs.share()}...};
