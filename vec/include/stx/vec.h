@@ -323,8 +323,8 @@ Result<FixedVec<T>, VecError> push(FixedVec<T>&& vec, T&& value) {
 template <typename T>
 Result<FixedVec<T>, VecError> push(FixedVec<T>&& vec, T& value) = delete;
 
-// copy_with_allocator();
-// copy()
+template <typename T>
+Result<Vec<T>, AllocError> copy(Allocator, Vec<T> const&);
 
 // smaller size or zero?
 //
