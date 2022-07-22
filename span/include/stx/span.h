@@ -496,26 +496,6 @@ struct Span {
   Iterator ____iterator = nullptr;
   Size ____size = 0;
 
-  // static constexpr uint64_t ABI_TAG = STX_ABI_VERSION;
-  //
-  // we just need to be selective about what types we want to support across
-  // ABIs
-  //
-  // complex objects usually don't cross ABIs.
-  //
-  //
-  // Allocators and complex objects shouldn't decide the behavior of objects.
-  //
-  // enum class AbiTag
-  //
-  //
-  // template<typename Output, AbiTag tag>
-  // abi_cast( stx::Span<Output>  ) {
-  // }
-  //
-  // define own abi cast by accessing internal members. must be vetted.
-  //
-  //
 };
 
 template <typename SrcElement, size_t Length>
