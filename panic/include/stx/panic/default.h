@@ -66,7 +66,7 @@ inline void panic_default(std::string_view info, std::string_view error_report,
 
   // we can't be too sure that the user won't panic from multiple threads even
   // though they seem to be disabled
-  char fmt_buffer[kFmtBufferSize];
+  char fmt_buffer[FMT_BUFFER_SIZE];
 
 #endif
 
@@ -137,7 +137,7 @@ inline void panic_default(std::string_view info, std::string_view error_report,
       "Pointer\n\n",
       stderr);
 
-  int frames = backtrace::trace(
+  int frames = backtrace::trace(stx::fn::make_static(
       [](backtrace::Frame frame, int i) {
         auto const print_none = []() { std::fputs("unknown", stderr); };
 
@@ -168,7 +168,7 @@ inline void panic_default(std::string_view info, std::string_view error_report,
 
         return false;
       },
-      1);
+      1));
 
   if (frames <= 0) {
     std::fputs(
