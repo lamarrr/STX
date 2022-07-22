@@ -213,7 +213,7 @@ struct ScheduleTimeline {
 
     poll_tasks(present_timepoint);
 
-    if (starvation_timeline.empty()) return;
+    if (starvation_timeline.is_empty()) return;
 
     size_t const num_selected = select_tasks_for_slots(num_slots);
 
