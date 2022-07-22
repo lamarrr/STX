@@ -174,6 +174,12 @@ inline RcStringView make_static_view(StaticStringView str) {
 }
 
 }  // namespace rc
+
+// TODO(lamarr): string utils:
+//        join(allocator, del, ...);
+//        split(allocator, del, ...);
+//
+
 }  // namespace string
 
 STX_END_NAMESPACE
