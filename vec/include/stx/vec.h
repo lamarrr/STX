@@ -11,6 +11,7 @@
 #include "stx/try_ok.h"
 #include "stx/void.h"
 
+// TODO(lamarrr): these definitions should go into another file
 #define STX_DISABLE_BOUNDS_CHECK 0
 
 #if STX_DISABLE_BOUNDS_CHECK
