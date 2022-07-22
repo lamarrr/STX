@@ -119,7 +119,7 @@ struct VecBase {
 
   size_t capacity() const { return capacity_; }
 
-  bool empty() const { return size_ == 0; }
+  bool is_empty() const { return size_ == 0; }
 
   T* iterator____data() const { return static_cast<T*>(memory_.handle); }
 

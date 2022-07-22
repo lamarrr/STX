@@ -82,7 +82,7 @@ struct String {
   char const* iterator____begin() const { return iterator____data(); }
   char const* iterator____end() const { return iterator____begin() + size(); }
 
-  bool empty() const { return size_ == 0; }
+  bool is_empty() const { return size_ == 0; }
 
   char operator[](size_t index) const {
     STX_ENSURE(index < size_, "Index Out of Bounds");
