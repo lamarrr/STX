@@ -78,9 +78,7 @@ struct VecBase {
   static constexpr size_t alignment = alignof(T);
   static constexpr size_t element_size = sizeof(T);
 
-  // TODO(lamarrr): this should also accept size
-  // we also need one that will be an empty vec
-  explicit VecBase(Memory memory, size_t size, size_t capacity)
+  VecBase(Memory memory, size_t size, size_t capacity)
       : memory_{std::move(memory)}, size_{size}, capacity_{capacity} {}
 
   VecBase()
