@@ -22,21 +22,19 @@ auto delay(TaskScheduler &scheduler, Fn fn_task, TaskPriority priority,
 
   using output = std::invoke_result_t<Fn &>;
 
-  Promise promise{stx::make_promise<output>(scheduler.allocator).unwrap()};
+  Promise promise{make_promise<output>(scheduler.allocator).unwrap()};
   Future future{promise.get_future()};
   PromiseAny scheduler_promise{promise.share()};
 
   RcFn<TaskReady(nanoseconds)> readiness_fn =
-      stx::fn::rc::make_functor(scheduler.allocator, [delay](nanoseconds
-                                                                 time_past) {
+      fn::rc::make_functor(scheduler.allocator, [delay](nanoseconds time_past) {
         return time_past >= delay ? TaskReady::Yes : TaskReady::No;
       }).unwrap();
 
   RcFn<void()> sched_fn =
-      stx::fn::rc::make_functor(scheduler.allocator, [fn_task_ =
-                                                          std::move(fn_task),
-                                                      promise_ = std::move(
-                                                          promise)]() {
+      fn::rc::make_functor(scheduler.allocator, [fn_task_ = std::move(fn_task),
+                                                 promise_ =
+                                                     std::move(promise)]() {
         if constexpr (std::is_void_v<std::invoke_result_t<Fn &>>) {
           fn_task_();
           promise_.notify_completed();
@@ -46,10 +44,10 @@ auto delay(TaskScheduler &scheduler, Fn fn_task, TaskPriority priority,
       }).unwrap();
 
   scheduler.entries =
-      stx::vec::push(std::move(scheduler.entries),
-                     Task{std::move(sched_fn), std::move(readiness_fn),
-                          timepoint, std::move(scheduler_promise), task_id,
-                          priority, std::move(trace_info)})
+      vec::push(std::move(scheduler.entries),
+                Task{std::move(sched_fn), std::move(readiness_fn), timepoint,
+                     std::move(scheduler_promise), task_id, priority,
+                     std::move(trace_info)})
           .unwrap();
 
   return future;
