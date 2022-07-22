@@ -29,15 +29,17 @@ constexpr uint32_t MAX_STACK_FRAME_DEPTH = 128;
 constexpr uint32_t SYMBOL_BUFFER_SIZE = 1024;
 
 std::string_view backtrace::Symbol::raw() const {
-  return std::string_view(symbol_.data(), symbol_.size());
+  return std::string_view{symbol_.data(), symbol_.size()};
 }
 
 int backtrace::trace(stx::Fn<bool(Frame, int)> callback, int skip_count) {
   // TODO(lamarrr): get stack pointer in a portable and well-defined way
 
   void* ips[MAX_STACK_FRAME_DEPTH];
-  //  uintptr_t sps[MAX_STACK_FRAME_DEPTH];
+  uintptr_t sps[MAX_STACK_FRAME_DEPTH];
   int sizes[MAX_STACK_FRAME_DEPTH];
+
+  (void)sps;
 
   int depth =
       absl::GetStackFrames(ips, sizes, MAX_STACK_FRAME_DEPTH, skip_count);
