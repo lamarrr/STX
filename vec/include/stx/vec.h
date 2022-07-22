@@ -161,11 +161,11 @@ struct Vec : public VecBase<T> {
   Vec() : base{} {}
 
   explicit Vec(Allocator allocator) : base{allocator} {}
+  // TODO(lamarrr): test move, test move-assign
 
   STX_DEFAULT_MOVE(Vec)
   STX_DISABLE_COPY(Vec)
-
-  // test move, test move-assign
+  STX_DEFAULT_DESTRUCTOR(Vec)
 };
 
 // a fixed capacity vec
@@ -182,12 +182,10 @@ struct FixedVec : public VecBase<T> {
 
   STX_DEFAULT_MOVE(FixedVec)
   STX_DISABLE_COPY(FixedVec)
+  STX_DEFAULT_DESTRUCTOR(FixedVec)
 };
 
 namespace vec {
-
-// capacity = 0
-// make()
 
 template <typename T>
 Result<Vec<T>, AllocError> make(Allocator allocator, size_t capacity = 0) {
