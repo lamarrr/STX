@@ -8,10 +8,6 @@
 
 STX_BEGIN_NAMESPACE
 
-using stx::Promise;
-using stx::RequestProxy;
-using stx::ServiceToken;
-
 namespace sched {
 
 template <typename Fn>
