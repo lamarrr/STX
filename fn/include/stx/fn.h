@@ -20,10 +20,6 @@ struct Fn {};
 //
 // func must never be initialized with a nullptr or invalid handle.
 //
-// invoking copies of this function handle across threads could be dangerous
-// if done across threads if the function type mutates its' internal state upon
-// call as in the case of a mutable lambda with captures and classes/structs
-// with members.
 //
 // Fn is to function pointers and functors as std::span is to std::vector and
 // std::array (a view).
