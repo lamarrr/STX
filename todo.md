@@ -24,6 +24,36 @@ stx_option_shared_v3
 - memory typing annotations and requirements
 - [[required_pointer_attributes(type = writable, lifetime = static, can_alias = false)]] void *
 
+
+
+
+- re-add panic backtracing
+
+
+  // static constexpr uint64_t ABI_TAG = STX_ABI_VERSION;
+  //
+  // we just need to be selective about what types we want to support across
+  // ABIs
+  //
+  // complex objects usually don't cross ABIs.
+  //
+  //
+  // Allocators and complex objects shouldn't decide the behavior of objects.
+  //
+  // enum class AbiTag
+  //
+  //
+  // template<typename Output, AbiTag tag>
+  // abi_cast( stx::Span<Output>  ) {
+  // }
+  //
+  // define own abi cast by accessing internal members. must be vetted.
+  //
+  //
+  
+
+
+
 #
 #
 #

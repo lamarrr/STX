@@ -240,3 +240,9 @@ float result = safe_divide(n, d).value(); // this won't compile as 'value' alway
 ## License
 
 [**MIT License**](LICENSE)
+
+
+
+## FAQ
+
+Is STX's ABI stable?
