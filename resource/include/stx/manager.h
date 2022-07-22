@@ -59,7 +59,6 @@ struct NoopManagerHandle final : public ManagerHandle {
 /// thread-safe
 ///
 struct ManagerStub final : public ManagerHandle {
-  // ManagerStub() : ManagerHandle{true} {}
   virtual void ref() override {}
   virtual void unref() override {}
 };
