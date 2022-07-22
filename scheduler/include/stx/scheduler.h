@@ -32,9 +32,9 @@ using timepoint = std::chrono::steady_clock::time_point;
 
 struct TaskTraceInfo {
   Rc<StringView> content =
-      stx::string::rc::make_static_view("[Unspecified Context]");
+      string::rc::make_static_view("[Unspecified Context]");
   Rc<StringView> purpose =
-      stx::string::rc::make_static_view("[Unspecified Purpose]");
+      string::rc::make_static_view("[Unspecified Purpose]");
 };
 
 enum class TaskReady : uint8_t { No, Yes };
@@ -48,7 +48,7 @@ struct Task {
   // this is the final task to be executed on the target thread.
   // must only be invoked by one thread at a point in time.
   //
-  RcFn<void()> function = stx::fn::rc::make_static([]() {});
+  RcFn<void()> function = fn::rc::make_static([]() {});
 
   // used to ask if the task is ready for execution.
   // called on scheduler thread.
@@ -57,19 +57,18 @@ struct Task {
   //
   // this is used for awaiting of futures or events.
   //
-  RcFn<TaskReady(nanoseconds)> poll_ready =
-      stx::fn::rc::make_static(task_is_ready);
+  RcFn<TaskReady(nanoseconds)> poll_ready = fn::rc::make_static(task_is_ready);
 
   // time since task was scheduled
   std::chrono::steady_clock::time_point schedule_timepoint{};
 
-  stx::PromiseAny scheduler_promise;
+  PromiseAny scheduler_promise;
 
   // the task's identifier
-  stx::TaskId task_id{0};
+  TaskId task_id{0};
 
   // Priority to use in evaluating CPU-time worthiness
-  TaskPriority priority = stx::NORMAL_PRIORITY;
+  TaskPriority priority = NORMAL_PRIORITY;
 
   TaskTraceInfo trace_info{};
 };
@@ -111,14 +110,13 @@ struct DeferredTask {
   //
   //
   //
-  RcFn<void()> schedule = stx::fn::rc::make_static([]() {});
+  RcFn<void()> schedule = fn::rc::make_static([]() {});
 
   std::chrono::steady_clock::time_point schedule_timepoint{};
 
-  RcFn<TaskReady(nanoseconds)> poll_ready =
-      stx::fn::rc::make_static(task_is_ready);
+  RcFn<TaskReady(nanoseconds)> poll_ready = fn::rc::make_static(task_is_ready);
 
-  stx::TaskId task_id{0};
+  TaskId task_id{0};
 
   TaskTraceInfo trace_info{};
 };
@@ -138,7 +136,7 @@ struct TaskScheduler {
       : reference_timepoint{ireference_timepoint},
         entries{iallocator},
         timeline{iallocator},
-        cancelation_promise{stx::make_promise<void>(iallocator).unwrap()},
+        cancelation_promise{make_promise<void>(iallocator).unwrap()},
         deferred_entries{iallocator},
         thread_pool{iallocator},
         allocator{iallocator} {}
@@ -159,7 +157,7 @@ struct TaskScheduler {
           .unwrap();
     }
 
-    entries = stx::vec::erase(std::move(entries), ready_tasks);
+    entries = vec::erase(std::move(entries), ready_tasks);
 
     timeline.tick(thread_pool.get_thread_slots(), present);
     thread_pool.tick(interval);
@@ -176,8 +174,7 @@ struct TaskScheduler {
         ready_task.schedule.handle();
       }
 
-      deferred_entries =
-          stx::vec::erase(std::move(deferred_entries), ready_tasks);
+      deferred_entries = vec::erase(std::move(deferred_entries), ready_tasks);
     }
 
     // if cancelation requested,
@@ -223,15 +220,15 @@ struct StreamTask {
   RcFn<StopStreaming(nanoseconds)> should_stop;
   // will be used to schedule tasks onto threads once the stream chunks are
   // available
-  TaskPriority priority = stx::NORMAL_PRIORITY;
+  TaskPriority priority = NORMAL_PRIORITY;
   TaskTraceInfo trace_info;
 };
 
 struct StreamPipeline {
   template <typename Fn, typename T, typename U>
-  void map(Fn&& transform, stx::Stream<T>&& input, stx::Generator<U>&& output) {
-    stx::fn::rc::make_functor(
-        stx::os_allocator,
+  void map(Fn&& transform, Stream<T>&& input, Generator<U>&& output) {
+    fn::rc::make_functor(
+        os_allocator,
         [transform_ = std::move(transform), input_ = std::move(input),
          output_ = std::move(output)]() {
           input_.pop().match(
@@ -240,10 +237,10 @@ struct StreamPipeline {
   }
 
   template <typename Predicate, typename T, typename U>
-  void filter(Predicate&& predicate, stx::Stream<T>&& input,
-              stx::Generator<U>&& output) {
-    stx::fn::rc::make_functor(
-        stx::os_allocator,
+  void filter(Predicate&& predicate, Stream<T>&& input,
+              Generator<U>&& output) {
+    fn::rc::make_functor(
+        os_allocator,
         [predicate_ = std::move(predicate), input_ = std::move(input),
          output_ = std::move(output)]() {
           input_.pop().match(
@@ -255,19 +252,19 @@ struct StreamPipeline {
   }
 
   template <typename Operation, typename T, typename... U, typename V>
-  void fork(Operation&& operation, stx::Stream<T>&& input,
-            stx::Generator<U>&&... ouputs) {
+  void fork(Operation&& operation, Stream<T>&& input,
+            Generator<U>&&... ouputs) {
     //
     //
   }
 
   template <typename Operation, typename T, typename... U>
-  void join(Operation&& operation, stx::Generator<T>&&, stx::Stream<U>&&...) {
+  void join(Operation&& operation, Generator<T>&&, Stream<U>&&...) {
     //
     //
   }
 
-  stx::Vec<stx::RcFn<void()>> jobs;
+  Vec<stx::RcFn<void()>> jobs;
 };
 */
 
