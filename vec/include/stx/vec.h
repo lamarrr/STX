@@ -32,7 +32,7 @@ STX_BEGIN_NAMESPACE
 //
 
 // there is not enough memory for the insertion operation
-enum class VecError : uint8_t { InsufficientMemory };
+enum class VecError : uint8_t { OutOfMemory };
 
 template <typename T>
 constexpr void destruct_range(T* start, size_t size) {
@@ -308,7 +308,7 @@ Result<FixedVec<T>, VecError> push_inplace(FixedVec<T>&& vec, Args&&... args) {
   size_t const target_size = vec.size_ + 1;
 
   if (vec.capacity_ < target_size) {
-    return Err(VecError::InsufficientMemory);
+    return Err(VecError::OutOfMemory);
   } else {
     new (vec.iterator____begin() + vec.size_) T{std::forward<Args>(args)...};
 
@@ -385,7 +385,7 @@ Result<Void, VecError> resize(FixedVec<T>&& vec, size_t target_size,
 
   if (target_size > previous_size) {
     if (target_size > vec.capacity()) {
-      return Err(VecError::InsufficientMemory);
+      return Err(VecError::OutOfMemory);
     }
 
     T* copy_construct_begin = vec.iterator____begin() + previous_size;
