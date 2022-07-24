@@ -37,7 +37,7 @@ using RcStringView = Rc<StringView>;
 // PROPERTIES:
 // - No small string optimization (SSO)
 // - always read-only
-// - never null-terminated
+// - always null-terminated
 // - doesn't support copying from copy constructors
 // - it's just a plain dumb sequence of characters/bytes
 //
@@ -45,9 +45,6 @@ using RcStringView = Rc<StringView>;
 // we can be move the strings across threads.
 // the string can be accessed from multiple threads with no data race.
 // the string is always valid as long as lifetime of `Str` is valid.
-//
-//
-// TODO(lamarrr): this should use the Memory abstraction?
 //
 //
 struct String {
@@ -73,65 +70,53 @@ struct String {
     return *this;
   }
 
-  char const* iterator____data() const {
-    return static_cast<char const*>(memory_.handle);
-  }
+  char const* c_str() const { return data(); }
+
+  char const* data() const { return static_cast<char const*>(memory_.handle); }
 
   size_t size() const { return size_; }
 
-  char const* iterator____begin() const { return iterator____data(); }
-  char const* iterator____end() const { return iterator____begin() + size(); }
+  char const* begin() const { return data(); }
+
+  char const* end() const { return begin() + size(); }
 
   bool is_empty() const { return size_ == 0; }
 
-  char operator[](size_t index) const {
-    STX_ENSURE(index < size_, "Index Out of Bounds");
-    return iterator____data()[index];
-  }
+  char const& operator[](size_t index) const { return span()[index]; }
 
-  Option<char> at(size_t index) const {
-    if (index >= size_) return None;
-
-    return Some(static_cast<char>(iterator____data()[index]));
-  }
+  Option<Ref<char const>> at(size_t index) const { return span().at(index); }
 
   bool starts_with(StringView other) const {
     if (other.size() > size_) return false;
 
-    return memcmp(iterator____data(), other.data(), other.size()) == 0;
+    return memcmp(data(), other.data(), other.size()) == 0;
   }
 
   bool starts_with(String const& other) const {
     return starts_with(other.view());
   }
 
-  bool starts_with(char c) const {
-    return size_ > 0 && iterator____data()[0] == c;
-  }
+  bool starts_with(char c) const { return size_ > 0 && data()[0] == c; }
 
   bool ends_with(StringView other) const {
     if (other.size() > size_) return false;
 
-    return memcmp(iterator____data() + (size_ - other.size()), other.data(),
+    return memcmp(data() + (size_ - other.size()), other.data(),
                   other.size()) == 0;
   }
 
   bool ends_with(String const& other) const { return ends_with(other.view()); }
 
-  bool ends_with(char c) const {
-    return size_ > 0 && iterator____data()[size_ - 1] == c;
-  }
+  bool ends_with(char c) const { return size_ > 0 && data()[size_ - 1] == c; }
 
-  StringView view() const { return StringView{iterator____data(), size_}; }
+  StringView view() const { return StringView{data(), size_}; }
 
-  Span<char const> span() const {
-    return Span<char const>{iterator____data(), size()};
-  }
+  Span<char const> span() const { return Span<char const>{data(), size()}; }
 
   bool equals(StringView other) const {
     if (size() != other.size()) return false;
 
-    return memcmp(iterator____data(), other.data(), size()) == 0;
+    return memcmp(data(), other.data(), size()) == 0;
   }
 
   bool equals(String const& other) const { return equals(other.view()); }
@@ -151,9 +136,11 @@ struct String {
 namespace string {
 
 inline Result<String, AllocError> make(Allocator allocator, StringView str) {
-  TRY_OK(memory, mem::allocate(allocator, str.size()));
+  TRY_OK(memory, mem::allocate(allocator, str.size() + 1));
 
   memcpy(memory.handle, str.data(), str.size());
+
+  static_cast<char*>(memory.handle)[str.size()] = '\0';
 
   ReadOnlyMemory str_memory{std::move(memory)};
 
