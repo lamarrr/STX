@@ -164,12 +164,21 @@ inline RcStringView make_static_view(StaticStringView str) {
 
 }  // namespace rc
 
+template <typename Glue, typename T>
+Result<String, AllocError> join(Allocator allocator, Glue const& glue,
+                                Span<T> strings) {
+  static_assert(std::is_convertible_v<T&, StringView>);
+  static_assert(std::is_convertible_v<Glue const&, StringView>);
+
+  // TODO(lamarrr): implement
+}
+
 template <typename Glue, typename A, typename B, typename... S>
 Result<String, AllocError> join(Allocator allocator, Glue const& glue,
                                 A const& a, B const& b, S const&... s) {
-  static_assert(std::is_convertible_v<Glue const&, StringView> &&
-                std::is_convertible_v<A const&, StringView> &&
-                std::is_convertible_v<B const&, StringView> &&
+  static_assert(std::is_convertible_v<Glue const&, StringView>);
+  static_assert(std::is_convertible_v<A const&, StringView>);
+  static_assert(std::is_convertible_v<B const&, StringView> &&
                 (std::is_convertible_v<S const&, StringView> && ...));
 
   StringView views[] = {StringView{a}, StringView{b}, StringView{s}...};
@@ -222,8 +231,48 @@ Result<String, AllocError> join(Allocator allocator, Glue const& glue,
   return Ok(String{ReadOnlyMemory{std::move(memory)}, str_size});
 }
 
-//        split(allocator, del, ...);
-//
+template <typename Callback>
+void split(StringView str, StringView delimeter, Callback&& out) {
+  static_assert(std::is_invocable_v<Callback&, String>);
+
+  size_t start = 0;
+
+  for (size_t i = 0; i < str.size(); i++) {
+    for (size_t j = 0; j < delimeter.size(); j++) {
+      // TODO(lamrrr): implement
+    }
+  }
+};
+
+inline Result<String, AllocError> upper(Allocator allocator, StringView str) {
+  TRY_OK(memory, mem::allocate(allocator, str.size() + 1));
+
+  char* out = static_cast<char*>(memory.handle);
+
+  for (size_t i = 0; i < str.size(); i++) {
+    out[i] = std::toupper(str[i]);
+  }
+
+  out[str.size()] = '\0';
+
+  return Ok(String{ReadOnlyMemory{std::move(memory)}, str.size()});
+}
+
+inline Result<String, AllocError> lower(Allocator allocator, StringView str) {
+  size_t size = str.size();
+
+  TRY_OK(memory, mem::allocate(allocator, size + 1));
+
+  char* out = static_cast<char*>(memory.handle);
+
+  for (size_t i = 0; i < size; i++) {
+    out[i] = std::tolower(str[i]);
+  }
+
+  out[size] = '\0';
+
+  return Ok(String{ReadOnlyMemory{std::move(memory)}, size});
+}
 
 }  // namespace string
 
