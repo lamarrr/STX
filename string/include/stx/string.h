@@ -127,9 +127,15 @@ struct String {
 
   bool not_equals(String const& other) const { return !equals(other); }
 
+  bool operator==(StringView other) const { return equals(other); }
+
   bool operator==(String const& other) const { return equals(other); }
 
+  bool operator!=(StringView other) const { return not_equals(other); }
+
   bool operator!=(String const& other) const { return not_equals(other); }
+
+  operator StringView() const { return std::string_view{data(), size()}; }
 
   ReadOnlyMemory memory_;
   size_t size_ = 0;
