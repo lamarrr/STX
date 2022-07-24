@@ -39,7 +39,7 @@ template <typename T>
 constexpr void destruct_range(T* start, size_t size) {
   if constexpr (std::is_trivially_destructible_v<T>) {
   } else {
-    for (T& element : stx::Span<T>{start, size}) {
+    for (T& element : Span<T>{start, size}) {
       element.~T();
     }
   }
@@ -108,11 +108,13 @@ struct VecBase {
 
   STX_DISABLE_COPY(VecBase)
 
-  ~VecBase() { destruct_range(iterator____elements(), size_); }
+  ~VecBase() { destruct_range(begin(), size_); }
 
-  Span<T> span() const& { return Span<T>{iterator____begin(), size_}; }
+  Span<T> span() const { return Span<T>{begin(), size_}; }
 
-  Span<T> span() const&& = delete;
+  T& operator[](size_t index) const { return span()[index]; }
+
+  Option<Ref<T>> at(size_t index) const { return span().at(index); }
 
   size_t size() const { return size_; }
 
@@ -120,17 +122,11 @@ struct VecBase {
 
   bool is_empty() const { return size_ == 0; }
 
-  T* iterator____data() const { return static_cast<T*>(memory_.handle); }
+  T* data() const { return static_cast<T*>(memory_.handle); }
 
-  T* iterator____elements() const { return iterator____data(); }
+  T* begin() const { return data(); }
 
-  T* iterator____begin() const { return iterator____data(); }
-
-  T* iterator____end() const { return iterator____data() + size_; }
-
-  T const* iterator____cbegin() const { return iterator____begin(); }
-
-  T const* iterator____cend() const { return iterator____end(); }
+  T* end() const { return data() + size_; }
 
   Memory memory_;
   size_t size_ = 0;
@@ -237,7 +233,7 @@ Result<Void, AllocError> vec____reserve(VecBase<T>& base, size_t cap) {
         iter++;
       }
 
-      destruct_range(base.iterator____begin(), base.size_);
+      destruct_range(base.begin(), base.size_);
 
       base.memory_ = std::move(new_memory);
       base.capacity_ = new_capacity;
@@ -279,7 +275,7 @@ Result<Vec<T>, AllocError> push_inplace(Vec<T>&& vec, Args&&... args) {
 
   TRY_OK(new_vec, reserve(std::move(vec), new_capacity));
 
-  T* inplace_construct_pos = new_vec.iterator____begin() + new_vec.size_;
+  T* inplace_construct_pos = new_vec.begin() + new_vec.size_;
 
   new (inplace_construct_pos) T{std::forward<Args>(args)...};
 
@@ -307,7 +303,7 @@ Result<FixedVec<T>, VecError> push_inplace(FixedVec<T>&& vec, Args&&... args) {
   if (vec.capacity_ < target_size) {
     return Err(VecError::OutOfMemory);
   } else {
-    new (vec.iterator____begin() + vec.size_) T{std::forward<Args>(args)...};
+    new (vec.begin() + vec.size_) T{std::forward<Args>(args)...};
 
     vec.size_ = target_size;
 
@@ -352,8 +348,8 @@ Result<Vec<T>, AllocError> resize(Vec<T>&& vec, size_t target_size,
 
     TRY_OK(new_vec, reserve(std::move(vec), new_capacity));
 
-    T* copy_construct_begin = new_vec.iterator____begin() + previous_size;
-    T* copy_construct_end = new_vec.iterator____begin() + target_size;
+    T* copy_construct_begin = new_vec.begin() + previous_size;
+    T* copy_construct_end = new_vec.begin() + target_size;
 
     for (T* iter = copy_construct_begin; iter < copy_construct_end; iter++) {
       new (iter) T{to_copy};
@@ -365,7 +361,7 @@ Result<Vec<T>, AllocError> resize(Vec<T>&& vec, size_t target_size,
 
   } else {
     // target_size <= previous_size
-    T* destruct_begin = vec.iterator____begin() + target_size;
+    T* destruct_begin = vec.begin() + target_size;
     destruct_range(destruct_begin, previous_size - target_size);
 
     vec.size_ = target_size;
@@ -385,13 +381,13 @@ Result<Void, VecError> resize(FixedVec<T>&& vec, size_t target_size,
       return Err(VecError::OutOfMemory);
     }
 
-    T* copy_construct_begin = vec.iterator____begin() + previous_size;
-    T* copy_construct_end = vec.iterator____begin() + target_size;
+    T* copy_construct_begin = vec.begin() + previous_size;
+    T* copy_construct_end = vec.begin() + target_size;
     for (T* iter = copy_construct_begin; iter < copy_construct_end; iter++) {
       new (iter) T{to_copy};
     }
   } else if (target_size < previous_size) {
-    T* destruct_begin = vec.iterator____begin() + target_size;
+    T* destruct_begin = vec.begin() + target_size;
     destruct_range(destruct_begin, previous_size - target_size);
   } else {
     // equal
@@ -402,10 +398,11 @@ Result<Void, VecError> resize(FixedVec<T>&& vec, size_t target_size,
   return Ok(std::move(vec));
 }
 
+// TODO(lamarrr): verify validity of these methods
 // capacity is unchanged
 template <typename T>
 void vec____clear(VecBase<T>& base) {
-  destruct_range(base.iterator____begin(), base.iterator____end());
+  destruct_range(base.begin(), base.end());
   base.size_ = 0;
 }
 
@@ -431,8 +428,7 @@ void clear(FixedVec<T>&& vec) {
 //
 template <typename T>
 void vec____erase(VecBase<T>& base, Span<T> range) {
-  STX_ENSURE(base.iterator____begin() <= range.begin() &&
-                 base.iterator____end() >= range.end(),
+  STX_ENSURE(base.begin() <= range.begin() && base.end() >= range.end(),
              "erase operation out of Vec range");
 
   size_t destruct_size = range.size();
@@ -442,7 +438,7 @@ void vec____erase(VecBase<T>& base, Span<T> range) {
 
   destruct_range(erase_start, destruct_size);
 
-  size_t num_trailing = base.iterator____end() - erase_end;
+  size_t num_trailing = base.end() - erase_end;
 
   // move trailing elements to the front
   move_construct_range(erase_end, num_trailing, erase_start);
@@ -465,21 +461,3 @@ Vec<T> erase(FixedVec<T>&& vec, Span<T> range) {
 }  // namespace vec
 
 STX_END_NAMESPACE
-
-// TODO(lamarrr): this should be handled by span.
-// all element accessing content should be handled by span
-//
-//
-//
-// T& operator[](size_t index) const {
-// STX_ENSURE(index < size_, "Index out of bounds");
-// return iterator____elements()[index];
-//}
-//
-// Option<Ref<T>> at(size_t index) const {
-//  if (index >= size_) {
-//    return None;
-//  } else {
-//   return some_ref<T>(iterator____elements()[index]);
-// }
-// }

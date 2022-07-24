@@ -42,7 +42,7 @@ struct Life {
 };
 
 #define EXPECT_VALID_FLEX(vec)                                \
-  EXPECT_GE(vec.iterator____end(), vec.iterator____begin()); \
+  EXPECT_GE(vec.end(), vec.begin()); \
   EXPECT_GE(vec.capacity(), vec.size())
 
 TEST(VecTest, Destructor) {
