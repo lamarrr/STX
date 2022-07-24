@@ -333,8 +333,7 @@ TEST(Timeline, Sample) {
   EXPECT_FALSE(slot[3].handle->slot.query().pending_task.is_some());
 
   EXPECT_TRUE(std::is_sorted(
-      timeline.starvation_timeline.iterator____begin(),
-      timeline.starvation_timeline.iterator____end(),
+      timeline.starvation_timeline.begin(), timeline.starvation_timeline.end(),
       [](ScheduleTimeline::Task const &a, ScheduleTimeline::Task const &b) {
         return a.priority < b.priority;
       }));
