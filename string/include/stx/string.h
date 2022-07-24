@@ -18,8 +18,6 @@ STX_BEGIN_NAMESPACE
 
 constexpr char const EMPTY_STRING[] = "";
 
-#define STX_ENSURE(condition, error_message)
-
 using StringView = std::string_view;
 using StaticStringView = std::string_view;
 
@@ -50,9 +48,12 @@ using RcStringView = Rc<StringView>;
 //
 //
 struct String {
+  using Size = size_t;
+  using Iterator = char const*;
+
   String() : memory_{static_storage_allocator, EMPTY_STRING}, size_{0} {}
 
-  String(ReadOnlyMemory memory, size_t size)
+  String(ReadOnlyMemory memory, Size size)
       : memory_{std::move(memory)}, size_{size} {}
 
   String(String const&) = delete;
@@ -74,19 +75,19 @@ struct String {
 
   char const* c_str() const { return data(); }
 
-  char const* data() const { return static_cast<char const*>(memory_.handle); }
+  Iterator data() const { return static_cast<char const*>(memory_.handle); }
 
-  size_t size() const { return size_; }
+  Size size() const { return size_; }
 
-  char const* begin() const { return data(); }
+  Iterator begin() const { return data(); }
 
-  char const* end() const { return begin() + size(); }
+  Iterator end() const { return begin() + size(); }
 
   bool is_empty() const { return size_ == 0; }
 
-  char const& operator[](size_t index) const { return span()[index]; }
+  char const& operator[](Size index) const { return span()[index]; }
 
-  Option<Ref<char const>> at(size_t index) const { return span().at(index); }
+  Option<Ref<char const>> at(Size index) const { return span().at(index); }
 
   bool starts_with(StringView other) const {
     if (other.size() > size_) return false;
@@ -132,7 +133,7 @@ struct String {
   operator StringView() const { return StringView{data(), size()}; }
 
   ReadOnlyMemory memory_;
-  size_t size_ = 0;
+  Size size_ = 0;
 };
 
 namespace string {
@@ -161,57 +162,6 @@ inline RcStringView make_static_view(StaticStringView str) {
 }
 
 }  // namespace rc
-
-template <typename Glue, typename T>
-Result<String, AllocError> join_span(Allocator allocator, Glue const& glue,
-                                     Span<T> strings) {
-  static_assert(std::is_convertible_v<T&, StringView>);
-  static_assert(std::is_convertible_v<Glue const&, StringView>);
-
-  size_t size = 0;
-  size_t nstrings = strings.size();
-  StringView glue_v{glue};
-
-  {
-    size_t str_index = 0;
-
-    for (T const& string : strings) {
-      size += StringView{string}.size();
-      if (str_index != nstrings - 1) {
-        size += glue_v.size();
-      }
-      str_index++;
-    }
-  }
-
-  size_t memory_size = size + 1;
-
-  TRY_OK(memory, mem::allocate(allocator, memory_size));
-
-  char* out = static_cast<char*>(memory.handle);
-
-  {
-    size_t index = 0;
-    size_t str_index = 0;
-
-    for (T const& string : strings) {
-      StringView view{string};
-      std::memcpy(out + index, view.data(), view.size());
-      index += view.size();
-
-      if (str_index != nstrings - 1) {
-        std::memcpy(out + index, glue_v.data(), glue_v.size());
-        index += glue_v.size();
-      }
-
-      str_index++;
-    }
-  }
-
-  out[size] = '\0';
-
-  return Ok(String{ReadOnlyMemory{std::move(memory)}, size});
-}
 
 template <typename Glue, typename A, typename B, typename... S>
 Result<String, AllocError> join(Allocator allocator, Glue const& glue,
@@ -271,18 +221,56 @@ Result<String, AllocError> join(Allocator allocator, Glue const& glue,
   return Ok(String{ReadOnlyMemory{std::move(memory)}, str_size});
 }
 
-template <typename Callback>
-void split(StringView str, StringView delimeter, Callback&& out) {
-  static_assert(std::is_invocable_v<Callback&, StringView>);
+template <typename Glue, typename T>
+Result<String, AllocError> join(Allocator allocator, Glue const& glue,
+                                Span<T> strings) {
+  static_assert(std::is_convertible_v<T&, StringView>);
+  static_assert(std::is_convertible_v<Glue const&, StringView>);
 
-  size_t start = 0;
+  size_t size = 0;
+  size_t nstrings = strings.size();
+  StringView glue_v{glue};
 
-  for (size_t i = 0; i < str.size(); i++) {
-    for (size_t j = 0; j < delimeter.size(); j++) {
-      // TODO(lamrrr): implement
+  {
+    size_t str_index = 0;
+
+    for (T const& string : strings) {
+      size += StringView{string}.size();
+      if (str_index != nstrings - 1) {
+        size += glue_v.size();
+      }
+      str_index++;
     }
   }
-};
+
+  size_t memory_size = size + 1;
+
+  TRY_OK(memory, mem::allocate(allocator, memory_size));
+
+  char* out = static_cast<char*>(memory.handle);
+
+  {
+    size_t index = 0;
+    size_t str_index = 0;
+
+    for (T const& string : strings) {
+      StringView view{string};
+      std::memcpy(out + index, view.data(), view.size());
+      index += view.size();
+
+      if (str_index != nstrings - 1) {
+        std::memcpy(out + index, glue_v.data(), glue_v.size());
+        index += glue_v.size();
+      }
+
+      str_index++;
+    }
+  }
+
+  out[size] = '\0';
+
+  return Ok(String{ReadOnlyMemory{std::move(memory)}, size});
+}
 
 inline Result<String, AllocError> upper(Allocator allocator, StringView str) {
   TRY_OK(memory, mem::allocate(allocator, str.size() + 1));
@@ -314,6 +302,9 @@ inline Result<String, AllocError> lower(Allocator allocator, StringView str) {
   return Ok(String{ReadOnlyMemory{std::move(memory)}, size});
 }
 
+// TODO
+// void split(allocator, string, delimeter, callback);
+//
 }  // namespace string
 
 STX_END_NAMESPACE

@@ -33,20 +33,6 @@ TEST(StrTest, Init) {
   EXPECT_EQ(string::join(os_allocator, "", "", "", "").unwrap(),
             string::make_static(""));
 
-  {
-    std::vector<String> vec;
-    string::split("a,b,c,d,e,f", ",", [&](StringView token) {
-      vec.push_back(string::make(os_allocator, token).unwrap());
-    });
-  }
-
-  {
-    std::vector<String> vec;
-    string::split("a,b,c,d,e,f,", ",", [&](StringView token) {
-      vec.push_back(string::make(os_allocator, token).unwrap());
-    });
-  }
-
   EXPECT_EQ(string::upper(os_allocator, "Hello, World!").unwrap(),
             "HELLO, WORLD!");
   EXPECT_EQ(string::lower(os_allocator, "hello, world!").unwrap(),
@@ -55,7 +41,7 @@ TEST(StrTest, Init) {
   std::vector<std::string> views{
       std::string{"Hello,"}, std::string{"Beautiful"}, std::string{"World!"}};
 
-Span x = views;
-  EXPECT_EQ(string::join_span(os_allocator, " ", x).unwrap(),
+  Span x = views;
+  EXPECT_EQ(string::join(os_allocator, " ", x).unwrap(),
             "Hello, Beautiful World!");
 }
