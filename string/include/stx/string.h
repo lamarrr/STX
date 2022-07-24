@@ -115,27 +115,21 @@ struct String {
 
   Span<char const> span() const { return Span<char const>{data(), size()}; }
 
-  bool equals(StringView other) const {
+  bool operator==(StringView other) const {
     if (size() != other.size()) return false;
 
     return std::memcmp(data(), other.data(), size()) == 0;
   }
 
-  bool equals(String const& other) const { return equals(other.view()); }
+  bool operator==(String const& other) const {
+    return *this == StringView{other};
+  }
 
-  bool not_equals(StringView other) const { return !equals(other); }
+  bool operator!=(StringView other) const { return !(*this == other); }
 
-  bool not_equals(String const& other) const { return !equals(other); }
+  bool operator!=(String const& other) const { return !(*this == other); }
 
-  bool operator==(StringView other) const { return equals(other); }
-
-  bool operator==(String const& other) const { return equals(other); }
-
-  bool operator!=(StringView other) const { return not_equals(other); }
-
-  bool operator!=(String const& other) const { return not_equals(other); }
-
-  operator StringView() const { return std::string_view{data(), size()}; }
+  operator StringView() const { return StringView{data(), size()}; }
 
   ReadOnlyMemory memory_;
   size_t size_ = 0;
@@ -150,9 +144,7 @@ inline Result<String, AllocError> make(Allocator allocator, StringView str) {
 
   static_cast<char*>(memory.handle)[str.size()] = '\0';
 
-  ReadOnlyMemory str_memory{std::move(memory)};
-
-  return Ok(String{std::move(str_memory), str.size()});
+  return Ok(String{ReadOnlyMemory{std::move(memory)}, str.size()});
 }
 
 inline String make_static(StaticStringView str) {
@@ -171,12 +163,54 @@ inline RcStringView make_static_view(StaticStringView str) {
 }  // namespace rc
 
 template <typename Glue, typename T>
-Result<String, AllocError> join(Allocator allocator, Glue const& glue,
-                                Span<T> strings) {
+Result<String, AllocError> join_span(Allocator allocator, Glue const& glue,
+                                     Span<T> strings) {
   static_assert(std::is_convertible_v<T&, StringView>);
   static_assert(std::is_convertible_v<Glue const&, StringView>);
 
-  // TODO(lamarrr): implement
+  size_t size = 0;
+  size_t nstrings = strings.size();
+  StringView glue_v{glue};
+
+  {
+    size_t str_index = 0;
+
+    for (T const& string : strings) {
+      size += StringView{string}.size();
+      if (str_index != nstrings - 1) {
+        size += glue_v.size();
+      }
+      str_index++;
+    }
+  }
+
+  size_t memory_size = size + 1;
+
+  TRY_OK(memory, mem::allocate(allocator, memory_size));
+
+  char* out = static_cast<char*>(memory.handle);
+
+  {
+    size_t index = 0;
+    size_t str_index = 0;
+
+    for (T const& string : strings) {
+      StringView view{string};
+      std::memcpy(out + index, view.data(), view.size());
+      index += view.size();
+
+      if (str_index != nstrings - 1) {
+        std::memcpy(out + index, glue_v.data(), glue_v.size());
+        index += glue_v.size();
+      }
+
+      str_index++;
+    }
+  }
+
+  out[size] = '\0';
+
+  return Ok(String{ReadOnlyMemory{std::move(memory)}, size});
 }
 
 template <typename Glue, typename A, typename B, typename... S>
@@ -215,8 +249,6 @@ Result<String, AllocError> join(Allocator allocator, Glue const& glue,
 
   char* str = static_cast<char*>(memory.handle);
 
-  str[str_size] = '\0';
-
   {
     size_t index = 0;
     size_t view_index = 0;
@@ -226,7 +258,7 @@ Result<String, AllocError> join(Allocator allocator, Glue const& glue,
       index += v.size();
 
       if (view_index != nviews - 1) {
-        std::memcpy(str + index, glue_v.begin(), glue_v.size());
+        std::memcpy(str + index, glue_v.data(), glue_v.size());
         index += glue_v.size();
       }
 
@@ -234,12 +266,14 @@ Result<String, AllocError> join(Allocator allocator, Glue const& glue,
     }
   }
 
+  str[str_size] = '\0';
+
   return Ok(String{ReadOnlyMemory{std::move(memory)}, str_size});
 }
 
 template <typename Callback>
 void split(StringView str, StringView delimeter, Callback&& out) {
-  static_assert(std::is_invocable_v<Callback&, String>);
+  static_assert(std::is_invocable_v<Callback&, StringView>);
 
   size_t start = 0;
 

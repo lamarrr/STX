@@ -1,5 +1,8 @@
 #include "stx/string.h"
 
+#include <string>
+#include <vector>
+
 #include "gtest/gtest.h"
 
 using namespace stx;
@@ -48,4 +51,11 @@ TEST(StrTest, Init) {
             "HELLO, WORLD!");
   EXPECT_EQ(string::lower(os_allocator, "hello, world!").unwrap(),
             "hello, world!");
+
+  std::vector<std::string> views{
+      std::string{"Hello,"}, std::string{"Beautiful"}, std::string{"World!"}};
+
+Span x = views;
+  EXPECT_EQ(string::join_span(os_allocator, " ", x).unwrap(),
+            "Hello, Beautiful World!");
 }

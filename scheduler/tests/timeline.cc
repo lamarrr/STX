@@ -173,11 +173,11 @@ TEST(ScheduleTimelineTest, Tick) {
 
   stx::String h = stx::string::make_static("Hello boy");
   stx::String y = stx::string::make(stx::os_allocator, "Hello boy").unwrap();
-  EXPECT_TRUE(h.equals("Hello boy"));
-  EXPECT_FALSE(h.equals("Hello Boy"));
+  EXPECT_TRUE(h == "Hello boy");
+  EXPECT_FALSE(h == "Hello Boy");
 
-  EXPECT_TRUE(y.equals("Hello boy"));
-  EXPECT_TRUE(h.equals(y));
+  EXPECT_TRUE(y == "Hello boy");
+  EXPECT_TRUE(h == y);
 
   EXPECT_FALSE(h.starts_with("Hello world"));
 }
