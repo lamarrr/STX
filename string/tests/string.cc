@@ -1,4 +1,3 @@
-
 #include "stx/string.h"
 
 #include "gtest/gtest.h"
