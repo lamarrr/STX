@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include <cctype>
 #include <cstddef>
 #include <cstring>
 #include <string_view>
@@ -37,7 +38,8 @@ using RcStringView = Rc<StringView>;
 // PROPERTIES:
 // - No small string optimization (SSO)
 // - always read-only
-// - always null-terminated
+// - always null-terminated (for compatibility with C APIs, to prevent extra
+// allocations for null-termination)
 // - doesn't support copying from copy constructors
 // - it's just a plain dumb sequence of characters/bytes
 //
@@ -89,7 +91,7 @@ struct String {
   bool starts_with(StringView other) const {
     if (other.size() > size_) return false;
 
-    return memcmp(data(), other.data(), other.size()) == 0;
+    return std::memcmp(data(), other.data(), other.size()) == 0;
   }
 
   bool starts_with(String const& other) const {
@@ -101,8 +103,8 @@ struct String {
   bool ends_with(StringView other) const {
     if (other.size() > size_) return false;
 
-    return memcmp(data() + (size_ - other.size()), other.data(),
-                  other.size()) == 0;
+    return std::memcmp(data() + (size_ - other.size()), other.data(),
+                       other.size()) == 0;
   }
 
   bool ends_with(String const& other) const { return ends_with(other.view()); }
@@ -116,7 +118,7 @@ struct String {
   bool equals(StringView other) const {
     if (size() != other.size()) return false;
 
-    return memcmp(data(), other.data(), size()) == 0;
+    return std::memcmp(data(), other.data(), size()) == 0;
   }
 
   bool equals(String const& other) const { return equals(other.view()); }
@@ -138,7 +140,7 @@ namespace string {
 inline Result<String, AllocError> make(Allocator allocator, StringView str) {
   TRY_OK(memory, mem::allocate(allocator, str.size() + 1));
 
-  memcpy(memory.handle, str.data(), str.size());
+  std::memcpy(memory.handle, str.data(), str.size());
 
   static_cast<char*>(memory.handle)[str.size()] = '\0';
 
@@ -205,11 +207,11 @@ Result<String, AllocError> join(Allocator allocator, Glue const& glue,
     size_t view_index = 0;
 
     for (StringView v : views) {
-      memcpy(str + index, v.begin(), v.size());
+      std::memcpy(str + index, v.begin(), v.size());
       index += v.size();
 
       if (view_index != nviews - 1) {
-        memcpy(str + index, glue_v.begin(), glue_v.size());
+        std::memcpy(str + index, glue_v.begin(), glue_v.size());
         index += glue_v.size();
       }
 
