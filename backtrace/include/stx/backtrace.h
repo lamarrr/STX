@@ -35,15 +35,15 @@ namespace backtrace {
 /// moved as a reference. Its raw data content can also be copied as a
 /// `std::string`.
 struct Symbol {
-  /// gets the raw symbol name, the symbol is pre-demangled if possible.
-  std::string_view raw() const;
-
   /// construct the `Symbol` object from the raw undemangled symbol name
   /// requires that `sym`'s `data` member is not a `nullptr` and is
   /// null-terminated.
   ///
   /// UNCHECKED!
   explicit Symbol(Span<char const> sym) : symbol_{sym} {};
+
+  /// gets the raw symbol name, the symbol is pre-demangled if possible.
+  std::string_view raw() const;
 
  private:
   Span<char const> symbol_;
