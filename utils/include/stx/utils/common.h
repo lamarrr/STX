@@ -64,8 +64,6 @@ template <typename T>
 constexpr bool is_reference = std::is_reference<T>::value;
 
 /// `Ref` is an alias for `std::reference_wrapper`
-/// `Ref` can be mutable and immutable depending on the const-qualifier for `T`
-/// To offer stronger guarantees prefer `ConstRef` and `MutRef`
 template <typename T>
 using Ref = std::reference_wrapper<T>;
 
