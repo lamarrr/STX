@@ -175,8 +175,64 @@ inline RcStringView make_static_view(StaticStringView str) {
 
 }  // namespace rc
 
-// TODO(lamarr): string utils:
-//        join(allocator, del, ...);
+template <typename Glue, typename A, typename B, typename... S>
+Result<String, AllocError> join(Allocator allocator, Glue const& glue,
+                                A const& a, B const& b, S const&... s) {
+  static_assert(std::is_convertible_v<Glue const&, StringView> &&
+                std::is_convertible_v<A const&, StringView> &&
+                std::is_convertible_v<B const&, StringView> &&
+                (std::is_convertible_v<S const&, StringView> && ...));
+
+  StringView views[] = {StringView{a}, StringView{b}, StringView{s}...};
+  size_t nviews = std::size(views);
+
+  StringView glue_v{glue};
+
+  size_t str_size = 0;
+
+  {
+    size_t index = 0;
+
+    for (StringView v : views) {
+      str_size += v.size();
+
+      if (index != nviews - 1) {
+        str_size += glue_v.size();
+      }
+
+      index++;
+    }
+  }
+
+  // with null terminator
+  size_t memory_size = str_size + 1;
+
+  TRY_OK(memory, mem::allocate(allocator, memory_size));
+
+  char* str = static_cast<char*>(memory.handle);
+
+  str[str_size] = '\0';
+
+  {
+    size_t index = 0;
+    size_t view_index = 0;
+
+    for (StringView v : views) {
+      memcpy(str + index, v.begin(), v.size());
+      index += v.size();
+
+      if (view_index != nviews - 1) {
+        memcpy(str + index, glue_v.begin(), glue_v.size());
+        index += glue_v.size();
+      }
+
+      view_index++;
+    }
+  }
+
+  return Ok(String{ReadOnlyMemory{std::move(memory)}, str_size});
+}
+
 //        split(allocator, del, ...);
 //
 
