@@ -11,20 +11,6 @@
 #include "stx/try_ok.h"
 #include "stx/void.h"
 
-// TODO(lamarrr): these definitions should go into another file
-#define STX_DISABLE_BOUNDS_CHECK 0
-
-#if STX_DISABLE_BOUNDS_CHECK
-#define STX_CHECK_IN_BOUND(cmp_first, cmp_last)
-#define STX_CHECK_IN_RANGE(first, last, cmp_first, cmp_last)
-#else
-#define STX_CHECK_IN_BOUND(cmp_first, cmp_last)
-#define STX_CHECK_IN_RANGE(first, last, cmp_first, cmp_last)
-#endif
-
-// TODO
-#define STX_ENSURE(condition, error_message)
-
 STX_BEGIN_NAMESPACE
 
 // TODO(lamarrr): we should find another name other than Vec
@@ -432,8 +418,8 @@ void clear(FixedVec<T>&& vec) {
 //
 template <typename T>
 void vec____erase(VecBase<T>& base, Span<T> range) {
-  STX_ENSURE(base.begin() <= range.begin() && base.end() >= range.end(),
-             "erase operation out of Vec range");
+  STX_SPAN_ENSURE(base.begin() <= range.begin() && base.end() >= range.end(),
+                  "erase operation out of Vec range");
 
   size_t destruct_size = range.size();
 
