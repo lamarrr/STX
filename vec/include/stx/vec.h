@@ -76,10 +76,14 @@ template <typename T>
 struct VecBase {
   static_assert(!std::is_reference_v<T>);
 
-  static constexpr size_t alignment = alignof(T);
-  static constexpr size_t element_size = sizeof(T);
+  using Size = size_t;
+  using Index = size_t;
+  using Iterator = T*;
 
-  VecBase(Memory memory, size_t size, size_t capacity)
+  static constexpr Size alignment = alignof(T);
+  static constexpr Size element_size = sizeof(T);
+
+  VecBase(Memory memory, Size size, Size capacity)
       : memory_{std::move(memory)}, size_{size}, capacity_{capacity} {}
 
   VecBase()
@@ -116,21 +120,21 @@ struct VecBase {
 
   Option<Ref<T>> at(size_t index) const { return span().at(index); }
 
-  size_t size() const { return size_; }
+  Size size() const { return size_; }
 
-  size_t capacity() const { return capacity_; }
+  Size capacity() const { return capacity_; }
 
   bool is_empty() const { return size_ == 0; }
 
   T* data() const { return static_cast<T*>(memory_.handle); }
 
-  T* begin() const { return data(); }
+  Iterator begin() const { return data(); }
 
-  T* end() const { return data() + size_; }
+  Iterator end() const { return data() + size_; }
 
   Memory memory_;
-  size_t size_ = 0;
-  size_t capacity_ = 0;
+  Size size_ = 0;
+  Size capacity_ = 0;
 };
 
 // Vec is an adapter to an allocator.
