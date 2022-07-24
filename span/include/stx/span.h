@@ -502,15 +502,15 @@ struct Span {
 };
 
 template <typename SrcElement, size_t Length>
-Span(SrcElement (&)[Length])->Span<SrcElement>;
+Span(SrcElement (&)[Length]) -> Span<SrcElement>;
 
 template <typename SrcElement, size_t Length>
-Span(std::array<SrcElement, Length>&)->Span<SrcElement>;
+Span(std::array<SrcElement, Length>&) -> Span<SrcElement>;
 
 template <typename SrcElement, size_t Length>
-Span(std::array<SrcElement, Length> const&)->Span<SrcElement const>;
+Span(std::array<SrcElement, Length> const&) -> Span<SrcElement const>;
 
 template <typename Container>
-Span(Container& cont)->Span<std::remove_pointer_t<decltype(std::data(cont))>>;
+Span(Container& cont) -> Span<std::remove_pointer_t<decltype(std::data(cont))>>;
 
 STX_END_NAMESPACE
