@@ -389,6 +389,10 @@ struct Span {
     return Span<T>{____iterator + ____size, 0};
   }
 
+  constexpr bool contains(T const& object) const {
+    return find(object).size() != 0;
+  }
+
   template <typename Predicate>
   constexpr Span<T> which(Predicate&& predicate) const {
     static_assert(std::is_invocable_v<Predicate, T const&>);
@@ -495,7 +499,6 @@ struct Span {
 
   Iterator ____iterator = nullptr;
   Size ____size = 0;
-
 };
 
 template <typename SrcElement, size_t Length>

@@ -168,6 +168,9 @@ TEST(SpanTest, Algorithms) {
   r.find(9).fill(64);
   EXPECT_EQ(r[0], 64);
 
+  EXPECT_TRUE(r.contains(9));
+  EXPECT_FALSE(r.contains(20));
+
   for (int &element : r.slice(1)) {
     EXPECT_EQ(element, 9);
   }
