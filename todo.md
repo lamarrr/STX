@@ -705,3 +705,13 @@ struct static_string {
   readonly_memory memory;
   static_string(char const* handl) static_string()
 };
+
+
+
+
+
+
+# TODO
+
+- remove extensions folder completely
+- test on arm gcc

@@ -21,26 +21,15 @@
 
 #include "stx/config.h"
 #include "stx/option.h"
+#include "stx/panic.h"
 #include "stx/utils/enable_if.h"
 
-// TODO(lamarrr): use do{} while(0)
-#define STX_RAISE_BUG(evaluation_identifier, condition_violated, \
-                      violating_expression)                      \
-  do {                                                           \
-  } while (0)
-
-#define STX_RAISE_BUF_IF(...) \
-  do {                        \
-  } while (0)
-#define STX_SPAN_CHECK_BOUNDS(valid_span_size, span_index) \
-  do {                                                     \
-  } while (0)
-#define STX_SPAN_CHECK_RANGE() \
-  do {                         \
-  } while (0)
-
-#define STX_SPAN_CHECK_SIZE_EQ(...) \
-  do {                              \
+#define STX_SPAN_ENSURE(condition, message)             \
+  do {                                                  \
+    if (!(condition)) {                                 \
+      ::stx::panic("condition: '" #condition            \
+                   "' failed. explanation: " #message); \
+    }                                                   \
   } while (0)
 
 STX_BEGIN_NAMESPACE
@@ -174,8 +163,7 @@ struct Span {
 
  public:
   constexpr Span() = default;
-  constexpr Span(Iterator data, Size size)
-      : ____iterator{data}, ____size{size} {}
+  constexpr Span(Iterator data, Size size) : iterator_{data}, size_{size} {}
   constexpr Span(Span const&) = default;
   constexpr Span(Span&&) = default;
   constexpr Span& operator=(Span const&) = default;
@@ -183,20 +171,19 @@ struct Span {
 
   template <typename U, STX_ENABLE_IF(impl::is_span_convertible<U, T>)>
   constexpr Span(Span<U> src)
-      : ____iterator{static_cast<Iterator>(src.____iterator)},
-        ____size{src.____size} {}
+      : iterator_{static_cast<Iterator>(src.iterator_)}, size_{src.size_} {}
 
   template <Size Length>
   constexpr Span(T (&array)[Length])
-      : ____iterator{static_cast<Iterator>(array)}, ____size{Length} {}
+      : iterator_{static_cast<Iterator>(array)}, size_{Length} {}
 
   template <Size Length>
   constexpr Span(std::array<T, Length>& array)
-      : ____iterator{static_cast<Iterator>(array.data())}, ____size{Length} {}
+      : iterator_{static_cast<Iterator>(array.data())}, size_{Length} {}
 
   template <Size Length>
   constexpr Span(std::array<T, Length> const& array)
-      : ____iterator{static_cast<Iterator>(array.data())}, ____size{Length} {}
+      : iterator_{static_cast<Iterator>(array.data())}, size_{Length} {}
 
   template <typename U, Size Length>
   constexpr Span(std::array<U, Length>&& array) = delete;
@@ -206,33 +193,33 @@ struct Span {
                                  impl::is_compatible_container<Container&, T>,
                              int> = 0>
   constexpr Span(Container& container) noexcept
-      : ____iterator{static_cast<Iterator>(std::data(container))},
-        ____size{std::size(container)} {}
+      : iterator_{static_cast<Iterator>(std::data(container))},
+        size_{std::size(container)} {}
 
-  constexpr Iterator data() const { return ____iterator; }
+  constexpr Iterator data() const { return iterator_; }
 
-  constexpr Size size() const { return ____size; }
+  constexpr Size size() const { return size_; }
 
-  constexpr Size size_bytes() const { return ____size * sizeof(T); }
+  constexpr Size size_bytes() const { return size_ * sizeof(T); }
 
-  constexpr bool is_empty() const { return ____size == 0; }
+  constexpr bool is_empty() const { return size_ == 0; }
 
-  constexpr Iterator begin() const { return ____iterator; }
+  constexpr Iterator begin() const { return iterator_; }
 
-  constexpr Iterator end() const { return begin() + ____size; }
+  constexpr Iterator end() const { return begin() + size_; }
 
   constexpr ConstIterator cbegin() const { return begin(); }
 
   constexpr ConstIterator cend() const { return end(); }
 
   constexpr Reference operator[](Index index) const {
-    STX_SPAN_CHECK_BOUNDS(____size, index);
-    return ____iterator[index];
+    STX_SPAN_ENSURE(index < size_, "index out of bounds");
+    return iterator_[index];
   }
 
   auto at(Index index) const -> Option<Ref<T>> {
-    if (index < ____size) {
-      return Some<Ref<T>>(____iterator[index]);
+    if (index < size_) {
+      return Some<Ref<T>>(iterator_[index]);
     } else {
       return None;
     }
@@ -288,7 +275,7 @@ struct Span {
     static_assert(std::is_copy_assignable_v<T>);
     for (Index position = 0; position < std::min(size(), input.size());
          position++) {
-      ____iterator[position] = input[position];
+      iterator_[position] = input[position];
     }
 
     return *this;
@@ -380,13 +367,13 @@ struct Span {
   // span of 1 element if found, otherwise span of zero elements
   constexpr Span<T> find(T const& object) const {
     // TODO(lamarrr): add equality comparable
-    for (T* iter = ____iterator; iter < (____iterator + ____size); iter++) {
+    for (T* iter = iterator_; iter < (iterator_ + size_); iter++) {
       if (*iter == object) {
         return Span<T>{iter, 1};
       }
     }
 
-    return Span<T>{____iterator + ____size, 0};
+    return Span<T>{iterator_ + size_, 0};
   }
 
   constexpr bool contains(T const& object) const {
@@ -399,27 +386,28 @@ struct Span {
     static_assert(
         std::is_same_v<std::invoke_result_t<Predicate, T const&>, bool>);
 
-    for (T* iter = ____iterator; iter < (____iterator + ____size); iter++) {
+    for (T* iter = iterator_; iter < (iterator_ + size_); iter++) {
       if (std::forward<Predicate>(predicate)(*iter)) {
         return Span<T>{iter, 1};
       }
     }
 
-    return Span<T>{____iterator + ____size, 0};
+    return Span<T>{iterator_ + size_, 0};
   }
 
   constexpr Span<T> slice(Index offset) const {
-    STX_SPAN_CHECK_BOUNDS(____size, offset);
-    return Span<T>{____iterator + offset, ____size - offset};
+    STX_SPAN_ENSURE(offset < size_, "index out of bounds");
+    return Span<T>{iterator_ + offset, size_ - offset};
   }
 
   constexpr Span<T> slice(Index offset, Size length_to_slice) const {
-    STX_SPAN_CHECK_BOUNDS(____size, offset);
+    STX_SPAN_ENSURE(offset < size_, "index out of bounds");
 
     if (length_to_slice > 0)
-      STX_SPAN_CHECK_BOUNDS(____size, offset + (length_to_slice - 1));
+      STX_SPAN_ENSURE(offset + (length_to_slice - 1) < size_,
+                      "index out of bounds");
 
-    return Span<T>{____iterator + offset, length_to_slice};
+    return Span<T>{iterator_ + offset, length_to_slice};
   }
 
   template <typename Func, typename Output>
@@ -430,11 +418,11 @@ struct Span {
     static_assert(
         std::is_assignable_v<Output&, std::invoke_result_t<Func, T&>>);
 
-    STX_SPAN_CHECK_SIZE_EQ(this->size(), output.size());
+    STX_SPAN_ENSURE(this->size() == output.size(),
+                    "source and destination span size mismatch");
 
     for (Index position = 0; position < size(); position++) {
-      output[position] =
-          std::forward<Func>(transformer)(____iterator[position]);
+      output[position] = std::forward<Func>(transformer)(iterator_[position]);
     }
 
     return output;
@@ -442,15 +430,13 @@ struct Span {
 
   template <typename Predicate>
   constexpr std::pair<Span<T>, Span<T>> partition(Predicate&& predicate) const {
-    auto first_partition_end =
-        std::stable_partition(____iterator, ____iterator + ____size,
-                              std::forward<Predicate>(predicate));
+    auto first_partition_end = std::stable_partition(
+        iterator_, iterator_ + size_, std::forward<Predicate>(predicate));
 
-    T* second_partition_end = ____iterator + ____size;
+    T* second_partition_end = iterator_ + size_;
 
     return std::make_pair(
-        Span<T>{____iterator,
-                static_cast<Size>(first_partition_end - ____iterator)},
+        Span<T>{iterator_, static_cast<Size>(first_partition_end - iterator_)},
         Span<T>{first_partition_end,
                 static_cast<Size>(second_partition_end - first_partition_end)});
   }
@@ -458,13 +444,12 @@ struct Span {
   template <typename Predicate>
   constexpr std::pair<Span<T>, Span<T>> unstable_partition(
       Predicate&& predicate) const {
-    auto first_partition_end =
-        std::partition(____iterator, ____iterator + ____size,
-                       std::forward<Predicate>(predicate));
+    auto first_partition_end = std::partition(
+        iterator_, iterator_ + size_, std::forward<Predicate>(predicate));
 
-    T* second_partition_end = ____iterator + ____size;
+    T* second_partition_end = iterator_ + size_;
 
-    return std::make_pair(Span<T>{____iterator, first_partition_end},
+    return std::make_pair(Span<T>{iterator_, first_partition_end},
                           Span<T>{first_partition_end,
                                   second_partition_end - first_partition_end});
   }
@@ -477,7 +462,7 @@ struct Span {
 
   constexpr Span<ConstVolatileMatched<std::byte> const> as_bytes() const {
     return Span<ConstVolatileMatched<std::byte> const>(
-        reinterpret_cast<ConstVolatileMatched<std::byte> const*>(____iterator),
+        reinterpret_cast<ConstVolatileMatched<std::byte> const*>(iterator_),
         size_bytes());
   }
 
@@ -485,7 +470,7 @@ struct Span {
   /// `uint8_t`).
   constexpr Span<ConstVolatileMatched<uint8_t> const> as_u8() const {
     return Span<ConstVolatileMatched<uint8_t> const>(
-        reinterpret_cast<ConstVolatileMatched<uint8_t> const*>(____iterator),
+        reinterpret_cast<ConstVolatileMatched<uint8_t> const*>(iterator_),
         size_bytes());
   }
 
@@ -497,8 +482,8 @@ struct Span {
   /// operations.
   constexpr Span<T volatile> as_volatile() const { return *this; }
 
-  Iterator ____iterator = nullptr;
-  Size ____size = 0;
+  Iterator iterator_ = nullptr;
+  Size size_ = 0;
 };
 
 template <typename SrcElement, size_t Length>

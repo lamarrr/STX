@@ -49,6 +49,7 @@ using RcStringView = Rc<StringView>;
 //
 struct String {
   using Size = size_t;
+  using Index = size_t;
   using Iterator = char const*;
 
   String() : memory_{static_storage_allocator, EMPTY_STRING}, size_{0} {}
@@ -85,9 +86,9 @@ struct String {
 
   bool is_empty() const { return size_ == 0; }
 
-  char const& operator[](Size index) const { return span()[index]; }
+  char const& operator[](Index index) const { return span()[index]; }
 
-  Option<Ref<char const>> at(Size index) const { return span().at(index); }
+  Option<Ref<char const>> at(Index index) const { return span().at(index); }
 
   bool starts_with(StringView other) const {
     if (other.size() > size_) return false;
