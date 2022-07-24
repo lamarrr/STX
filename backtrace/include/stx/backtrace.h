@@ -103,7 +103,7 @@ struct Frame {
 ///
 // all memory passed to the callback is cleared after each call. Hence we only
 // use one stack memory for the callback feed-loop.
-int trace(stx::Fn<bool(Frame, int)> callback, int skip_count = 0);
+int trace(Fn<bool(Frame, int)> callback, int skip_count = 0);
 
 }  // namespace backtrace
 

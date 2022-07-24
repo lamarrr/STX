@@ -32,7 +32,7 @@ std::string_view backtrace::Symbol::raw() const {
   return std::string_view{symbol_.data(), symbol_.size()};
 }
 
-int backtrace::trace(stx::Fn<bool(Frame, int)> callback, int skip_count) {
+int backtrace::trace(Fn<bool(Frame, int)> callback, int skip_count) {
   // TODO(lamarrr): get stack pointer in a portable and well-defined way
 
   void* ips[MAX_STACK_FRAME_DEPTH];
