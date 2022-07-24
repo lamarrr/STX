@@ -239,7 +239,7 @@ struct ReadOnlyMemory {
   }
 
   ReadOnlyMemory(ReadOnlyMemory const &) = delete;
-  ReadOnlyMemory &operator=(Memory const &) = delete;
+  ReadOnlyMemory &operator=(ReadOnlyMemory const &) = delete;
 
   ReadOnlyMemory(ReadOnlyMemory &&other)
       : allocator{other.allocator}, handle{other.handle} {
