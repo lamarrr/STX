@@ -26,10 +26,11 @@ auto await(TaskScheduler &scheduler, Fn task, TaskPriority priority,
   std::array<FutureAny, 1 + sizeof...(OtherInputs)> await_futures{
       FutureAny{first_input.share()}, FutureAny{other_inputs.share()}...};
 
-  RcFn<TaskReady(nanoseconds)> readiness_fn =
-      fn::rc::make_functor(scheduler.allocator, [await_futures_ =
-                                                     std::move(await_futures)](
-                                                    nanoseconds) {
+  UniqueFn<TaskReady(nanoseconds)> readiness_fn =
+      fn::rc::make_unique_functor(scheduler.allocator, [await_futures_ =
+                                                            std::move(
+                                                                await_futures)](
+                                                           nanoseconds) {
         bool all_ready = std::all_of(
             await_futures_.begin(), await_futures_.end(),
             [](FutureAny const &future) { return future.is_done(); });
@@ -84,10 +85,11 @@ auto await_any(TaskScheduler &scheduler, Fn task, TaskPriority priority,
   std::array<FutureAny, 1 + sizeof...(OtherInputs)> await_futures{
       FutureAny{first_input.share()}, FutureAny{other_inputs.share()}...};
 
-  RcFn<TaskReady(nanoseconds)> readiness_fn =
-      fn::rc::make_functor(scheduler.allocator, [await_futures_ =
-                                                     std::move(await_futures)](
-                                                    nanoseconds) {
+  UniqueFn<TaskReady(nanoseconds)> readiness_fn =
+      fn::rc::make_unique_functor(scheduler.allocator, [await_futures_ =
+                                                            std::move(
+                                                                await_futures)](
+                                                           nanoseconds) {
         bool any_ready = std::any_of(
             await_futures_.begin(), await_futures_.end(),
             [](FutureAny const &future) { return future.is_done(); });

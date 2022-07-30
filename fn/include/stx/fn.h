@@ -10,7 +10,7 @@
 STX_BEGIN_NAMESPACE
 
 template <typename Signature>
-struct Fn {};
+struct Fn;
 
 // NOTE that this is just an handle and doesn't manage any lifetime.
 //
@@ -58,6 +58,9 @@ struct Fn<ReturnType(Args...)> {
 
 template <typename Signature>
 using RcFn = Rc<Fn<Signature>>;
+
+template <typename Signature>
+using UniqueFn = Unique<Fn<Signature>>;
 
 template <typename T>
 struct raw_function_decay_impl {
@@ -257,21 +260,50 @@ auto make_static(StaticFunctor functor) {
   return make_static(function_pointer);
 }
 
+template <typename Functor>
+Result<Unique<typename FunctorFnTraits<Functor>::fn>, AllocError>
+make_unique_functor(Allocator allocator, Functor&& functor) {
+  TRY_OK(fn_unique, stx::rc::make_unique(allocator, std::move(functor)));
+
+  Fn fn = stx::fn::make_functor(*fn_unique.handle);
+
+  return Ok(stx::transmute(fn, std::move(fn_unique)));
+}
+
+template <typename Functor>
+Result<Unique<typename FunctorFnTraits<Functor>::fn>, AllocError>
+make_unique_functor(Allocator allocator, Functor& functor) = delete;
+
+template <typename RawFunctionType,
+          std::enable_if_t<is_function_pointer<RawFunctionType>, int> = 0>
+auto make_unique_static(RawFunctionType* function_pointer) {
+  using traits = RawFnTraits<RawFunctionType>;
+  using fn = typename traits::fn;
+  using dispatcher = typename traits::dispatcher;
+
+  Manager manager = static_storage_manager;
+  manager.ref();
+
+  return Unique{
+      fn{&dispatcher::dispatch, reinterpret_cast<void*>(function_pointer)},
+      std::move(manager)};
+}
+
+template <typename StaticFunctor,
+          std::enable_if_t<is_functor<StaticFunctor>, int> = 0>
+auto make_unique_static(StaticFunctor functor) {
+  using traits = FunctorFnTraits<StaticFunctor>;
+  using ptr = typename traits::ptr;
+
+  static_assert(std::is_convertible_v<StaticFunctor, ptr>,
+                "functor is not convertible to function pointer");
+
+  ptr function_pointer = static_cast<ptr>(functor);
+
+  return make_unique_static(function_pointer);
+}
+
 }  // namespace rc
 }  // namespace fn
 
 STX_END_NAMESPACE
-
-// (1) fn::make(Functor<R(A...)>) -> Fn<R(A...)>; functors
-//
-// (2) fn::make_static(R(*)(A...)) -> Fn<R(A...)>; function pointers and static
-// lambdas (i.e. lambdas without data/functor static functions)
-//
-// fn::rc::make(Allocator, Functor<R(A...)>) -> Rc<Fn<R(A...)>>; same as (1) but
-// takes ownership of its arguments and returns a reference count to them,
-// AllocResult
-//
-// fn::rc::make_static(Allocator, R(*)(A...)) -> Rc<Fn<R(A...)>>; same as (2)
-// but takes ownership of its arguments and returns a reference count to them,
-// AllocResult
-//

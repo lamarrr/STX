@@ -30,9 +30,10 @@ auto deferred(TaskScheduler &scheduler, Fn schedule_task,
   std::array<FutureAny, 1 + sizeof...(OtherInputs)> await{
       FutureAny{first_input.share()}, FutureAny{other_inputs.share()}...};
 
-  RcFn<TaskReady(nanoseconds)> readiness =
-      fn::rc::make_functor(scheduler.allocator, [await_ = std::move(await)](
-                                                    nanoseconds) {
+  UniqueFn<TaskReady(nanoseconds)> readiness =
+      fn::rc::make_unique_functor(scheduler.allocator, [await_ =
+                                                            std::move(await)](
+                                                           nanoseconds) {
         bool all_ready = std::all_of(
             await_.begin(), await_.end(),
             [](FutureAny const &future) { return future.is_done(); });

@@ -44,6 +44,9 @@ constexpr TaskReady task_is_ready(nanoseconds) { return TaskReady::Yes; }
 // NOTE: scheduler isn't thread-safe. don't submit tasks to them from the
 // tasks.
 //
+// TODO(lamarrr): make scheduler thread-safe
+//
+//
 struct Task {
   // this is the final task to be executed on the target thread.
   // must only be invoked by one thread at a point in time.
@@ -57,11 +60,13 @@ struct Task {
   //
   // this is used for awaiting of futures or events.
   //
-  RcFn<TaskReady(nanoseconds)> poll_ready = fn::rc::make_static(task_is_ready);
+  UniqueFn<TaskReady(nanoseconds)> poll_ready =
+      fn::rc::make_unique_static(task_is_ready);
 
-  // time since task was scheduled
+  // time since task was scheduled for execution
   std::chrono::steady_clock::time_point schedule_timepoint{};
 
+  // used for tracking cancelation request and progress of the task
   PromiseAny scheduler_promise;
 
   // the task's identifier
@@ -70,9 +75,15 @@ struct Task {
   // Priority to use in evaluating CPU-time worthiness
   TaskPriority priority = NORMAL_PRIORITY;
 
+  // information needed for tracing & profiling of tasks
   TaskTraceInfo trace_info{};
 };
 
+/*
+
+// TODO(lamarrr): is this needed if the scheduler is made thread-safe?
+//
+//
 // used for:
 //
 // - conditional deferred scheduling i.e. if  a future is canceled, propagate
@@ -114,12 +125,14 @@ struct DeferredTask {
 
   std::chrono::steady_clock::time_point schedule_timepoint{};
 
-  RcFn<TaskReady(nanoseconds)> poll_ready = fn::rc::make_static(task_is_ready);
+  UniqueFn<TaskReady(nanoseconds)> poll_ready =
+      fn::rc::make_unique_static(task_is_ready);
 
   TaskId task_id{0};
 
   TaskTraceInfo trace_info{};
 };
+*/
 
 // scheduler just dispatches to the task timeline once the tasks are
 // ready for execution
@@ -132,7 +145,7 @@ struct TaskScheduler {
   // if task is a ready one, add it to the schedule timeline immediately. this
   // should probably be renamed to the execution timeline.
   //
-  TaskScheduler(timepoint ireference_timepoint, Allocator iallocator)
+  TaskScheduler(Allocator iallocator, timepoint ireference_timepoint)
       : reference_timepoint{ireference_timepoint},
         entries{iallocator},
         timeline{iallocator},

@@ -124,8 +124,6 @@ struct Unique {
   Manager manager;
 };
 
-// make_unique will thus not need a ref-count
-
 /// Transmute a resource that uses a polymorphic manager.
 /// transmutation involves pretending that a target resource constructed from
 /// another source resource is valid provided the other source resource is

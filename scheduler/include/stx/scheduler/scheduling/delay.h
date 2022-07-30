@@ -26,8 +26,9 @@ auto delay(TaskScheduler &scheduler, Fn fn_task, TaskPriority priority,
   Future future{promise.get_future()};
   PromiseAny scheduler_promise{promise.share()};
 
-  RcFn<TaskReady(nanoseconds)> readiness_fn =
-      fn::rc::make_functor(scheduler.allocator, [delay](nanoseconds time_past) {
+  UniqueFn<TaskReady(nanoseconds)> readiness_fn =
+      fn::rc::make_unique_functor(scheduler.allocator, [delay](nanoseconds
+                                                                   time_past) {
         return time_past >= delay ? TaskReady::Yes : TaskReady::No;
       }).unwrap();
 

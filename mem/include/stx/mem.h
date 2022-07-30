@@ -146,7 +146,7 @@ struct RcOperation final : public ManagerHandle {
     // last-owning thread's instructions.
     //
     if (ref_count.unref() == 1) {
-      operation(this);
+      operation(reinterpret_cast<void*>(this));
     }
   }
 };
@@ -166,15 +166,15 @@ struct UniqueRcOperation final : public ManagerHandle {
 
   virtual void ref() override final {}
 
-  virtual void unref() override final { operation(this); }
+  virtual void unref() override final {
+    operation(reinterpret_cast<void*>(this));
+  }
 };
 
 namespace rc {
 
 template <typename T, typename... Args>
-Result<Rc<T*>, AllocError> make_inplace(Allocator allocator,
-
-                                        Args&&... args) {
+Result<Rc<T*>, AllocError> make_inplace(Allocator allocator, Args&&... args) {
   TRY_OK(memory,
          mem::allocate(allocator, sizeof(RcOperation<DeallocateObject<T>>)));
 
@@ -228,7 +228,6 @@ Rc<T*> make_static(T& object) {
 
 template <typename T, typename... Args>
 Result<Unique<T*>, AllocError> make_unique_inplace(Allocator allocator,
-
                                                    Args&&... args) {
   TRY_OK(memory, mem::allocate(allocator,
                                sizeof(UniqueRcOperation<DeallocateObject<T>>)));
