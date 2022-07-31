@@ -83,8 +83,7 @@ auto chain(TaskScheduler &scheduler, Chain<Fn, OtherFns...> chain,
           }
         } else {
           // completed
-          result_type result = std::move(std::get<result_type>(stack_));
-          promise_.notify_completed(std::forward<result_type>(result));
+          promise_.notify_completed(std::move(std::get<result_type>(stack_)));
         }
       }).unwrap();
 

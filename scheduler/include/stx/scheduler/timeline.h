@@ -20,6 +20,10 @@ using std::chrono::nanoseconds;
 
 // TODO(lamarrr): how are tasks that did not complete execution handled
 
+// TODO(lamarrr): evaluate the change of state of a previiously running but
+// suspended task. is there need to notify of resumption, and update the tasks
+// status someehow
+
 /// Scheduler Documentation
 /// - Tasks are added to the timeline once they become ready for execution
 /// - We first split tasks into timelines based on when they last ran
@@ -30,6 +34,8 @@ using std::chrono::nanoseconds;
 /// - if any of the selected tasks is in the thread slot then we need not
 /// suspend or cancel them
 ///
+///
+/// tasks in the timeline are ready-to-execute or suspended tasks
 struct ScheduleTimeline {
   static constexpr nanoseconds INTERRUPT_PERIOD{16ms};
   static constexpr uint8_t STARVATION_FACTOR{4};
@@ -103,17 +109,13 @@ struct ScheduleTimeline {
     // state before we attend to the request, our changes are ignored.
     //
     //
-    //
     for (Task& task : starvation_timeline.span()) {
-      RequestedCancelState const cancel_request =
-          task.promise.fetch_cancel_request();
 
-      task.last_requested_cancel_state_poll = cancel_request;
 
-      if (cancel_request == RequestedCancelState::Canceled) {
-        // TODO(lamarrr): what if it is an already running task
-        task.promise.notify_canceled();
-      }
+      // TODO(lamarrr): what if task is still running? is this the right place
+      // to handle this?
+ 
+ 
 
       // the status could have been modified in another thread, so we need
       // to fetch the status
@@ -128,6 +130,9 @@ struct ScheduleTimeline {
       task.last_status_poll = new_status;
     }
   }
+
+  // TODO(lamarrr): are task states updated just before executiong or
+  // resumption?
 
   // returns a span of the starving tasks (non-suspended)
   auto sort_and_partition_timeline() {
@@ -216,8 +221,8 @@ struct ScheduleTimeline {
         },
         thread_slots_capture.span());
 
-    poll_tasks(present_timepoint);
     remove_done_and_canceled_tasks();
+    poll_tasks(present_timepoint);
 
     if (starvation_timeline.is_empty()) return;
 
