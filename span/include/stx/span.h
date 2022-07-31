@@ -454,6 +454,13 @@ struct Span {
                                   second_partition_end - first_partition_end});
   }
 
+  template <typename Cmp>
+  Span<T> sort(Cmp&& cmp) const {
+    std::sort(begin(), end(), std::forward<Cmp>(cmp));
+
+    return *this;
+  }
+
   // Span<T>, Span<T> get_partitions()
   // might not be partitioned
 

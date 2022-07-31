@@ -43,24 +43,24 @@ constexpr EnumType enum_and(EnumType a, EnumType b) {
   return static_cast<EnumType>(enum_uv_and(a, b));
 }
 
-#define STX_DEFINE_ENUM_BIT_OPS(enum_type)                                   \
-  constexpr enum_type operator|(enum_type a, enum_type b) {                  \
-    return stx::enum_or(a, b);                                               \
-  }                                                                          \
-  constexpr enum_type operator~(enum_type a) { return stx::enum_toggle(a); } \
-                                                                             \
-  constexpr enum_type &operator|=(enum_type &a, enum_type b) {               \
-    a = a | b;                                                               \
-    return a;                                                                \
-  }                                                                          \
-                                                                             \
-  constexpr enum_type operator&(enum_type a, enum_type b) {                  \
-    return stx::enum_and(a, b);                                              \
-  }                                                                          \
-                                                                             \
-  constexpr enum_type &operator&=(enum_type &a, enum_type b) {               \
-    a = a & b;                                                               \
-    return a;                                                                \
+#define STX_DEFINE_ENUM_BIT_OPS(enum_type)                                     \
+  constexpr enum_type operator|(enum_type a, enum_type b) {                    \
+    return ::stx::enum_or(a, b);                                               \
+  }                                                                            \
+  constexpr enum_type operator~(enum_type a) { return ::stx::enum_toggle(a); } \
+                                                                               \
+  constexpr enum_type &operator|=(enum_type &a, enum_type b) {                 \
+    a = a | b;                                                                 \
+    return a;                                                                  \
+  }                                                                            \
+                                                                               \
+  constexpr enum_type operator&(enum_type a, enum_type b) {                    \
+    return ::stx::enum_and(a, b);                                              \
+  }                                                                            \
+                                                                               \
+  constexpr enum_type &operator&=(enum_type &a, enum_type b) {                 \
+    a = a & b;                                                                 \
+    return a;                                                                  \
   }
 
 STX_END_NAMESPACE

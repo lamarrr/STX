@@ -2,7 +2,6 @@
 #include "stx/scheduler.h"
 
 #include "gtest/gtest.h"
-#include "stx/scheduler/scheduling/deferred.h"
 #include "stx/scheduler/scheduling/delay.h"
 #include "stx/scheduler/scheduling/schedule.h"
 
@@ -12,7 +11,10 @@
 TEST(SchedulerTest, Main) {
   using namespace stx;
 
-  TaskScheduler scheduler{std::chrono::steady_clock::now(), stx::os_allocator};
+  TaskScheduler scheduler{
+      stx::os_allocator,
+      std::chrono::steady_clock::now(),
+  };
 
   scheduler.tick(std::chrono::nanoseconds{1});
 

@@ -68,7 +68,7 @@ STX_BEGIN_NAMESPACE
 /// operation.
 /// NOTE: only the future's terminal states are guaranteed to have any side
 /// effect on the program's state. the other states are just for informational
-/// purposes as such, can't be relied on.
+/// purposes as such, can't be relied upon.
 ///
 ///
 ///

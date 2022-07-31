@@ -42,7 +42,7 @@ enum class TaskReady : uint8_t { No, Yes };
 constexpr TaskReady task_is_ready(nanoseconds) { return TaskReady::Yes; }
 
 // NOTE: scheduler isn't thread-safe. don't submit tasks to them from the
-// tasks.
+// tasks.  <<<======= this needs to go, we need to allow this somehow
 //
 // TODO(lamarrr): make scheduler thread-safe
 //
@@ -54,11 +54,13 @@ struct Task {
   RcFn<void()> function = fn::rc::make_static([]() {});
 
   // used to ask if the task is ready for execution.
-  // called on scheduler thread.
-  //
-  // argument is time since schedule.
   //
   // this is used for awaiting of futures or events.
+  //
+  // called on scheduler thread.
+  //
+  //
+  // argument is time past since schedule.
   //
   UniqueFn<TaskReady(nanoseconds)> poll_ready =
       fn::rc::make_unique_static(task_is_ready);
@@ -72,98 +74,38 @@ struct Task {
   // the task's identifier
   TaskId task_id{0};
 
-  // Priority to use in evaluating CPU-time worthiness
+  // priority to use in evaluating CPU-time worthiness
   TaskPriority priority = NORMAL_PRIORITY;
 
   // information needed for tracing & profiling of tasks
   TaskTraceInfo trace_info{};
 };
 
-/*
-
-// TODO(lamarrr): is this needed if the scheduler is made thread-safe?
-//
-//
-// used for:
-//
-// - conditional deferred scheduling i.e. if  a future is canceled, propagate
-// the cancelation down the chain, or if an image decode task fails, propagate
-// the error and don't schedule for loading on the GPU.
-// - dynamic scheduling i.e. scheduling more tasks after a task has finished
-//
-// presents an advantage: shutdown is handled properly if all tasks are provided
-// ahead of time.
-//
-// TODO(lamarrr): system cancelation??? coordination by the widgets??
-//
-struct DeferredTask {
-  // always called on the main scheduler thread once the task is done. it will
-  // always be executed even if the task is canceled or the executor begins
-  // shutdown.
-  //
-  // used for mapping the output of a future onto another ??? i.e. wanting to
-  // submit tasks from the task itself.
-  //
-  //
-  // can be used to extend itself??? what about if it dynamically wants to
-  // schedule on another executor??? will it be able to make that decision on
-  // the executor
-  //
-  // can other executors do same?? i.e. if we want to do same for http executor
-  //
-  //
-  // it's associated futures are pre-created and type-erased since we can't
-  // figure that out later on
-  //
-  //
-  // this can be used for implementing generators, though it'd probably need a
-  // collection mechanism.
-  //
-  //
-  //
-  RcFn<void()> schedule = fn::rc::make_static([]() {});
-
-  std::chrono::steady_clock::time_point schedule_timepoint{};
-
-  UniqueFn<TaskReady(nanoseconds)> poll_ready =
-      fn::rc::make_unique_static(task_is_ready);
-
-  TaskId task_id{0};
-
-  TaskTraceInfo trace_info{};
-};
-*/
-
 // scheduler just dispatches to the task timeline once the tasks are
 // ready for execution
 struct TaskScheduler {
-  struct TaskThread {
-    Rc<ThreadSlot*> task_slot;
-    std::thread thread;
-  };
-
-  // if task is a ready one, add it to the schedule timeline immediately. this
-  // should probably be renamed to the execution timeline.
-  //
   TaskScheduler(Allocator iallocator, timepoint ireference_timepoint)
-      : reference_timepoint{ireference_timepoint},
+      : allocator{iallocator},
+        reference_timepoint{ireference_timepoint},
         entries{iallocator},
-        timeline{iallocator},
         cancelation_promise{make_promise<void>(iallocator).unwrap()},
-        deferred_entries{iallocator},
+        next_task_id{0},
         thread_pool{iallocator},
-        allocator{iallocator} {}
+        timeline{iallocator} {}
 
+  // if task is a ready one, add it to the schedule timeline immediately
   void tick(nanoseconds interval) {
     timepoint present = std::chrono::steady_clock::now();
 
-    auto [___x, ready_tasks] =
-        entries.span().partition([present](Task const& task) {
-          return task.poll_ready.handle(present - task.schedule_timepoint) ==
-                 TaskReady::No;
-        });
+    Span ready_tasks =
+        entries.span()
+            .partition([present](Task const& task) {
+              return task.poll_ready.handle(
+                         present - task.schedule_timepoint) == TaskReady::No;
+            })
+            .second;
 
-    for (auto& task : ready_tasks) {
+    for (Task& task : ready_tasks) {
       timeline
           .add_task(std::move(task.function), std::move(task.scheduler_promise),
                     present, task.task_id, task.priority)
@@ -175,21 +117,6 @@ struct TaskScheduler {
     timeline.tick(thread_pool.get_thread_slots(), present);
     thread_pool.tick(interval);
 
-    {
-      // run deferred scheduling tasks
-      auto [___x, ready_tasks] =
-          deferred_entries.span().partition([present](DeferredTask& task) {
-            return task.poll_ready.handle(present - task.schedule_timepoint) ==
-                   TaskReady::No;
-          });
-
-      for (auto& ready_task : ready_tasks) {
-        ready_task.schedule.handle();
-      }
-
-      deferred_entries = vec::erase(std::move(deferred_entries), ready_tasks);
-    }
-
     // if cancelation requested,
     // begin shutdown sequence
     // cancel non-critical tasks
@@ -199,14 +126,13 @@ struct TaskScheduler {
     }
   }
 
+  Allocator allocator;
   timepoint reference_timepoint;
   Vec<Task> entries;
-  ScheduleTimeline timeline;
   Promise<void> cancelation_promise;
-  uint64_t next_task_id{0};
-  Vec<DeferredTask> deferred_entries;
+  uint64_t next_task_id;
   ThreadPool thread_pool;
-  Allocator allocator;
+  ScheduleTimeline timeline;
 };
 
 // Processes stream operations on every tick.
@@ -277,7 +203,7 @@ struct StreamPipeline {
     //
   }
 
-  Vec<stx::RcFn<void()>> jobs;
+  Vec<RcFn<void()>> jobs;
 };
 */
 

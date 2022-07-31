@@ -6,11 +6,11 @@
 #include "gtest/gtest.h"
 #include "stx/scheduler.h"
 #include "stx/scheduler/scheduling/await.h"
-#include "stx/scheduler/scheduling/deferred.h"
 #include "stx/scheduler/scheduling/delay.h"
 #include "stx/scheduler/scheduling/schedule.h"
 
 using namespace std::chrono_literals;
+using namespace stx;
 
 #define STX_LOG(str) std::cout << str << std::endl;
 
@@ -23,28 +23,28 @@ float rawrrr(float arg) {
 }
 
 void gggg() {
-  stx::Promise promise = stx::make_promise<int>(stx::os_allocator).unwrap();
-  stx::Future future = promise.get_future();
-  // auto [future2, promise2] = stx::make_future<void>();
+  Promise promise = make_promise<int>(os_allocator).unwrap();
+  Future future = promise.get_future();
+  // auto [future2, promise2] = make_future<void>();
 
-  auto fn = stx::fn::rc::make_functor(stx::os_allocator, [](int value) {
+  auto fn = fn::rc::make_functor(os_allocator, [](int value) {
               STX_LOG("value {}", value);
             }).unwrap();
 
-  auto g = stx::fn::rc::make_static(rawrrr);
+  auto g = fn::rc::make_static(rawrrr);
 
   g.handle(5);
 
-  auto xg = stx::fn::rc::make_static([](float a) { return rawrrr(a); });
+  auto xg = fn::rc::make_static([](float a) { return rawrrr(a); });
 
   xg.handle(34);
 
   fn.handle(8);
 
-  auto d = stx::fn::rc::make_static(
-      [](stx::Future<int>, stx::Future<void>) { STX_LOG("all ready!"); });
+  auto d = fn::rc::make_static(
+      [](Future<int>, Future<void>) { STX_LOG("all ready!"); });
 
-  stx::Chain{[](stx::Void) -> int {
+  Chain{[](Void) -> int {
                STX_LOG("executing 1 ...");
                std::this_thread::sleep_for(1s);
                return 0;
@@ -68,15 +68,15 @@ void gggg() {
 
   // d.get()();
 
-  stx::TaskPriority::Background, vlk::TaskTraceInfo{}, future,
+  TaskPriority::Background, vlk::TaskTraceInfo{}, future,
   future2);
 
 promise.notify_completed(8);
 promise2.notify_completed();
 */
 /*
-  sched.schedule(stx::make_static_fn([]() { return; }),
-                 stx::TaskPriority::Background, {});
+  sched.schedule(make_static_fn([]() { return; }),
+                 TaskPriority::Background, {});
   sched.schedule_chain(vlk::Chain{[](vlk::Void) -> int {
                                     STX_LOG("executing 1 ...");
                                     std::this_thread::sleep_for(1s);
@@ -98,7 +98,7 @@ promise2.notify_completed();
                                     return y + 5;
                                   },
                                   rawrrr},
-                       stx::TaskPriority::Critical, vlk::TaskTraceInfo{});
+                       TaskPriority::Critical, vlk::TaskTraceInfo{});
 
   for (auto& task : sched.entries) {
     if (task.state == vlk::TaskScheduler::EntryState::Scheduled &&
@@ -118,17 +118,16 @@ struct alignas(64) fuck {
 TEST(ScheduleTimelineTest, Tick) {
   auto timepoint = std::chrono::steady_clock::now();
   {
-    stx::ScheduleTimeline timeline{stx::os_allocator};
+    ScheduleTimeline timeline{os_allocator};
 
-    stx::Vec<stx::Rc<stx::ThreadSlot *>> slots{stx::noop_allocator};
+    Vec<Rc<ThreadSlot *>> slots{noop_allocator};
 
     timeline.tick(slots.span(), timepoint);
 
     timeline
-        .add_task(stx::fn::rc::make_static([]() {}),
-                  stx::PromiseAny{
-                      stx::make_promise<void>(stx::os_allocator).unwrap()},
-                  timepoint, {}, stx::NORMAL_PRIORITY)
+        .add_task(fn::rc::make_static([]() {}),
+                  PromiseAny{make_promise<void>(os_allocator).unwrap()},
+                  timepoint, {}, NORMAL_PRIORITY)
         .unwrap();
 
     timeline.tick(slots.span(), timepoint);
@@ -137,25 +136,23 @@ TEST(ScheduleTimelineTest, Tick) {
   }
 
   {
-    stx::ScheduleTimeline timeline{stx::os_allocator};
+    ScheduleTimeline timeline{os_allocator};
 
-    stx::Vec<stx::Rc<stx::ThreadSlot *>> slots{stx::os_allocator};
+    Vec<Rc<ThreadSlot *>> slots{os_allocator};
 
     for (size_t i = 0; i < 10; i++)
-      slots = stx::vec::push(
-                  std::move(slots),
-                  stx::rc::make_inplace<stx::ThreadSlot>(
-                      stx::os_allocator,
-                      stx::make_promise<void>(stx::os_allocator).unwrap())
-                      .unwrap())
-                  .unwrap();
+      slots =
+          vec::push(std::move(slots),
+                    rc::make_inplace<ThreadSlot>(
+                        os_allocator, make_promise<void>(os_allocator).unwrap())
+                        .unwrap())
+              .unwrap();
 
     for (size_t i = 0; i < 20; i++) {
       timeline
-          .add_task(stx::fn::rc::make_static([]() {}),
-                    stx::PromiseAny{
-                        stx::make_promise<void>(stx::os_allocator).unwrap()},
-                    timepoint, stx::TaskId{0}, stx::NORMAL_PRIORITY)
+          .add_task(fn::rc::make_static([]() {}),
+                    PromiseAny{make_promise<void>(os_allocator).unwrap()},
+                    timepoint, TaskId{0}, NORMAL_PRIORITY)
           .unwrap();
     }
 
@@ -166,13 +163,8 @@ TEST(ScheduleTimelineTest, Tick) {
     EXPECT_EQ(timeline.starvation_timeline.size(), 20);
   }
 
-  // stx::Dynamic dyn_array =
-  //   stx::dyn::make(stx::os_allocator, std::array<fuck, 400>{}).unwrap();
-  // dyn_array->size();
-  // dyn_array->empty();
-
-  stx::String h = stx::string::make_static("Hello boy");
-  stx::String y = stx::string::make(stx::os_allocator, "Hello boy").unwrap();
+  String h = string::make_static("Hello boy");
+  String y = string::make(os_allocator, "Hello boy").unwrap();
   EXPECT_TRUE(h == "Hello boy");
   EXPECT_FALSE(h == "Hello Boy");
 
@@ -185,14 +177,14 @@ TEST(ScheduleTimelineTest, Tick) {
 void brr() {}
 int rx() { return 0; }
 
-int first(stx::Void) { return 0; }
+int first(Void) { return 0; }
 int rx_loop(int64_t) { return 0; }
 
 TEST(SchedulerTest, HH) {
   using namespace stx;
   using namespace std::chrono_literals;
 
-  TaskScheduler scheduler{std::chrono::steady_clock::now(), stx::os_allocator};
+  TaskScheduler scheduler{os_allocator, std::chrono::steady_clock::now()};
 
   sched::fn(scheduler, []() { return 0; }, CRITICAL_PRIORITY, {});
 
@@ -200,7 +192,7 @@ TEST(SchedulerTest, HH) {
   Future b =
       sched::chain(scheduler, Chain{first, rx_loop}, INTERACTIVE_PRIORITY, {});
 
-  //
+  // TODO(lamarrr):
   // auto [a_d, b_d] =  reap/drain(a, b)
   // we need an operator to finialize on the await operation.
   // i.e. drain
@@ -221,19 +213,6 @@ TEST(SchedulerTest, HH) {
   sched::delay(
       scheduler, []() {}, NORMAL_PRIORITY, {}, 500ms);
 
-  Future<Option<Future<int>>> schedule = sched::deferred(
-      scheduler,
-      [&scheduler](Future<int> a, Future<int> b) -> Option<Future<int>> {
-        if (a.fetch_status() == FutureStatus::Canceled ||
-            b.fetch_status() == FutureStatus::Canceled) {
-          return stx::None;
-        } else {
-          return Some(sched::fn(scheduler, []() -> int { return 8; },
-                                INTERACTIVE_PRIORITY, {}));
-        }
-      },
-      a.share(), b.share());
-
   // join stream
   // split stream
   // filter
@@ -244,7 +223,7 @@ TEST(SchedulerTest, HH) {
 
 TEST(Scheduler, ThreadSlots) {
   using namespace stx;
-  ThreadSlot slot{stx::make_promise<void>(stx::os_allocator).unwrap()};
+  ThreadSlot slot{make_promise<void>(os_allocator).unwrap()};
 
   ThreadSlot::Query query0 = slot.slot.query();
 
@@ -252,8 +231,8 @@ TEST(Scheduler, ThreadSlots) {
   EXPECT_TRUE(query0.executing_task.is_none());
   EXPECT_TRUE(query0.pending_task.is_none());
 
-  slot.slot.push_task(ThreadSlot::Task{
-      stx::fn::rc::make_static([]() { STX_LOG("1"); }), stx::TaskId{1}});
+  slot.slot.push_task(
+      ThreadSlot::Task{fn::rc::make_static([]() { STX_LOG("1"); }), TaskId{1}});
 
   // test that popping tasks from the queue works as expected
   EXPECT_TRUE(slot.slot.try_pop_task().is_some());
@@ -263,7 +242,7 @@ TEST(Scheduler, ThreadSlots) {
   EXPECT_TRUE(query0.pending_task.is_none());
 
   slot.slot.push_task(
-      ThreadSlot::Task{stx::fn::rc::make_static([]() {}), stx::TaskId{1}});
+      ThreadSlot::Task{fn::rc::make_static([]() {}), TaskId{1}});
 
   EXPECT_TRUE(query0.executing_task.is_none());
   EXPECT_TRUE(query0.pending_task.is_none());
@@ -274,47 +253,43 @@ TEST(Timeline, Sample) {
 
   // Testing for work spreading amongst CPU cores
 
-  ScheduleTimeline timeline{stx::os_allocator};
+  ScheduleTimeline timeline{os_allocator};
 
-  (void)timeline.add_task(
-      stx::fn::rc::make_static([]() { STX_LOG("1"); }),
-      stx::PromiseAny{stx::make_promise<void>(stx::os_allocator).unwrap()},
-      std::chrono::steady_clock::now(), stx::TaskId{1}, stx::NORMAL_PRIORITY);
+  (void)timeline.add_task(fn::rc::make_static([]() { STX_LOG("1"); }),
+                          PromiseAny{make_promise<void>(os_allocator).unwrap()},
+                          std::chrono::steady_clock::now(), TaskId{1},
+                          NORMAL_PRIORITY);
 
-  (void)timeline.add_task(
-      stx::fn::rc::make_static([]() { STX_LOG("2"); }),
-      stx::PromiseAny{stx::make_promise<void>(stx::os_allocator).unwrap()},
-      std::chrono::steady_clock::now(), stx::TaskId{2}, stx::NORMAL_PRIORITY);
+  (void)timeline.add_task(fn::rc::make_static([]() { STX_LOG("2"); }),
+                          PromiseAny{make_promise<void>(os_allocator).unwrap()},
+                          std::chrono::steady_clock::now(), TaskId{2},
+                          NORMAL_PRIORITY);
 
-  (void)timeline.add_task(
-      stx::fn::rc::make_static([]() { STX_LOG("3"); }),
-      stx::PromiseAny{stx::make_promise<void>(stx::os_allocator).unwrap()},
-      std::chrono::steady_clock::now(), stx::TaskId{3}, stx::NORMAL_PRIORITY);
+  (void)timeline.add_task(fn::rc::make_static([]() { STX_LOG("3"); }),
+                          PromiseAny{make_promise<void>(os_allocator).unwrap()},
+                          std::chrono::steady_clock::now(), TaskId{3},
+                          NORMAL_PRIORITY);
 
-  (void)timeline.add_task(
-      stx::fn::rc::make_static([]() { STX_LOG("4"); }),
-      stx::PromiseAny{stx::make_promise<void>(stx::os_allocator).unwrap()},
-      std::chrono::steady_clock::now(), stx::TaskId{4}, stx::NORMAL_PRIORITY);
+  (void)timeline.add_task(fn::rc::make_static([]() { STX_LOG("4"); }),
+                          PromiseAny{make_promise<void>(os_allocator).unwrap()},
+                          std::chrono::steady_clock::now(), TaskId{4},
+                          NORMAL_PRIORITY);
 
   std::array<Rc<ThreadSlot *>, 4> slot{
-      stx::rc::make_inplace<ThreadSlot>(
-          stx::os_allocator,
-          stx::make_promise<void>(stx::os_allocator).unwrap())
+      rc::make_inplace<ThreadSlot>(os_allocator,
+                                   make_promise<void>(os_allocator).unwrap())
           .unwrap(),
-      stx::rc::make_inplace<ThreadSlot>(
-          stx::os_allocator,
-          stx::make_promise<void>(stx::os_allocator).unwrap())
+      rc::make_inplace<ThreadSlot>(os_allocator,
+                                   make_promise<void>(os_allocator).unwrap())
           .unwrap(),
-      stx::rc::make_inplace<ThreadSlot>(
-          stx::os_allocator,
-          stx::make_promise<void>(stx::os_allocator).unwrap())
+      rc::make_inplace<ThreadSlot>(os_allocator,
+                                   make_promise<void>(os_allocator).unwrap())
           .unwrap(),
-      stx::rc::make_inplace<ThreadSlot>(
-          stx::os_allocator,
-          stx::make_promise<void>(stx::os_allocator).unwrap())
+      rc::make_inplace<ThreadSlot>(os_allocator,
+                                   make_promise<void>(os_allocator).unwrap())
           .unwrap()};
 
-  timeline.tick(stx::Span{slot.data(), slot.size()},
+  timeline.tick(Span{slot.data(), slot.size()},
                 std::chrono::steady_clock::now());
 
   EXPECT_TRUE(slot[0].handle->slot.query().can_push);

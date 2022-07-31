@@ -55,70 +55,63 @@ struct ThreadPool {
 
   explicit ThreadPool(Allocator allocator)
       : num_threads{std::max<size_t>(std::thread::hardware_concurrency(), 1)},
-        threads{
-            stx::vec::make_fixed<std::thread>(allocator, num_threads).unwrap()},
+        threads{vec::make_fixed<std::thread>(allocator, num_threads).unwrap()},
         thread_slots{
-            stx::vec::make_fixed<stx::Rc<ThreadSlot*>>(allocator, num_threads)
-                .unwrap()},
-        promise{stx::make_promise<void>(allocator).unwrap()} {
+            vec::make_fixed<Rc<ThreadSlot*>>(allocator, num_threads).unwrap()},
+        promise{make_promise<void>(allocator).unwrap()} {
     promise.notify_executing();
 
     for (size_t i = 0; i < num_threads; i++) {
-      thread_slots =
-          stx::vec::push_inplace(
-              std::move(thread_slots),
-              stx::rc::make_inplace<ThreadSlot>(
-                  allocator, stx::make_promise<void>(allocator).unwrap())
-                  .unwrap())
-              .unwrap();
+      thread_slots = vec::push_inplace(
+                         std::move(thread_slots),
+                         rc::make_inplace<ThreadSlot>(
+                             allocator, make_promise<void>(allocator).unwrap())
+                             .unwrap())
+                         .unwrap();
     }
 
     for (size_t i = 0; i < num_threads; i++) {
-      threads = stx::vec::push_inplace(
-                    std::move(threads),
-                    [slot = &thread_slots.span()[i].handle->slot] {
-                      // TODO(lamarrr): separate this and ensure no thread
-                      // panics whilst holding a lock or even communicating
-                      uint64_t eventless_polls = 0;
-                      while (true) {
-                        stx::RequestedCancelState requested_cancel_state =
-                            slot->promise.fetch_cancel_request();
+      threads =
+          vec::push_inplace(std::move(threads), [slot = &thread_slots.span()[i]
+                                                             .handle->slot] {
+            // TODO(lamarrr): separate this and ensure no thread
+            // panics whilst holding a lock or even communicating
+            uint64_t eventless_polls = 0;
+            while (true) {
+              RequestedCancelState requested_cancel_state =
+                  slot->promise.fetch_cancel_request();
 
-                        if (requested_cancel_state ==
-                            stx::RequestedCancelState::Canceled) {
-                          slot->promise.notify_canceled();
-                          return;
-                        }
+              if (requested_cancel_state == RequestedCancelState::Canceled) {
+                slot->promise.notify_canceled();
+                return;
+              }
 
-                        timepoint task_poll_begin =
-                            std::chrono::steady_clock::now();
+              timepoint task_poll_begin = std::chrono::steady_clock::now();
 
-                        // keep polling for tasks and executing them as long as
-                        // we are within the time limit.
-                        //
-                        // once the time limit is reached we need to poll for
-                        // cancelation of the thread
-                        //
-                        auto now = task_poll_begin;
-                        while ((now - task_poll_begin) <
-                               CANCELATION_POLL_MIN_PERIOD) {
-                          Option task = slot->try_pop_task();
-                          if (task.is_some()) {
-                            task.value().handle();
-                            eventless_polls = 0;
-                          } else {
-                            eventless_polls++;
-                            milliseconds sleep_duration =
-                                impl::bounded_exponential_backoff(
-                                    eventless_polls, STALL_TIMEOUT);
-                            std::this_thread::sleep_until(now + sleep_duration);
-                          }
+              // keep polling for tasks and executing them as long as
+              // we are within the time limit.
+              //
+              // once the time limit is reached we need to poll for
+              // cancelation of the thread
+              //
+              auto now = task_poll_begin;
+              while ((now - task_poll_begin) < CANCELATION_POLL_MIN_PERIOD) {
+                Option task = slot->try_pop_task();
+                if (task.is_some()) {
+                  task.value().handle();
+                  eventless_polls = 0;
+                } else {
+                  eventless_polls++;
+                  milliseconds sleep_duration =
+                      impl::bounded_exponential_backoff(eventless_polls,
+                                                        STALL_TIMEOUT);
+                  std::this_thread::sleep_until(now + sleep_duration);
+                }
 
-                          now = std::chrono::steady_clock::now();
-                        }
-                      }
-                    })
-                    .unwrap();
+                now = std::chrono::steady_clock::now();
+              }
+            }
+          }).unwrap();
     }
   }
 
@@ -132,7 +125,7 @@ struct ThreadPool {
     }
   }
 
-  stx::Span<Rc<ThreadSlot*> const> get_thread_slots() const {
+  Span<Rc<ThreadSlot*> const> get_thread_slots() const {
     return thread_slots.span().as_const();
   }
 
@@ -141,8 +134,7 @@ struct ThreadPool {
   void tick(nanoseconds) {
     switch (state) {
       case State::Running: {
-        if (promise.fetch_cancel_request() ==
-            stx::RequestedCancelState::Canceled) {
+        if (promise.fetch_cancel_request() == RequestedCancelState::Canceled) {
           for (auto& slot : thread_slots.span()) {
             slot.handle->slot.promise.get_future().request_cancel();
           }
@@ -180,7 +172,7 @@ struct ThreadPool {
   // slots are not stored in the thread's lambda since we want to push tasks
   // onto them
   FixedVec<Rc<ThreadSlot*>> thread_slots;
-  stx::Promise<void> promise;
+  Promise<void> promise;
   State state = State::Running;
 };
 
