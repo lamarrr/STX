@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <iostream>
 #include <thread>
 #include <utility>
 
@@ -110,13 +111,6 @@ struct ScheduleTimeline {
     //
     //
     for (Task& task : starvation_timeline.span()) {
-
-
-      // TODO(lamarrr): what if task is still running? is this the right place
-      // to handle this?
- 
- 
-
       // the status could have been modified in another thread, so we need
       // to fetch the status
       FutureStatus new_status = task.promise.fetch_status();
@@ -152,8 +146,10 @@ struct ScheduleTimeline {
             })
             .first;
 
-    // sort by preemption/starvation duration (descending)
+    // sort hungry tasks by preemption/starvation duration (descending)
     starving.sort([](Task const& a, Task const& b) {
+      // TODO(lamarrr): is this correct, we need to use the duration between
+      // last execution timepoint and present timepoint
       return a.last_suspend_timepoint > b.last_suspend_timepoint;
     });
 
@@ -162,24 +158,23 @@ struct ScheduleTimeline {
 
   // returns end of selections (sorted by priority in descending order)
   auto select_tasks_for_slots(size_t num_slots) {
-    Span span = starvation_timeline.span();
-    auto* timeline_selection_it = span.begin();
-
     // select only starving and ready tasks
     Span starving = sort_and_partition_timeline();
+    auto* starving_end = starving.end();
+
+    auto* timeline_selection_it = starving.begin();
 
     timepoint const most_starved_task_timepoint =
-        span[0].last_suspend_timepoint;
+        starving[0].last_suspend_timepoint;
 
     nanoseconds selection_period_span = STARVATION_PERIOD;
 
-    auto* starving_end = starving.end();
-
+    // TODO(lamarrr): review this logic
     while (timeline_selection_it < starving_end) {
       if ((timeline_selection_it->last_suspend_timepoint -
            most_starved_task_timepoint) <= selection_period_span) {
         // add to timeline selection
-      } else if (static_cast<size_t>(timeline_selection_it - span.begin()) <
+      } else if (static_cast<size_t>(timeline_selection_it - starving.begin()) <
                  num_slots) {
         // if there's not enough tasks to fill up all the slots, extend
         // the starvation period span
@@ -193,10 +188,10 @@ struct ScheduleTimeline {
 
     // sort selection span by priority
     std::sort(
-        span.begin(), timeline_selection_it,
+        starving.begin(), timeline_selection_it,
         [](Task const& a, Task const& b) { return a.priority > b.priority; });
 
-    size_t num_selected = timeline_selection_it - span.begin();
+    size_t num_selected = timeline_selection_it - starving.begin();
 
     return std::min(num_slots, num_selected);
   }
@@ -221,8 +216,8 @@ struct ScheduleTimeline {
         },
         thread_slots_capture.span());
 
-    remove_done_and_canceled_tasks();
     poll_tasks(present_timepoint);
+    remove_done_and_canceled_tasks();
 
     if (starvation_timeline.is_empty()) return;
 
@@ -236,9 +231,16 @@ struct ScheduleTimeline {
     // we don't expect just-suspended tasks to suspend immediately, even if
     // they do we'll process them in the next tick and our we account for that.
     //
+    std::cout << "span 1 size:" << starvation_timeline.span().size()
+              << " addr:" << (void*)starvation_timeline.span().begin()
+              << " num_selected:" << num_selected << std::endl;
+
+    //  TODO(lamarrr): .slice should return an empty span here since the offset
+    //  points to the end of the span
     for (Task const& task : starvation_timeline.span().slice(num_selected)) {
       if (task.last_status_poll != FutureStatus::Suspended) {
         task.promise.request_suspend();
+        // TODO(lamarrr): what about notifying the suspended state and adding tasks once they are done
       }
     }
 
@@ -252,6 +254,10 @@ struct ScheduleTimeline {
     // are still using some of the slots. tasks that don't get assigned to slots
     // here will get assigned in the next tick
     //
+    std::cout << "span 2 size:" << starvation_timeline.size()
+              << " addr:" << (void*)starvation_timeline.begin()
+              << " num_selected:" << num_selected << std::endl;
+
     for (Task const& task : starvation_timeline.span().slice(0, num_selected)) {
       auto selection = thread_slots_capture.span().which(
           [&task](ThreadSlot::Query const& query) {
