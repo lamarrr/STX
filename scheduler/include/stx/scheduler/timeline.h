@@ -170,20 +170,32 @@ struct ScheduleTimeline {
     nanoseconds selection_period_span = STARVATION_PERIOD;
 
     // TODO(lamarrr): review this logic
-    while (timeline_selection_it < starving_end) {
+
+    while (timeline_selection_it < starving_end &&
+           static_cast<size_t>(timeline_selection_it - starving.begin()) <
+               num_slots) {
       if ((timeline_selection_it->last_suspend_timepoint -
            most_starved_task_timepoint) <= selection_period_span) {
         // add to timeline selection
-      } else if (static_cast<size_t>(timeline_selection_it - starving.begin()) <
-                 num_slots) {
-        // if there's not enough tasks to fill up all the slots, extend
-        // the starvation period span
-        selection_period_span += STARVATION_PERIOD;
-      } else {
-        break;
-      }
+        timeline_selection_it++;
+      } else if ((timeline_selection_it->last_suspend_timepoint -
+                  most_starved_task_timepoint) > selection_period_span &&
+                 static_cast<size_t>(timeline_selection_it - starving.begin()) <
+                     num_slots) {
+        // if there's not enough tasks within the current starvation period span
+        // to fill up all the slots then extend the starvation period span
+        // (multiple enough to cover this selection's timepoint)
+        nanoseconds diff = timeline_selection_it->last_suspend_timepoint -
+                           most_starved_task_timepoint;
 
-      timeline_selection_it++;
+        int64_t multiplier =
+            (diff + (STARVATION_PERIOD - nanoseconds{1})) / STARVATION_PERIOD;
+
+        selection_period_span += STARVATION_PERIOD * multiplier;
+        timeline_selection_it++;
+      } else {
+        // no more slots to add task to
+      }
     }
 
     // sort selection span by priority
