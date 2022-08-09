@@ -125,6 +125,7 @@ struct Span {
   using Type = T;
   using Reference = T&;
   using Iterator = T*;
+  using Pointer = T*;
   using ConstIterator = T const*;
   using Size = size_t;
   using Index = size_t;
@@ -169,7 +170,7 @@ struct Span {
       : iterator_{static_cast<Iterator>(std::data(container))},
         size_{std::size(container)} {}
 
-  constexpr Iterator data() const { return iterator_; }
+  constexpr Pointer data() const { return iterator_; }
 
   constexpr Size size() const { return size_; }
 
