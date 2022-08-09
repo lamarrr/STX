@@ -323,7 +323,7 @@ struct Span {
   }
 
   constexpr bool contains(T const& object) const {
-    return find(object).size() != 0;
+    return !find(object).is_empty();
   }
 
   template <typename Predicate>
