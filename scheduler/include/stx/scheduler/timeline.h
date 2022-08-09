@@ -72,6 +72,7 @@ struct ScheduleTimeline {
   explicit ScheduleTimeline(Allocator allocator)
       : starvation_timeline{allocator}, thread_slots_capture{allocator} {}
 
+  // promise is expected to have the 'Scheduled' state
   Result<Void, AllocError> add_task(RcFn<void()>&& fn, PromiseAny&& promise,
                                     timepoint present_timepoint, TaskId id,
                                     TaskPriority priority) {
