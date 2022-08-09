@@ -76,7 +76,6 @@ struct ScheduleTimeline {
   Result<Void, AllocError> add_task(RcFn<void()>&& fn, PromiseAny&& promise,
                                     timepoint present_timepoint, TaskId id,
                                     TaskPriority priority) {
-    // all tasks are suspended upon entry since they won't be executed yet
     TRY_OK(new_timeline, vec::push(std::move(starvation_timeline),
                                    Task{std::move(fn), std::move(promise),
                                         present_timepoint, id, priority}));
