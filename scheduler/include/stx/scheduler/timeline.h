@@ -38,10 +38,7 @@ using std::chrono::nanoseconds;
 ///
 /// tasks in the timeline are ready-to-execute or suspended tasks
 struct ScheduleTimeline {
-  static constexpr nanoseconds INTERRUPT_PERIOD{16ms};
-  static constexpr uint8_t STARVATION_FACTOR{4};
-  static constexpr nanoseconds STARVATION_PERIOD =
-      INTERRUPT_PERIOD * STARVATION_FACTOR;
+  static constexpr nanoseconds STARVATION_PERIOD = 16ms * 4;
 
   struct Task {
     // task to execute
@@ -53,6 +50,7 @@ struct ScheduleTimeline {
     // the timepoint the task became ready for execution. in the case of a
     // suspended task, it correlates with the timepoint the task became ready
     // for resumption
+    // TODO(lamarrr): rename this to last_preempt_timepoint
     timepoint last_suspend_timepoint{};
 
     // assigned id of the task
@@ -121,6 +119,8 @@ struct ScheduleTimeline {
         task.last_suspend_timepoint = present_timepoint;
       }
 
+      //// TODO(lamarrr): is this correct?
+
       task.last_status_poll = new_status;
     }
   }
@@ -128,7 +128,7 @@ struct ScheduleTimeline {
   // TODO(lamarrr): are task states updated just before executiong or
   // resumption?
 
-  // returns a span of the starving tasks (non-suspended)
+  // returns a sorted span of the starving tasks (non-suspended)
   auto sort_and_partition_timeline() {
     // ASSUMPTION(unproven): The tasks are mostly sorted so we are very
     // unlikely to pay much cost in sorting???
@@ -136,7 +136,7 @@ struct ScheduleTimeline {
     //
     // split into ready to execute (pre-empted or running) and suspended
     // partition
-    Span starving =
+    Span const starving =
         starvation_timeline.span()
             .partition([](Task const& task) {
               // TODO(lamarrr): this logic is flawed since newly added (& ready)
@@ -146,21 +146,18 @@ struct ScheduleTimeline {
             })
             .first;
 
-    // sort hungry tasks by preemption/starvation duration (descending)
-    starving.sort([](Task const& a, Task const& b) {
-      // TODO(lamarrr): is this correct, we need to use the duration between
-      // last execution timepoint and present timepoint
-      return a.last_suspend_timepoint > b.last_suspend_timepoint;
+    // sort hungry tasks by preemption/starvation duration (descending, i.e.
+    // most starved first)
+    // TODO(lamarrr): this is presently never updated
+    return starving.sort([](Task const& a, Task const& b) {
+      return a.last_suspend_timepoint < b.last_suspend_timepoint;
     });
-
-    return starving;
   }
 
   // returns end of selections (sorted by priority in descending order)
-  auto select_tasks_for_slots(size_t num_slots) {
+  size_t select_tasks_for_slots(size_t num_slots) {
     // select only starving and ready tasks
     Span starving = sort_and_partition_timeline();
-    auto* starving_end = starving.end();
 
     auto* timeline_selection_it = starving.begin();
 
@@ -169,32 +166,34 @@ struct ScheduleTimeline {
 
     nanoseconds selection_period_span = STARVATION_PERIOD;
 
-    // TODO(lamarrr): review this logic
-
-    while (timeline_selection_it < starving_end &&
-           static_cast<size_t>(timeline_selection_it - starving.begin()) <
-               num_slots) {
+    while (timeline_selection_it < starving.end()) {
       if ((timeline_selection_it->last_suspend_timepoint -
            most_starved_task_timepoint) <= selection_period_span) {
         // add to timeline selection
         timeline_selection_it++;
+        continue;
       } else if ((timeline_selection_it->last_suspend_timepoint -
                   most_starved_task_timepoint) > selection_period_span &&
-                 static_cast<size_t>(timeline_selection_it - starving.begin()) <
-                     num_slots) {
+                 (static_cast<size_t>(timeline_selection_it -
+                                      starving.begin()) < num_slots)) {
         // if there's not enough tasks within the current starvation period span
         // to fill up all the slots then extend the starvation period span
         // (multiple enough to cover this selection's timepoint)
         nanoseconds diff = timeline_selection_it->last_suspend_timepoint -
                            most_starved_task_timepoint;
 
+        // (STARVATION_PERIOD-1ns) added since division by STARVATION_PERIOD
+        // ONLY will result in the remainder of the division operation being
+        // trimmed off
         int64_t multiplier =
             (diff + (STARVATION_PERIOD - nanoseconds{1})) / STARVATION_PERIOD;
 
         selection_period_span += STARVATION_PERIOD * multiplier;
+
         timeline_selection_it++;
+        continue;
       } else {
-        // no more slots to add task to
+        break;
       }
     }
 
@@ -205,7 +204,11 @@ struct ScheduleTimeline {
 
     size_t num_selected = timeline_selection_it - starving.begin();
 
-    return std::min(num_slots, num_selected);
+    // the number of selected starving tasks might be more than the number of
+    // available ones, so we select the top tasks (by priority)
+    num_selected = std::min(num_slots, num_selected);
+
+    return num_selected;
   }
 
   // slots uses Rc because we need a stable address
@@ -235,7 +238,8 @@ struct ScheduleTimeline {
 
     size_t const num_selected = select_tasks_for_slots(num_slots);
 
-    // request suspend of non-selected tasks,
+    // request suspend of non-selected tasks since they might be running (only
+    // works if the task type supports suspension)
     //
     // we only do this if the task is not already force suspended since it could
     // be potentially expensive if the promises are very far apart in memory.
@@ -243,21 +247,13 @@ struct ScheduleTimeline {
     // we don't expect just-suspended tasks to suspend immediately, even if
     // they do we'll process them in the next tick and our we account for that.
     //
-    std::cout << "span 1 size:" << starvation_timeline.span().size()
-              << " addr:" << (void*)starvation_timeline.span().begin()
-              << " num_selected:" << num_selected << std::endl;
-
-    //  TODO(lamarrr): .slice should return an empty span here since the offset
-    //  points to the end of the span
     for (Task const& task : starvation_timeline.span().slice(num_selected)) {
       if (task.last_status_poll != FutureStatus::Suspended) {
         task.promise.request_suspend();
-        // TODO(lamarrr): what about notifying the suspended state and adding tasks once they are done
+        // TODO(lamarrr): what about notifying the suspended state and adding
+        // tasks once they are done
       }
     }
-
-    // add tasks to slot if not already on the slots
-    size_t next_slot = 0;
 
     // push the tasks onto the task slots if the task is not already on any of
     // the slots.
@@ -266,23 +262,30 @@ struct ScheduleTimeline {
     // are still using some of the slots. tasks that don't get assigned to slots
     // here will get assigned in the next tick
     //
-    std::cout << "span 2 size:" << starvation_timeline.size()
-              << " addr:" << (void*)starvation_timeline.begin()
-              << " num_selected:" << num_selected << std::endl;
+    // add tasks to slot if not already on the slots
+    size_t next_slot = 0;
 
     for (Task const& task : starvation_timeline.span().slice(0, num_selected)) {
-      auto selection = thread_slots_capture.span().which(
-          [&task](ThreadSlot::Query const& query) {
-            return query.executing_task.contains(task.id) ||
-                   query.pending_task.contains(task.id);
-          });
+      bool has_slot = !thread_slots_capture.span()
+                           .which([&task](ThreadSlot::Query const& query) {
+                             return query.executing_task.contains(task.id) ||
+                                    query.pending_task.contains(task.id);
+                           })
+                           .is_empty();
 
-      bool has_slot = !selection.is_empty();
+      if (has_slot) continue;
 
       while (next_slot < num_slots && !has_slot) {
-        if (thread_slots_capture.span()[next_slot].can_push) {
-          // possibly a suspended task
+        if (thread_slots_capture[next_slot].can_push) {
+          // possibly a suspended task.
+          // tasks are expected to check their suspension request state. we have
+          // to clear it so the task won't suspend again
+          // TODO(lamarrr): what if suspension was requested again? don't we
+          // need an atomic op for this?
+          //
+          // what if it the user made a suspend request?
           task.promise.clear_suspension_request();
+          // task.promise.clear_preempt_request()
           slots[next_slot].handle->slot.push_task(
               ThreadSlot::Task{task.fn.share(), task.id});
           has_slot = true;
@@ -293,9 +296,6 @@ struct ScheduleTimeline {
     }
   }
 
-  // pending tasks
-  // TODO(lamarrr): newly ready tasks must be marked as suspended
-  //
   Vec<Task> starvation_timeline;
   Vec<ThreadSlot::Query> thread_slots_capture;
 };
