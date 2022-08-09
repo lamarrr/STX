@@ -341,21 +341,6 @@ struct Span {
     return Span<T>{iterator_ + size_, 0};
   }
 
-  constexpr Span<T> slice(Index offset) const {
-    STX_SPAN_ENSURE(offset < size_, "index out of bounds");
-    return Span<T>{iterator_ + offset, size_ - offset};
-  }
-
-  constexpr Span<T> slice(Index offset, Size length_to_slice) const {
-    STX_SPAN_ENSURE(offset < size_, "index out of bounds");
-
-    if (length_to_slice > 0)
-      STX_SPAN_ENSURE(offset + (length_to_slice - 1) < size_,
-                      "index out of bounds");
-
-    return Span<T>{iterator_ + offset, length_to_slice};
-  }
-
   template <typename Func, typename Output>
   constexpr Span<Output> map(Func&& transformer, Span<Output> output) const {
     static_assert(!std::is_const_v<Output>);
