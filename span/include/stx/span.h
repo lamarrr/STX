@@ -225,60 +225,19 @@ struct Span {
     }
   }
 
-  //
-  //
-  // TODO(lamarrr): No naked moves
-  //
-  //
-  // Choices and implications -> Rust still doesn't solve this
-  //
-  //
-  //
-  //
-  // nested use-after-move that the compiler can't reach.
-  //
-  // it is very rare for a container or type to try to use a moved-from object.
-  //
-  //  overload doom
-  //
-  // application hierarchy and pointers/memory as the lowest level
-  //
-  //
-  // Inconsequantial Behaviour and requirements
-  //
-  // - I want std::vector, means I want a vectir that uses operator new,
-  // operator delete, and I want a const one.
-  //
-  // Multi-type template parameters
-  //
-  //
-  //
-  // Isolating static behaviour by naming
-  //
-  //
-  // Isolating undefined behavior
-  //
-  // Lifetimes
-  //
-  // You must not overload std::move
-  // move is a potentially destructive operation and moved-from objects must
-  // never be touched.
-  // containers must never define move operators.
-  //
-  // Objects must not have invalid state that invalidates
-  // their exposed operations by default Operations that invalidate returned
-  // data must use a move construct
-  //
-  //  constexpr void move_to(Span<T> output) const;
+  constexpr Span<T> slice(Index offset) const {
+    STX_SPAN_ENSURE(offset <= size_, "index out of bounds");
+    return Span<T>{iterator_ + offset, size_ - offset};
+  }
 
-  constexpr Span<T> copy(Span<T const> input) {
-    static_assert(std::is_copy_assignable_v<T>);
-    for (Index position = 0; position < std::min(size(), input.size());
-         position++) {
-      iterator_[position] = input[position];
-    }
+  constexpr Span<T> slice(Index offset, Size length_to_slice) const {
+    STX_SPAN_ENSURE(offset <= size_, "index out of bounds");
 
-    return *this;
+    if (length_to_slice > 0)
+      STX_SPAN_ENSURE(offset + (length_to_slice - 1) < size_,
+                      "index out of bounds");
+
+    return Span<T>{iterator_ + offset, length_to_slice};
   }
 
   template <typename Predicate>
