@@ -309,10 +309,11 @@ struct Span {
     return *this;
   }
 
-  // span of 1 element if found, otherwise span of zero elements
+  //! span of 1 element if found, otherwise span of zero elements
   constexpr Span<T> find(T const& object) const {
-    // TODO(lamarrr): add equality comparable
-    for (T* iter = iterator_; iter < (iterator_ + size_); iter++) {
+    // TODO(lamarrr): consider adding equality comparable
+
+    for (Iterator iter = iterator_; iter < (iterator_ + size_); iter++) {
       if (*iter == object) {
         return Span<T>{iter, 1};
       }
