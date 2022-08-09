@@ -332,7 +332,7 @@ struct Span {
     static_assert(
         std::is_same_v<std::invoke_result_t<Predicate, T const&>, bool>);
 
-    for (T* iter = iterator_; iter < (iterator_ + size_); iter++) {
+    for (Iterator iter = iterator_; iter < (iterator_ + size_); iter++) {
       if (std::forward<Predicate>(predicate)(*iter)) {
         return Span<T>{iter, 1};
       }
