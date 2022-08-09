@@ -419,20 +419,20 @@ struct Span {
         size_bytes());
   }
 
-  /// converts the span into a view of its underlying bytes (represented with
-  /// `uint8_t`).
+  //! converts the span into a view of its underlying bytes (represented with
+  //! `uint8_t`).
   constexpr Span<ConstVolatileMatched<uint8_t> const> as_u8() const {
     return Span<ConstVolatileMatched<uint8_t> const>(
         reinterpret_cast<ConstVolatileMatched<uint8_t> const*>(iterator_),
         size_bytes());
   }
 
-  /// converts the span into an immutable span.
+  //! converts the span into an immutable span.
   constexpr Span<T const> as_const() const { return *this; }
 
-  /// converts the span into another span in which reads
-  /// and writes to the contiguous sequence are performed as volatile
-  /// operations.
+  //! converts the span into another span in which reads
+  //! and writes to the contiguous sequence are performed as volatile
+  //! operations.
   constexpr Span<T volatile> as_volatile() const { return *this; }
 
   Iterator iterator_ = nullptr;
