@@ -120,6 +120,8 @@ constexpr bool is_compatible_container =
 //!
 template <typename T>
 struct Span {
+  static_assert(!std::is_reference_v<T>);
+
   using Type = T;
   using Reference = T&;
   using Iterator = T*;
