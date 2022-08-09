@@ -376,6 +376,8 @@ struct Span {
 
   template <typename Predicate>
   constexpr std::pair<Span<T>, Span<T>> partition(Predicate&& predicate) const {
+    // TODO(lamarrr): add type checks
+
     auto first_partition_end = std::stable_partition(
         iterator_, iterator_ + size_, std::forward<Predicate>(predicate));
 
@@ -390,6 +392,8 @@ struct Span {
   template <typename Predicate>
   constexpr std::pair<Span<T>, Span<T>> unstable_partition(
       Predicate&& predicate) const {
+    // TODO(lamarrr): add type checks
+
     auto first_partition_end = std::partition(
         iterator_, iterator_ + size_, std::forward<Predicate>(predicate));
 
@@ -400,18 +404,19 @@ struct Span {
                                   second_partition_end - first_partition_end});
   }
 
-  template <typename Cmp>
-  Span<T> sort(Cmp&& cmp) const {
-    std::sort(begin(), end(), std::forward<Cmp>(cmp));
+  // is_partitioned
 
-    return *this;
-  }
-
-  // Span<T>, Span<T> get_partitions()
-  // might not be partitioned
-
-  // TODO(lamarrr): overlaps address, join two related spans, etc. must check
-  // order
+  // TODO(lamarrr): also check for rust lang's name for these
+  // accumulate, reduce
+  // inner_product
+  // count
+  // count_if
+  // move
+  // max_element
+  // min_element
+  // minmax_element
+  // equal
+  // reverse
 
   constexpr Span<ConstVolatileMatched<std::byte> const> as_bytes() const {
     return Span<ConstVolatileMatched<std::byte> const>(
