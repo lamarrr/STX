@@ -291,9 +291,21 @@ struct Span {
     return is_none([&cmp](T const& a) { return a == cmp; });
   }
 
+  constexpr Span<T> copy(Span<T const> input) {
+    static_assert(std::is_copy_assignable_v<T>);
+
+    for (Index position = 0; position < std::min(size(), input.size());
+         position++) {
+      iterator_[position] = input[position];
+    }
+
+    return *this;
+  }
+
   template <typename Func>
-  constexpr Span<T> apply(Func&& func) const {
+  constexpr Span<T> for_each(Func&& func) const {
     static_assert(std::is_invocable_v<Func, T&>);
+
     for (T& element : *this) {
       std::forward<Func>(func)(element);
     }
