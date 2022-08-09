@@ -374,6 +374,24 @@ struct Span {
     return output;
   }
 
+  template <typename Cmp>
+  constexpr Span<T> sort(Cmp&& cmp) const {
+    // TODO(lamarrr): add type checks
+
+    std::sort(begin(), end(), std::forward<Cmp>(cmp));
+
+    return *this;
+  }
+
+  constexpr bool is_sorted() const { return std::is_sorted(begin(), end()); }
+
+  template <typename Cmp>
+  constexpr bool is_sorted(Cmp&& cmp) const {
+    // TODO(lamarrr): add type checks
+
+    return std::is_sorted(begin(), end(), std::forward<Cmp>(cmp));
+  }
+
   template <typename Predicate>
   constexpr std::pair<Span<T>, Span<T>> partition(Predicate&& predicate) const {
     // TODO(lamarrr): add type checks
