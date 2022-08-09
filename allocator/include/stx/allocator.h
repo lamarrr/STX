@@ -157,10 +157,10 @@ struct OsAllocatorHandle final : public AllocatorHandle {
 };
 
 constexpr const inline NoopAllocatorHandle noop_allocator_handle;
+constexpr const inline AllocatorStubHandle allocator_stub_handle;
 constexpr const inline StaticStorageAllocatorHandle
     static_storage_allocator_handle;
 constexpr const inline OsAllocatorHandle os_allocator_handle;
-constexpr const inline AllocatorStubHandle allocator_stub_handle;
 
 struct Allocator {
   explicit constexpr Allocator(AllocatorHandle &allocator_handle)
@@ -191,15 +191,15 @@ struct Allocator {
 inline constexpr const Allocator noop_allocator{
     const_cast<NoopAllocatorHandle &>(noop_allocator_handle)};
 
-inline constexpr const Allocator os_allocator{
-    const_cast<OsAllocatorHandle &>(os_allocator_handle)};
+inline constexpr const Allocator allocator_stub{
+    const_cast<AllocatorStubHandle &>(allocator_stub_handle)};
 
 inline constexpr const Allocator static_storage_allocator{
     const_cast<StaticStorageAllocatorHandle &>(
         static_storage_allocator_handle)};
 
-inline constexpr const Allocator allocator_stub{
-    const_cast<AllocatorStubHandle &>(allocator_stub_handle)};
+inline constexpr const Allocator os_allocator{
+    const_cast<OsAllocatorHandle &>(os_allocator_handle)};
 
 // an always-valid memory
 struct Memory {
