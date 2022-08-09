@@ -98,19 +98,11 @@ constexpr bool is_compatible_container =
 //!
 //! `Span` is a referencing/non-owning type-erased view over a contiguous
 //! sequence of objects (sequential container) and typically help to eliminate
-//! the use of raw pointers. A `Span` can either have a static extent, in which
-//! case the number of elements in the sequence is known at compile-time and
-//! encoded in the type, or a dynamic extent, in which case the number of
-//! elements in the sequence is known at runtime.
+//! the use of raw pointers.
 //!
 //! `Span` is conceptually a pointer and a length into an already existing
 //! contiguous memory. Passing a properly-constructed `Span` instead of raw
 //! pointers avoids many issues related to index out of bounds errors.
-//!
-//! A static-extent span is a span whose length is known at compile-time.
-//! A dynamic-extent span is a span whose length varies and is only known at
-//! runtime.
-//!
 //!
 //!
 //! # Usage
@@ -119,34 +111,13 @@ constexpr bool is_compatible_container =
 //!
 //! std::vector<int> vec = {1, 2, 3, 4, 5};
 //!
-//! // Construct a static-extent span (size known at compile time)
-//! Span<int, 5> a = vec;
-//!
-//! // Construct a static-extent span pointing to the first 2 elements of the
-//! // vector
-//! Span<int, 2> b = vec;
-//!
-//! // Construct a dynamic-extent span (size known at runtime)
+//! // Construct a span
 //! Span<int> c = vec;
-//!
-//!
-//! // Construct a static-extent span pointing to the first 2 elements of the
-//! // vector
-//! auto d = Span<int>(vec.data(), 2);
 //!
 //!
 //! ```
 //!
 //!
-//!
-// TODO(lamarrr): pointers given to span must be valid
-// pointers returned from span are always valid
-//
-//
-// iterators returned are always valid, except iterator returned from the
-// default-constructed span.
-//
-//
 template <typename T>
 struct Span {
   using Type = T;
