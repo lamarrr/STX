@@ -47,6 +47,8 @@ TEST(ScheduleTimelineTest, Tick) {
                         .unwrap())
               .unwrap();
 
+    EXPECT_EQ(slots.size(), 10);
+
     for (size_t i = 0; i < 20; i++) {
       timeline
           .add_task(fn::rc::make_static([]() {}),
