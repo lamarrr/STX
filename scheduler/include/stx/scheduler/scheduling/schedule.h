@@ -77,15 +77,18 @@ auto chain(TaskScheduler &scheduler, Chain<Fn, OtherFns...> chain,
 
         chain_.resume(stack_, state_, proxy);
 
-        // suspended or canceled
+        // suspended, canceled, or preempted
         if (state_.next_phase_index < num_phases) {
           ServiceToken service_token = state_.service_token;
 
           if (service_token.type == RequestType::Cancel) {
             promise_.notify_canceled();
-          } else {
+          } else if (service_token.type == RequestType::Preempt) {
+            promise_.notify_preempted();
+          } else if (service_token.type == RequestType::Suspend) {
             promise_.notify_suspended();
           }
+
         } else {
           // completed
           promise_.notify_completed(std::move(std::get<result_type>(stack_)));
@@ -95,7 +98,7 @@ auto chain(TaskScheduler &scheduler, Chain<Fn, OtherFns...> chain,
   scheduler.entries =
       vec::push(std::move(scheduler.entries),
                 Task{std::move(fn), fn::rc::make_unique_static(task_is_ready),
-                     timepoint, std::move(scheduler_promise), task_id, priority,
+                     std::move(scheduler_promise), task_id, priority, timepoint,
                      std::move(trace_info)})
           .unwrap();
 
