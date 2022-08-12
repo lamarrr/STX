@@ -28,6 +28,8 @@ auto fn(TaskScheduler &scheduler, Fn fn_task, TaskPriority priority,
       fn::rc::make_functor(scheduler.allocator, [fn_task_ = std::move(fn_task),
                                                  promise_ =
                                                      std::move(promise)]() {
+        promise_.notify_executing();
+
         if constexpr (std::is_void_v<std::invoke_result_t<Fn &>>) {
           fn_task_();
           promise_.notify_completed();
@@ -36,12 +38,13 @@ auto fn(TaskScheduler &scheduler, Fn fn_task, TaskPriority priority,
         }
       }).unwrap();
 
-  scheduler.entries = vec::push(std::move(scheduler.entries),
-                                Task{std::move(sched_fn),
-                                     fn::rc::make_unique_static(task_is_ready),
-                                     timepoint, std::move(scheduler_promise),
-                                     task_id, priority, std::move(trace_info)})
-                          .unwrap();
+  scheduler.entries =
+      vec::push(
+          std::move(scheduler.entries),
+          Task{std::move(sched_fn), fn::rc::make_unique_static(task_is_ready),
+               std::move(scheduler_promise), task_id, priority, timepoint,
+               std::move(trace_info)})
+          .unwrap();
 
   return future;
 }
@@ -69,6 +72,8 @@ auto chain(TaskScheduler &scheduler, Chain<Fn, OtherFns...> chain,
                                                  promise_ = std::move(
                                                      promise)]() mutable {
         RequestProxy proxy{promise_};
+
+        promise_.notify_executing();
 
         chain_.resume(stack_, state_, proxy);
 
