@@ -49,6 +49,8 @@ auto await(TaskScheduler &scheduler, Fn task, TaskPriority priority,
                                                  args_ = std::move(args),
                                                  promise_ = std::move(
                                                      promise)]() mutable {
+        promise_.notify_executing();
+
         if constexpr (!std::is_void_v<output>) {
           output result = std::apply(task_, std::move(args_));
           promise_.notify_completed(std::forward<output>(result));
@@ -108,6 +110,8 @@ auto await_any(TaskScheduler &scheduler, Fn task, TaskPriority priority,
                                                  args_ = std::move(args),
                                                  promise_ = std::move(
                                                      promise)]() mutable {
+        promise_.notify_executing();
+
         if constexpr (!std::is_void_v<output>) {
           output result = std::apply(task_, std::move(args_));
           promise_.notify_completed(std::forward<output>(result));
