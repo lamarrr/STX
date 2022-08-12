@@ -15,15 +15,9 @@
 
 STX_BEGIN_NAMESPACE
 
-using timepoint = std::chrono::steady_clock::time_point;
+using TimePoint = std::chrono::steady_clock::time_point;
 using namespace std::chrono_literals;
 using std::chrono::nanoseconds;
-
-// TODO(lamarrr): how are tasks that did not complete execution handled
-
-// TODO(lamarrr): evaluate the change of state of a previiously running but
-// suspended task. is there need to notify of resumption, and update the tasks
-// status someehow
 
 /// Scheduler Documentation
 /// - Tasks are added to the timeline once they become ready for execution
@@ -34,9 +28,11 @@ using std::chrono::nanoseconds;
 /// - We repeat these steps
 /// - if any of the selected tasks is in the thread slot then we need not
 /// suspend or cancel them
+/// - the task itself manages its own suspension, preemption, and cancelation,
+/// the timeline doesn't handle that, the task should use a request proxy to
+/// track requests.
 ///
-///
-/// tasks in the timeline are ready-to-execute or suspended tasks
+/// tasks in the timeline are ready-to-execute, preempted, or suspended tasks
 struct ScheduleTimeline {
   static constexpr nanoseconds STARVATION_PERIOD = 16ms * 4;
 
@@ -47,55 +43,40 @@ struct ScheduleTimeline {
     // used for book-keeping and notification of state
     PromiseAny promise;
 
-    // the timepoint the task became ready for execution. in the case of a
-    // suspended task, it correlates with the timepoint the task became ready
-    // for resumption
-    // TODO(lamarrr): rename this to last_preempt_timepoint
-    timepoint last_suspend_timepoint{};
-
     // assigned id of the task
     TaskId id{};
 
     // priority to use in evaluating CPU-time worthiness
-    TaskPriority priority = NORMAL_PRIORITY;
+    TaskPriority priority{NORMAL_PRIORITY};
+
+    // the timepoint the task became ready for execution. in the case of a
+    // suspended task, it correlates with the timepoint the task became ready
+    // for resumption
+    TimePoint last_preempt_timepoint{};
 
     // last known status of the task
-    FutureStatus last_status_poll = FutureStatus::Scheduled;
-
-    // last known expected cancelation state of the task
-    RequestedCancelState last_requested_cancel_state_poll =
-        RequestedCancelState::None;
+    FutureStatus last_status_poll{FutureStatus::Preempted};
   };
 
   explicit ScheduleTimeline(Allocator allocator)
       : starvation_timeline{allocator}, thread_slots_capture{allocator} {}
 
-  // promise is expected to have the 'Scheduled' state
   Result<Void, AllocError> add_task(RcFn<void()>&& fn, PromiseAny&& promise,
-                                    timepoint present_timepoint, TaskId id,
-                                    TaskPriority priority) {
-    TRY_OK(new_timeline, vec::push(std::move(starvation_timeline),
-                                   Task{std::move(fn), std::move(promise),
-                                        present_timepoint, id, priority}));
+                                    TaskId id, TaskPriority priority,
+                                    TimePoint present_timepoint) {
+    // task is ready to execute but preempteed upon adding
+    promise.notify_preempted();
+    TRY_OK(new_timeline,
+           vec::push(std::move(starvation_timeline),
+                     Task{std::move(fn), std::move(promise), id, priority,
+                          present_timepoint, FutureStatus::Preempted}));
 
     starvation_timeline = std::move(new_timeline);
 
     return Ok(Void{});
   }
 
-  void remove_done_and_canceled_tasks() {
-    Span span = starvation_timeline.span();
-    Span to_erase = span.partition([](Task const& task) {
-                          FutureStatus status = task.last_status_poll;
-                          return status != FutureStatus::Completed &&
-                                 status != FutureStatus::Canceled;
-                        })
-                        .second;
-
-    starvation_timeline = vec::erase(std::move(starvation_timeline), to_erase);
-  }
-
-  void poll_tasks(timepoint present_timepoint) {
+  void poll_tasks(TimePoint present_timepoint) {
     // update all our record of the tasks' statuses
     //
     // NOTE: the task could still be running whilst cancelation was requested.
@@ -114,83 +95,90 @@ struct ScheduleTimeline {
       FutureStatus new_status = task.promise.fetch_status();
 
       // if preempt timepoint not already updated, update it
-      if (task.last_status_poll != FutureStatus::Suspended &&
-          new_status == FutureStatus::Suspended) {
-        task.last_suspend_timepoint = present_timepoint;
+      if ((task.last_status_poll != FutureStatus::Preempted &&
+           new_status == FutureStatus::Preempted)) {
+        task.last_preempt_timepoint = present_timepoint;
       }
-
-      //// TODO(lamarrr): is this correct?
 
       task.last_status_poll = new_status;
     }
   }
 
-  // TODO(lamarrr): are task states updated just before executiong or
-  // resumption?
-
-  // returns a sorted span of the starving tasks (non-suspended)
-  auto sort_and_partition_timeline() {
-    // ASSUMPTION(unproven): The tasks are mostly sorted so we are very
-    // unlikely to pay much cost in sorting???
-    //
-    //
-    // split into ready to execute (pre-empted or running) and suspended
-    // partition
-    Span const starving =
-        starvation_timeline.span()
-            .partition([](Task const& task) {
-              // TODO(lamarrr): this logic is flawed since newly added (& ready)
-              // tasks are also marked as suspended. as well as previously
-              // running but suspended tasks
-              return task.last_status_poll != FutureStatus::Suspended;
-            })
-            .first;
-
-    // sort hungry tasks by preemption/starvation duration (descending, i.e.
-    // most starved first)
-    // TODO(lamarrr): this is presently never updated
-    return starving.sort([](Task const& a, Task const& b) {
-      return a.last_suspend_timepoint < b.last_suspend_timepoint;
-    });
+  void execute_resume_requests() {
+    for (Task& task : starvation_timeline) {
+      if (task.last_status_poll == FutureStatus::Suspended &&
+          task.promise.fetch_suspend_request() == SuspendState::Executing) {
+        // make it ready for resumption/execution
+        task.promise.notify_preempted();
+      }
+    }
   }
 
-  // returns end of selections (sorted by priority in descending order)
+  void remove_done_tasks() {
+    Span done_tasks = starvation_timeline.span()
+                          .partition([](Task const& task) {
+                            FutureStatus status = task.last_status_poll;
+                            return status != FutureStatus::Completed &&
+                                   status != FutureStatus::Canceled;
+                          })
+                          .second;
+
+    starvation_timeline =
+        vec::erase(std::move(starvation_timeline), done_tasks);
+  }
+
+  // returns number of selected tasks
   size_t select_tasks_for_slots(size_t num_slots) {
-    // select only starving and ready tasks
-    Span starving = sort_and_partition_timeline();
+    Span starving =
+        starvation_timeline
+            .span()
+            // ASSUMPTION(unproven): The tasks are mostly sorted so we are very
+            // unlikely to pay much cost in sorting???
+            //
+            .partition([](Task const& task) {
+              return task.last_status_poll == FutureStatus::Preempted ||
+                     task.last_status_poll == FutureStatus::Executing;
+            })
+            .first
+            // sort hungry tasks by preemption/starvation duration (most starved
+            // first). Hence the starved tasks would ideally be more likely
+            // chosen for execution
+            .sort([](Task const& a, Task const& b) {
+              return a.last_preempt_timepoint < b.last_preempt_timepoint;
+            });
 
-    auto* timeline_selection_it = starving.begin();
+    auto* selection = starving.begin();
 
-    timepoint const most_starved_task_timepoint =
-        starving[0].last_suspend_timepoint;
+    TimePoint const most_starved_task_timepoint =
+        starving[0].last_preempt_timepoint;
 
     nanoseconds selection_period_span = STARVATION_PERIOD;
 
-    while (timeline_selection_it < starving.end()) {
-      if ((timeline_selection_it->last_suspend_timepoint -
-           most_starved_task_timepoint) <= selection_period_span) {
+    while (selection < starving.end()) {
+      if ((selection->last_preempt_timepoint - most_starved_task_timepoint) <=
+          selection_period_span) {
         // add to timeline selection
-        timeline_selection_it++;
+        selection++;
         continue;
-      } else if ((timeline_selection_it->last_suspend_timepoint -
+      } else if ((selection->last_preempt_timepoint -
                   most_starved_task_timepoint) > selection_period_span &&
-                 (static_cast<size_t>(timeline_selection_it -
-                                      starving.begin()) < num_slots)) {
+                 (static_cast<size_t>(selection - starving.begin()) <
+                  num_slots)) {
         // if there's not enough tasks within the current starvation period span
         // to fill up all the slots then extend the starvation period span
         // (multiple enough to cover this selection's timepoint)
-        nanoseconds diff = timeline_selection_it->last_suspend_timepoint -
-                           most_starved_task_timepoint;
+        nanoseconds diff =
+            selection->last_preempt_timepoint - most_starved_task_timepoint;
 
         // (STARVATION_PERIOD-1ns) added since division by STARVATION_PERIOD
         // ONLY will result in the remainder of the division operation being
-        // trimmed off
+        // trimmed off and hence not cover the required span
         int64_t multiplier =
             (diff + (STARVATION_PERIOD - nanoseconds{1})) / STARVATION_PERIOD;
 
         selection_period_span += STARVATION_PERIOD * multiplier;
 
-        timeline_selection_it++;
+        selection++;
         continue;
       } else {
         break;
@@ -198,11 +186,11 @@ struct ScheduleTimeline {
     }
 
     // sort selection span by priority
-    std::sort(
-        starving.begin(), timeline_selection_it,
-        [](Task const& a, Task const& b) { return a.priority > b.priority; });
+    std::sort(starving.begin(), selection, [](Task const& a, Task const& b) {
+      return a.priority > b.priority;
+    });
 
-    size_t num_selected = timeline_selection_it - starving.begin();
+    size_t num_selected = selection - starving.begin();
 
     // the number of selected starving tasks might be more than the number of
     // available ones, so we select the top tasks (by priority)
@@ -212,7 +200,7 @@ struct ScheduleTimeline {
   }
 
   // slots uses Rc because we need a stable address
-  void tick(Span<Rc<ThreadSlot*> const> slots, timepoint present_timepoint) {
+  void tick(Span<Rc<ThreadSlot*> const> slots, TimePoint present_timepoint) {
     // cancelation and suspension isn't handled in here, it doesn't really make
     // sense to handle here. if the task is fine-grained enough, it'll be
     // canceled as soon as its first phase finishes execution. this has the
@@ -232,27 +220,23 @@ struct ScheduleTimeline {
         thread_slots_capture.span());
 
     poll_tasks(present_timepoint);
-    remove_done_and_canceled_tasks();
+    execute_resume_requests();
+    remove_done_tasks();
 
     if (starvation_timeline.is_empty()) return;
 
     size_t const num_selected = select_tasks_for_slots(num_slots);
 
-    // request suspend of non-selected tasks since they might be running (only
-    // works if the task type supports suspension)
+    // request preemption of non-selected tasks since they might be running.
     //
     // we only do this if the task is not already force suspended since it could
     // be potentially expensive if the promises are very far apart in memory.
     //
     // we don't expect just-suspended tasks to suspend immediately, even if
-    // they do we'll process them in the next tick and our we account for that.
+    // they do we'll process them in the next tick.
     //
     for (Task const& task : starvation_timeline.span().slice(num_selected)) {
-      if (task.last_status_poll != FutureStatus::Suspended) {
-        task.promise.request_suspend();
-        // TODO(lamarrr): what about notifying the suspended state and adding
-        // tasks once they are done
-      }
+      task.promise.request_preempt();
     }
 
     // push the tasks onto the task slots if the task is not already on any of
@@ -277,15 +261,12 @@ struct ScheduleTimeline {
 
       while (next_slot < num_slots && !has_slot) {
         if (thread_slots_capture[next_slot].can_push) {
-          // possibly a suspended task.
-          // tasks are expected to check their suspension request state. we have
-          // to clear it so the task won't suspend again
-          // TODO(lamarrr): what if suspension was requested again? don't we
-          // need an atomic op for this?
+          // possibly a preempted task.
+          // tasks are expected to check their request states.
           //
-          // what if it the user made a suspend request?
-          task.promise.clear_suspension_request();
-          // task.promise.clear_preempt_request()
+          // we have to unpreempt the task
+          //
+          task.promise.clear_preempt_request();
           slots[next_slot].handle->slot.push_task(
               ThreadSlot::Task{task.fn.share(), task.id});
           has_slot = true;
