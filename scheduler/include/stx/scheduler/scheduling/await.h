@@ -91,8 +91,7 @@ auto await_any(TaskScheduler &scheduler, Fn task, TaskPriority priority,
                                                             std::move(
                                                                 await_futures)](
                                                            nanoseconds) {
-        bool any_ready = std::any_of(
-            await_futures_.begin(), await_futures_.end(),
+        bool any_ready = Span{await_futures_}.is_any(
             [](FutureAny const &future) { return future.is_done(); });
 
         return any_ready ? TaskReady::Yes : TaskReady::No;
