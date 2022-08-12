@@ -1,12 +1,13 @@
 
 #include "stx/scheduler.h"
 
+#include <iostream>
+
 #include "gtest/gtest.h"
 #include "stx/scheduler/scheduling/delay.h"
 #include "stx/scheduler/scheduling/schedule.h"
 
-// TODO(lamarrr): implement or totally remove logging
-#define STX_LOG(...)
+#define STX_LOG(...) std::cout << __VA_ARGS__ << std::endl
 
 TEST(SchedulerTest, Main) {
   using namespace stx;
@@ -17,7 +18,6 @@ TEST(SchedulerTest, Main) {
   };
 
   scheduler.tick(std::chrono::nanoseconds{1});
-
   sched::chain(scheduler,
                stx::Chain{[](stx::Void) {
                             STX_LOG("first");
@@ -32,5 +32,7 @@ TEST(SchedulerTest, Main) {
   sched::fn(scheduler, []() { STX_LOG("hello"); }, stx::NORMAL_PRIORITY, {});
   sched::fn(scheduler, []() { STX_LOG("world!"); }, stx::NORMAL_PRIORITY, {});
 
+  EXPECT_EQ(scheduler.entries.size(), 3);
   scheduler.tick(std::chrono::nanoseconds{1});
+  EXPECT_EQ(scheduler.entries.size(), 0);
 }
