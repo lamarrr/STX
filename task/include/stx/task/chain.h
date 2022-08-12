@@ -120,17 +120,22 @@ struct ChainPhase {
 
       state.next_phase_index++;
 
-      RequestedCancelState const cancel_request = proxy.fetch_cancel_request();
-      RequestedSuspendState const suspend_request =
-          proxy.fetch_suspend_request();
+      CancelState const cancel_request = proxy.fetch_cancel_request();
+      SuspendState const suspend_request = proxy.fetch_suspend_request();
+      PreemptState const preempt_request = proxy.fetch_preempt_request();
 
-      if (cancel_request == RequestedCancelState::Canceled) {
-        state.service_token = ServiceToken{cancel_request};
+      if (cancel_request == CancelState::Canceled) {
+        state.service_token = ServiceToken{RequestType::Cancel};
         return;
       }
 
-      if (suspend_request == RequestedSuspendState::Suspended) {
-        state.service_token = ServiceToken{suspend_request};
+      if (preempt_request == PreemptState::Preempted) {
+        state.service_token = ServiceToken{RequestType::Preempt};
+        return;
+      }
+
+      if (suspend_request == SuspendState::Suspended) {
+        state.service_token = ServiceToken{RequestType::Suspend};
         return;
       }
 
