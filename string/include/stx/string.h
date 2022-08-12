@@ -303,7 +303,7 @@ inline Result<String, AllocError> lower(Allocator allocator, StringView str) {
   return Ok(String{ReadOnlyMemory{std::move(memory)}, size});
 }
 
-// TODO
+// TODO(lamarrr):
 // void split(allocator, string, delimeter, callback);
 //
 }  // namespace string
