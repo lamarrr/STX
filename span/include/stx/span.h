@@ -407,9 +407,8 @@ struct Span {
                                   second_partition_end - first_partition_end});
   }
 
-  // is_partitioned
-
   // TODO(lamarrr): also check for rust lang's name for these
+  // is_partitioned
   // accumulate, reduce
   // inner_product
   // count
