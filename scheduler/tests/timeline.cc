@@ -25,8 +25,8 @@ TEST(ScheduleTimelineTest, Tick) {
 
     timeline
         .add_task(fn::rc::make_static([]() {}),
-                  PromiseAny{make_promise<void>(os_allocator).unwrap()},
-                  timepoint, {}, NORMAL_PRIORITY)
+                  PromiseAny{make_promise<void>(os_allocator).unwrap()}, {},
+                  NORMAL_PRIORITY, timepoint)
         .unwrap();
 
     timeline.tick(slots.span(), timepoint);
