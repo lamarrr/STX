@@ -28,7 +28,7 @@ STX_BEGIN_NAMESPACE
 
 using namespace std::chrono_literals;
 using std::chrono::nanoseconds;
-using timepoint = std::chrono::steady_clock::time_point;
+using TimePoint = std::chrono::steady_clock::time_point;
 
 struct TaskTraceInfo {
   Rc<StringView> content =
@@ -65,9 +65,6 @@ struct Task {
   UniqueFn<TaskReady(nanoseconds)> poll_ready =
       fn::rc::make_unique_static(task_is_ready);
 
-  // time since task was scheduled for execution
-  std::chrono::steady_clock::time_point schedule_timepoint{};
-
   // used for tracking cancelation request and progress of the task
   PromiseAny scheduler_promise;
 
@@ -77,6 +74,9 @@ struct Task {
   // priority to use in evaluating CPU-time worthiness
   TaskPriority priority = NORMAL_PRIORITY;
 
+  // time since task was scheduled for execution
+  TimePoint schedule_timepoint{};
+
   // information needed for tracing & profiling of tasks
   TaskTraceInfo trace_info{};
 };
@@ -84,7 +84,7 @@ struct Task {
 // scheduler just dispatches to the task timeline once the tasks are
 // ready for execution
 struct TaskScheduler {
-  TaskScheduler(Allocator iallocator, timepoint ireference_timepoint)
+  TaskScheduler(Allocator iallocator, TimePoint ireference_timepoint)
       : allocator{iallocator},
         reference_timepoint{ireference_timepoint},
         entries{iallocator},
@@ -95,7 +95,7 @@ struct TaskScheduler {
 
   // if task is a ready one, add it to the schedule timeline immediately
   void tick(nanoseconds interval) {
-    timepoint present = std::chrono::steady_clock::now();
+    TimePoint present = std::chrono::steady_clock::now();
 
     Span ready_tasks =
         entries.span()
@@ -108,7 +108,7 @@ struct TaskScheduler {
     for (Task& task : ready_tasks) {
       timeline
           .add_task(std::move(task.function), std::move(task.scheduler_promise),
-                    present, task.task_id, task.priority)
+                    task.task_id, task.priority, present)
           .unwrap();
     }
 
@@ -120,14 +120,13 @@ struct TaskScheduler {
     // if cancelation requested,
     // begin shutdown sequence
     // cancel non-critical tasks
-    if (cancelation_promise.fetch_cancel_request() ==
-        RequestedCancelState::Canceled) {
+    if (cancelation_promise.fetch_cancel_request() == CancelState::Canceled) {
       thread_pool.get_future().request_cancel();
     }
   }
 
   Allocator allocator;
-  timepoint reference_timepoint;
+  TimePoint reference_timepoint;
   Vec<Task> entries;
   Promise<void> cancelation_promise;
   uint64_t next_task_id;
