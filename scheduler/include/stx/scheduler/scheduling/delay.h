@@ -36,6 +36,8 @@ auto delay(TaskScheduler &scheduler, Fn fn_task, TaskPriority priority,
       fn::rc::make_functor(scheduler.allocator, [fn_task_ = std::move(fn_task),
                                                  promise_ =
                                                      std::move(promise)]() {
+        promise_.notify_executing();
+
         if constexpr (std::is_void_v<std::invoke_result_t<Fn &>>) {
           fn_task_();
           promise_.notify_completed();
@@ -46,8 +48,8 @@ auto delay(TaskScheduler &scheduler, Fn fn_task, TaskPriority priority,
 
   scheduler.entries =
       vec::push(std::move(scheduler.entries),
-                Task{std::move(sched_fn), std::move(readiness_fn), timepoint,
-                     std::move(scheduler_promise), task_id, priority,
+                Task{std::move(sched_fn), std::move(readiness_fn),
+                     std::move(scheduler_promise), task_id, priority, timepoint,
                      std::move(trace_info)})
           .unwrap();
 
