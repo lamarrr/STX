@@ -87,7 +87,7 @@ using chain_stack_variant = unique_variant<
 struct ChainState {
   // only valid if the function finishes and next_phase_index !=
   // num_phases
-  ServiceToken service_token{};
+  ServiceToken service_token{RequestType::Suspend};
   // once next_phase_index == num_chains then the chain has reached completion,
   // otherwise, it is assumed to be in a suspended state
   uint8_t next_phase_index = 0;
@@ -171,11 +171,10 @@ template <typename Fn, typename... OtherFns>
 struct Chain : check_chain_valid<Void, Fn, OtherFns...> {
   static constexpr uint8_t num_phases = (1 + sizeof...(OtherFns));
 
-  static_assert(num_phases <= (stx::u8_max - 2),
-                "maximum depth of chain is 253");
+  static_assert(num_phases <= (u8_max - 2), "maximum depth of chain is 253");
 
-  using phases_type = ChainPhase<0, stx::Void, Fn, OtherFns...>;
-  using stack_type = chain_stack_variant<stx::Void, Fn, OtherFns...>;
+  using phases_type = ChainPhase<0, Void, Fn, OtherFns...>;
+  using stack_type = chain_stack_variant<Void, Fn, OtherFns...>;
   using last_phase_result_type = typename phases_type::last_phase_result_type;
 
   explicit constexpr Chain(Fn &&fn, OtherFns &&...others)
