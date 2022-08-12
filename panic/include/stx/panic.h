@@ -30,6 +30,8 @@ void panic_handler(std::string_view info, std::string_view error_report,
 ///
 /// DO NOT INVOKE THIS FUNCTION!!!
 ///
+/// TODO(lamarrr): actually test usability with DLLs
+///
 [[noreturn]] STX_DLL_EXPORT void begin_panic(std::string_view info,
                                              std::string_view error_report,
                                              SourceLocation location);

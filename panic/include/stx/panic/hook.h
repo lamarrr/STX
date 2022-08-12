@@ -52,6 +52,7 @@ namespace this_thread {
 ///
 /// Yes
 ///
+/// TODO(lamarrr): actually test usability with DLLs
 [[nodiscard]] STX_DLL_EXPORT bool is_panicking();
 }  // namespace this_thread
 
@@ -63,6 +64,7 @@ namespace this_thread {
 ///
 /// Yes
 ///
+/// TODO(lamarrr): actually test usability with DLLs
 [[nodiscard]] STX_DLL_EXPORT bool panic_hook_visible();
 
 /// Attaches a new panic hook, the attached panic hook is called in place of the
@@ -75,6 +77,7 @@ namespace this_thread {
 ///
 /// Yes
 ///
+/// TODO(lamarrr): actually test usability with DLLs
 [[nodiscard]] STX_DLL_EXPORT bool attach_panic_hook(PanicHook hook);
 
 /// Removes the registered panic hook (if any) and resets it to the
@@ -88,6 +91,7 @@ namespace this_thread {
 ///
 /// Yes
 ///
+/// TODO(lamarrr): actually test usability with DLLs
 [[nodiscard]] STX_DLL_EXPORT bool take_panic_hook(PanicHook* hook);
 
 STX_END_NAMESPACE
