@@ -19,7 +19,7 @@ STX_BEGIN_NAMESPACE
 using std::chrono::milliseconds;
 using std::chrono::nanoseconds;
 
-using timepoint = std::chrono::steady_clock::time_point;
+using TimePoint = std::chrono::steady_clock::time_point;
 
 namespace impl {
 
@@ -78,15 +78,15 @@ struct ThreadPool {
             // panics whilst holding a lock or even communicating
             uint64_t eventless_polls = 0;
             while (true) {
-              RequestedCancelState requested_cancel_state =
+              CancelState requested_cancel_state =
                   slot->promise.fetch_cancel_request();
 
-              if (requested_cancel_state == RequestedCancelState::Canceled) {
+              if (requested_cancel_state == CancelState::Canceled) {
                 slot->promise.notify_canceled();
                 return;
               }
 
-              timepoint task_poll_begin = std::chrono::steady_clock::now();
+              TimePoint task_poll_begin = std::chrono::steady_clock::now();
 
               // keep polling for tasks and executing them as long as
               // we are within the time limit.
@@ -134,7 +134,7 @@ struct ThreadPool {
   void tick(nanoseconds) {
     switch (state) {
       case State::Running: {
-        if (promise.fetch_cancel_request() == RequestedCancelState::Canceled) {
+        if (promise.fetch_cancel_request() == CancelState::Canceled) {
           for (auto& slot : thread_slots.span()) {
             slot.handle->slot.promise.get_future().request_cancel();
           }
@@ -145,10 +145,9 @@ struct ThreadPool {
       }
 
       case State::ShuttingDown: {
-        if (std::all_of(thread_slots.span().begin(), thread_slots.span().end(),
-                        [](auto const& slot) {
-                          return slot.handle->slot.promise.is_done();
-                        })) {
+        if (thread_slots.span().is_all([](auto const& slot) {
+              return slot.handle->slot.promise.is_done();
+            })) {
           state = State::Shutdown;
           promise.notify_canceled();
         }
