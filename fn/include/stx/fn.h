@@ -9,38 +9,38 @@
 
 STX_BEGIN_NAMESPACE
 
+/// NOTE that this is just an handle and doesn't manage any lifetime.
+///
+///
+/// it is essentially a trivial struct. it is just contains pointers (resource
+/// handle).
+///
+/// func must never be initialized with a nullptr or invalid handle.
+///
+///
+/// Fn is to function pointers and functors as std::span is to std::vector and
+/// std::array (a view).
+///
+/// we'd ideally lock this whilst it is being called but the user could
+/// potentially already have internally thread-safe data structures.
+///
+///
+/// for high-perf scenarios, std::function is just terrible, especially if you
+/// have millions of it being created.
+///        - it performs allocation on it's own without being able to provide an
+///        allocator. meaning the memory it uses could be disjoint from the data
+///        it needs to operate on, which is totally terrible performance-wise as
+///        you'd be jumping along the cacheline
+///        - Surprisingly, its copy constructor copies the containing data and
+///        the function ptr/definition whenever it is copied. WTF? Copy
+///        constructors are implicit and it is extremely easy to have accidental
+///        copies with them. in fact, the notion of `copy` is implicit and
+///        ambigous and should be explicit and disambiguated for non-trivial
+///        types
+///
 template <typename Signature>
 struct Fn;
 
-// NOTE that this is just an handle and doesn't manage any lifetime.
-//
-//
-// it is essentially a trivial struct. it is just contains pointers (resource
-// handle).
-//
-// func must never be initialized with a nullptr or invalid handle.
-//
-//
-// Fn is to function pointers and functors as std::span is to std::vector and
-// std::array (a view).
-//
-// we'd ideally lock this whilst it is being called but the user could
-// potentially already have internally thread-safe data structures.
-//
-//
-// for high-perf scenarios, std::function is just terrible, especially if you
-// have millions of it being created.
-//        - it performs allocation on it's own without being able to provide an
-//        allocator. meaning the memory it uses could be disjoint from the data
-//        it needs to operate on, which is totally terrible performance-wise as
-//        you'd be jumping along the cacheline
-//        - Surprisingly, its copy constructor copies the containing data and
-//        the function ptr/definition whenever it is copied. WTF? Copy
-//        constructors are implicit and it is extremely easy to have accidental
-//        copies with them. in fact, the notion of `copy` is implicit and
-//        ambigous and should be explicit and disambiguated for non-trivial
-//        types
-//
 template <typename ReturnType, typename... Args>
 struct Fn<ReturnType(Args...)> {
   using func_type = ReturnType (*)(memory_handle, Args...);
