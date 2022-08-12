@@ -31,8 +31,7 @@ auto await(TaskScheduler &scheduler, Fn task, TaskPriority priority,
                                                             std::move(
                                                                 await_futures)](
                                                            nanoseconds) {
-        bool all_ready = std::all_of(
-            await_futures_.begin(), await_futures_.end(),
+        bool all_ready = Span{await_futures_}.is_all(
             [](FutureAny const &future) { return future.is_done(); });
 
         return all_ready ? TaskReady::Yes : TaskReady::No;
@@ -61,8 +60,8 @@ auto await(TaskScheduler &scheduler, Fn task, TaskPriority priority,
 
   scheduler.entries = vec::push(std::move(scheduler.entries),
                                 Task{std::move(fn), std::move(readiness_fn),
-                                     timepoint, std::move(task_promise),
-                                     task_id, priority, std::move(trace_info)})
+                                     std::move(task_promise), task_id, priority,
+                                     timepoint, std::move(trace_info)})
                           .unwrap();
 
   return future;
@@ -120,8 +119,8 @@ auto await_any(TaskScheduler &scheduler, Fn task, TaskPriority priority,
 
   scheduler.entries = vec::push(std::move(scheduler.entries),
                                 Task{std::move(fn), std::move(readiness_fn),
-                                     timepoint, std::move(task_promise),
-                                     task_id, priority, std::move(trace_info)})
+                                     std::move(task_promise), task_id, priority,
+                                     timepoint, std::move(trace_info)})
                           .unwrap();
 
   return future;
