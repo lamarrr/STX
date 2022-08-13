@@ -1,4 +1,4 @@
-name: cpp17:clang:macos-12
+name: cpp-17:clang-14:ubuntu-22.04
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-12
+    runs-on: ubuntu-22.04
 
     strategy:
       matrix:
@@ -16,9 +16,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-
-      - name: Configure Build Directory
-        run: mkdir build
 
       - name: Initialize CMake
         run: cd build && export CC=clang-14 CXX=clang++-14 && cmake .. -DCMAKE_BUILD_TYPE=${{matrix.build_mode}} -DSTX_BUILD_TESTS=ON
