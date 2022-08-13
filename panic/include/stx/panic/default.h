@@ -5,7 +5,7 @@
  *
  * @copyright MIT License
  *
- * Copyright (c) 2020-2021 Basit Ayantunde
+ * Copyright (c) 2020-2022 Basit Ayantunde
  *
  */
 
@@ -39,15 +39,15 @@ STX_BEGIN_NAMESPACE
 // at once as the buffer can likely not be enough, instead we reuse the buffer.
 // May not be fast, but it is a panic anyway.
 //
-inline void panic_default(std::string_view info, ReportPayload const& payload,
+inline void panic_default(std::string_view info, std::string_view error_report,
                           SourceLocation location) {
   // probably too much, but enough
   // this will at least hold a formatted uint128_t (40 digits)
-  static constexpr const int kFmtBufferSize = 64;
+  static constexpr const int FMT_BUFFER_SIZE = 64;
 
 #if !defined(STX_NO_STD_THREAD_MUTEX)
 
-  static constexpr const auto kThreadIdHasher = std::hash<std::thread::id>{};
+  static constexpr const auto THREAD_ID_HASHER = std::hash<std::thread::id>{};
 
   // TODO(lamarrr): this doesn't work since different threads own it
   static std::mutex stderr_lock;
@@ -55,18 +55,18 @@ inline void panic_default(std::string_view info, ReportPayload const& payload,
   // we use this buffer for all formatting operations. as it is implementation
   // defined whether fprintf uses dynamic mem alloc
   // only one thread can print at a time so this is safe
-  static char fmt_buffer[kFmtBufferSize];
+  static char fmt_buffer[FMT_BUFFER_SIZE];
 
   stderr_lock.lock();
 
   thread_local size_t const thread_id_hash =
-      kThreadIdHasher(std::this_thread::get_id());
+      THREAD_ID_HASHER(std::this_thread::get_id());
 
 #else
 
   // we can't be too sure that the user won't panic from multiple threads even
   // though they seem to be disabled
-  char fmt_buffer[kFmtBufferSize];
+  char fmt_buffer[FMT_BUFFER_SIZE];
 
 #endif
 
@@ -76,7 +76,7 @@ inline void panic_default(std::string_view info, ReportPayload const& payload,
 
   std::fputs(" with hash: '", stderr);
 
-  STX_PANIC_EPRINTF_WITH(fmt_buffer, kFmtBufferSize, "%zu", thread_id_hash);
+  STX_PANIC_EPRINTF_WITH(fmt_buffer, FMT_BUFFER_SIZE, "%zu", thread_id_hash);
 
 #endif
 
@@ -86,10 +86,10 @@ inline void panic_default(std::string_view info, ReportPayload const& payload,
     std::fputc(c, stderr);
   }
 
-  if (!payload.data().empty()) {
+  if (!error_report.empty()) {
     std::fputs(": ", stderr);
 
-    for (auto c : payload.data()) {
+    for (auto c : error_report) {
       std::fputc(c, stderr);
     }
   }
@@ -107,7 +107,7 @@ inline void panic_default(std::string_view info, ReportPayload const& payload,
   auto line = location.line();
 
   if (line != 0) {
-    STX_PANIC_EPRINTF_WITH(fmt_buffer, kFmtBufferSize, "%" PRIuLEAST32, line);
+    STX_PANIC_EPRINTF_WITH(fmt_buffer, FMT_BUFFER_SIZE, "%" PRIuLEAST32, line);
   } else {
     std::fputs("unknown", stderr);
   }
@@ -117,7 +117,8 @@ inline void panic_default(std::string_view info, ReportPayload const& payload,
   auto column = location.column();
 
   if (column != 0) {
-    STX_PANIC_EPRINTF_WITH(fmt_buffer, kFmtBufferSize, "%" PRIuLEAST32, column);
+    STX_PANIC_EPRINTF_WITH(fmt_buffer, FMT_BUFFER_SIZE, "%" PRIuLEAST32,
+                           column);
   } else {
     std::fputs("unknown", stderr);
   }
@@ -126,6 +127,9 @@ inline void panic_default(std::string_view info, ReportPayload const& payload,
 
   std::fflush(stderr);
 
+  // TODO(lamarrr): this presently raises a compile error as this code section
+  // hasn't been updated yet
+
 #if defined(STX_ENABLE_PANIC_BACKTRACE)
 
   std::fputs(
@@ -133,7 +137,7 @@ inline void panic_default(std::string_view info, ReportPayload const& payload,
       "Pointer\n\n",
       stderr);
 
-  int frames = backtrace::trace(
+  int frames = backtrace::trace(stx::fn::make_static(
       [](backtrace::Frame frame, int i) {
         auto const print_none = []() { std::fputs("unknown", stderr); };
 
@@ -164,7 +168,7 @@ inline void panic_default(std::string_view info, ReportPayload const& payload,
 
         return false;
       },
-      1);
+      1));
 
   if (frames <= 0) {
     std::fputs(

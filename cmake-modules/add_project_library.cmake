@@ -16,7 +16,8 @@ macro(add_project_library target_project_name target_library_name)
 
   add_library(${library_name} STATIC ${${library_name}_SOURCE_FILES})
   add_library(${library_alias} ALIAS ${library_name})
-  set_target_properties(${library_name} PROPERTIES CXX_STANDARD 17)
+  set_target_properties(${library_name} PROPERTIES CXX_STANDARD 17
+                                                   CXX_STANDARD_REQUIRED ON)
 
   target_include_directories(${library_name}
                              PUBLIC ${${library_name}_PUBLIC_INCLUDE_DIRECTORY})

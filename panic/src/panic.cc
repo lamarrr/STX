@@ -5,7 +5,7 @@
  *
  * @copyright MIT License
  *
- * Copyright (c) 2020-2021 Basit Ayantunde
+ * Copyright (c) 2020-2022 Basit Ayantunde
  *
  */
 
@@ -15,11 +15,9 @@
 
 #include "stx/panic/default.h"
 
-// TODO(lamarrr): make weak
-void stx::panic_handler(std::string_view info,
-                        stx::ReportPayload const& payload,
+void stx::panic_handler(std::string_view info, std::string_view error_report,
                         stx::SourceLocation location) {
-  stx::panic_default(info, payload, location);
+  stx::panic_default(info, error_report, location);
 }
 
 #endif

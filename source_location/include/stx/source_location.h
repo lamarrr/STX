@@ -5,7 +5,7 @@
  *
  * @copyright MIT License
  *
- * Copyright (c) 2020-2021 Basit Ayantunde
+ * Copyright (c) 2020-2022 Basit Ayantunde
  *
  */
 
@@ -28,7 +28,6 @@ STX_BEGIN_NAMESPACE
 ///
 /// based on: https://en.cppreference.com/w/cpp/utility/source_location
 ///
-// It's equivalent to GCC's implementation
 struct [[nodiscard]] SourceLocation {
   static constexpr SourceLocation current(
 #if STX_HAS_BUILTIN(FILE)

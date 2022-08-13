@@ -236,29 +236,13 @@ float result = safe_divide(n, d).value(); // this won't compile as 'value' alway
 * Git
 * Doxygen and Graphviz (for documentation)
 
-## Tested-on Compilers
-
-| Compiler  | x86-64 | arm-linux | aarch64-linux |
-| --------- | ------ | --------- | ------------- |
-| Clang-10  | YES    | NO        | NO            |
-| Clang-9   | YES    | YES       | YES           |
-| GCC-9     | YES    | YES       | YES           |
-| GCC-8     | YES    | YES       | YES           |
-| GCC-7     | YES    | NO        | NO            |
-| MSVC-2019 | YES    | NO        | NO            |
-
-## CMake Configuration Options
-
-* `STX_BUILD_SHARED` - Build STX as a shared library
-* `STX_BUILD_TESTS` - Build test suite
-* `STX_BUILD_DOCS` - Build documentation
-* `STX_BUILD_BENCHMARKS` - Build benchmarks
-* `STX_SANITIZE_TESTS` - Sanitize tests if supported. Builds address-sanitized, thread-sanitized, leak-sanitized, and undefined-sanitized tests
-* `STX_CUSTOM_PANIC_HANDLER` - Override the global panic handler and define a new one in another source file
-* `STX_ENABLE_BACKTRACE` - Enable the backtrace library
-* `STX_ENABLE_PANIC_BACKTRACE` - Enable panic backtraces. It depends on the backtrace library ( `STX_ENABLE_BACKTRACE` )
-* `STX_VISIBLE_PANIC_HOOK` - Make runtime panic hooks attachable when loaded as a dynamic library (i.e. device drivers) 
 
 ## License
 
 [**MIT License**](LICENSE)
+
+
+
+## FAQ
+
+Is STX's ABI stable?

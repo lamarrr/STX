@@ -5,7 +5,7 @@
  *
  * @copyright MIT License
  *
- * Copyright (c) 2020-2021 Basit Ayantunde
+ * Copyright (c) 2020-2022 Basit Ayantunde
  *
  */
 
@@ -21,8 +21,6 @@
 
 using namespace std;  // NOLINT
 using namespace stx;  // NOLINT
-
-// TODO(lamarrr) test against all methods
 
 template <size_t ID>
 struct MoveOnly {
@@ -56,7 +54,7 @@ MoveOnly<id> make_mv() {
 struct NonTrivial {
   NonTrivial(NonTrivial&&) {}
 
-  NonTrivial& operator=(NonTrivial&&) {}
+  NonTrivial& operator=(NonTrivial&&) { return *this; }
 };
 
 static_assert(std::is_swappable_v<MoveOnly<0>>);
@@ -236,8 +234,8 @@ TEST(OptionTest, Contains) {
 }
 
 TEST(OptionLifetimeTest, Contains) {
-  EXPECT_NO_THROW(Option(Some(make_mv<0>())).contains(make_mv<0>()));
-  EXPECT_NO_THROW(Option<MoveOnly<1>>(None).contains(make_mv<1>()));
+  EXPECT_NO_THROW((void)Option(Some(make_mv<0>())).contains(make_mv<0>()));
+  EXPECT_NO_THROW((void)Option<MoveOnly<1>>(None).contains(make_mv<1>()));
 }
 
 TEST(OptionTest, Exists) {
@@ -395,15 +393,24 @@ TEST(OptionTest, FnMutMap) {
   auto a1_ = Option(Some(90)).map(fnmut_a);
   auto a2_ = Option(Some(90)).map(fnmut_a);
 
+  (void)a1_;
+  (void)a2_;
+
   EXPECT_EQ(fnmut_a.call_times, 2);
 
   auto const fnmut_b = FnMut();
   auto b1_ = Option(Some(90)).map(fnmut_b);
   auto b2_ = Option(Some(90)).map(fnmut_b);
+
+  (void)b1_;
+  (void)b2_;
+
   EXPECT_EQ(fnmut_b.call_times, 0);
 
   auto fnconst = FnConst();
   auto c = Option(Some(90)).map(fnconst);
+
+  (void)c;
 }
 
 TEST(OptionTest, MapOrElse) {
@@ -758,6 +765,9 @@ auto opt_try_a(int m) -> Option<int> {
   TRY_SOME(x, opt_try_b(m)); TRY_SOME(const y, opt_try_b(m)); TRY_SOME(volatile z, opt_try_b(m));
   auto opt = opt_try_b(m);
   TRY_SOME(w, std::move(opt));
+  (void)w;
+  (void)y;
+  (void)z;
   // clang-format on
   x += 60;
   return Some(std::move(x));

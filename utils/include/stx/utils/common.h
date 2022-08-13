@@ -5,7 +5,7 @@
  *
  * @copyright MIT License
  *
- * Copyright (c) 2020-2021 Basit Ayantunde
+ * Copyright (c) 2020-2022 Basit Ayantunde
  *
  */
 
@@ -64,42 +64,7 @@ template <typename T>
 constexpr bool is_reference = std::is_reference<T>::value;
 
 /// `Ref` is an alias for `std::reference_wrapper`
-/// `Ref` can be mutable and immutable depending on the const-qualifier for `T`
-/// To offer stronger guarantees prefer `ConstRef` and `MutRef`
 template <typename T>
 using Ref = std::reference_wrapper<T>;
-
-namespace internal {
-
-/// pointer hex formatting
-///
-/// 0xaabbccdd => 4 bytes (+ 8 chars)
-///
-/// 0xaa => 1 byte (+ 2 chars)
-///
-/// 0xaabb => 2 bytes (+ 4 chars)
-///
-/// we leave 2 extra bytes for tolerance
-constexpr int kxPtrFmtSize = static_cast<int>((sizeof(void*) << 1) + 2 + 2);
-
-// note that the sizes are also affected by the word size. i.e. int64_t and
-// size_t will be 32-bit on some platforms, we thus can't allocate less memory
-// than required on the stack, though it can be a bit much, such as int64_t on
-// 32-bit platforms
-
-/// 10 digits + 1 sign
-constexpr int kI32FmtSize = 11;
-/// 10 digits
-constexpr int kU32FmtSize = 10;
-/// 5 digits + 1 sign
-constexpr int kI16FmtSize = 6;
-/// 5 digits
-constexpr int kU16FmtSize = 5;
-/// 3 digits + 1 sign
-constexpr int kI8FmtSize = 4;
-/// 3 digits
-constexpr int kU8FmtSize = 3;
-
-}  // namespace internal
 
 STX_END_NAMESPACE

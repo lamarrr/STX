@@ -5,7 +5,7 @@
  *
  * @copyright MIT License
  *
- * Copyright (c) 2020-2021 Basit Ayantunde
+ * Copyright (c) 2020-2022 Basit Ayantunde
  *
  */
 
@@ -20,7 +20,7 @@ STX_BEGIN_NAMESPACE
 /// It is advisable to be avoid heap memory allocation of any sort and be
 /// conscious of shared state as it can be called from mulitple threads.
 ///
-void panic_handler(std::string_view info, ReportPayload const& payload,
+void panic_handler(std::string_view info, std::string_view error_report,
                    SourceLocation location);
 
 /// Handles and dispatches the panic handler. The debugging breakpoint should be
@@ -30,8 +30,10 @@ void panic_handler(std::string_view info, ReportPayload const& payload,
 ///
 /// DO NOT INVOKE THIS FUNCTION!!!
 ///
+/// TODO(lamarrr): actually test usability with DLLs
+///
 [[noreturn]] STX_DLL_EXPORT void begin_panic(std::string_view info,
-                                             ReportPayload const& payload,
+                                             std::string_view error_report,
                                              SourceLocation location);
 
 /// This allows a program to terminate immediately and provide feedback to the
@@ -45,14 +47,17 @@ template <typename T>
 [[noreturn]] inline void panic(
     std::string_view info, T const& value,
     SourceLocation location = SourceLocation::current()) {
-  begin_panic(info, ReportPayload(report_query >> value), location);
+  char buffer[256];
+  auto error_report = ReportQuery{buffer} >> value;
+
+  begin_panic(info, error_report, location);
 }
 
 template <typename T = void>
 [[noreturn]] inline void panic(
     std::string_view info = "explicit panic",
     SourceLocation location = SourceLocation::current()) {
-  begin_panic(info, ReportPayload(SpanReport()), location);
+  begin_panic(info, std::string_view{}, location);
 }
 
 STX_END_NAMESPACE

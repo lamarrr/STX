@@ -1,137 +1,83 @@
 # MIT License
 #
-# Copyright (c) 2020-2021 Basit Ayantunde
+# Copyright (c) 2020-2022 Basit Ayantunde
 #
 
 cmake_minimum_required(VERSION 3.13)
 
 project(
   Stx
-  VERSION 2.0.0.1
+  VERSION 1.0.0
   DESCRIPTION "A set of utility extensions to the C++ Standard Library"
   HOMEPAGE_URL "https://github.com/lamarrr/STX"
   LANGUAGES CXX)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake-modules)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-include(CMakeDependentOption)
-include(HandleFlags)
 include(CheckCXXSourceCompiles)
 include(add_project_library)
 
-find_package(GTest REQUIRED)
-find_package(absl REQUIRED)
+execute_process(
+  COMMAND git clone https://github.com/google/googletest.git -b v1.12.0
+          third_party/googletest WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+execute_process(
+  COMMAND git clone https://github.com/abseil/abseil-cpp.git -b20220623.0
+          third_party/abseil WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+
+add_subdirectory(third_party/googletest)
+add_subdirectory(third_party/abseil)
 
 # ===============================================
 #
 # === Configuration Options
 #
 # ===============================================
-
-set(CMAKE_CXX_STANDARD 17)
-
 option(STX_BUILD_TESTS "Build tests" OFF)
-
-# option(STX_ENABLE_DEBUG_ASSERTIONS "Enable debug mode assertions"
-# ${STX_BUILD_TESTS})
-
+option(STX_SANITIZE_BUILD "Sanitize build" OFF)
 option(STX_BUILD_DOCS "Build documentation" OFF)
-
-option(STX_BUILD_BENCHMARKS "Build benchmarks" OFF)
-
-# cmake_dependent_option(STX_SANITIZE_TESTS "Build sanitized tests" OFF
-# "STX_BUILD_TESTS" OFF)
-
-# this feature replaces the default panic handler, by default it is set to print
-# the panic report and abort the program. The handler is thread-safe.
 option(
   STX_CUSTOM_PANIC_HANDLER
-  "Override the default panic behaviour (You can read the docs for more details)"
+  "Override the default panic behaviour by implementing a custom panic handler. The default behavior is to print the panic report and abort the program. (You can read the docs for more details)"
   OFF)
-
-# the default panic hook calls the provided panic handler. the behaviour can be
-# changed at runtime especially when built as a shared library. Making panic
-# hooks visible enables you to control the panic behaviour of the dynamically
-# loaded library that depends on STX, i.e. for device drivers you might not want
-# them to cause the whole program to fail on a panic.
-# option(STX_VISIBLE_PANIC_HOOK "Make runtime panic hook visible")
-
-# STX_PANIC_INCLUDE_BACKTRACE
-
-# enables the backtrace library, we won't allow it to work by default when built
-# as a shared library for now until we find a reason to, If you find it
-# inconvenient please drop a PR!. option(STX_ENABLE_BACKTRACE "Enables the
-# backtrace feature" OFF)
-
-# disables printing backtraces on panic by the default panic handler. This
-# requires that panic backtraces are enabled and that the panic handler is not
-# overriden. cmake_dependent_option( STX_ENABLE_PANIC_BACKTRACE "Enables the
-# panic backtrace feature" ON "STX_ENABLE_BACKTRACE;NOT
-# STX_CUSTOM_PANIC_HANDLER" OFF)
+option(STX_ENABLE_PANIC_BACKTRACE "Enable panic backtrace")
 
 # ===============================================
 #
 # === Configuration Options Logging
 #
 # ===============================================
-
 message(STATUS "[STX] Build tests: " ${STX_BUILD_TESTS})
-# message(STATUS "[STX] Enable debug mode assertions: "
-# ${STX_ENABLE_DEBUG_ASSERTIONS})
-message(STATUS "[STX] Build documentation: " ${STX_BUILD_DOCS})
-message(STATUS "[STX] Build benchmarks: " ${STX_BUILD_BENCHMARKS})
-message(STATUS "[STX] Build sanitized tests: " ${STX_SANITIZE_TESTS})
+message(STATUS "[STX] Sanitize build: " ${STX_SANITIZE_BUILD}) # not working yet
+message(STATUS "[STX] Build documentation: " ${STX_BUILD_DOCS}) # not working yet
 message(STATUS "[STX] Override panic handler: " ${STX_CUSTOM_PANIC_HANDLER})
-message(STATUS "[STX] Make runtime panic hook visible: "
-               ${STX_VISIBLE_PANIC_HOOK})
-# message(STATUS "[STX] Enable backtrace: " ${STX_ENABLE_BACKTRACE})
-message(STATUS "[STX] Enable panic backtrace: " ${STX_ENABLE_PANIC_BACKTRACE})
-
-# ===============================================
-#
-# === Flags and Global Definitions
-#
-# ===============================================
-
-# list(APPEND STX_COMPILER_DEFS) list(APPEND STX_FLAGS) list(APPEND
-# STX_WARNING_FLAGS)
-
-# tests make use of macros which don't use the result, especially
-# EXPECT_ANY_THROW, the result is thus discarded and [[nodiscard]] will raise
-# warnings list(APPEND STX_TEST_WARNING_FLAGS)
+message(STATUS "[STX] Enable panic backtrace: " ${STX_ENABLE_PANIC_BACKTRACE}) # not working yet
 
 # ===============================================
 #
 # === Configure Flags
 #
 # ===============================================
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
+  add_compile_options("/W4")
+else()
+  if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID}
+                                                STREQUAL "Clang")
+    add_compile_options("-Wpedantic" "-Wall" "-Wextra")
 
-# if(MSVC) append_flags_if_supported(STX_WARNING_FLAGS "/W4") else()
-# ##############################################################################
-# append_flags_if_supported(STX_WARNING_FLAGS "-Wpedantic" "-Wall" "-Wextra")
-# endif()
+    if(${STX_SANITIZE_BUILD})
+      add_compile_options("")
+    endif()
+
+  endif()
+endif()
 
 # ===============================================
 #
 # === Configuration Definitions and Platform Support
 #
 # ===============================================
-
-# ########################################// STX_DEFINES - should also be in the
-# project cmake lists
-
-if(STX_CUSTOM_PANIC_HANDLER)
-  list(APPEND STX_COMPILER_DEFS "STX_CUSTOM_PANIC_HANDLER")
-endif()
-
-# remove this if(STX_VISIBLE_PANIC_HOOK) list(APPEND STX_COMPILER_DEFS
-# "STX_VISIBLE_PANIC_HOOK") endif()
-
-# if(STX_ENABLE_PANIC_BACKTRACE) list(APPEND STX_COMPILER_DEFS
-# "STX_ENABLE_PANIC_BACKTRACE") endif()
-
-# if(STX_ENABLE_BACKTRACE)
-# TODO(lamarrr): check platform support endif()
 
 # some microcontroller platforms 'arm-gcc-none especially" may not have
 # std::thread enabled if so, we remove the thread facilities, this will cause
@@ -148,92 +94,37 @@ int main(){
 "
   LIBSTX_HAS_STD_THREAD_MUTEX)
 
+# TODO(lamarrr): fix up
 if(NOT LIBSTX_HAS_STD_THREAD_MUTEX)
   list(APPEND STX_COMPILER_DEFS "STX_NO_STD_THREAD_MUTEX")
 endif()
 
-# ===============================================
-#
-# === Dependencies
-#
-# ===============================================
-
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
-  add_compile_options(-fdiagnostics-color=always)
+  add_compile_options("-fdiagnostics-color=always")
 elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
-  add_compile_options(-fcolor-diagnostics)
+  add_compile_options("-fcolor-diagnostics")
 endif()
 
+add_subdirectory(allocator)
+add_subdirectory(async)
+add_subdirectory(backtrace)
 add_subdirectory(config)
+add_subdirectory(enum)
+add_subdirectory(fn)
+add_subdirectory(limits)
+add_subdirectory(mem)
 add_subdirectory(option_result)
 add_subdirectory(panic)
+add_subdirectory(resource)
+add_subdirectory(scheduler)
 add_subdirectory(source_location)
 add_subdirectory(span)
+add_subdirectory(spinlock)
+add_subdirectory("string")
+add_subdirectory(struct)
+add_subdirectory(task)
 add_subdirectory(utils)
-
-# ===============================================
-#
-# === Source Files
-#
-# ===============================================
-
-# ===============================================
-#
-# === Library Setup
-#
-# ===============================================
-
-# target_compile_definitions(stx PUBLIC ${STX_COMPILER_DEFS})
-
-# if(STX_ENABLE_BACKTRACE) target_link_libraries(stx absl::stacktrace
-# absl::symbolize) endif()
+add_subdirectory(vec)
+add_subdirectory(void)
 
 # if(ANDROID) target_link_libraries(stx ${LibAtomic}) endif()
-
-# ===============================================
-#
-# === Test Dependencies
-#
-# ===============================================
-
-# ===============================================
-#
-# === Tests Setup
-#
-# ===============================================
-
-# if(STX_BUILD_TESTS)
-#
-# add_executable(stx_tests ${STX_TEST_SRCS}) target_link_libraries(stx_tests stx
-# gtest_main gtest) target_include_directories(stx_tests PRIVATE tests)
-# target_compile_options(stx_tests PRIVATE ${STX_FLAGS} ${STX_WARNING_FLAGS}
-# ${STX_TEST_WARNING_FLAGS}) target_compile_definitions(stx_tests PRIVATE
-# STX_CUSTOM_PANIC_HANDLER) add_custom_target( run_tests COMMAND
-# ${CMAKE_CURRENT_BINARY_DIR}/stx_tests DEPENDS stx_tests)
-
-# macro(try_add_sanitized_test sanitize_mode) only known to be supported on GCC
-# and Clang, If otherwise drop a PR! if(${CMAKE_CXX_COMPILER_ID} MATCHES
-# "GNU|Clang") add_executable(stx_tests_${sanitize_mode}_sanitized
-# ${STX_TEST_SRCS}) target_compile_options(stx_tests_${sanitize_mode}_sanitized
-# PRIVATE "-fsanitize=${sanitize_mode}")
-# target_compile_definitions(stx_tests_${sanitize_mode}_sanitized PRIVATE
-# STX_CUSTOM_PANIC_HANDLER)
-# target_include_directories(stx_tests_${sanitize_mode}_sanitized PRIVATE tests)
-# target_link_libraries(stx_tests_${sanitize_mode}_sanitized stx gtest_main
-# gtest "-fsanitize=${sanitize_mode}")
-
-# else()
-#
-# message( WARNING "[STX] We only build sanitized tests for GCC and Clang.
-# Sanitized tests will not be built" )
-
-# endif() endmacro(try_add_sanitized_test sanitize_mode)
-
-# if(STX_SANITIZE_TESTS) try_add_sanitized_test(undefined)
-# try_add_sanitized_test(address) try_add_sanitized_test(leak)
-# try_add_sanitized_test(thread) endif()
-
-# endif()
-
-# find . -regex '.*\.\(cpp\|h\|cc\|cxx\)' -exec clang-format -style=file -i {}
-# \; clang-format-all

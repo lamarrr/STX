@@ -5,13 +5,14 @@
  *
  * @copyright MIT License
  *
- * Copyright (c) 2020-2021 Basit Ayantunde
+ * Copyright (c) 2020-2022 Basit Ayantunde
  *
  */
 
 #pragma once
 
 #include "stx/panic.h"
+#include "stx/source_location.h"
 
 STX_BEGIN_NAMESPACE
 

@@ -5,7 +5,7 @@
  *
  * @copyright MIT License
  *
- * Copyright (c) 2020-2021 Basit Ayantunde
+ * Copyright (c) 2020-2022 Basit Ayantunde
  *
  */
 
@@ -21,26 +21,15 @@
 
 #include "stx/config.h"
 #include "stx/option.h"
+#include "stx/panic.h"
 #include "stx/utils/enable_if.h"
 
-// TODO(lamarrr): use do{} while(0)
-#define STX_RAISE_BUG(evaluation_identifier, condition_violated, \
-                      violating_expression)                      \
-  do {                                                           \
-  } while (0)
-
-#define STX_RAISE_BUF_IF(...) \
-  do {                        \
-  } while (0)
-#define STX_SPAN_CHECK_BOUNDS(valid_span_size, span_index) \
-  do {                                                     \
-  } while (0)
-#define STX_SPAN_CHECK_RANGE() \
-  do {                         \
-  } while (0)
-
-#define STX_SPAN_CHECK_SIZE_EQ(...) \
-  do {                              \
+#define STX_SPAN_ENSURE(condition, message)             \
+  do {                                                  \
+    if (!(condition)) {                                 \
+      ::stx::panic("condition: '" #condition            \
+                   "' failed. explanation: " #message); \
+    }                                                   \
   } while (0)
 
 STX_BEGIN_NAMESPACE
@@ -109,19 +98,11 @@ constexpr bool is_compatible_container =
 //!
 //! `Span` is a referencing/non-owning type-erased view over a contiguous
 //! sequence of objects (sequential container) and typically help to eliminate
-//! the use of raw pointers. A `Span` can either have a static extent, in which
-//! case the number of elements in the sequence is known at compile-time and
-//! encoded in the type, or a dynamic extent, in which case the number of
-//! elements in the sequence is known at runtime.
+//! the use of raw pointers.
 //!
 //! `Span` is conceptually a pointer and a length into an already existing
 //! contiguous memory. Passing a properly-constructed `Span` instead of raw
 //! pointers avoids many issues related to index out of bounds errors.
-//!
-//! A static-extent span is a span whose length is known at compile-time.
-//! A dynamic-extent span is a span whose length varies and is only known at
-//! runtime.
-//!
 //!
 //!
 //! # Usage
@@ -130,39 +111,21 @@ constexpr bool is_compatible_container =
 //!
 //! std::vector<int> vec = {1, 2, 3, 4, 5};
 //!
-//! // Construct a static-extent span (size known at compile time)
-//! Span<int, 5> a = vec;
-//!
-//! // Construct a static-extent span pointing to the first 2 elements of the
-//! // vector
-//! Span<int, 2> b = vec;
-//!
-//! // Construct a dynamic-extent span (size known at runtime)
+//! // Construct a span
 //! Span<int> c = vec;
-//!
-//!
-//! // Construct a static-extent span pointing to the first 2 elements of the
-//! // vector
-//! auto d = Span<int>(vec.data(), 2);
 //!
 //!
 //! ```
 //!
 //!
-//!
-// TODO(lamarrr): pointers given to span must be valid
-// pointers returned from span are always valid
-//
-//
-// iterators returned are always valid, except iterator returned from the
-// default-constructed span.
-//
-//
 template <typename T>
 struct Span {
+  static_assert(!std::is_reference_v<T>);
+
   using Type = T;
   using Reference = T&;
   using Iterator = T*;
+  using Pointer = T*;
   using ConstIterator = T const*;
   using Size = size_t;
   using Index = size_t;
@@ -174,8 +137,7 @@ struct Span {
 
  public:
   constexpr Span() = default;
-  constexpr Span(Iterator data, Size size)
-      : ____iterator{data}, ____size{size} {}
+  constexpr Span(Iterator data, Size size) : iterator_{data}, size_{size} {}
   constexpr Span(Span const&) = default;
   constexpr Span(Span&&) = default;
   constexpr Span& operator=(Span const&) = default;
@@ -183,20 +145,19 @@ struct Span {
 
   template <typename U, STX_ENABLE_IF(impl::is_span_convertible<U, T>)>
   constexpr Span(Span<U> src)
-      : ____iterator{static_cast<Iterator>(src.____iterator)},
-        ____size{src.____size} {}
+      : iterator_{static_cast<Iterator>(src.iterator_)}, size_{src.size_} {}
 
   template <Size Length>
   constexpr Span(T (&array)[Length])
-      : ____iterator{static_cast<Iterator>(array)}, ____size{Length} {}
+      : iterator_{static_cast<Iterator>(array)}, size_{Length} {}
 
   template <Size Length>
   constexpr Span(std::array<T, Length>& array)
-      : ____iterator{static_cast<Iterator>(array.data())}, ____size{Length} {}
+      : iterator_{static_cast<Iterator>(array.data())}, size_{Length} {}
 
   template <Size Length>
   constexpr Span(std::array<T, Length> const& array)
-      : ____iterator{static_cast<Iterator>(array.data())}, ____size{Length} {}
+      : iterator_{static_cast<Iterator>(array.data())}, size_{Length} {}
 
   template <typename U, Size Length>
   constexpr Span(std::array<U, Length>&& array) = delete;
@@ -206,92 +167,51 @@ struct Span {
                                  impl::is_compatible_container<Container&, T>,
                              int> = 0>
   constexpr Span(Container& container) noexcept
-      : ____iterator{static_cast<Iterator>(std::data(container))},
-        ____size{std::size(container)} {}
+      : iterator_{static_cast<Iterator>(std::data(container))},
+        size_{std::size(container)} {}
 
-  constexpr Iterator data() const { return ____iterator; }
+  constexpr Pointer data() const { return iterator_; }
 
-  constexpr Size size() const { return ____size; }
+  constexpr Size size() const { return size_; }
 
-  constexpr Size size_bytes() const { return ____size * sizeof(T); }
+  constexpr Size size_bytes() const { return size_ * sizeof(T); }
 
-  constexpr bool is_empty() const { return ____size == 0; }
+  constexpr bool is_empty() const { return size_ == 0; }
 
-  constexpr Iterator begin() const { return ____iterator; }
+  constexpr Iterator begin() const { return iterator_; }
 
-  constexpr Iterator end() const { return begin() + ____size; }
+  constexpr Iterator end() const { return begin() + size_; }
 
   constexpr ConstIterator cbegin() const { return begin(); }
 
   constexpr ConstIterator cend() const { return end(); }
 
   constexpr Reference operator[](Index index) const {
-    STX_SPAN_CHECK_BOUNDS(____size, index);
-    return ____iterator[index];
+    STX_SPAN_ENSURE(index < size_, "index out of bounds");
+    return iterator_[index];
   }
 
   auto at(Index index) const -> Option<Ref<T>> {
-    if (index < ____size) {
-      return Some<Ref<T>>(____iterator[index]);
+    if (index < size_) {
+      return Some<Ref<T>>(iterator_[index]);
     } else {
       return None;
     }
   }
 
-  //
-  //
-  // TODO(lamarrr): No naked moves
-  //
-  //
-  // Choices and implications -> Rust still doesn't solve this
-  //
-  //
-  //
-  //
-  // nested use-after-move that the compiler can't reach.
-  //
-  // it is very rare for a container or type to try to use a moved-from object.
-  //
-  //  overload doom
-  //
-  // application hierarchy and pointers/memory as the lowest level
-  //
-  //
-  // Inconsequantial Behaviour and requirements
-  //
-  // - I want std::vector, means I want a vectir that uses operator new,
-  // operator delete, and I want a const one.
-  //
-  // Multi-type template parameters
-  //
-  //
-  //
-  // Isolating static behaviour by naming
-  //
-  //
-  // Isolating undefined behavior
-  //
-  // Lifetimes
-  //
-  // You must not overload std::move
-  // move is a potentially destructive operation and moved-from objects must
-  // never be touched.
-  // containers must never define move operators.
-  //
-  // Objects must not have invalid state that invalidates
-  // their exposed operations by default Operations that invalidate returned
-  // data must use a move construct
-  //
-  //  constexpr void move_to(Span<T> output) const;
+  constexpr Span<T> slice(Index offset) const {
+    STX_SPAN_ENSURE(offset <= size_, "index out of bounds");
+    return Span<T>{iterator_ + offset, size_ - offset};
+  }
 
-  constexpr Span<T> copy(Span<T const> input) {
-    static_assert(std::is_copy_assignable_v<T>);
-    for (Index position = 0; position < std::min(size(), input.size());
-         position++) {
-      ____iterator[position] = input[position];
-    }
+  constexpr Span<T> slice(Index offset, Size length_to_slice) const {
+    STX_SPAN_ENSURE(offset <= size_, "index out of bounds");
 
-    return *this;
+    if (length_to_slice > 0)
+      STX_SPAN_ENSURE(offset + (length_to_slice - 1) < size_,
+                      "index out of bounds");
+
+    return Span<T>{iterator_ + offset, length_to_slice};
   }
 
   template <typename Predicate>
@@ -345,9 +265,21 @@ struct Span {
     return is_none([&cmp](T const& a) { return a == cmp; });
   }
 
+  constexpr Span<T> copy(Span<T const> input) {
+    static_assert(std::is_copy_assignable_v<T>);
+
+    for (Index position = 0; position < std::min(size(), input.size());
+         position++) {
+      iterator_[position] = input[position];
+    }
+
+    return *this;
+  }
+
   template <typename Func>
-  constexpr Span<T> apply(Func&& func) const {
+  constexpr Span<T> for_each(Func&& func) const {
     static_assert(std::is_invocable_v<Func, T&>);
+
     for (T& element : *this) {
       std::forward<Func>(func)(element);
     }
@@ -377,16 +309,21 @@ struct Span {
     return *this;
   }
 
-  // span of 1 element if found, otherwise span of zero elements
+  //! span of 1 element if found, otherwise span of zero elements
   constexpr Span<T> find(T const& object) const {
-    // TODO(lamarrr): add equality comparable
-    for (T* iter = ____iterator; iter < (____iterator + ____size); iter++) {
+    // TODO(lamarrr): consider adding equality comparable
+
+    for (Iterator iter = iterator_; iter < (iterator_ + size_); iter++) {
       if (*iter == object) {
         return Span<T>{iter, 1};
       }
     }
 
-    return Span<T>{____iterator + ____size, 0};
+    return Span<T>{iterator_ + size_, 0};
+  }
+
+  constexpr bool contains(T const& object) const {
+    return !find(object).is_empty();
   }
 
   template <typename Predicate>
@@ -395,27 +332,13 @@ struct Span {
     static_assert(
         std::is_same_v<std::invoke_result_t<Predicate, T const&>, bool>);
 
-    for (T* iter = ____iterator; iter < (____iterator + ____size); iter++) {
+    for (Iterator iter = iterator_; iter < (iterator_ + size_); iter++) {
       if (std::forward<Predicate>(predicate)(*iter)) {
         return Span<T>{iter, 1};
       }
     }
 
-    return Span<T>{____iterator + ____size, 0};
-  }
-
-  constexpr Span<T> slice(Index offset) const {
-    STX_SPAN_CHECK_BOUNDS(____size, offset);
-    return Span<T>{____iterator + offset, ____size - offset};
-  }
-
-  constexpr Span<T> slice(Index offset, Size length_to_slice) const {
-    STX_SPAN_CHECK_BOUNDS(____size, offset);
-
-    if (length_to_slice > 0)
-      STX_SPAN_CHECK_BOUNDS(____size, offset + (length_to_slice - 1));
-
-    return Span<T>{____iterator + offset, length_to_slice};
+    return Span<T>{iterator_ + size_, 0};
   }
 
   template <typename Func, typename Output>
@@ -426,27 +349,45 @@ struct Span {
     static_assert(
         std::is_assignable_v<Output&, std::invoke_result_t<Func, T&>>);
 
-    STX_SPAN_CHECK_SIZE_EQ(this->size(), output.size());
+    STX_SPAN_ENSURE(size() == output.size(),
+                    "source and destination span size mismatch");
 
     for (Index position = 0; position < size(); position++) {
-      output[position] =
-          std::forward<Func>(transformer)(____iterator[position]);
+      output[position] = std::forward<Func>(transformer)(iterator_[position]);
     }
 
     return output;
   }
 
+  template <typename Cmp>
+  constexpr Span<T> sort(Cmp&& cmp) const {
+    // TODO(lamarrr): add type checks
+
+    std::sort(begin(), end(), std::forward<Cmp>(cmp));
+
+    return *this;
+  }
+
+  constexpr bool is_sorted() const { return std::is_sorted(begin(), end()); }
+
+  template <typename Cmp>
+  constexpr bool is_sorted(Cmp&& cmp) const {
+    // TODO(lamarrr): add type checks
+
+    return std::is_sorted(begin(), end(), std::forward<Cmp>(cmp));
+  }
+
   template <typename Predicate>
   constexpr std::pair<Span<T>, Span<T>> partition(Predicate&& predicate) const {
-    auto first_partition_end =
-        std::stable_partition(____iterator, ____iterator + ____size,
-                              std::forward<Predicate>(predicate));
+    // TODO(lamarrr): add type checks
 
-    T* second_partition_end = ____iterator + ____size;
+    auto first_partition_end = std::stable_partition(
+        iterator_, iterator_ + size_, std::forward<Predicate>(predicate));
+
+    T* second_partition_end = iterator_ + size_;
 
     return std::make_pair(
-        Span<T>{____iterator,
-                static_cast<Size>(first_partition_end - ____iterator)},
+        Span<T>{iterator_, static_cast<Size>(first_partition_end - iterator_)},
         Span<T>{first_partition_end,
                 static_cast<Size>(second_partition_end - first_partition_end)});
   }
@@ -454,80 +395,67 @@ struct Span {
   template <typename Predicate>
   constexpr std::pair<Span<T>, Span<T>> unstable_partition(
       Predicate&& predicate) const {
-    auto first_partition_end =
-        std::partition(____iterator, ____iterator + ____size,
-                       std::forward<Predicate>(predicate));
+    // TODO(lamarrr): add type checks
 
-    T* second_partition_end = ____iterator + ____size;
+    auto first_partition_end = std::partition(
+        iterator_, iterator_ + size_, std::forward<Predicate>(predicate));
 
-    return std::make_pair(Span<T>{____iterator, first_partition_end},
+    T* second_partition_end = iterator_ + size_;
+
+    return std::make_pair(Span<T>{iterator_, first_partition_end},
                           Span<T>{first_partition_end,
                                   second_partition_end - first_partition_end});
   }
 
-  // Span<T>, Span<T> get_partitions()
-  // might not be partitioned
-
-  // TODO(lamarrr): overlaps address, join two related spans, etc. must check
-  // order
+  // TODO(lamarrr): also check for rust lang's name for these
+  // is_partitioned
+  // accumulate, reduce
+  // inner_product
+  // count
+  // count_if
+  // move
+  // max_element
+  // min_element
+  // minmax_element
+  // equal
+  // reverse
 
   constexpr Span<ConstVolatileMatched<std::byte> const> as_bytes() const {
     return Span<ConstVolatileMatched<std::byte> const>(
-        reinterpret_cast<ConstVolatileMatched<std::byte> const*>(____iterator),
+        reinterpret_cast<ConstVolatileMatched<std::byte> const*>(iterator_),
         size_bytes());
   }
 
-  /// converts the span into a view of its underlying bytes (represented with
-  /// `uint8_t`).
+  //! converts the span into a view of its underlying bytes (represented with
+  //! `uint8_t`).
   constexpr Span<ConstVolatileMatched<uint8_t> const> as_u8() const {
     return Span<ConstVolatileMatched<uint8_t> const>(
-        reinterpret_cast<ConstVolatileMatched<uint8_t> const*>(____iterator),
+        reinterpret_cast<ConstVolatileMatched<uint8_t> const*>(iterator_),
         size_bytes());
   }
 
-  /// converts the span into an immutable span.
+  //! converts the span into an immutable span.
   constexpr Span<T const> as_const() const { return *this; }
 
-  /// converts the span into another span in which reads
-  /// and writes to the contiguous sequence are performed as volatile
-  /// operations.
+  //! converts the span into another span in which reads
+  //! and writes to the contiguous sequence are performed as volatile
+  //! operations.
   constexpr Span<T volatile> as_volatile() const { return *this; }
 
-  Iterator ____iterator = nullptr;
-  Size ____size = 0;
-
-  // static constexpr uint64_t ABI_TAG = STX_ABI_VERSION;
-  //
-  // we just need to be selective about what types we want to support across
-  // ABIs
-  //
-  // complex objects usually don't cross ABIs.
-  //
-  //
-  // Allocators and complex objects shouldn't decide the behavior of objects.
-  //
-  // enum class AbiTag
-  //
-  //
-  // template<typename Output, AbiTag tag>
-  // abi_cast( stx::Span<Output>  ) {
-  // }
-  //
-  // define own abi cast by accessing internal members. must be vetted.
-  //
-  //
+  Iterator iterator_ = nullptr;
+  Size size_ = 0;
 };
 
 template <typename SrcElement, size_t Length>
-Span(SrcElement (&)[Length])->Span<SrcElement>;
+Span(SrcElement (&)[Length]) -> Span<SrcElement>;
 
 template <typename SrcElement, size_t Length>
-Span(std::array<SrcElement, Length>&)->Span<SrcElement>;
+Span(std::array<SrcElement, Length>&) -> Span<SrcElement>;
 
 template <typename SrcElement, size_t Length>
-Span(std::array<SrcElement, Length> const&)->Span<SrcElement const>;
+Span(std::array<SrcElement, Length> const&) -> Span<SrcElement const>;
 
 template <typename Container>
-Span(Container& cont)->Span<std::remove_pointer_t<decltype(std::data(cont))>>;
+Span(Container& cont) -> Span<std::remove_pointer_t<decltype(std::data(cont))>>;
 
 STX_END_NAMESPACE
