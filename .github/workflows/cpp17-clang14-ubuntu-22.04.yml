@@ -1,0 +1,48 @@
+name: cpp17:clang9:ubuntu
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    strategy:
+      matrix:
+        build_mode: ["Release", "Debug"]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Initialize CMake
+        run: cd build && export CC=clang-14 CXX=clang++-14 && cmake .. -DCMAKE_BUILD_TYPE=${{matrix.build_mode}} -DSTX_BUILD_TESTS=ON
+
+      - name: Build Tests
+        run: cd build && make
+
+      - name: Run Tests	1
+        run: ./async/stx_async_tests
+
+      - name: Run Tests 2
+        run: ./backtrace/stx_backtrace_tests
+
+      - name: Run Tests 3
+        run: ./option_result/stx_option_result_tests
+
+      - name: Run Tests 4
+        run: ./panic/stx_panic_tests
+
+      - name: Run Tests 5
+        run: ./scheduler/stx_scheduler_tests
+
+      - name: Run Tests 6
+        run: ./span/stx_span_tests
+
+      - name: Run Tests 7
+        run: ./string/stx_string_tests
+
+      - name: Run Tests 8
+        run: ./vec/stx_vec_tests

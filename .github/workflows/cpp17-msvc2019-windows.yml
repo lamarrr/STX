@@ -6,31 +6,28 @@ on:
   pull_request:
     branches: [main]
 
-jobs:	
-  build:	
-    runs-on: windows-2019	
+jobs:
+  build:
+    runs-on: windows-2019
 
-    strategy:	
+    strategy:
+      matrix:
+        build_mode: ["Release", "Debug"]
 
-      matrix:	
-        panic_backtrace: ["ON", "OFF"]	
-        backtrace: ["ON", "OFF"]	
+    steps:
+      - uses: actions/checkout@v2
 
-    steps:	
-      - uses: actions/checkout@v2	
+#      - name: Install GoogleTest
+#        run: git clone https://github.com/google/googletest.git && cd googletest && mkdir build && cmake --build . --config ${{ matrix.build_mode }} && cmake --install . && cd .. && cd ..
 
-      - name: Install GoogleTest
-        run: git clone https://github.com/google/googletest.git && cd googletest && mkdir build && cmake --build . && cmake --install . && cd .. && cd ..
+      - name: Configure Build Directory
+        run: mkdir build
 
+      - name: Initialize CMake
+        run: cd build && cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_mode }} -DSTX_BUILD_TESTS=ON -Dgtest_force_shared_crt=ON
 
-      - name: Configure Build Directory	
-        run: mkdir build	
-
-      - name: Initialize CMake	
-        run: cd build && cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_mode }} -DSTX_BUILD_TESTS=ON -DSTX_ENABLE_BACKTRACE=${{ matrix.backtrace }} -DSTX_ENABLE_PANIC_BACKTRACE=${{ matrix.panic_backtrace }} -DSTX_SANITIZE_TESTS=OFF	-DCMAKE_CXX_STANDARD=17 -Dgtest_force_shared_crt=ON 
-
-      - name: CMake Build	
+      - name: CMake Build
         run: cmake --build build
 
-      - name: Run Unsanitized Tests	
+      - name: Run Unsanitized Tests
         run: cd build && Debug\stx_tests.exe
