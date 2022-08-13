@@ -206,7 +206,7 @@ Result<String, AllocError> join(Allocator allocator, Glue const& glue,
     size_t view_index = 0;
 
     for (StringView v : views) {
-      std::memcpy(str + index, v.begin(), v.size());
+      std::memcpy(str + index, v.data(), v.size());
       index += v.size();
 
       if (view_index != nviews - 1) {
