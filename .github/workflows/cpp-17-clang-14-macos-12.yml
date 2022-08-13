@@ -17,6 +17,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Install LLVM 14
+        run: brew install llvm@14
+
       - name: Configure Build Directory
         run: mkdir build
 
