@@ -50,9 +50,11 @@ option(STX_ENABLE_PANIC_BACKTRACE "Enable panic backtrace")
 # ===============================================
 message(STATUS "[STX] Build tests: " ${STX_BUILD_TESTS})
 message(STATUS "[STX] Sanitize build: " ${STX_SANITIZE_BUILD}) # not working yet
-message(STATUS "[STX] Build documentation: " ${STX_BUILD_DOCS}) # not working yet
+message(STATUS "[STX] Build documentation: " ${STX_BUILD_DOCS}) # not working
+                                                                # yet
 message(STATUS "[STX] Override panic handler: " ${STX_CUSTOM_PANIC_HANDLER})
-message(STATUS "[STX] Enable panic backtrace: " ${STX_ENABLE_PANIC_BACKTRACE}) # not working yet
+message(STATUS "[STX] Enable panic backtrace: " ${STX_ENABLE_PANIC_BACKTRACE}
+)# not working yet
 
 # ===============================================
 #
@@ -103,6 +105,10 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
   add_compile_options("-fdiagnostics-color=always")
 elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
   add_compile_options("-fcolor-diagnostics")
+endif()
+
+if(MSVC)
+  add_compile_options(/std:c++17)
 endif()
 
 add_subdirectory(allocator)
