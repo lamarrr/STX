@@ -13,8 +13,8 @@
 
 STX_BEGIN_NAMESPACE
 
-enum class [[nodiscard]] YieldAllocError : uint8_t{MemoryFull};
-enum class [[nodiscard]] StreamError : uint8_t{Pending, Closed};
+enum class YieldAllocError : uint8_t { MemoryFull };
+enum class StreamError : uint8_t { Pending, Closed };
 
 //
 // # Design Problems
