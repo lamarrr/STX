@@ -49,3 +49,4 @@ jobs:
       
       - name: Run Tests 8
         run: .\vec\stx_vec_tests
+        
