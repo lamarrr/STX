@@ -78,7 +78,7 @@ struct Rc {
   Rc share() const {
     manager.ref();
 
-    return Rc<HandleType>{HandleType{handle}, Manager{manager}};
+    return Rc{HandleType{handle}, Manager{manager}};
   }
 
   ~Rc() { manager.unref(); }
