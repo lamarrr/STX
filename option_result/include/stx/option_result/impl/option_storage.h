@@ -96,6 +96,7 @@ template <typename T>
 struct OptionStorage<T, true> {
   union {
     Some<T> some_;
+    char reserved____;
   };
 
   bool is_none_;
@@ -108,7 +109,8 @@ struct OptionStorage<T, true> {
   constexpr OptionStorage(OptionStorage&&) = default;
   constexpr OptionStorage& operator=(OptionStorage&&) = default;
 
-  explicit constexpr OptionStorage(NoneType) : is_none_{true} {}
+  explicit constexpr OptionStorage(NoneType)
+      : reserved____{0}, is_none_{true} {}
 
   explicit constexpr OptionStorage(Some<T>&& some)
       : some_{std::move(some)}, is_none_{false} {}
