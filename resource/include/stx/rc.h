@@ -57,7 +57,7 @@ struct Rc {
 
   using handle_type = HandleType;
 
-  constexpr Rc(HandleType&& ihandle, Manager imanager)
+  constexpr Rc(HandleType ihandle, Manager imanager)
       : handle{std::move(ihandle)}, manager{std::move(imanager)} {}
 
   constexpr Rc(Rc&& other)
@@ -100,7 +100,7 @@ template <typename HandleType>
 struct Unique {
   static_assert(is_resource_handle_type<HandleType>);
 
-  constexpr Unique(HandleType&& ihandle, Manager imanager)
+  constexpr Unique(HandleType ihandle, Manager imanager)
       : handle{std::move(ihandle)}, manager{std::move(imanager)} {}
 
   constexpr Unique(Unique&& other)
