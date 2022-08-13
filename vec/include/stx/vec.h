@@ -13,14 +13,10 @@
 
 STX_BEGIN_NAMESPACE
 
-// TODO(lamarrr): we should find another name other than Vec
-//
-// TODO(lamarrr): consider adding checks to the vec[]
-//
-
 // there is not enough memory for the insertion operation
 enum class VecError : uint8_t { OutOfMemory };
 
+namespace impl {
 template <typename T>
 constexpr void destruct_range(T* start, size_t size) {
   if constexpr (std::is_trivially_destructible_v<T>) {
@@ -47,16 +43,9 @@ constexpr size_t grow_vec(size_t capacity, size_t new_target_size) {
              ? capacity
              : grow_vec_to_target(capacity, new_target_size);
 }
+}  // namespace impl
 
-//
 // ONLY NON-CONST METHODS INVALIDATE ITERATORS
-//
-//
-//
-// TODO(lamarrr): clear and all state-mutating ones should use std::move and a
-// separate method.
-//
-//
 //
 template <typename T>
 struct VecBase {
@@ -98,7 +87,7 @@ struct VecBase {
 
   STX_DISABLE_COPY(VecBase)
 
-  ~VecBase() { destruct_range(begin(), size_); }
+  ~VecBase() { impl::destruct_range(begin(), size_); }
 
   Span<T> span() const { return Span<T>{begin(), size_}; }
 
@@ -223,7 +212,7 @@ Result<Void, AllocError> vec____reserve(VecBase<T>& base, size_t cap) {
         iter++;
       }
 
-      destruct_range(base.begin(), base.size_);
+      impl::destruct_range(base.begin(), base.size_);
 
       base.memory_ = std::move(new_memory);
       base.capacity_ = new_capacity;
@@ -261,7 +250,7 @@ Result<Vec<T>, AllocError> push_inplace(Vec<T>&& vec, Args&&... args) {
   static_assert(std::is_constructible_v<T, Args&&...>);
 
   size_t const target_size = vec.size_ + 1;
-  size_t const new_capacity = grow_vec(vec.capacity_, target_size);
+  size_t const new_capacity = impl::grow_vec(vec.capacity_, target_size);
 
   TRY_OK(new_vec, reserve(std::move(vec), new_capacity));
 
@@ -312,29 +301,13 @@ Result<FixedVec<T>, VecError> push(FixedVec<T>&& vec, T& value) = delete;
 template <typename T>
 Result<Vec<T>, AllocError> copy(Allocator, Vec<T> const&);
 
-// smaller size or zero?
-//
-///
-//
-//
-//
-//
-// TODO(lamarrr): resize and move should use move semantics
-//
-//
-//
-//
-//
-//
-//
-
 template <typename T>
 Result<Vec<T>, AllocError> resize(Vec<T>&& vec, size_t target_size,
                                   T const& to_copy = {}) {
   size_t const previous_size = vec.size();
 
   if (target_size > previous_size) {
-    size_t const new_capacity = grow_vec(vec.capacity(), target_size);
+    size_t const new_capacity = impl::grow_vec(vec.capacity(), target_size);
 
     TRY_OK(new_vec, reserve(std::move(vec), new_capacity));
 
@@ -352,7 +325,7 @@ Result<Vec<T>, AllocError> resize(Vec<T>&& vec, size_t target_size,
   } else {
     // target_size <= previous_size
     T* destruct_begin = vec.begin() + target_size;
-    destruct_range(destruct_begin, previous_size - target_size);
+    impl::destruct_range(destruct_begin, previous_size - target_size);
 
     vec.size_ = target_size;
 
@@ -360,7 +333,6 @@ Result<Vec<T>, AllocError> resize(Vec<T>&& vec, size_t target_size,
   }
 }
 
-// smaller size or zero?
 template <typename T>
 Result<Void, VecError> resize(FixedVec<T>&& vec, size_t target_size,
                               T const& to_copy = {}) {
@@ -388,7 +360,6 @@ Result<Void, VecError> resize(FixedVec<T>&& vec, size_t target_size,
   return Ok(std::move(vec));
 }
 
-// TODO(lamarrr): verify validity of these methods
 // capacity is unchanged
 template <typename T>
 void vec____clear(VecBase<T>& base) {
@@ -413,9 +384,6 @@ void clear(FixedVec<T>&& vec) {
 //
 // `last` must be greater than `end`.
 //
-// TODO(lamarrr): this should take a span
-//
-//
 template <typename T>
 void vec____erase(VecBase<T>& base, Span<T> range) {
   STX_SPAN_ENSURE(base.begin() <= range.begin() && base.end() >= range.end(),
@@ -426,12 +394,12 @@ void vec____erase(VecBase<T>& base, Span<T> range) {
   T* erase_start = range.begin();
   T* erase_end = range.end();
 
-  destruct_range(erase_start, destruct_size);
+  impl::destruct_range(erase_start, destruct_size);
 
   size_t num_trailing = base.end() - erase_end;
 
   // move trailing elements to the front
-  move_construct_range(erase_end, num_trailing, erase_start);
+  impl::move_construct_range(erase_end, num_trailing, erase_start);
 
   base.size_ -= destruct_size;
 }

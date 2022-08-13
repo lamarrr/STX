@@ -27,10 +27,6 @@ STX_BEGIN_NAMESPACE
 ///
 ///
 ///
-/// TODO(lamarrr): this should probably go to a separate directory and also be
-/// used for the panic code.
-///
-///
 // if the application is multi-threaded, the compiler can make more informed
 // decisions about reference-counting.
 struct RefCount {

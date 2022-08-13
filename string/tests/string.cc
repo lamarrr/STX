@@ -8,14 +8,13 @@
 using namespace stx;
 
 TEST(StrTest, Init) {
-  // TODO(lamarrr): add more tests
-
   String str;
 
   String a{string::make_static("hello")};
   String b{string::make(os_allocator, "waddup").unwrap()};
 
   EXPECT_EQ(str[str.size()], '\0');
+  EXPECT_EQ(str.size(), 0);
 
   EXPECT_EQ(a, "hello");
   EXPECT_EQ(b, "waddup");

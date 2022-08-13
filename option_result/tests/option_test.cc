@@ -22,8 +22,6 @@
 using namespace std;  // NOLINT
 using namespace stx;  // NOLINT
 
-// TODO(lamarrr) test against all methods
-
 template <size_t ID>
 struct MoveOnly {
   explicit MoveOnly(int) {}

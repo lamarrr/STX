@@ -23,8 +23,6 @@ STX_BEGIN_NAMESPACE
 
 constexpr std::string_view REPORT_FORMAT_ERROR = "<format error>";
 
-// TODO(lamarrr): there's a circular reference here due to span which also
-// includes this header
 struct ReportQuery {
   struct Buffer {
     char* data = nullptr;
