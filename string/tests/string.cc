@@ -13,7 +13,7 @@ TEST(StrTest, Init) {
   String a{string::make_static("hello")};
   String b{string::make(os_allocator, "waddup").unwrap()};
 
-  EXPECT_EQ(str[str.size()], '\0');
+  EXPECT_EQ(str.data()[0], '\0');
   EXPECT_EQ(str.size(), 0);
 
   EXPECT_EQ(a, "hello");

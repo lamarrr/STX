@@ -51,6 +51,7 @@ struct String {
   using Size = size_t;
   using Index = size_t;
   using Iterator = char const*;
+  using Pointer = char const*;
 
   String() : memory_{static_storage_allocator, EMPTY_STRING}, size_{0} {}
 
@@ -76,7 +77,7 @@ struct String {
 
   char const* c_str() const { return data(); }
 
-  Iterator data() const { return static_cast<char const*>(memory_.handle); }
+  Pointer data() const { return static_cast<char const*>(memory_.handle); }
 
   Size size() const { return size_; }
 
