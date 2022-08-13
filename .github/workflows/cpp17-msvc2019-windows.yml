@@ -17,8 +17,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-#      - name: Install GoogleTest
-#        run: git clone https://github.com/google/googletest.git && cd googletest && mkdir build && cmake --build . --config ${{ matrix.build_mode }} && cmake --install . && cd .. && cd ..
+#- name: Install GoogleTest
+#run: git clone https://github.com/google/googletest.git && cd googletest && mkdir build && cmake --build . --config ${{ matrix.build_mode }} && cmake --install . && cd .. && cd ..
 
       - name: Configure Build Directory
         run: mkdir build
