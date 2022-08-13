@@ -14,10 +14,6 @@
 /// configuration macro
 #define STX_CFG(param, value) STX_##param##_##value
 
-#if (__cplusplus < 201700L)
-#error "STX only supports C++17 and above"
-#endif
-
 /*********************** COMPILERS ***********************/
 
 #if defined(__GNUC__)  //  any compiler that implements the GNU compiler
