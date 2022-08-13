@@ -17,6 +17,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Install GCC
+        run: sudo apt install gcc-12
+
       - name: Configure Build Directory
         run: mkdir build
 
