@@ -19,8 +19,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(CheckCXXSourceCompiles)
 include(add_project_library)
 
-find_package(GTest REQUIRED)
-find_package(absl REQUIRED)
+execute_process(
+  COMMAND git clone https://github.com/google/googletest.git -b v1.12.0
+          third_party/googletest WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+execute_process(
+  COMMAND git clone https://github.com/abseil/abseil-cpp.git -b20220623.0
+          third_party/abseil WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+
+add_subdirectory(third_party/googletest)
+add_subdirectory(third_party/abseil)
 
 # ===============================================
 #
@@ -30,7 +37,6 @@ find_package(absl REQUIRED)
 option(STX_BUILD_TESTS "Build tests" OFF)
 option(STX_SANITIZE_BUILD "Sanitize build" OFF)
 option(STX_BUILD_DOCS "Build documentation" OFF)
-option(STX_BUILD_BENCHMARKS "Build benchmarks" OFF)
 option(
   STX_CUSTOM_PANIC_HANDLER
   "Override the default panic behaviour by implementing a custom panic handler. The default behavior is to print the panic report and abort the program. (You can read the docs for more details)"
@@ -43,11 +49,10 @@ option(STX_ENABLE_PANIC_BACKTRACE "Enable panic backtrace")
 #
 # ===============================================
 message(STATUS "[STX] Build tests: " ${STX_BUILD_TESTS})
-message(STATUS "[STX] Sanitize build: " ${STX_SANITIZE_BUILD})
-message(STATUS "[STX] Build documentation: " ${STX_BUILD_DOCS})
-message(STATUS "[STX] Build benchmarks: " ${STX_BUILD_BENCHMARKS})
+message(STATUS "[STX] Sanitize build: " ${STX_SANITIZE_BUILD}) # not working yet
+message(STATUS "[STX] Build documentation: " ${STX_BUILD_DOCS}) # not working yet
 message(STATUS "[STX] Override panic handler: " ${STX_CUSTOM_PANIC_HANDLER})
-message(STATUS "[STX] Enable panic backtrace: " ${STX_ENABLE_PANIC_BACKTRACE})
+message(STATUS "[STX] Enable panic backtrace: " ${STX_ENABLE_PANIC_BACKTRACE}) # not working yet
 
 # ===============================================
 #
