@@ -492,8 +492,7 @@ struct [[nodiscard]] Generator {
   STX_DEFAULT_MOVE(Generator)
   STX_DISABLE_COPY(Generator)
 
-  explicit Generator(Rc<StreamState<T> *> &&istate)
-      : state{std::move(istate)} {}
+  explicit Generator(Rc<StreamState<T> *> istate) : state{std::move(istate)} {}
 
   Result<Void, AllocError> yield(Allocator allocator, T &&value,
                                  bool should_close = false) const {
@@ -581,7 +580,7 @@ struct [[nodiscard]] MemoryBackedGenerator {
 
 template <typename T>
 Result<MemoryBackedGenerator<T>, AllocError> make_memory_backed_generator(
-    Allocator allocator, BufferMemory<StreamChunk<T>> &&buffer_memory) {
+    Allocator allocator, BufferMemory<StreamChunk<T>> buffer_memory) {
   TRY_OK(generator_state, rc::make_inplace<StreamState<T>>(allocator));
 
   TRY_OK(smp_ring_buffer_manager, make_managed_smp_ring_buffer<StreamChunk<T>>(
@@ -606,7 +605,7 @@ struct [[nodiscard]] Stream {
   STX_DEFAULT_MOVE(Stream)
   STX_DISABLE_COPY(Stream)
 
-  explicit Stream(Rc<StreamState<T> *> &&istate) : state{std::move(istate)} {}
+  explicit Stream(Rc<StreamState<T> *> istate) : state{std::move(istate)} {}
 
   Result<T, StreamError> pop() const { return state.handle->stream____pop(); }
 

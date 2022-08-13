@@ -61,7 +61,7 @@ struct ScheduleTimeline {
   explicit ScheduleTimeline(Allocator allocator)
       : starvation_timeline{allocator}, thread_slots_capture{allocator} {}
 
-  Result<Void, AllocError> add_task(RcFn<void()>&& fn, PromiseAny&& promise,
+  Result<Void, AllocError> add_task(RcFn<void()> fn, PromiseAny promise,
                                     TaskId id, TaskPriority priority,
                                     TimePoint present_timepoint) {
     // task is ready to execute but preempteed upon adding

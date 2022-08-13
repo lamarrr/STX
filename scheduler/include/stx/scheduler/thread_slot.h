@@ -34,7 +34,7 @@ struct ThreadSlot {
   struct ____ThreadSlot {
     STX_MAKE_PINNED(____ThreadSlot)
 
-    explicit ____ThreadSlot(Promise<void>&& ipromise)
+    explicit ____ThreadSlot(Promise<void> ipromise)
         : promise{std::move(ipromise)} {}
 
     // sorts the executing and pending task.
@@ -52,7 +52,7 @@ struct ThreadSlot {
       return Some(std::move(task.value().fn));
     }
 
-    void push_task(Task&& new_task) {
+    void push_task(Task new_task) {
       LockGuard guard{lock};
       STX_STUB_ENSURE(
           pending_task.is_none(),
@@ -82,7 +82,7 @@ struct ThreadSlot {
     Option<TaskId> executing_task;
   };
 
-  explicit ThreadSlot(Promise<void>&& ipromise) : slot{std::move(ipromise)} {}
+  explicit ThreadSlot(Promise<void> ipromise) : slot{std::move(ipromise)} {}
 
   STX_CACHELINE_ALIGNED ____ThreadSlot slot;
 };

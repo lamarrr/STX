@@ -653,7 +653,7 @@ template <typename T>
 struct FutureBase {
   STX_DISABLE_DEFAULT_CONSTRUCTOR(FutureBase)
 
-  explicit FutureBase(Rc<FutureState<T>*>&& init_state)
+  explicit FutureBase(Rc<FutureState<T>*> init_state)
       : state{std::move(init_state)} {}
 
   FutureStatus fetch_status() const {
@@ -691,7 +691,7 @@ struct Future : public FutureBase<T> {
 
   STX_DISABLE_DEFAULT_CONSTRUCTOR(Future)
 
-  explicit Future(Rc<FutureState<T>*>&& init_state)
+  explicit Future(Rc<FutureState<T>*> init_state)
       : Base{std::move(init_state)} {}
 
   // copy operations should be extremely fast
@@ -725,7 +725,7 @@ struct Future<void> : public FutureBase<void> {
 
   STX_DISABLE_DEFAULT_CONSTRUCTOR(Future)
 
-  explicit Future(Rc<FutureState<void>*>&& init_state)
+  explicit Future(Rc<FutureState<void>*> init_state)
       : Base{std::move(init_state)} {}
 };
 
@@ -733,11 +733,10 @@ struct FutureAny {
   STX_DISABLE_DEFAULT_CONSTRUCTOR(FutureAny)
 
   template <typename T>
-  explicit FutureAny(Future<T>&& future)
+  explicit FutureAny(Future<T> future)
       : state{cast<FutureBaseState*>(std::move(future.state))} {}
 
-  explicit FutureAny(Rc<FutureBaseState*>&& istate)
-      : state{std::move(istate)} {}
+  explicit FutureAny(Rc<FutureBaseState*> istate) : state{std::move(istate)} {}
 
   FutureStatus fetch_status() const {
     return state.handle->user____fetch_status____with_no_result();
@@ -760,7 +759,7 @@ template <typename T>
 struct PromiseBase {
   STX_DISABLE_DEFAULT_CONSTRUCTOR(PromiseBase)
 
-  explicit PromiseBase(Rc<FutureState<T>*>&& init_state)
+  explicit PromiseBase(Rc<FutureState<T>*> init_state)
       : state{std::move(init_state)} {}
 
   void notify_scheduled() const {
@@ -838,7 +837,7 @@ struct Promise : public PromiseBase<T> {
 
   STX_DISABLE_DEFAULT_CONSTRUCTOR(Promise)
 
-  explicit Promise(Rc<FutureState<T>*>&& init_state)
+  explicit Promise(Rc<FutureState<T>*> init_state)
       : Base{std::move(init_state)} {}
 
   void notify_completed(T&& value) const {
@@ -854,7 +853,7 @@ struct Promise<void> : public PromiseBase<void> {
 
   STX_DISABLE_DEFAULT_CONSTRUCTOR(Promise)
 
-  explicit Promise(Rc<FutureState<void>*>&& init_state)
+  explicit Promise(Rc<FutureState<void>*> init_state)
       : Base{std::move(init_state)} {}
 
   void notify_completed() const {
@@ -868,11 +867,10 @@ struct PromiseAny {
   STX_DISABLE_DEFAULT_CONSTRUCTOR(PromiseAny)
 
   template <typename T>
-  explicit PromiseAny(Promise<T>&& promise)
+  explicit PromiseAny(Promise<T> promise)
       : state{cast<FutureBaseState*>(std::move(promise.state))} {}
 
-  explicit PromiseAny(Rc<FutureBaseState*>&& istate)
-      : state{std::move(istate)} {}
+  explicit PromiseAny(Rc<FutureBaseState*> istate) : state{std::move(istate)} {}
 
   void notify_scheduled() const {
     state.handle->executor____notify_scheduled();
