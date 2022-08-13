@@ -32,9 +32,9 @@ jobs:
       - name: Run Tests 2
         run: cd build && ./backtrace/stx_backtrace_tests
 
-#TODO(lamarrr): fix up
-#      - name: Run Tests 3
-#        run: cd build && ./option_result/stx_option_result_tests
+      #TODO(lamarrr): fix up
+      #      - name: Run Tests 3
+      #        run: cd build && ./option_result/stx_option_result_tests
 
       - name: Run Tests 4
         run: cd build && ./panic/stx_panic_tests
