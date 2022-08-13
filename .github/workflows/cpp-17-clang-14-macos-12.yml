@@ -29,6 +29,9 @@ jobs:
       - name: Build Tests
         run: cd build && make
 
+      - name: vvvvv
+        run: ls
+
       - name: Run Tests	1
         run: ./async/stx_async_tests
 
