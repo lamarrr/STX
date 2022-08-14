@@ -41,7 +41,7 @@ struct Life {
   }
 };
 
-#define EXPECT_VALID_FLEX(vec)                                \
+#define EXPECT_VALID_FLEX(vec)       \
   EXPECT_GE(vec.end(), vec.begin()); \
   EXPECT_GE(vec.capacity(), vec.size())
 
@@ -113,13 +113,13 @@ TEST(VecTest, Noop) {
 
   stx::FixedVec<int> g{stx::os_allocator};
 
-  EXPECT_DEATH_IF_SUPPORTED((g = stx::vec::push_inplace(std::move(g), 4783)
-                                     .expect("unable to push")),
-                            ".*?");
+  EXPECT_DEATH_IF_SUPPORTED(
+      (g = stx::vec::push_inplace(std::move(g), 4783).expect("unable to push")),
+      ".*");
 
   stx::Vec<int> no_vec{stx::noop_allocator};
 
-  EXPECT_DEATH_IF_SUPPORTED((g = stx::vec::push_inplace(std::move(g), 4783)
-                                     .expect("unable to push")),
-                            ".*?");
+  EXPECT_DEATH_IF_SUPPORTED(
+      (g = stx::vec::push_inplace(std::move(g), 4783).expect("unable to push")),
+      ".*");
 }
