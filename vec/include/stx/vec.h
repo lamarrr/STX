@@ -54,6 +54,7 @@ struct VecBase {
   using Size = size_t;
   using Index = size_t;
   using Iterator = T*;
+  using Pointer = T*;
 
   static constexpr Size alignment = alignof(T);
   static constexpr Size element_size = sizeof(T);
@@ -91,9 +92,9 @@ struct VecBase {
 
   Span<T> span() const { return Span<T>{begin(), size_}; }
 
-  T& operator[](size_t index) const { return span()[index]; }
+  T& operator[](Index index) const { return span()[index]; }
 
-  Option<Ref<T>> at(size_t index) const { return span().at(index); }
+  Option<Ref<T>> at(Index index) const { return span().at(index); }
 
   Size size() const { return size_; }
 
@@ -101,7 +102,7 @@ struct VecBase {
 
   bool is_empty() const { return size_ == 0; }
 
-  T* data() const { return static_cast<T*>(memory_.handle); }
+  Pointer data() const { return static_cast<T*>(memory_.handle); }
 
   Iterator begin() const { return data(); }
 
