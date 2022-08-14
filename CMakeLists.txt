@@ -107,10 +107,6 @@ elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
   add_compile_options("-fcolor-diagnostics")
 endif()
 
-if(MSVC)
-  add_compile_options(/std:c++17)
-endif()
-
 add_subdirectory(allocator)
 add_subdirectory(async)
 add_subdirectory(backtrace)
