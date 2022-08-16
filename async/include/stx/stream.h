@@ -14,6 +14,7 @@
 STX_BEGIN_NAMESPACE
 
 enum class YieldAllocError : uint8_t { MemoryFull };
+
 enum class StreamError : uint8_t { Pending, Closed };
 
 //
