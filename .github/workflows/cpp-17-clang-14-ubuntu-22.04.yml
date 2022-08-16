@@ -27,26 +27,26 @@ jobs:
         run: cd build && make
 
       - name: Run Tests	1
-        run: cd build && ./async/stx_async_tests
+        run: ./build/async/stx_async_tests
 
       - name: Run Tests 2
-        run: cd build && ./backtrace/stx_backtrace_tests
+        run: ./build/backtrace/stx_backtrace_tests
 
       #TODO(lamarrr): fix up
       #      - name: Run Tests 3
-      #        run: cd build && ./option_result/stx_option_result_tests
+      #        run: ./build/option_result/stx_option_result_tests
 
       - name: Run Tests 4
-        run: cd build && ./panic/stx_panic_tests
+        run: ./build/panic/stx_panic_tests
 
       - name: Run Tests 5
-        run: cd build && ./scheduler/stx_scheduler_tests
+        run: ./build/scheduler/stx_scheduler_tests
 
       - name: Run Tests 6
-        run: cd build && ./span/stx_span_tests
+        run: ./build/span/stx_span_tests
 
       - name: Run Tests 7
-        run: cd build && ./string/stx_string_tests
+        run: ./build/string/stx_string_tests
 
       - name: Run Tests 8
-        run: cd build && ./vec/stx_vec_tests
+        run: ./build/vec/stx_vec_tests
