@@ -43,6 +43,9 @@ template <typename T>
 
 #define STX_INTERNAL_MAKE_REPORT_(STX_ARG_BUFFER, STX_ARG_FORMAT,        \
                                   STX_ARG_VALUE)                         \
+  if (STX_ARG_BUFFER.size == 0 || STX_ARG_BUFFER.data == nullptr)        \
+    return std::string_view{};                                           \
+                                                                         \
   int fmt_size = std::snprintf(STX_ARG_BUFFER.data, STX_ARG_BUFFER.size, \
                                STX_ARG_FORMAT, STX_ARG_VALUE);           \
                                                                          \

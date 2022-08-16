@@ -49,7 +49,10 @@ std::string_view operator>>(ReportQuery, IoError const& v) {
   }
 }
 
-static constexpr auto query = ReportQuery{};
+char fmt_buffer[1024];
+
+static constexpr auto query =
+    ReportQuery{ReportQuery::Buffer{fmt_buffer, std::size(fmt_buffer)}};
 
 TEST(ReportTest, FormatPointer) {
   EXPECT_TRUE((query >> (int*)0x28e7) == "0x28e7"s);
