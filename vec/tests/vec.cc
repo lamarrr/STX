@@ -41,7 +41,7 @@ struct Life {
   }
 };
 
-#define EXPECT_VALID_FLEX(vec)       \
+#define EXPECT_VALID_VEC(vec)        \
   EXPECT_GE(vec.end(), vec.begin()); \
   EXPECT_GE(vec.capacity(), vec.size())
 
@@ -76,13 +76,13 @@ TEST(VecTest, Destructor) {
       vec = stx::vec::push_inplace(std::move(vec), 8).unwrap();
 
     EXPECT_EQ(vec.size(), 10000);
-    EXPECT_VALID_FLEX(vec);
+    EXPECT_VALID_VEC(vec);
   }
 
   {
     Vec<int> vec{stx::os_allocator};
 
-    EXPECT_VALID_FLEX(vec);
+    EXPECT_VALID_VEC(vec);
   }
 }
 
@@ -92,7 +92,7 @@ TEST(VecTest, Resize) {
 
     vec = stx::vec::resize(std::move(vec), 10, 69).unwrap();
 
-    EXPECT_VALID_FLEX(vec);
+    EXPECT_VALID_VEC(vec);
 
     for (auto& el : vec.span()) {
       EXPECT_EQ(el, 69);
@@ -100,7 +100,7 @@ TEST(VecTest, Resize) {
 
     vec = stx::vec::resize(std::move(vec), 20, 42).unwrap();
 
-    EXPECT_VALID_FLEX(vec);
+    EXPECT_VALID_VEC(vec);
 
     EXPECT_EQ(vec.size(), 20);
 
@@ -120,7 +120,7 @@ TEST(VecTest, ResizeLifetime) {
     vec = stx::vec::resize(std::move(vec), 1).unwrap();
     vec = stx::vec::resize(std::move(vec), 5).unwrap();
 
-    EXPECT_VALID_FLEX(vec);
+    EXPECT_VALID_VEC(vec);
   }
 }
 
