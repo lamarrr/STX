@@ -10,8 +10,7 @@ STX_BEGIN_NAMESPACE
 ///
 /// the operations are specified atomically so they can be used for reftable
 /// implementations that choose to use atomic (multi-threaded) or non-atomic
-/// operations (single-threaded) for synchronization. Implementations can also
-/// use pool-based management.
+/// operations (single-threaded) for synchronization.
 ///
 ///
 /// thread-safety depends on implementation.
@@ -55,7 +54,6 @@ struct NoopManagerHandle final : public ManagerHandle {
 
 /// once a resource is released, this manager is put in its place
 ///
-///
 /// thread-safe
 ///
 struct ManagerStub final : public ManagerHandle {
@@ -70,7 +68,6 @@ inline constexpr const NoopManagerHandle noop_manager_handle;
 // static would mean they are different across translation units.
 inline constexpr const ManagerStub manager_stub_handle;
 
-///
 /// this is a polymorphic resource manager.
 /// the resource can be a part of the manager
 /// (intrusive/self-managed) or even be externally located (non-intrusive, or
