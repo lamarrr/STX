@@ -13,7 +13,7 @@ STX_BEGIN_NAMESPACE
 ///
 ///
 /// it is essentially a trivial struct. it is just contains pointers (resource
-/// handle).
+/// handles).
 ///
 /// func must never be initialized with a nullptr or invalid handle.
 ///
@@ -32,11 +32,11 @@ STX_BEGIN_NAMESPACE
 ///        it needs to operate on, which is totally terrible performance-wise as
 ///        you'd be jumping along the cacheline
 ///        - Surprisingly, its copy constructor copies the containing data and
-///        the function ptr/definition whenever it is copied. WTF? Copy
-///        constructors are implicit and it is extremely easy to have accidental
-///        copies with them. in fact, the notion of `copy` is implicit and
-///        ambigous and should be explicit and disambiguated for non-trivial
-///        types
+///        the function ptr/definition whenever it is copied.
+///        - its copy constructors are implicit and it is extremely easy to have
+///        accidental copies with them. in fact, the notion of `copy` is
+///        implicit and ambigous and should be explicit and disambiguated for
+///        non-trivial types
 ///
 template <typename Signature>
 struct Fn;
