@@ -24,14 +24,14 @@ constexpr bool is_resource_handle_type =
 ///
 /// primarily intended for dynamic lifetime management dispatch
 ///
-/// NOTE: our `RcPtr` does not accept nullptr and can't be
-/// a nullptr. if you need a nullable RcPtr, consider
-/// `Option<RcPtr>` or use `std::shared_ptr`
+/// NOTE: our `Rc<T*>` does not accept nullptr and can't be
+/// a nullptr. if you need a nullable, consider`Option<Rc<T*>>` or use
+/// `std::shared_ptr`
 ///
 ///
-/// undefined behaviour to copy/move from/to a moved-from Rc
+/// undefined behaviour to copy/move from/to a moved-from `Rc`
 ///
-/// NOTE: Rc is neither a pointer nor a function. It just does one thing:
+/// NOTE: `Rc` is neither a pointer nor a function. It just does one thing:
 /// manages lifetime
 ///
 ///
