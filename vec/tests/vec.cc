@@ -45,6 +45,29 @@ struct Life {
   EXPECT_GE(vec.end(), vec.begin()); \
   EXPECT_GE(vec.capacity(), vec.size())
 
+TEST(VecTest, MoveAssignmentAndConstruction) {
+  Vec<int> a{stx::os_allocator};
+  a = stx::vec::push(std::move(a), 0).unwrap();
+  a = stx::vec::push(std::move(a), 1).unwrap();
+  a = stx::vec::push(std::move(a), 2).unwrap();
+
+  EXPECT_EQ(a.size(), 3);
+
+  Vec<int> b = std::move(a);
+
+  EXPECT_EQ(b.size(), 3);
+  EXPECT_EQ(a.size(), 0);
+
+  a = std::move(b);
+
+  EXPECT_EQ(a.size(), 3);
+  EXPECT_EQ(b.size(), 0);
+
+  EXPECT_EQ(a[0], 0);
+  EXPECT_EQ(a[1], 1);
+  EXPECT_EQ(a[2], 2);
+}
+
 TEST(VecTest, Destructor) {
   {
     Vec<int> vec{stx::Memory{stx::os_allocator, nullptr}, 0, 0};
