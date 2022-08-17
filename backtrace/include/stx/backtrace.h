@@ -19,13 +19,13 @@
 #include "stx/option.h"
 #include "stx/span.h"
 
-//! @file
-//!
-//! - Thread and signal-safe, non-allocating.
-//! - Supports local backtracing only: i.e. within the current process
-//!
-//!
-//!
+/// @file
+///
+/// - Thread and signal-safe, non-allocating.
+/// - Supports local backtracing only: i.e. within the current process
+///
+///
+///
 
 STX_BEGIN_NAMESPACE
 

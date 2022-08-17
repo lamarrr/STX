@@ -13,12 +13,12 @@ namespace sched {
 template <typename Fn>
 auto fn(TaskScheduler &scheduler, Fn fn_task, TaskPriority priority,
         TaskTraceInfo trace_info) {
+  static_assert(std::is_invocable_v<Fn &>);
+  using output = std::invoke_result_t<Fn &>;
+
   auto timepoint = std::chrono::steady_clock::now();
   TaskId task_id{scheduler.next_task_id};
   scheduler.next_task_id++;
-  static_assert(std::is_invocable_v<Fn &>);
-
-  using output = std::invoke_result_t<Fn &>;
 
   Promise promise{make_promise<output>(scheduler.allocator).unwrap()};
   Future future{promise.get_future()};
@@ -53,13 +53,13 @@ auto fn(TaskScheduler &scheduler, Fn fn_task, TaskPriority priority,
 template <typename Fn, typename... OtherFns>
 auto chain(TaskScheduler &scheduler, Chain<Fn, OtherFns...> chain,
            TaskPriority priority, TaskTraceInfo trace_info) {
-  auto timepoint = std::chrono::steady_clock::now();
-  TaskId task_id{scheduler.next_task_id};
-  scheduler.next_task_id++;
-
   using result_type = typename Chain<Fn, OtherFns...>::last_phase_result_type;
   using stack_type = typename Chain<Fn, OtherFns...>::stack_type;
   static constexpr auto num_phases = Chain<Fn, OtherFns...>::num_phases;
+
+  auto timepoint = std::chrono::steady_clock::now();
+  TaskId task_id{scheduler.next_task_id};
+  scheduler.next_task_id++;
 
   Promise promise = make_promise<result_type>(scheduler.allocator).unwrap();
   Future future{promise.get_future()};

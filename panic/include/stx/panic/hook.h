@@ -15,28 +15,28 @@
 
 #include "stx/panic.h"
 
-//! @file
-//!
-//! Hooks are useful for writing device drivers where you load the drivers at
-//! runtime as a DLL. As the default behaviour is to log to stderr and abort, In
-//! drivers and safety-critical software, You often don't want a driver failure
-//! to cause the whole program to immediately cause the whole program to abort
-//! due to a panic from the drivers. Hooks allow you to control the panic
-//! behaviour at runtime.
-//!
-//!
-//! # NOTE
-//!
-//! You might have to do some extra demangling as it is not exposed via a
-//! C ABI for consistency and internal reasons.
-//!
-//! Process:
-//! - Check if hooks are available for attaching: `has_panic_hook()`
-//! - If hooks are available, attach a panic hook:
-//! `attach_panic_hook(my_handler)` or reset the exisiting panic hook back to
-//! the default: `take_panic_hook(&installed_handler)`
-//!
-//!
+/// @file
+///
+/// Hooks are useful for writing device drivers where you load the drivers at
+/// runtime as a DLL. As the default behaviour is to log to stderr and abort, In
+/// drivers and safety-critical software, You often don't want a driver failure
+/// to cause the whole program to immediately cause the whole program to abort
+/// due to a panic from the drivers. Hooks allow you to control the panic
+/// behaviour at runtime.
+///
+///
+/// # NOTE
+///
+/// You might have to do some extra demangling as it is not exposed via a
+/// C ABI for consistency and internal reasons.
+///
+/// Process:
+/// - Check if hooks are available for attaching: `has_panic_hook()`
+/// - If hooks are available, attach a panic hook:
+/// `attach_panic_hook(my_handler)` or reset the exisiting panic hook back to
+/// the default: `take_panic_hook(&installed_handler)`
+///
+///
 
 STX_BEGIN_NAMESPACE
 

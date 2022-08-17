@@ -13,15 +13,15 @@ template <typename Fn, typename FirstInput, typename... OtherInputs>
 auto await(TaskScheduler &scheduler, Fn task, TaskPriority priority,
            TaskTraceInfo trace_info, Future<FirstInput> first_input,
            Future<OtherInputs>... other_inputs) {
-  auto timepoint = std::chrono::steady_clock::now();
-  TaskId task_id{scheduler.next_task_id};
-  scheduler.next_task_id++;
-
   static_assert(std::is_invocable_v<Fn &, Future<FirstInput> &&,
                                     Future<OtherInputs> &&...>);
 
   using output = std::invoke_result_t<Fn &, Future<FirstInput> &&,
                                       Future<OtherInputs> &&...>;
+
+  auto timepoint = std::chrono::steady_clock::now();
+  TaskId task_id{scheduler.next_task_id};
+  scheduler.next_task_id++;
 
   std::array<FutureAny, 1 + sizeof...(OtherInputs)> await_futures{
       FutureAny{first_input.share()}, FutureAny{other_inputs.share()}...};

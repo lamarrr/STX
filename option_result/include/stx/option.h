@@ -23,48 +23,48 @@
 
 STX_BEGIN_NAMESPACE
 
-//! Optional values.
-//!
-//! Type `Option` represents an optional value: every `Option`
-//! is either `Some` and contains a value, or `None`, and
-//! does not.
-//! They have a number of uses:
-//!
-//! * Initial values
-//! * Return values for functions that are not defined over their entire input
-//! range (partial functions)
-//! * Return value for otherwise reporting simple errors, where `None` is
-//! returned on error
-//! * Optional struct fields
-//! * Struct fields that can be loaned or "taken"
-//! * Optional function arguments
-//! * Nullable pointers
-//! * Swapping things out of difficult situations
-//!
-//! `Option`'s are commonly paired with pattern matching to query the
-//! presence of a value and take action, always accounting for the `None`s
-//! case.
-//!
-//! ```
-//! auto divide = [](double numerator, double denominator) -> Option<double> {
-//!   if (denominator == 0.0) {
-//!     return None;
-//!   } else {
-//!     return Some(numerator / denominator);
-//!   }
-//! };
-//!
-//! // The return value of the function is an option
-//! auto result = divide(2.0, 3.0);
-//! result.match([](double& value) { std::cout << value << std::endl; },
-//!              []() { std::cout << "has no value" << std::endl; });
-//! ```
-//!
-//!
-//! # Constexpr ?
-//!
-//! C++ 20 and above
-//!
+/// Optional values.
+///
+/// Type `Option` represents an optional value: every `Option`
+/// is either `Some` and contains a value, or `None`, and
+/// does not.
+/// They have a number of uses:
+///
+/// * Initial values
+/// * Return values for functions that are not defined over their entire input
+/// range (partial functions)
+/// * Return value for otherwise reporting simple errors, where `None` is
+/// returned on error
+/// * Optional struct fields
+/// * Struct fields that can be loaned or "taken"
+/// * Optional function arguments
+/// * Nullable pointers
+/// * Swapping things out of difficult situations
+///
+/// `Option`'s are commonly paired with pattern matching to query the
+/// presence of a value and take action, always accounting for the `None`s
+/// case.
+///
+/// ```
+/// auto divide = [](double numerator, double denominator) -> Option<double> {
+///   if (denominator == 0.0) {
+///     return None;
+///   } else {
+///     return Some(numerator / denominator);
+///   }
+/// };
+///
+/// // The return value of the function is an option
+/// auto result = divide(2.0, 3.0);
+/// result.match([](double& value) { std::cout << value << std::endl; },
+///              []() { std::cout << "has no value" << std::endl; });
+/// ```
+///
+///
+/// # Constexpr ?
+///
+/// C++ 20 and above
+///
 template <typename T>
 struct [[nodiscard]] Option : impl::check_value_type<T>,
                               private OptionStorage<T, std::is_trivial_v<T>> {

@@ -93,31 +93,31 @@ constexpr bool is_compatible_container =
 
 }  // namespace impl
 
-//!
-//! # Span
-//!
-//! `Span` is a referencing/non-owning type-erased view over a contiguous
-//! sequence of objects (sequential container) and typically help to eliminate
-//! the use of raw pointers.
-//!
-//! `Span` is conceptually a pointer and a length into an already existing
-//! contiguous memory. Passing a properly-constructed `Span` instead of raw
-//! pointers avoids many issues related to index out of bounds errors.
-//!
-//!
-//! # Usage
-//!
-//! ```cpp
-//!
-//! std::vector<int> vec = {1, 2, 3, 4, 5};
-//!
-//! // Construct a span
-//! Span<int> c = vec;
-//!
-//!
-//! ```
-//!
-//!
+///
+/// # Span
+///
+/// `Span` is a referencing/non-owning type-erased view over a contiguous
+/// sequence of objects (sequential container) and typically help to eliminate
+/// the use of raw pointers.
+///
+/// `Span` is conceptually a pointer and a length into an already existing
+/// contiguous memory. Passing a properly-constructed `Span` instead of raw
+/// pointers avoids many issues related to index out of bounds errors.
+///
+///
+/// # Usage
+///
+/// ```cpp
+///
+/// std::vector<int> vec = {1, 2, 3, 4, 5};
+///
+/// // Construct a span
+/// Span<int> c = vec;
+///
+///
+/// ```
+///
+///
 template <typename T>
 struct Span {
   static_assert(!std::is_reference_v<T>);
@@ -125,8 +125,8 @@ struct Span {
   using Type = T;
   using Reference = T&;
   using Iterator = T*;
-  using Pointer = T*;
   using ConstIterator = T const*;
+  using Pointer = T*;
   using Size = size_t;
   using Index = size_t;
 
@@ -309,7 +309,7 @@ struct Span {
     return *this;
   }
 
-  //! span of 1 element if found, otherwise span of zero elements
+  /// span of 1 element if found, otherwise span of zero elements
   constexpr Span<T> find(T const& object) const {
     // TODO(lamarrr): consider adding equality comparable
 
@@ -361,7 +361,9 @@ struct Span {
 
   template <typename Cmp>
   constexpr Span<T> sort(Cmp&& cmp) const {
-    // TODO(lamarrr): add type checks
+    static_assert(std::is_invocable_v<Cmp, T&, T&>);
+    static_assert(
+        std::is_convertible_v<std::invoke_result_t<Cmp, T&, T&>, bool>);
 
     std::sort(begin(), end(), std::forward<Cmp>(cmp));
 
@@ -426,20 +428,20 @@ struct Span {
         size_bytes());
   }
 
-  //! converts the span into a view of its underlying bytes (represented with
-  //! `uint8_t`).
+  /// converts the span into a view of its underlying bytes (represented with
+  /// `uint8_t`).
   constexpr Span<ConstVolatileMatched<uint8_t> const> as_u8() const {
     return Span<ConstVolatileMatched<uint8_t> const>(
         reinterpret_cast<ConstVolatileMatched<uint8_t> const*>(iterator_),
         size_bytes());
   }
 
-  //! converts the span into an immutable span.
+  /// converts the span into an immutable span.
   constexpr Span<T const> as_const() const { return *this; }
 
-  //! converts the span into another span in which reads
-  //! and writes to the contiguous sequence are performed as volatile
-  //! operations.
+  /// converts the span into another span in which reads
+  /// and writes to the contiguous sequence are performed as volatile
+  /// operations.
   constexpr Span<T volatile> as_volatile() const { return *this; }
 
   Iterator iterator_ = nullptr;

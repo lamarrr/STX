@@ -9,37 +9,37 @@
 
 STX_BEGIN_NAMESPACE
 
-//! value-variant for `Option<T>` wrapping the contained value
-//!
-//! # Usage
-//!
-//! Note that `Some` is only a value-forwarding type. It doesn't make copies of
-//! its constructor arguments and only accepts r-values.
-//!
-//! What does this mean?
-//!
-//! For example, You can:
-//!
-//! ```cpp
-//! Option a = Some(vector{1, 2, 3, 4});
-//! ```
-//! You can't:
-//!
-//! ```cpp
-//! vector<int> x {1, 2, 3, 4};
-//! Option a = Some(x);
-//! ```
-//! But, to explicitly make `a` take ownership, you will:
-//!
-//! ```cpp
-//! vector<int> x {1, 2, 3, 4};
-//! Option a = Some(std::move(x));
-//! ```
-//!
-//! # Constexpr ?
-//!
-//! C++ 17 and above
-//!
+/// value-variant for `Option<T>` wrapping the contained value
+///
+/// # Usage
+///
+/// Note that `Some` is only a value-forwarding type. It doesn't make copies of
+/// its constructor arguments and only accepts r-values.
+///
+/// What does this mean?
+///
+/// For example, You can:
+///
+/// ```cpp
+/// Option a = Some(vector{1, 2, 3, 4});
+/// ```
+/// You can't:
+///
+/// ```cpp
+/// vector<int> x {1, 2, 3, 4};
+/// Option a = Some(x);
+/// ```
+/// But, to explicitly make `a` take ownership, you will:
+///
+/// ```cpp
+/// vector<int> x {1, 2, 3, 4};
+/// Option a = Some(std::move(x));
+/// ```
+///
+/// # Constexpr ?
+///
+/// C++ 17 and above
+///
 template <typename T>
 struct [[nodiscard]] Some : impl::check_value_type<T> {
   using value_type = T;

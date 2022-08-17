@@ -14,13 +14,12 @@ namespace sched {
 template <typename Fn>
 auto delay(TaskScheduler &scheduler, Fn fn_task, TaskPriority priority,
            TaskTraceInfo trace_info, nanoseconds delay) {
+  static_assert(std::is_invocable_v<Fn &>);
+  using output = std::invoke_result_t<Fn &>;
+
   auto timepoint = std::chrono::steady_clock::now();
   TaskId task_id{scheduler.next_task_id};
   scheduler.next_task_id++;
-
-  static_assert(std::is_invocable_v<Fn &>);
-
-  using output = std::invoke_result_t<Fn &>;
 
   Promise promise{make_promise<output>(scheduler.allocator).unwrap()};
   Future future{promise.get_future()};

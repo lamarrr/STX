@@ -9,34 +9,34 @@
 
 STX_BEGIN_NAMESPACE
 
-//! value-variant for `Result<T, E>` wrapping the contained successful value of
-//! type `T`
-//!
-//! Note that `Ok` is only a value-forwarding type.
-//! An `Ok<T>` can only be constructed with an r-value. What does this mean?
-//!
-//! For example, You can:
-//!
-//! ```cpp
-//! Result<vector<int>, int> a = Ok(vector{1, 2, 3, 4});
-//! ```
-//! You can't:
-//!
-//! ```cpp
-//! vector<int> x {1, 2, 3, 4};
-//! Result<vector<int>, int> a = Ok(x);
-//! ```
-//! But, to explicitly make `a` take ownership, you will:
-//!
-//! ```cpp
-//! vector<int> x {1, 2, 3, 4};
-//! Result<vector<int>, int> a = Ok(std::move(x));
-//! ```
-//!
-//! # Constexpr ?
-//!
-//! C++ 17 and above
-//!
+/// value-variant for `Result<T, E>` wrapping the contained successful value of
+/// type `T`
+///
+/// Note that `Ok` is only a value-forwarding type.
+/// An `Ok<T>` can only be constructed with an r-value. What does this mean?
+///
+/// For example, You can:
+///
+/// ```cpp
+/// Result<vector<int>, int> a = Ok(vector{1, 2, 3, 4});
+/// ```
+/// You can't:
+///
+/// ```cpp
+/// vector<int> x {1, 2, 3, 4};
+/// Result<vector<int>, int> a = Ok(x);
+/// ```
+/// But, to explicitly make `a` take ownership, you will:
+///
+/// ```cpp
+/// vector<int> x {1, 2, 3, 4};
+/// Result<vector<int>, int> a = Ok(std::move(x));
+/// ```
+///
+/// # Constexpr ?
+///
+/// C++ 17 and above
+///
 template <typename T>
 struct [[nodiscard]] Ok : impl::check_value_type<T> {
   using value_type = T;

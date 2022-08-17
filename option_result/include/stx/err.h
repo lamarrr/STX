@@ -10,35 +10,35 @@
 
 STX_BEGIN_NAMESPACE
 
-//! error-value variant for `Result<T, E>` wrapping the contained error value of
-//! type `E`
-//!
-//! Note that `Err` is only a value-forwarding type.
-//! An `Err<E>` can only be constructed with an r-value of type `E`. What does
-//! this mean?
-//!
-//! For example, You can:
-//!
-//! ```cpp
-//! Result<int, vector<int>> a = Err(vector{1, 2, 3, 4});
-//! ```
-//! You can't:
-//!
-//! ```cpp
-//! vector<int> x {1, 2, 3, 4};
-//! Result<int, vector<int>> a = Err(x);
-//! ```
-//! But, to explicitly make `a` take ownership, you will:
-//!
-//! ```cpp
-//! vector<int> x {1, 2, 3, 4};
-//! Result<int, vector<int>> a = Err(std::move(x));
-//! ```
-//!
-//! # Constexpr ?
-//!
-//! C++ 17 and above
-//!
+/// error-value variant for `Result<T, E>` wrapping the contained error value of
+/// type `E`
+///
+/// Note that `Err` is only a value-forwarding type.
+/// An `Err<E>` can only be constructed with an r-value of type `E`. What does
+/// this mean?
+///
+/// For example, You can:
+///
+/// ```cpp
+/// Result<int, vector<int>> a = Err(vector{1, 2, 3, 4});
+/// ```
+/// You can't:
+///
+/// ```cpp
+/// vector<int> x {1, 2, 3, 4};
+/// Result<int, vector<int>> a = Err(x);
+/// ```
+/// But, to explicitly make `a` take ownership, you will:
+///
+/// ```cpp
+/// vector<int> x {1, 2, 3, 4};
+/// Result<int, vector<int>> a = Err(std::move(x));
+/// ```
+///
+/// # Constexpr ?
+///
+/// C++ 17 and above
+///
 template <typename E>
 struct [[nodiscard]] Err : impl::check_value_type<E> {
   using value_type = E;

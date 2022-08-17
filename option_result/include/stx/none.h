@@ -5,12 +5,12 @@
 
 STX_BEGIN_NAMESPACE
 
-//! value-variant Type for `Option<T>` representing no-value
-//!
-//! # Constexpr ?
-//!
-//! C++ 17 and above
-//!
+/// value-variant Type for `Option<T>` representing no-value
+///
+/// # Constexpr ?
+///
+/// C++ 17 and above
+///
 struct [[nodiscard]] NoneType{};
 
 /// value-variant for `Option<T>` representing no-value

@@ -30,94 +30,94 @@
 // - We also try to prevent you from shooting yourself in the foot, especially
 // with references and implicit copies
 
-//! @file
-//!
-//! to run tests, use:
-//!
-//! ``` cpp
-//!
-//! #include <iostream>
-//! #include <string>
-//! #include <string_view>
-//!
-//!
-//! using std::move, std::string, std::string_view;
-//! using namespace std::literals; // makes '"Hello"s' give std::string
-//!                                // and '"Hello"sv' give std::string_view
-//!
-//! ```
+/// @file
+///
+/// to run tests, use:
+///
+/// ``` cpp
+///
+/// #include <iostream>
+/// #include <string>
+/// #include <string_view>
+///
+///
+/// using std::move, std::string, std::string_view;
+/// using namespace std::literals; // makes '"Hello"s' give std::string
+///                                // and '"Hello"sv' give std::string_view
+///
+/// ```
 
 STX_BEGIN_NAMESPACE
 
-//! ### Error handling with the `Result` type.
-//!
-//! `Result<T, E>` is a type used for returning and propagating
-//! errors. It is a class with the variants: `Ok<T>`, representing
-//! success and containing a value, and `Err<E>`, representing error
-//! and containing an error value.
-//!
-//!
-//! Functions return `Result` whenever errors are expected and
-//! recoverable.
-//!
-//! A simple function returning `Result` might be
-//! defined and used like so:
-//!
-//! ``` cpp
-//! enum class Version { Version1 = 1, Version2 = 2 };
-//!
-//! auto parse_version =
-//!      [](array<uint8_t, 5> const& header) -> Result<Version, string_view> {
-//!    switch (header.at(0)) {
-//!      case 1:
-//!        return Ok(Version::Version1);
-//!      case 2:
-//!        return Ok(Version::Version2);
-//!      default:
-//!        return Err("invalid version"sv);
-//!    }
-//!  };
-//!
-//! parse_version({1, 2, 3, 4, 5})
-//!      .match(
-//!          [](auto version) {
-//!            std::cout << "Working with version: "
-//!                      << static_cast<int>(version) << "\n";
-//!          },
-//!          [](auto err) {
-//!            std::cout << "Error parsing header: " << err << "\n";
-//!          });
-//! ```
-//!
-//!
-//! `Result` comes with some convenience methods that make working with it more
-//! succinct.
-//!
-//! ``` cpp
-//! Result<int, int> good_result = Ok(10);
-//! Result<int, int> bad_result = Err(10);
-//!
-//! // The `is_ok` and `is_err` methods do what they say.
-//! ASSERT_TRUE(good_result.is_ok() && !good_result.is_err());
-//! ASSERT_TRUE(bad_result.is_err() && !bad_result.is_ok());
-//! ```
-//!
-//! `Result` is a type that represents either success (`Ok`) or failure (`Err`).
-//!
-//! Result is either in the Ok or Err state at any point in time
-//!
-//! # Constexpr ?
-//!
-//! C++ 20 and above
-//!
-//! # Note
-//!
-//! `Result` unlike `Option` is a value-forwarding type. It doesn't have copy
-//! constructors of any sort. More like a `unique_ptr`.
-//!
-//! `Result` should be seen as a return channel (for returning from functions)
-//! and not an object.
-//!
+/// ### Error handling with the `Result` type.
+///
+/// `Result<T, E>` is a type used for returning and propagating
+/// errors. It is a class with the variants: `Ok<T>`, representing
+/// success and containing a value, and `Err<E>`, representing error
+/// and containing an error value.
+///
+///
+/// Functions return `Result` whenever errors are expected and
+/// recoverable.
+///
+/// A simple function returning `Result` might be
+/// defined and used like so:
+///
+/// ``` cpp
+/// enum class Version { Version1 = 1, Version2 = 2 };
+///
+/// auto parse_version =
+///      [](array<uint8_t, 5> const& header) -> Result<Version, string_view> {
+///    switch (header.at(0)) {
+///      case 1:
+///        return Ok(Version::Version1);
+///      case 2:
+///        return Ok(Version::Version2);
+///      default:
+///        return Err("invalid version"sv);
+///    }
+///  };
+///
+/// parse_version({1, 2, 3, 4, 5})
+///      .match(
+///          [](auto version) {
+///            std::cout << "Working with version: "
+///                      << static_cast<int>(version) << "\n";
+///          },
+///          [](auto err) {
+///            std::cout << "Error parsing header: " << err << "\n";
+///          });
+/// ```
+///
+///
+/// `Result` comes with some convenience methods that make working with it more
+/// succinct.
+///
+/// ``` cpp
+/// Result<int, int> good_result = Ok(10);
+/// Result<int, int> bad_result = Err(10);
+///
+/// // The `is_ok` and `is_err` methods do what they say.
+/// ASSERT_TRUE(good_result.is_ok() && !good_result.is_err());
+/// ASSERT_TRUE(bad_result.is_err() && !bad_result.is_ok());
+/// ```
+///
+/// `Result` is a type that represents either success (`Ok`) or failure (`Err`).
+///
+/// Result is either in the Ok or Err state at any point in time
+///
+/// # Constexpr ?
+///
+/// C++ 20 and above
+///
+/// # Note
+///
+/// `Result` unlike `Option` is a value-forwarding type. It doesn't have copy
+/// constructors of any sort. More like a `unique_ptr`.
+///
+/// `Result` should be seen as a return channel (for returning from functions)
+/// and not an object.
+///
 
 template <typename T, typename E>
 struct [[nodiscard]] Result
