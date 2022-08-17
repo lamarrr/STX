@@ -145,23 +145,23 @@ struct Unique {
 ///
 ///
 template <typename Target, typename Source>
-constexpr Rc<Target> transmute(Target target, Rc<Source>&& source) {
+constexpr Rc<Target> transmute(Target target, Rc<Source> source) {
   return Rc<Target>{std::move(target), std::move(source.manager)};
 }
 
 template <typename Target, typename Source>
-constexpr Rc<Target> cast(Rc<Source>&& source) {
+constexpr Rc<Target> cast(Rc<Source> source) {
   Target target = static_cast<Target>(std::move(source.handle));
   return transmute(std::move(target), std::move(source));
 }
 
 template <typename Target, typename Source>
-constexpr Unique<Target> transmute(Target target, Unique<Source>&& source) {
+constexpr Unique<Target> transmute(Target target, Unique<Source> source) {
   return Unique<Target>{std::move(target), std::move(source.manager)};
 }
 
 template <typename Target, typename Source>
-constexpr Unique<Target> cast(Unique<Source>&& source) {
+constexpr Unique<Target> cast(Unique<Source> source) {
   Target target = static_cast<Target>(std::move(source.handle));
   return transmute(std::move(target), std::move(source));
 }
