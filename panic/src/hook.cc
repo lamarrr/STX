@@ -64,9 +64,6 @@ STX_END_NAMESPACE
 [[noreturn]] STX_DLL_EXPORT void stx::begin_panic(
     std::string_view info, std::string_view error_report,
     stx::SourceLocation location) {
-  // TODO(lamarrr): We probably need a method for stack unwinding, So we can
-  // free held resources
-
   // detecting recursive panics
   if (this_thread::step_panic_count(1) > 1) {
     std::fputs("thread panicked while processing a panic. aborting...\n",

@@ -53,7 +53,7 @@ int backtrace::trace(Fn<bool(Frame, int)> callback, int skip_count) {
     symbol[0] = '\0';
     backtrace::Frame frame{};
     if (absl::Symbolize(ips[i], symbol, max_len)) {
-      auto span = Span<char const>(symbol, max_len);
+      Span<char const> span{symbol, max_len};
       frame.symbol = Some(backtrace::Symbol(std::move(span)));
     }
 

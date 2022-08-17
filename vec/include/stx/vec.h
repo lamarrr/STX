@@ -138,7 +138,6 @@ struct Vec : public VecBase<T> {
   Vec() : base{} {}
 
   explicit Vec(Allocator allocator) : base{allocator} {}
-  // TODO(lamarrr): test move, test move-assign
 
   STX_DEFAULT_MOVE(Vec)
   STX_DISABLE_COPY(Vec)
