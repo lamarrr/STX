@@ -15,17 +15,12 @@ STX_BEGIN_NAMESPACE
 
 /// thread-safe
 ///
-///
 /// RefCnt objects should be created in batches to avoid false
 /// sharing issues
-///
 ///
 /// we assume the user is sharing data/instructions and their side effects via a
 /// shared object shared across threads, so we perform acquire when performing
 /// unref.
-///
-///
-///
 ///
 // if the application is multi-threaded, the compiler can make more informed
 // decisions about reference-counting.
