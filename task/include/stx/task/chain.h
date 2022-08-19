@@ -177,13 +177,13 @@ struct ChainPhase<PhaseIndex, Arg, Fn> {
 };
 
 template <typename Fn, typename... OtherFns>
-struct Chain : check_chain_valid<Void, Fn, OtherFns...> {
+struct Chain : impl::check_chain_valid<Void, Fn, OtherFns...> {
   static constexpr uint8_t num_phases = (1 + sizeof...(OtherFns));
 
   static_assert(num_phases <= (u8_max - 2), "maximum depth of chain is 253");
 
   using phases_type = ChainPhase<0, Void, Fn, OtherFns...>;
-  using stack_type = chain_stack_variant<Void, Fn, OtherFns...>;
+  using stack_type = impl::chain_stack_variant<Void, Fn, OtherFns...>;
   using last_phase_result_type = typename phases_type::last_phase_result_type;
 
   explicit constexpr Chain(Fn &&fn, OtherFns &&...others)
