@@ -17,17 +17,35 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      #- name: Install GoogleTest
-      #run: git clone https://github.com/google/googletest.git && cd googletest && mkdir build && cmake --build . --config ${{ matrix.build_mode }} && cmake --install . && cd .. && cd ..
-
       - name: Configure Build Directory
         run: mkdir build
 
       - name: Initialize CMake
-        run: cd build && cmake .. -DSTX_BUILD_TESTS=ON -Dgtest_force_shared_crt=ON -DCMAKE_CXX_STANDARD=17 
+        run: cd build && cmake .. -DSTX_BUILD_TESTS=ON -Dgtest_force_shared_crt=ON -DCMAKE_CXX_STANDARD=17
 
       - name: CMake Build
         run: cmake --build build --verbose
 
-      - name: Run Unsanitized Tests
-        run: cd build && ls && Debug\stx_tests.exe
+      - name: Run Tests	1
+        run: .\build\async\stx_async_tests
+
+      - name: Run Tests 2
+        run: .\build\backtrace\stx_backtrace_tests
+
+      - name: Run Tests 3
+        run: .\build\option_result\stx_option_result_tests
+
+      - name: Run Tests 4
+        run: .\build\panic\stx_panic_tests
+
+      - name: Run Tests 5
+        run: .\build\scheduler\stx_scheduler_tests
+
+      - name: Run Tests 6
+        run: .\build\span\stx_span_tests
+
+      - name: Run Tests 7
+        run: .\build\string\stx_string_tests
+
+      - name: Run Tests 8
+        run: .\build\vec\stx_vec_tests
