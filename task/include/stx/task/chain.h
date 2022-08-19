@@ -12,6 +12,8 @@
 
 STX_BEGIN_NAMESPACE
 
+namespace impl {
+
 template <typename T, typename... Ts>
 struct filter_duplicates {
   using type = T;
@@ -83,6 +85,8 @@ struct chain_stack_variant_impl<Arg, Fn> {
 template <typename Arg, typename Fn, typename... OtherFns>
 using chain_stack_variant = unique_variant<
     typename chain_stack_variant_impl<Arg, Fn, OtherFns...>::variant>;
+
+}  // namespace impl
 
 struct ChainState {
   // only valid if the function finishes and next_phase_index !=
