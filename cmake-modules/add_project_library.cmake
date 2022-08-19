@@ -24,6 +24,10 @@ macro(add_project_library target_project_name target_library_name)
   target_include_directories(
     ${library_name} PRIVATE ${${library_name}_PRIVATE_INCLUDE_DIRECTORY})
 
+  if(MSVC)
+    target_compile_options(${library_name} PUBLIC "/permissive-")
+  endif()
+
   string(TOUPPER ${target_project_name} target_project_name_upper)
 
   file(GLOB ${library_name}_TESTS_SOURCE_FILES_LIST tests/*.cc)
