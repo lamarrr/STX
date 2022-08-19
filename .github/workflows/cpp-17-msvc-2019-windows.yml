@@ -24,31 +24,29 @@ jobs:
         run: cd build && cmake .. -DSTX_BUILD_TESTS=ON -Dgtest_force_shared_crt=ON -DCMAKE_CXX_STANDARD=17
 
       - name: CMake Build
-        run: cmake --build build --verbose && ls build && ls build/async
+        run: cmake --build build --config ${{matrix.build_mode}} && ls build && ls build/async && ls build/async/${{matrix.build_mode}}
 
-      - name: Run Tests	X
-        run: build/async/stx_async_tests.exe
 
       - name: Run Tests	1
-        run: build\async\stx_async_tests
+        run: build/async/${{matrix.build_mode}}/stx_async_tests
 
       - name: Run Tests 2
-        run: build\backtrace\stx_backtrace_tests
+        run: build/backtrace/${{matrix.build_mode}}/stx_backtrace_tests
 
       - name: Run Tests 3
-        run: build\option_result\stx_option_result_tests
+        run: build/option_result/${{matrix.build_mode}}/stx_option_result_tests
 
       - name: Run Tests 4
-        run: build\panic\stx_panic_tests
+        run: build/panic/${{matrix.build_mode}}/stx_panic_tests
 
       - name: Run Tests 5
-        run: build\scheduler\stx_scheduler_tests
+        run: build/scheduler/${{matrix.build_mode}}/stx_scheduler_tests
 
       - name: Run Tests 6
-        run: build\span\stx_span_tests
+        run: build/span/${{matrix.build_mode}}/stx_span_tests
 
       - name: Run Tests 7
-        run: build\string\stx_string_tests
+        run: build/string/${{matrix.build_mode}}/stx_string_tests
 
       - name: Run Tests 8
-        run: build\vec\stx_vec_tests
+        run: build/vec/${{matrix.build_mode}}/stx_vec_tests
