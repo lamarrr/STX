@@ -24,7 +24,10 @@ jobs:
         run: cd build && cmake .. -DSTX_BUILD_TESTS=ON -Dgtest_force_shared_crt=ON -DCMAKE_CXX_STANDARD=17
 
       - name: CMake Build
-        run: cmake --build build --verbose
+        run: cmake --build build --verbose && ls && ls async
+
+      - name: Run Tests	X
+        run: build/async/stx_async_tests.exe
 
       - name: Run Tests	1
         run: build\async\stx_async_tests
