@@ -21,11 +21,10 @@ jobs:
         run: mkdir build
 
       - name: Initialize CMake
-        run: cd build && cmake .. -DSTX_BUILD_TESTS=ON -Dgtest_force_shared_crt=ON -DCMAKE_CXX_STANDARD=17
+        run: cd build && cmake .. -DSTX_BUILD_TESTS=ON -Dgtest_force_shared_crt=ON
 
       - name: CMake Build
-        run: cmake --build build --config ${{matrix.build_mode}} && ls build && ls build/async && ls build/async/${{matrix.build_mode}}
-
+        run: cmake --build build --config ${{matrix.build_mode}}
 
       - name: Run Tests	1
         run: build/async/${{matrix.build_mode}}/stx_async_tests
