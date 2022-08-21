@@ -20,6 +20,12 @@ jobs:
       - name: Configure Build Directory
         run: mkdir build
 
+      - name: Install Absl
+        run: apt install libabsl-dev
+
+      - name: Install GoogleTest
+        run: apt install libgtest-dev
+
       - name: Initialize CMake
         run: cd build && export CC=clang-14 CXX=clang++-14 && cmake .. -DCMAKE_BUILD_TYPE=${{matrix.build_mode}} -DSTX_BUILD_TESTS=ON
 
