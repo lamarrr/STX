@@ -1,2 +1,0 @@
-add_project_library(stx source_location)
-target_link_libraries(stx_source_location stx::config)
