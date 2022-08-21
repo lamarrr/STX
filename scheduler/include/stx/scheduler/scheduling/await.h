@@ -49,6 +49,21 @@ auto await(TaskScheduler &scheduler, Fn task, TaskPriority priority,
                                                  args_ = std::move(args),
                                                  promise_ = std::move(
                                                      promise)]() mutable {
+        if (promise_.fetch_cancel_request() == CancelState::Canceled) {
+          promise_.notify_canceled();
+          return;
+        }
+
+        if (promise_.fetch_preempt_request() == PreemptState::Preempted) {
+          promise_.notify_preempted();
+          return;
+        }
+
+        if (promise_.fetch_suspend_request() == SuspendState::Suspended) {
+          promise_.notify_suspended();
+          return;
+        }
+
         promise_.notify_executing();
 
         if constexpr (!std::is_void_v<output>) {
@@ -109,6 +124,21 @@ auto await_any(TaskScheduler &scheduler, Fn task, TaskPriority priority,
                                                  args_ = std::move(args),
                                                  promise_ = std::move(
                                                      promise)]() mutable {
+        if (promise_.fetch_cancel_request() == CancelState::Canceled) {
+          promise_.notify_canceled();
+          return;
+        }
+
+        if (promise_.fetch_preempt_request() == PreemptState::Preempted) {
+          promise_.notify_preempted();
+          return;
+        }
+
+        if (promise_.fetch_suspend_request() == SuspendState::Suspended) {
+          promise_.notify_suspended();
+          return;
+        }
+
         promise_.notify_executing();
 
         if constexpr (!std::is_void_v<output>) {

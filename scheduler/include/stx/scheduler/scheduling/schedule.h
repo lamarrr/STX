@@ -28,6 +28,21 @@ auto fn(TaskScheduler &scheduler, Fn fn_task, TaskPriority priority,
       fn::rc::make_functor(scheduler.allocator, [fn_task_ = std::move(fn_task),
                                                  promise_ =
                                                      std::move(promise)]() {
+        if (promise_.fetch_cancel_request() == CancelState::Canceled) {
+          promise_.notify_canceled();
+          return;
+        }
+
+        if (promise_.fetch_preempt_request() == PreemptState::Preempted) {
+          promise_.notify_preempted();
+          return;
+        }
+
+        if (promise_.fetch_suspend_request() == SuspendState::Suspended) {
+          promise_.notify_suspended();
+          return;
+        }
+
         promise_.notify_executing();
 
         if constexpr (std::is_void_v<std::invoke_result_t<Fn &>>) {
@@ -71,6 +86,21 @@ auto chain(TaskScheduler &scheduler, Chain<Fn, OtherFns...> chain,
                                                  chain_ = std::move(chain),
                                                  promise_ = std::move(
                                                      promise)]() mutable {
+        if (promise_.fetch_cancel_request() == CancelState::Canceled) {
+          promise_.notify_canceled();
+          return;
+        }
+
+        if (promise_.fetch_preempt_request() == PreemptState::Preempted) {
+          promise_.notify_preempted();
+          return;
+        }
+
+        if (promise_.fetch_suspend_request() == SuspendState::Suspended) {
+          promise_.notify_suspended();
+          return;
+        }
+
         RequestProxy proxy{promise_};
 
         promise_.notify_executing();

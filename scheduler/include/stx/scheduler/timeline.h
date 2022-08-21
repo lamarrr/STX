@@ -135,6 +135,8 @@ struct ScheduleTimeline {
             // ASSUMPTION(unproven): The tasks are mostly sorted so we are very
             // unlikely to pay much cost in sorting???
             //
+            // suspended tasks are not considered for execution
+            //
             .partition([](Task const& task) {
               return task.last_status_poll == FutureStatus::Preempted ||
                      task.last_status_poll == FutureStatus::Executing;
