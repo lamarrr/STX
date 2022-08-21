@@ -19,15 +19,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(CheckCXXSourceCompiles)
 include(add_project_library)
 
-execute_process(
-  COMMAND git clone https://github.com/google/googletest.git -b v1.12.0
-          third_party/googletest WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
-execute_process(
-  COMMAND git clone https://github.com/abseil/abseil-cpp.git -b20220623.0
-          third_party/abseil WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
-
-add_subdirectory(third_party/googletest)
-add_subdirectory(third_party/abseil)
+find_package(GTest REQUIRED)
+find_package(absl REQUIRED)
 
 # ===============================================
 #
