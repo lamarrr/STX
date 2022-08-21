@@ -20,6 +20,12 @@ jobs:
       - name: Install LLVM 14
         run: brew install llvm@14
 
+      - name: Install GoogleTest
+        run: brew install googletest
+
+      - name: Install Abseil
+        run: brew install abseil
+
       - name: Configure Build Directory
         run: mkdir build
 
