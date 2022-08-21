@@ -132,16 +132,15 @@ enum class FutureStatus : uint8_t {
   /// cancelation procedures.
   ///
   Canceling,
-  /// the async operation is now being forced to cancel by the executor. this
-  /// happens without the user requesting for it. i.e. the scheduler and
-  /// execution context might want to shutdown and then cancel all pending
-  /// tasks.
+  /// the async operation is now being suspended.
   ///
   /// `REQUIRED STATE?`: No, can be skipped. Set only if the executor supports
-  /// cancelation and cancelation has been forced by the executor.
+  /// suspension and suspension has been requested.
   ///
-  /// `INTENDED FOR`: cancelable executors with prolonged or staged
-  /// cancelation procedures.
+  /// `INTENDED FOR`: suspendable executors with prolonged or staged
+  /// suspension procedures.
+  ///
+  /// `IMPLEMENTATION REQUIREMENT`: must be preceded by the `Executing` state.
   ///
   Suspending,
   /// the async operation is now being suspended.
@@ -220,7 +219,7 @@ enum class TerminalFutureStatus : uint8_t {
 enum class FutureError : uint8_t {
   /// the async operation is pending and not yet finalized
   Pending,
-  /// the async operation has been canceled either forcefully or by the user
+  /// the async operation has been canceled
   Canceled
 };
 
@@ -952,7 +951,7 @@ struct RequestProxy {
 
   template <typename T>
   explicit RequestProxy(Future<T> const& future)
-      : state{cast<FutureBaseState*>(future.state)} {}
+      : state{cast<FutureBaseState*>(future.state.share())} {}
 
   explicit RequestProxy(FutureAny const& future)
       : state{future.state.share()} {}
