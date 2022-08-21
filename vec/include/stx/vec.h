@@ -334,8 +334,8 @@ Result<Vec<T>, AllocError> resize(Vec<T>&& vec, size_t target_size,
 }
 
 template <typename T>
-Result<Void, VecError> resize(FixedVec<T>&& vec, size_t target_size,
-                              T const& to_copy = {}) {
+Result<FixedVec<T>, VecError> resize(FixedVec<T>&& vec, size_t target_size,
+                                     T const& to_copy = {}) {
   size_t const previous_size = vec.size();
 
   if (target_size > previous_size) {
