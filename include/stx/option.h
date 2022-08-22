@@ -19,7 +19,7 @@
 #include "stx/option_result/impl/option_storage.h"
 #include "stx/option_result/impl/panic_helpers.h"
 #include "stx/some.h"
-#include "stx/utils/enable_if.h"
+#include "stx/enable_if.h"
 
 STX_BEGIN_NAMESPACE
 

@@ -18,7 +18,7 @@
 #include "stx/option_result/impl/check_value_type.h"
 #include "stx/option_result/impl/panic_helpers.h"
 #include "stx/option_result/impl/result_storage.h"
-#include "stx/utils/common.h"
+#include "stx/common.h"
 
 // Notes:
 // - Result is an object-forwarding type. It is unique to an

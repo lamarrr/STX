@@ -5,8 +5,8 @@
 
 #include "stx/config.h"
 #include "stx/option_result/impl/check_value_type.h"
-#include "stx/utils/common.h"
-#include "stx/utils/enable_if.h"
+#include "stx/common.h"
+#include "stx/enable_if.h"
 
 STX_BEGIN_NAMESPACE
 

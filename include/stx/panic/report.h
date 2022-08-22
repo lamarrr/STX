@@ -17,7 +17,7 @@
 #include <string>
 #include <string_view>
 
-#include "stx/utils/common.h"
+#include "stx/common.h"
 
 STX_BEGIN_NAMESPACE
 
