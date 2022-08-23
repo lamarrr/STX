@@ -28,7 +28,6 @@ find_package(absl REQUIRED)
 #
 # ===============================================
 option(STX_BUILD_TESTS "Build tests" OFF)
-option(STX_SANITIZE_BUILD "Sanitize build" OFF)
 option(STX_BUILD_DOCS "Build documentation" OFF)
 option(
   STX_CUSTOM_PANIC_HANDLER
@@ -42,7 +41,6 @@ option(STX_ENABLE_PANIC_BACKTRACE "Enable panic backtrace")
 #
 # ===============================================
 message(STATUS "[STX] Build tests: " ${STX_BUILD_TESTS})
-message(STATUS "[STX] Sanitize build: " ${STX_SANITIZE_BUILD}) # not working yet
 message(STATUS "[STX] Build documentation: " ${STX_BUILD_DOCS}) # not working
                                                                 # yet
 message(STATUS "[STX] Override panic handler: " ${STX_CUSTOM_PANIC_HANDLER})
