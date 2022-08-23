@@ -19,7 +19,7 @@ jobs:
             "-fsanitize=address",
             "-fsanitize=undefined",
             "-fsanitize=memory",
-            "-fsanitize=thread",
+            #"-fsanitize=thread",
           ]
 
     steps:
