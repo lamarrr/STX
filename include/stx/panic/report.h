@@ -32,8 +32,6 @@ struct ReportQuery {
   Buffer buffer;
 };
 
-constexpr ReportQuery report_query{};
-
 template <typename T>
 [[nodiscard]] std::string_view operator>>(ReportQuery, T const& value) {
   (void)value;
