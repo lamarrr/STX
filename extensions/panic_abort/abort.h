@@ -17,10 +17,10 @@
 
 STX_BEGIN_NAMESPACE
 
-    /// Causes the abort instruction to be executed.
-    [[noreturn]] inline void
-    panic_abort(std::string_view const& info, ReportPayload const& payload,
-                SourceLocation const& location) {
+/// Causes the abort instruction to be executed.
+[[noreturn]] inline void panic_abort(std::string_view const& info,
+                                     ReportPayload const& payload,
+                                     SourceLocation const& location) {
   (void)info;
   (void)payload;
   (void)location;

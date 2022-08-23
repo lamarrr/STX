@@ -28,7 +28,6 @@ find_package(absl REQUIRED)
 #
 # ===============================================
 option(STX_BUILD_TESTS "Build tests" OFF)
-option(STX_SANITIZE_BUILD "Sanitize build" OFF)
 option(STX_BUILD_DOCS "Build documentation" OFF)
 option(
   STX_CUSTOM_PANIC_HANDLER
@@ -42,7 +41,6 @@ option(STX_ENABLE_PANIC_BACKTRACE "Enable panic backtrace")
 #
 # ===============================================
 message(STATUS "[STX] Build tests: " ${STX_BUILD_TESTS})
-message(STATUS "[STX] Sanitize build: " ${STX_SANITIZE_BUILD}) # not working yet
 message(STATUS "[STX] Build documentation: " ${STX_BUILD_DOCS}) # not working
                                                                 # yet
 message(STATUS "[STX] Override panic handler: " ${STX_CUSTOM_PANIC_HANDLER})
@@ -100,26 +98,29 @@ elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
   add_compile_options("-fcolor-diagnostics")
 endif()
 
-add_subdirectory(allocator)
-add_subdirectory(async)
-add_subdirectory(backtrace)
-add_subdirectory(config)
-add_subdirectory(enum)
-add_subdirectory(fn)
-add_subdirectory(limits)
-add_subdirectory(mem)
-add_subdirectory(option_result)
-add_subdirectory(panic)
-add_subdirectory(resource)
-add_subdirectory(scheduler)
-add_subdirectory(source_location)
-add_subdirectory(span)
-add_subdirectory(spinlock)
-add_subdirectory("string")
-add_subdirectory(struct)
-add_subdirectory(task)
-add_subdirectory(utils)
-add_subdirectory(vec)
-add_subdirectory(void)
+file(GLOB STX_SOURCE_FILES_LIST src/*.cc)
+
+add_library(stx STATIC ${STX_SOURCE_FILES_LIST})
+add_library(stx::stx ALIAS stx)
+target_link_libraries(stx absl::stacktrace absl::symbolize)
+
+set_target_properties(stx PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
+
+target_include_directories(stx PUBLIC include)
+target_include_directories(stx PRIVATE src)
+
+if(MSVC)
+  target_compile_options(stx PUBLIC "/permissive-")
+endif()
+
+file(GLOB STX_TESTS_SOURCE_FILES_LIST tests/*.cc)
+
+if(${STX_BUILD_TESTS})
+  if(STX_TESTS_SOURCE_FILES_LIST)
+    add_executable(stx_tests ${STX_TESTS_SOURCE_FILES_LIST})
+    target_include_directories(stx_tests PRIVATE tests)
+    target_link_libraries(stx_tests GTest::gtest GTest::gtest_main stx::stx)
+  endif()
+endif()
 
 # if(ANDROID) target_link_libraries(stx ${LibAtomic}) endif()
