@@ -26,26 +26,5 @@ jobs:
       - name: CMake Build
         run: cmake --build build --config ${{matrix.build_mode}}
 
-      - name: Run Tests	1
-        run: build/async/${{matrix.build_mode}}/stx_async_tests
-
-      - name: Run Tests 2
-        run: build/backtrace/${{matrix.build_mode}}/stx_backtrace_tests
-
-      - name: Run Tests 3
-        run: build/option_result/${{matrix.build_mode}}/stx_option_result_tests
-
-      - name: Run Tests 4
-        run: build/panic/${{matrix.build_mode}}/stx_panic_tests
-
-      - name: Run Tests 5
-        run: build/scheduler/${{matrix.build_mode}}/stx_scheduler_tests
-
-      - name: Run Tests 6
-        run: build/span/${{matrix.build_mode}}/stx_span_tests
-
-      - name: Run Tests 7
-        run: build/string/${{matrix.build_mode}}/stx_string_tests
-
-      - name: Run Tests 8
-        run: build/vec/${{matrix.build_mode}}/stx_vec_tests
+      - name: Run Tests
+        run: build/${{matrix.build_mode}}/stx_tests
