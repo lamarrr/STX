@@ -62,18 +62,16 @@ struct ThreadPool {
     promise.notify_executing();
 
     for (size_t i = 0; i < num_threads; i++) {
-      thread_slots = vec::push_inplace(
-                         std::move(thread_slots),
-                         rc::make_inplace<ThreadSlot>(
-                             allocator, make_promise<void>(allocator).unwrap())
-                             .unwrap())
-                         .unwrap();
+      thread_slots
+          .push_inplace(rc::make_inplace<ThreadSlot>(
+                            allocator, make_promise<void>(allocator).unwrap())
+                            .unwrap())
+          .unwrap();
     }
 
     for (size_t i = 0; i < num_threads; i++) {
-      threads =
-          vec::push_inplace(std::move(threads), [slot = &thread_slots.span()[i]
-                                                             .handle->slot] {
+      threads
+          .push_inplace([slot = &thread_slots.span()[i].handle->slot] {
             // TODO(lamarrr): separate this and ensure no thread
             // panics whilst holding a lock or even communicating
             uint64_t eventless_polls = 0;
@@ -111,7 +109,8 @@ struct ThreadPool {
                 now = std::chrono::steady_clock::now();
               }
             }
-          }).unwrap();
+          })
+          .unwrap();
     }
   }
 

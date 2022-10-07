@@ -66,12 +66,11 @@ struct ScheduleTimeline {
                                     TimePoint present_timepoint) {
     // task is ready to execute but preempteed upon adding
     promise.notify_preempted();
-    TRY_OK(new_timeline,
-           vec::push(std::move(starvation_timeline),
-                     Task{std::move(fn), std::move(promise), id, priority,
-                          present_timepoint, FutureStatus::Preempted}));
+    TRY_OK(ok, starvation_timeline.push(Task{std::move(fn), std::move(promise),
+                                             id, priority, present_timepoint,
+                                             FutureStatus::Preempted}));
 
-    starvation_timeline = std::move(new_timeline);
+    (void)ok;
 
     return Ok(Void{});
   }
@@ -123,8 +122,7 @@ struct ScheduleTimeline {
                           })
                           .second;
 
-    starvation_timeline =
-        vec::erase(std::move(starvation_timeline), done_tasks);
+    starvation_timeline.erase(done_tasks);
   }
 
   // returns number of selected tasks
@@ -210,9 +208,7 @@ struct ScheduleTimeline {
 
     size_t const num_slots = slots.size();
 
-    thread_slots_capture = vec::resize(std::move(thread_slots_capture),
-                                       num_slots, ThreadSlot::Query{})
-                               .unwrap();
+    thread_slots_capture.resize(num_slots, ThreadSlot::Query{}).unwrap();
 
     // fetch the status of each thread slot
     slots.map(

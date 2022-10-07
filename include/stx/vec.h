@@ -108,6 +108,84 @@ struct VecBase {
 
   Iterator end() const { return data() + size_; }
 
+  // reserve enough memory to contain at least n elements
+  //
+  // does not release excess memory.
+  //
+  // returns the error if memory allocation fails
+  //
+  // invalidates references
+  //
+  Result<Void, AllocError> reserve(size_t cap) {
+    size_t new_capacity = capacity_ > cap ? capacity_ : cap;
+    size_t new_capacity_bytes = new_capacity * element_size;
+
+    if (new_capacity != capacity_) {
+      if constexpr (std::is_trivially_move_constructible_v<T> &&
+                    std::is_trivially_destructible_v<T>) {
+        TRY_OK(ok, mem::reallocate(memory_, new_capacity_bytes));
+
+        (void)ok;
+
+        capacity_ = new_capacity;
+      } else {
+        TRY_OK(new_memory,
+               mem::allocate(memory_.allocator, new_capacity_bytes));
+
+        T* new_location = static_cast<T*>(new_memory.handle);
+
+        T* iter = new_location;
+
+        for (T& element : span()) {
+          new (iter) T{std::move(element)};
+          iter++;
+        }
+
+        impl::destruct_range(begin(), size_);
+
+        memory_ = std::move(new_memory);
+        capacity_ = new_capacity;
+      }
+
+      return Ok(Void{});
+
+    } else {
+      return Ok(Void{});
+    }
+  }
+
+  // capacity is unchanged
+  void clear() {
+    impl::destruct_range(begin(), size());
+    size_ = 0;
+  }
+
+  // `capacity` is unchanged
+  //
+  // `first` must be a valid pointer to an element in the range or the `end` of
+  // the vec.
+  //
+  // `last` must be greater than `end`.
+  //
+  void erase(Span<T> range) {
+    STX_SPAN_ENSURE(begin() <= range.begin() && end() >= range.end(),
+                    "erase operation out of Vec range");
+
+    size_t destruct_size = range.size();
+
+    T* erase_start = range.begin();
+    T* erase_end = range.end();
+
+    impl::destruct_range(erase_start, destruct_size);
+
+    size_t num_trailing = end() - erase_end;
+
+    // move trailing elements to the front
+    impl::move_construct_range(erase_end, num_trailing, erase_start);
+
+    size_ -= destruct_size;
+  }
+
   Memory memory_;
   Size size_ = 0;
   Size capacity_ = 0;
@@ -142,6 +220,71 @@ struct Vec : public VecBase<T> {
   STX_DEFAULT_MOVE(Vec)
   STX_DISABLE_COPY(Vec)
   STX_DEFAULT_DESTRUCTOR(Vec)
+
+  // invalidates references
+  //
+  //
+  // typically needed for non-movable types
+  template <typename... Args>
+  Result<Void, AllocError> push_inplace(Args&&... args) {
+    static_assert(std::is_constructible_v<T, Args&&...>);
+
+    size_t const target_size = base::size_ + 1;
+    size_t const new_capacity = impl::grow_vec(base::capacity_, target_size);
+
+    TRY_OK(ok, base::reserve(new_capacity));
+
+    (void)ok;
+
+    T* inplace_construct_pos = base::begin() + base::size_;
+
+    new (inplace_construct_pos) T{std::forward<Args>(args)...};
+
+    base::size_ = target_size;
+
+    return Ok(Void{});
+  }
+
+  // invalidates references
+  //
+  // value is not moved if an allocation error occurs
+  Result<Void, AllocError> push(T&& value) {
+    return push_inplace(std::move(value));
+  }
+
+  Result<Void, AllocError> resize(size_t target_size, T const& to_copy = {}) {
+    size_t const previous_size = base::size();
+
+    if (target_size > previous_size) {
+      size_t const new_capacity = impl::grow_vec(base::capacity(), target_size);
+
+      TRY_OK(ok, base::reserve(new_capacity));
+
+      (void)ok;
+
+      T* copy_construct_begin = base::begin() + previous_size;
+      T* copy_construct_end = base::begin() + target_size;
+
+      for (T* iter = copy_construct_begin; iter < copy_construct_end; iter++) {
+        new (iter) T{to_copy};
+      }
+
+      base::size_ = target_size;
+
+      return Ok(Void{});
+
+    } else {
+      // target_size <= previous_size
+      T* destruct_begin = base::begin() + target_size;
+      impl::destruct_range(destruct_begin, previous_size - target_size);
+
+      base::size_ = target_size;
+
+      return Ok(Void{});
+    }
+  }
+
+  Vec<T> copy(Allocator allocator) const;
 };
 
 // a fixed capacity vec
@@ -159,6 +302,53 @@ struct FixedVec : public VecBase<T> {
   STX_DEFAULT_MOVE(FixedVec)
   STX_DISABLE_COPY(FixedVec)
   STX_DEFAULT_DESTRUCTOR(FixedVec)
+
+  template <typename... Args>
+  Result<Void, VecError> push_inplace(Args&&... args) {
+    static_assert(std::is_constructible_v<T, Args&&...>);
+    size_t const target_size = base::size_ + 1;
+
+    if (base::capacity_ < target_size) {
+      return Err(VecError::OutOfMemory);
+    } else {
+      new (base::begin() + base::size_) T{std::forward<Args>(args)...};
+
+      base::size_ = target_size;
+
+      return Ok(Void{});
+    }
+  }
+
+  Result<Void, VecError> push(T&& value) {
+    return push_inplace(std::move(value));
+  }
+
+  Result<Void, VecError> resize(size_t target_size, T const& to_copy = {}) {
+    size_t const previous_size = base::size();
+
+    if (target_size > previous_size) {
+      if (target_size > base::capacity()) {
+        return Err(VecError::OutOfMemory);
+      }
+
+      T* copy_construct_begin = base::begin() + previous_size;
+      T* copy_construct_end = base::begin() + target_size;
+      for (T* iter = copy_construct_begin; iter < copy_construct_end; iter++) {
+        new (iter) T{to_copy};
+      }
+    } else if (target_size < previous_size) {
+      T* destruct_begin = base::begin() + target_size;
+      destruct_range(destruct_begin, previous_size - target_size);
+    } else {
+      // equal
+    }
+
+    base::size_ = target_size;
+
+    return Ok(Void{});
+  }
+
+  FixedVec<T> copy(Allocator allocator) const;
 };
 
 namespace vec {
@@ -176,244 +366,6 @@ Result<FixedVec<T>, AllocError> make_fixed(Allocator allocator,
   TRY_OK(memory, mem::allocate(allocator, capacity * sizeof(T)));
 
   return Ok(FixedVec<T>{std::move(memory), 0, capacity});
-}
-
-// reserve enough memory to contain at least n elements
-//
-// does not release excess memory.
-//
-// returns the error if memory allocation fails
-//
-// invalidates references
-//
-template <typename T>
-Result<Void, AllocError> vec____reserve(VecBase<T>& base, size_t cap) {
-  size_t new_capacity = base.capacity_ > cap ? base.capacity_ : cap;
-  size_t new_capacity_bytes = new_capacity * base.element_size;
-
-  if (new_capacity != base.capacity_) {
-    if constexpr (std::is_trivially_move_constructible_v<T> &&
-                  std::is_trivially_destructible_v<T>) {
-      TRY_OK(ok, mem::reallocate(base.memory_, new_capacity_bytes));
-
-      (void)ok;
-
-      base.capacity_ = new_capacity;
-    } else {
-      TRY_OK(new_memory,
-             mem::allocate(base.memory_.allocator, new_capacity_bytes));
-
-      T* new_location = static_cast<T*>(new_memory.handle);
-
-      T* iter = new_location;
-
-      for (T& element : base.span()) {
-        new (iter) T{std::move(element)};
-        iter++;
-      }
-
-      impl::destruct_range(base.begin(), base.size_);
-
-      base.memory_ = std::move(new_memory);
-      base.capacity_ = new_capacity;
-    }
-
-    return Ok(Void{});
-
-  } else {
-    return Ok(Void{});
-  }
-}
-
-template <typename T>
-Result<Vec<T>, AllocError> reserve(Vec<T>&& vec, size_t capacity) {
-  TRY_OK(ok, vec____reserve(vec, capacity));
-
-  (void)ok;
-
-  return Ok(std::move(vec));
-}
-
-template <typename T>
-Result<FixedVec<T>, AllocError> reserve(FixedVec<T>&& vec, size_t capacity) {
-  TRY_OK(ok, vec____reserve(vec, capacity));
-
-  return Ok(std::move(vec));
-}
-
-// invalidates references
-//
-//
-// typically needed for non-movable types
-template <typename T, typename... Args>
-Result<Vec<T>, AllocError> push_inplace(Vec<T>&& vec, Args&&... args) {
-  static_assert(std::is_constructible_v<T, Args&&...>);
-
-  size_t const target_size = vec.size_ + 1;
-  size_t const new_capacity = impl::grow_vec(vec.capacity_, target_size);
-
-  TRY_OK(new_vec, reserve(std::move(vec), new_capacity));
-
-  T* inplace_construct_pos = new_vec.begin() + new_vec.size_;
-
-  new (inplace_construct_pos) T{std::forward<Args>(args)...};
-
-  new_vec.size_ = target_size;
-
-  return Ok(std::move(new_vec));
-}
-
-// invalidates references
-//
-// value is not moved if an allocation error occurs
-template <typename T>
-Result<Vec<T>, AllocError> push(Vec<T>&& vec, T&& value) {
-  return push_inplace(std::move(vec), std::move(value));
-}
-
-template <typename T>
-Result<Vec<T>, AllocError> push(Vec<T>&& vec, T& value) = delete;
-
-template <typename T, typename... Args>
-Result<FixedVec<T>, VecError> push_inplace(FixedVec<T>&& vec, Args&&... args) {
-  static_assert(std::is_constructible_v<T, Args&&...>);
-  size_t const target_size = vec.size_ + 1;
-
-  if (vec.capacity_ < target_size) {
-    return Err(VecError::OutOfMemory);
-  } else {
-    new (vec.begin() + vec.size_) T{std::forward<Args>(args)...};
-
-    vec.size_ = target_size;
-
-    return Ok(std::move(vec));
-  }
-}
-
-template <typename T>
-Result<FixedVec<T>, VecError> push(FixedVec<T>&& vec, T&& value) {
-  return push_inplace(std::move(vec), std::move(value));
-}
-
-template <typename T>
-Result<FixedVec<T>, VecError> push(FixedVec<T>&& vec, T& value) = delete;
-
-template <typename T>
-Result<Vec<T>, AllocError> copy(Allocator, Vec<T> const&);
-
-template <typename T>
-Result<Vec<T>, AllocError> resize(Vec<T>&& vec, size_t target_size,
-                                  T const& to_copy = {}) {
-  size_t const previous_size = vec.size();
-
-  if (target_size > previous_size) {
-    size_t const new_capacity = impl::grow_vec(vec.capacity(), target_size);
-
-    TRY_OK(new_vec, reserve(std::move(vec), new_capacity));
-
-    T* copy_construct_begin = new_vec.begin() + previous_size;
-    T* copy_construct_end = new_vec.begin() + target_size;
-
-    for (T* iter = copy_construct_begin; iter < copy_construct_end; iter++) {
-      new (iter) T{to_copy};
-    }
-
-    new_vec.size_ = target_size;
-
-    return Ok(std::move(new_vec));
-
-  } else {
-    // target_size <= previous_size
-    T* destruct_begin = vec.begin() + target_size;
-    impl::destruct_range(destruct_begin, previous_size - target_size);
-
-    vec.size_ = target_size;
-
-    return Ok(std::move(vec));
-  }
-}
-
-template <typename T>
-Result<FixedVec<T>, VecError> resize(FixedVec<T>&& vec, size_t target_size,
-                                     T const& to_copy = {}) {
-  size_t const previous_size = vec.size();
-
-  if (target_size > previous_size) {
-    if (target_size > vec.capacity()) {
-      return Err(VecError::OutOfMemory);
-    }
-
-    T* copy_construct_begin = vec.begin() + previous_size;
-    T* copy_construct_end = vec.begin() + target_size;
-    for (T* iter = copy_construct_begin; iter < copy_construct_end; iter++) {
-      new (iter) T{to_copy};
-    }
-  } else if (target_size < previous_size) {
-    T* destruct_begin = vec.begin() + target_size;
-    destruct_range(destruct_begin, previous_size - target_size);
-  } else {
-    // equal
-  }
-
-  vec.size_ = target_size;
-
-  return Ok(std::move(vec));
-}
-
-// capacity is unchanged
-template <typename T>
-void vec____clear(VecBase<T>& base) {
-  destruct_range(base.begin(), base.end());
-  base.size_ = 0;
-}
-
-template <typename T>
-void clear(Vec<T>&& vec) {
-  vec____clear(vec);
-}
-
-template <typename T>
-void clear(FixedVec<T>&& vec) {
-  vec____clear(vec);
-}
-
-// `capacity` is unchanged
-//
-// `first` must be a valid pointer to an element in the range or the `end` of
-// the vec.
-//
-// `last` must be greater than `end`.
-//
-template <typename T>
-void vec____erase(VecBase<T>& base, Span<T> range) {
-  STX_SPAN_ENSURE(base.begin() <= range.begin() && base.end() >= range.end(),
-                  "erase operation out of Vec range");
-
-  size_t destruct_size = range.size();
-
-  T* erase_start = range.begin();
-  T* erase_end = range.end();
-
-  impl::destruct_range(erase_start, destruct_size);
-
-  size_t num_trailing = base.end() - erase_end;
-
-  // move trailing elements to the front
-  impl::move_construct_range(erase_end, num_trailing, erase_start);
-
-  base.size_ -= destruct_size;
-}
-
-template <typename T>
-Vec<T> erase(Vec<T>&& vec, Span<T> range) {
-  vec____erase(vec, range);
-  return std::move(vec);
-}
-
-template <typename T>
-Vec<T> erase(FixedVec<T>&& vec, Span<T> range) {
-  vec____erase(vec, range);
-  return std::move(vec);
 }
 
 }  // namespace vec

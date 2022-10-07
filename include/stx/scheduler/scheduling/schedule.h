@@ -53,13 +53,11 @@ auto fn(TaskScheduler &scheduler, Fn fn_task, TaskPriority priority,
         }
       }).unwrap();
 
-  scheduler.entries =
-      vec::push(
-          std::move(scheduler.entries),
-          Task{std::move(sched_fn), fn::rc::make_unique_static(task_is_ready),
-               std::move(scheduler_promise), task_id, priority, timepoint,
-               std::move(trace_info)})
-          .unwrap();
+  scheduler.entries
+      .push(Task{std::move(sched_fn), fn::rc::make_unique_static(task_is_ready),
+                 std::move(scheduler_promise), task_id, priority, timepoint,
+                 std::move(trace_info)})
+      .unwrap();
 
   return future;
 }
@@ -125,12 +123,11 @@ auto chain(TaskScheduler &scheduler, Chain<Fn, OtherFns...> chain,
         }
       }).unwrap();
 
-  scheduler.entries =
-      vec::push(std::move(scheduler.entries),
-                Task{std::move(fn), fn::rc::make_unique_static(task_is_ready),
-                     std::move(scheduler_promise), task_id, priority, timepoint,
-                     std::move(trace_info)})
-          .unwrap();
+  scheduler.entries
+      .push(Task{std::move(fn), fn::rc::make_unique_static(task_is_ready),
+                 std::move(scheduler_promise), task_id, priority, timepoint,
+                 std::move(trace_info)})
+      .unwrap();
 
   return future;
 }

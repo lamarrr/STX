@@ -75,11 +75,11 @@ auto await(TaskScheduler &scheduler, Fn task, TaskPriority priority,
         }
       }).unwrap();
 
-  scheduler.entries = vec::push(std::move(scheduler.entries),
-                                Task{std::move(fn), std::move(readiness_fn),
-                                     std::move(task_promise), task_id, priority,
-                                     timepoint, std::move(trace_info)})
-                          .unwrap();
+  scheduler.entries
+      .push(Task{std::move(fn), std::move(readiness_fn),
+                 std::move(task_promise), task_id, priority, timepoint,
+                 std::move(trace_info)})
+      .unwrap();
 
   return future;
 }
@@ -150,11 +150,11 @@ auto await_any(TaskScheduler &scheduler, Fn task, TaskPriority priority,
         }
       }).unwrap();
 
-  scheduler.entries = vec::push(std::move(scheduler.entries),
-                                Task{std::move(fn), std::move(readiness_fn),
-                                     std::move(task_promise), task_id, priority,
-                                     timepoint, std::move(trace_info)})
-                          .unwrap();
+  scheduler.entries
+      .push(Task{std::move(fn), std::move(readiness_fn),
+                 std::move(task_promise), task_id, priority, timepoint,
+                 std::move(trace_info)})
+      .unwrap();
 
   return future;
 }

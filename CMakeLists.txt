@@ -19,6 +19,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(CheckCXXSourceCompiles)
 include(add_project_library)
 
+# ===============================================
+#
+# === Dependencies
+#
+# ===============================================
 find_package(GTest REQUIRED)
 find_package(absl REQUIRED)
 
@@ -87,7 +92,7 @@ int main(){
 "
   LIBSTX_HAS_STD_THREAD_MUTEX)
 
-# TODO(lamarrr): fix up
+# TODO(lamarrr): fix up. replace mutex usage with spinlock
 if(NOT LIBSTX_HAS_STD_THREAD_MUTEX)
   list(APPEND STX_COMPILER_DEFS "STX_NO_STD_THREAD_MUTEX")
 endif()
@@ -112,6 +117,25 @@ target_include_directories(stx PRIVATE src)
 if(MSVC)
   target_compile_options(stx PUBLIC "/permissive-")
 endif()
+
+# ===============================================
+#
+# === Install
+#
+# ===============================================
+# install(TARGETS ${INSTALL_TARGETS} EXPORT ${targets_export_name} LIBRARY
+# DESTINATION ${FMT_LIB_DIR} ARCHIVE DESTINATION ${FMT_LIB_DIR} PUBLIC_HEADER
+# DESTINATION "${FMT_INC_DIR}/fmt" FRAMEWORK DESTINATION "." RUNTIME DESTINATION
+# ${CMAKE_INSTALL_BINDIR})
+
+install(TARGETS stx LIBRARY DESTINATION lib)
+install(DIRECTORY include/stx DESTINATION include)
+
+# ===============================================
+#
+# === Tests
+#
+# ===============================================
 
 file(GLOB STX_TESTS_SOURCE_FILES_LIST tests/*.cc)
 

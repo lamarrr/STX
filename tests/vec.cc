@@ -47,9 +47,9 @@ struct Life {
 
 TEST(VecTest, MoveAssignmentAndConstruction) {
   Vec<int> a{stx::os_allocator};
-  a = stx::vec::push(std::move(a), 0).unwrap();
-  a = stx::vec::push(std::move(a), 1).unwrap();
-  a = stx::vec::push(std::move(a), 2).unwrap();
+  a.push(0).unwrap();
+  a.push(1).unwrap();
+  a.push(2).unwrap();
 
   EXPECT_EQ(a.size(), 3);
 
@@ -72,8 +72,7 @@ TEST(VecTest, Destructor) {
   {
     Vec<int> vec{stx::Memory{stx::os_allocator, nullptr}, 0, 0};
 
-    for (size_t i = 0; i < 10000; i++)
-      vec = stx::vec::push_inplace(std::move(vec), 8).unwrap();
+    for (size_t i = 0; i < 10000; i++) vec.push_inplace(8).unwrap();
 
     EXPECT_EQ(vec.size(), 10000);
     EXPECT_VALID_VEC(vec);
@@ -90,7 +89,7 @@ TEST(VecTest, Resize) {
   {
     Vec<int> vec{stx::os_allocator};
 
-    vec = stx::vec::resize(std::move(vec), 10, 69).unwrap();
+    vec.resize(10, 69).unwrap();
 
     EXPECT_VALID_VEC(vec);
 
@@ -98,7 +97,7 @@ TEST(VecTest, Resize) {
       EXPECT_EQ(el, 69);
     }
 
-    vec = stx::vec::resize(std::move(vec), 20, 42).unwrap();
+    vec.resize(20, 42).unwrap();
 
     EXPECT_VALID_VEC(vec);
 
@@ -117,8 +116,8 @@ TEST(VecTest, Resize) {
 TEST(VecTest, ResizeLifetime) {
   {
     Vec<Life> vec{stx::os_allocator};
-    vec = stx::vec::resize(std::move(vec), 1).unwrap();
-    vec = stx::vec::resize(std::move(vec), 5).unwrap();
+    vec.resize(1).unwrap();
+    vec.resize(5).unwrap();
 
     EXPECT_VALID_VEC(vec);
   }
@@ -127,22 +126,24 @@ TEST(VecTest, ResizeLifetime) {
 TEST(VecTest, Noop) {
   stx::Vec<int> vec{stx::os_allocator};
 
-  vec = stx::vec::push(std::move(vec), 3).unwrap();
+  vec.push(3).unwrap();
 
-  vec = stx::vec::push_inplace(std::move(vec), 3).unwrap();
-  vec = stx::vec::reserve(std::move(vec), 444).unwrap();
+  vec.push_inplace(3).unwrap();
+  vec.reserve(444).unwrap();
   vec.span();
   vec.span().at(1).unwrap().get() = 0;
 
+  vec.clear();
+
+  EXPECT_TRUE(vec.is_empty());
+
   stx::FixedVec<int> g{stx::os_allocator};
 
-  EXPECT_DEATH_IF_SUPPORTED(
-      (g = stx::vec::push_inplace(std::move(g), 4783).expect("unable to push")),
-      ".*");
+  EXPECT_DEATH_IF_SUPPORTED(g.push_inplace(4783).expect("unable to push"),
+                            ".*");
 
   stx::Vec<int> no_vec{stx::noop_allocator};
 
-  EXPECT_DEATH_IF_SUPPORTED(
-      (g = stx::vec::push_inplace(std::move(g), 4783).expect("unable to push")),
-      ".*");
+  EXPECT_DEATH_IF_SUPPORTED(no_vec.push_inplace(4783).expect("unable to push"),
+                            ".*");
 }

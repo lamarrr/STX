@@ -60,12 +60,11 @@ auto delay(TaskScheduler &scheduler, Fn fn_task, TaskPriority priority,
         }
       }).unwrap();
 
-  scheduler.entries =
-      vec::push(std::move(scheduler.entries),
-                Task{std::move(sched_fn), std::move(readiness_fn),
-                     std::move(scheduler_promise), task_id, priority, timepoint,
-                     std::move(trace_info)})
-          .unwrap();
+  scheduler.entries
+      .push(Task{std::move(sched_fn), std::move(readiness_fn),
+                 std::move(scheduler_promise), task_id, priority, timepoint,
+                 std::move(trace_info)})
+      .unwrap();
 
   return future;
 }

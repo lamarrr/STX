@@ -112,7 +112,7 @@ struct TaskScheduler {
           .unwrap();
     }
 
-    entries = vec::erase(std::move(entries), ready_tasks);
+    entries.erase(ready_tasks);
 
     timeline.tick(thread_pool.get_thread_slots(), present);
     thread_pool.tick(interval);

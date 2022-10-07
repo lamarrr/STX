@@ -40,12 +40,11 @@ TEST(ScheduleTimelineTest, Tick) {
     Vec<Rc<ThreadSlot *>> slots{os_allocator};
 
     for (size_t i = 0; i < 10; i++)
-      slots =
-          vec::push(std::move(slots),
-                    rc::make_inplace<ThreadSlot>(
-                        os_allocator, make_promise<void>(os_allocator).unwrap())
-                        .unwrap())
-              .unwrap();
+      slots
+          .push(rc::make_inplace<ThreadSlot>(
+                    os_allocator, make_promise<void>(os_allocator).unwrap())
+                    .unwrap())
+          .unwrap();
 
     EXPECT_EQ(slots.size(), 10);
 
