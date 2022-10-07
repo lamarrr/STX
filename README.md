@@ -36,7 +36,6 @@ STX is a collection of libraries and utilities designed to make working with C++
 * Efficient `Result<T, E>` (error-handling) and `Option<T>` (optional-value) implementation with monadic methods
 * Unignorable error-types
 * Fail-fast (Abandonment/ Fatal failure) via `panic` s
-* Reporting via `Report` ( `SpanReport` and `FixedReport` )
 * Runtime panic hooks
 * Panic backtraces
 * Signal backtraces ( `SIGSEGV` , `SIGILL` , and `SIGFPE` )
