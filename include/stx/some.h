@@ -3,8 +3,8 @@
 
 #include <utility>
 
-#include "stx/config.h"
 #include "stx/common.h"
+#include "stx/config.h"
 #include "stx/enable_if.h"
 
 STX_BEGIN_NAMESPACE
@@ -48,7 +48,7 @@ struct [[nodiscard]] Some : impl::check_value_type<T> {
   friend struct Option;
 
   /// a `Some<T>` can only be constructed with an r-value of type `T`
-  explicit constexpr Some(T && value) : value_{std::move(value)} {}
+  explicit constexpr Some(T&& value) : value_{std::move(value)} {}
 
   constexpr T copy() const { return value_; }
 

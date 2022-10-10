@@ -1,7 +1,7 @@
 #pragma once
 
-#include "stx/config.h"
 #include "stx/common.h"
+#include "stx/config.h"
 
 STX_BEGIN_NAMESPACE
 

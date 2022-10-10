@@ -11,7 +11,7 @@ STX_BEGIN_NAMESPACE
 ///
 /// C++ 17 and above
 ///
-struct [[nodiscard]] NoneType{};
+struct [[nodiscard]] NoneType {};
 
 /// value-variant for `Option<T>` representing no-value
 constexpr NoneType const None{};

@@ -20,9 +20,9 @@
 #include <utility>
 
 #include "stx/config.h"
+#include "stx/enable_if.h"
 #include "stx/option.h"
 #include "stx/panic.h"
-#include "stx/enable_if.h"
 
 #define STX_SPAN_ENSURE(condition, message)             \
   do {                                                  \

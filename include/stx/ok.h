@@ -2,10 +2,10 @@
 
 #include <utility>
 
-#include "stx/config.h"
-#include "stx/option_result/impl/check_value_type.h"
 #include "stx/common.h"
+#include "stx/config.h"
 #include "stx/enable_if.h"
+#include "stx/option_result/impl/check_value_type.h"
 
 STX_BEGIN_NAMESPACE
 
@@ -45,7 +45,7 @@ struct [[nodiscard]] Ok : impl::check_value_type<T> {
   friend struct Result;
 
   /// an `Ok<T>` can only be constructed with an r-value of type `T`
-  explicit constexpr Ok(T && value) : value_(std::move(value)) {}
+  explicit constexpr Ok(T&& value) : value_(std::move(value)) {}
 
   constexpr T copy() const { return value_; }
 

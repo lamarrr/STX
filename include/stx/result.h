@@ -14,11 +14,11 @@
 #include <string_view>
 #include <utility>
 
+#include "stx/common.h"
 #include "stx/config.h"
 #include "stx/option_result/impl/check_value_type.h"
 #include "stx/option_result/impl/panic_helpers.h"
 #include "stx/option_result/impl/result_storage.h"
-#include "stx/common.h"
 
 // Notes:
 // - Result is an object-forwarding type. It is unique to an
@@ -136,9 +136,9 @@ struct [[nodiscard]] Result
   using storage::ok_;
 
  public:
-  constexpr Result(Ok<T> && ok) : storage{std::move(ok)} {}
+  constexpr Result(Ok<T>&& ok) : storage{std::move(ok)} {}
 
-  constexpr Result(Err<E> && err) : storage{std::move(err)} {}
+  constexpr Result(Err<E>&& err) : storage{std::move(err)} {}
 
   constexpr Result& operator=(Ok<T>&& other) {
     storage::assign(std::move(other));
@@ -152,7 +152,7 @@ struct [[nodiscard]] Result
     return *this;
   }
 
-  constexpr Result(Result &&) = default;
+  constexpr Result(Result&&) = default;
   constexpr Result& operator=(Result&&) = default;
 
   constexpr Result() = delete;
@@ -263,7 +263,7 @@ struct [[nodiscard]] Result
   ///
   /// ```
   template <typename UnaryPredicate>
-  [[nodiscard]] constexpr bool exists(UnaryPredicate && predicate) const {
+  [[nodiscard]] constexpr bool exists(UnaryPredicate&& predicate) const {
     static_assert(invocable<UnaryPredicate&&, T const&>);
     static_assert(convertible<invoke_result<UnaryPredicate&&, T const&>, bool>);
 
@@ -289,7 +289,7 @@ struct [[nodiscard]] Result
   ///
   /// ```
   template <typename UnaryPredicate>
-  [[nodiscard]] constexpr bool err_exists(UnaryPredicate && predicate) const {
+  [[nodiscard]] constexpr bool err_exists(UnaryPredicate&& predicate) const {
     static_assert(invocable<UnaryPredicate&&, E const&>);
     static_assert(convertible<invoke_result<UnaryPredicate&&, E const&>, bool>);
 
@@ -318,7 +318,7 @@ struct [[nodiscard]] Result
   ///
   /// ASSERT_EQ(result, Ok(97));
   /// ```
-  T& value()& {
+  T& value() & {
     if (is_err()) impl::result::no_lref(err_.cref());
     return ok_.ref();
   }
@@ -328,7 +328,7 @@ struct [[nodiscard]] Result
     return ok_.cref();
   }
 
-  T&& value()&& {
+  T&& value() && {
     if (is_err()) impl::result::no_lref(err_.cref());
     return ok_.move();
   }
@@ -351,7 +351,7 @@ struct [[nodiscard]] Result
   ///
   /// ASSERT_EQ(result, Err(46));
   /// ```
-  [[nodiscard]] E& err()& {
+  [[nodiscard]] E& err() & {
     if (is_ok()) impl::result::no_err_lref();
     return err_.ref();
   }
@@ -361,7 +361,7 @@ struct [[nodiscard]] Result
     return err_.cref();
   }
 
-  [[nodiscard]] E&& err()&& {
+  [[nodiscard]] E&& err() && {
     if (is_ok()) impl::result::no_err_lref();
     return err_.move();
   }
@@ -382,7 +382,7 @@ struct [[nodiscard]] Result
   /// Result<int, string> y = Err("Error"s);
   /// ASSERT_EQ(y.as_cref().unwrap_err().get(), "Error"s);
   /// ```
-  constexpr auto as_cref() const&->Result<Ref<T const>, Ref<E const>> {
+  constexpr auto as_cref() const& -> Result<Ref<T const>, Ref<E const>> {
     if (is_ok()) {
       return Ok(Ref<T const>{ok_.cref()});
     } else {
@@ -395,7 +395,7 @@ struct [[nodiscard]] Result
       "therefore binding an l-value reference to an object that is marked to "
       "be moved")]]  //
   constexpr auto
-  as_cref() const&&->Result<Ref<T const>, Ref<E const>> = delete;
+  as_cref() const&& -> Result<Ref<T const>, Ref<E const>> = delete;
 
   /// Converts from `Result<T, E> &` to `Result<MutRef<T>, MutRef<E>>`.
   ///
@@ -417,7 +417,7 @@ struct [[nodiscard]] Result
   /// mutate(y);
   /// ASSERT_EQ(y, Err(0));
   /// ```
-  constexpr auto as_ref()&->Result<Ref<T>, Ref<E>> {
+  constexpr auto as_ref() & -> Result<Ref<T>, Ref<E>> {
     if (is_ok()) {
       return Ok(Ref<T>(ok_.ref()));
     } else {
@@ -425,7 +425,7 @@ struct [[nodiscard]] Result
     }
   }
 
-  constexpr auto as_ref() const&->Result<Ref<T const>, Ref<E const>> {
+  constexpr auto as_ref() const& -> Result<Ref<T const>, Ref<E const>> {
     return as_cref();
   }
 
@@ -433,13 +433,13 @@ struct [[nodiscard]] Result
       "calling Result::as_ref() on an r-value, and therefore binding a "
       "reference to an object that is marked to be moved")]]  //
   constexpr auto
-  as_ref()&&->Result<Ref<T>, Ref<E>> = delete;
+  as_ref() && -> Result<Ref<T>, Ref<E>> = delete;
 
   [[deprecated(
       "calling Result::as_ref() on an r-value, and therefore binding a "
       "reference to an object that is marked to be moved")]]  //
   constexpr auto
-  as_ref() const&&->Result<Ref<T>, Ref<E>> = delete;
+  as_ref() const&& -> Result<Ref<T>, Ref<E>> = delete;
 
   /// Maps a `Result<T, E>` to `Result<U, E>` by applying the function `op` to
   /// the contained `Ok<T>` value, leaving an `Err<E>` value untouched.
@@ -467,7 +467,7 @@ struct [[nodiscard]] Result
   /// ASSERT_EQ(content_type, Ok("multipart/form-data"sv));
   /// ```
   template <typename Fn>
-  constexpr auto map(Fn && op)&&->Result<invoke_result<Fn&&, T&&>, E> {
+  constexpr auto map(Fn&& op) && -> Result<invoke_result<Fn&&, T&&>, E> {
     static_assert(invocable<Fn&&, T&&>);
 
     if (is_ok()) {
@@ -493,7 +493,7 @@ struct [[nodiscard]] Result
   /// ASSERT_EQ(move(y).map_or(map_fn, 42UL), 42UL);
   /// ```
   template <typename Fn, typename AltType>
-  constexpr auto map_or(Fn && op, AltType && alt)&&->invoke_result<Fn&&, T&&> {
+  constexpr auto map_or(Fn&& op, AltType&& alt) && -> invoke_result<Fn&&, T&&> {
     static_assert(invocable<Fn&&, T&&>);
 
     if (is_ok()) {
@@ -526,8 +526,8 @@ struct [[nodiscard]] Result
   /// ASSERT_EQ(move(y).map_or_else(map_fn, else_fn), 42);
   /// ```
   template <typename Fn, typename A>
-  constexpr auto map_or_else(Fn && op,
-                             A && alt_op)&&->invoke_result<Fn&&, T&&> {
+  constexpr auto map_or_else(Fn&& op,
+                             A&& alt_op) && -> invoke_result<Fn&&, T&&> {
     static_assert(invocable<Fn&&, T&&>);
     static_assert(invocable<A&&, E&&>);
 
@@ -559,7 +559,7 @@ struct [[nodiscard]] Result
   /// ASSERT_EQ(move(y).map_err(stringify), Err("error code: 404"s));
   /// ```
   template <typename Fn>
-  constexpr auto map_err(Fn && op)&&->Result<T, invoke_result<Fn&&, E&&>> {
+  constexpr auto map_err(Fn&& op) && -> Result<T, invoke_result<Fn&&, E&&>> {
     static_assert(invocable<Fn&&, E&&>);
 
     if (is_ok()) {
@@ -595,7 +595,7 @@ struct [[nodiscard]] Result
   /// ```
   // a copy attempt like passing a const could cause an error
   template <typename U, typename F>
-  constexpr auto AND(Result<U, F> && res)&&->Result<U, F> {
+  constexpr auto AND(Result<U, F>&& res) && -> Result<U, F> {
     static_assert(convertible<E&&, F>);
     if (is_ok()) {
       return std::forward<Result<U, F>>(res);
@@ -623,7 +623,7 @@ struct [[nodiscard]] Result
   /// ASSERT_EQ(make_err(3).and_then(sq).and_then(sq), Err(3));
   /// ```
   template <typename Fn>
-  constexpr auto and_then(Fn && op)&&->Result<invoke_result<Fn&&, T&&>, E> {
+  constexpr auto and_then(Fn&& op) && -> Result<invoke_result<Fn&&, T&&>, E> {
     static_assert(invocable<Fn&&, T&&>);
 
     if (is_ok()) {
@@ -662,7 +662,7 @@ struct [[nodiscard]] Result
   /// ASSERT_EQ(move(g).OR(move(h)), Ok(2));
   /// ```
   // passing a const ref will cause an error
-  constexpr auto OR(Result && alt)&&->Result {
+  constexpr auto OR(Result&& alt) && -> Result {
     if (is_ok()) {
       return Ok(ok_.move());
     } else {
@@ -691,7 +691,7 @@ struct [[nodiscard]] Result
   /// ASSERT_EQ(make_err(3).or_else(err).or_else(err), Err(3));
   /// ```
   template <typename Fn>
-  constexpr auto or_else(Fn && op)&&->invoke_result<Fn&&, E&&> {
+  constexpr auto or_else(Fn&& op) && -> invoke_result<Fn&&, E&&> {
     static_assert(invocable<Fn&&, E&&>);
 
     if (is_ok()) {
@@ -721,7 +721,7 @@ struct [[nodiscard]] Result
   /// Result<int, string_view> y = Err("error"sv);
   /// ASSERT_EQ(move(y).unwrap_or(move(alt_b)), 2);
   /// ```
-  constexpr auto unwrap_or(T && alt)&&->T {
+  constexpr auto unwrap_or(T&& alt) && -> T {
     if (is_ok()) {
       return ok_.move();
     } else {
@@ -745,7 +745,7 @@ struct [[nodiscard]] Result
   /// 4);
   /// ```
   template <typename Fn>
-  constexpr auto unwrap_or_else(Fn && op)&&->T {
+  constexpr auto unwrap_or_else(Fn&& op) && -> T {
     static_assert(invocable<Fn&&, E&&>);
 
     if (is_ok()) {
@@ -771,7 +771,7 @@ struct [[nodiscard]] Result
   /// Result<int, string_view> x = Err("emergency failure"sv);
   /// ASSERT_DEATH(move(x).unwrap());
   /// ```
-  auto unwrap()&&->T {
+  auto unwrap() && -> T {
     if (is_err()) {
       impl::result::no_value(err_.cref());
     }
@@ -793,7 +793,7 @@ struct [[nodiscard]] Result
   /// Result<int, string_view> x = Err("emergency failure"sv);
   /// ASSERT_DEATH(move(x).expect("Testing expect"));
   /// ```
-  auto expect(std::string_view msg)&&->T {
+  auto expect(std::string_view msg) && -> T {
     if (is_err()) {
       impl::result::expect_value_failed(msg, err_.cref());
     }
@@ -819,7 +819,7 @@ struct [[nodiscard]] Result
   /// Result<int, string_view> y = Err("emergency failure"sv);
   /// ASSERT_EQ(move(y).unwrap_err(), "emergency failure");
   /// ```
-  [[nodiscard]] auto unwrap_err()&&->E {
+  [[nodiscard]] auto unwrap_err() && -> E {
     if (is_ok()) {
       impl::result::no_err();
     }
@@ -844,7 +844,7 @@ struct [[nodiscard]] Result
   ///                                                         // expect_err:
   ///                                                         // 10"
   /// ```
-  [[nodiscard]] auto expect_err(std::string_view msg)&&->E {
+  [[nodiscard]] auto expect_err(std::string_view msg) && -> E {
     if (is_ok()) {
       impl::result::expect_err_failed(msg);
     }
@@ -871,7 +871,7 @@ struct [[nodiscard]] Result
   ///                                                     // value
   ///                                                     // for a C++ string
   /// ```
-  constexpr auto unwrap_or_default()&&->T {
+  constexpr auto unwrap_or_default() && -> T {
     static_assert(default_constructible<T>);
     if (is_ok()) {
       return ok_.move();
@@ -912,8 +912,8 @@ struct [[nodiscard]] Result
   /// function arguments `some_fn` and `none_fn`.
   ///
   template <typename OkFn, typename ErrFn>
-  constexpr auto match(OkFn && ok_fn,
-                       ErrFn && err_fn)&&->invoke_result<OkFn&&, T&&> {
+  constexpr auto match(OkFn&& ok_fn,
+                       ErrFn&& err_fn) && -> invoke_result<OkFn&&, T&&> {
     static_assert(invocable<OkFn&&, T&&>);
     static_assert(invocable<ErrFn&&, E&&>);
 
@@ -925,8 +925,8 @@ struct [[nodiscard]] Result
   }
 
   template <typename OkFn, typename ErrFn>
-  constexpr auto match(OkFn && ok_fn,
-                       ErrFn && err_fn)&->invoke_result<OkFn&&, T&> {
+  constexpr auto match(OkFn&& ok_fn,
+                       ErrFn&& err_fn) & -> invoke_result<OkFn&&, T&> {
     static_assert(invocable<OkFn&&, T&>);
     static_assert(invocable<ErrFn&&, E&>);
 
@@ -938,8 +938,8 @@ struct [[nodiscard]] Result
   }
 
   template <typename OkFn, typename ErrFn>
-  constexpr auto match(OkFn && ok_fn, ErrFn && err_fn)
-      const&->invoke_result<OkFn&&, T const&> {
+  constexpr auto match(
+      OkFn&& ok_fn, ErrFn&& err_fn) const& -> invoke_result<OkFn&&, T const&> {
     static_assert(invocable<OkFn&&, T const&>);
     static_assert(invocable<ErrFn&&, E const&>);
 
@@ -961,7 +961,7 @@ struct [[nodiscard]] Result
   ///
   /// ASSERT_EQ(x, x.copy());
   /// ```
-  constexpr auto copy() const->Result<T, E> {
+  constexpr auto copy() const -> Result<T, E> {
     static_assert(copy_constructible<T>);
     static_assert(copy_constructible<E>);
 
@@ -972,9 +972,9 @@ struct [[nodiscard]] Result
     }
   }
 
-  constexpr auto move()&->Result<T, E>&& { return std::move(*this); }
+  constexpr auto move() & -> Result<T, E>&& { return std::move(*this); }
 
-  constexpr auto move()&&->Result<T, E>&& = delete;
+  constexpr auto move() && -> Result<T, E>&& = delete;
 
   constexpr Ok<T>& unsafe_ok_ref() { return ok_; }
 

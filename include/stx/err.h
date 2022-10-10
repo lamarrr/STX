@@ -3,10 +3,10 @@
 
 #include <utility>
 
-#include "stx/config.h"
-#include "stx/option_result/impl/check_value_type.h"
 #include "stx/common.h"
+#include "stx/config.h"
 #include "stx/enable_if.h"
+#include "stx/option_result/impl/check_value_type.h"
 
 STX_BEGIN_NAMESPACE
 
@@ -47,7 +47,7 @@ struct [[nodiscard]] Err : impl::check_value_type<E> {
   friend struct Result;
 
   /// an `Err<E>` can only be constructed with an r-value of type `E`
-  explicit constexpr Err(E && value) : value_(std::move(value)) {}
+  explicit constexpr Err(E&& value) : value_(std::move(value)) {}
 
   constexpr E copy() const { return value_; }
 

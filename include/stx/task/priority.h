@@ -18,12 +18,6 @@ enum class TaskPriority : uint8_t {};
 
 constexpr TaskPriority NORMAL_PRIORITY{0};
 
-// can be force-canceled and suspended. involves tasks that need to be run in
-// the background. i.e. checking wifi status, polling peripherral status,
-// responding to non-urgent widget requests, etc.
-//
-// constexpr TaskPriority SERVICE_PRIORITY{1};
-
 // involves tasks that the user needs to
 // observe its result as soon as possible. i.e. image loading and decoding,
 // texture loading, offscreen rendering, etc.
