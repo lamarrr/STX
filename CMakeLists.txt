@@ -38,7 +38,6 @@ option(
   STX_CUSTOM_PANIC_HANDLER
   "Override the default panic behaviour by implementing a custom panic handler. The default behavior is to print the panic report and abort the program. (You can read the docs for more details)"
   OFF)
-option(STX_ENABLE_PANIC_BACKTRACE "Enable panic backtrace")
 
 # ===============================================
 #
@@ -49,8 +48,6 @@ message(STATUS "[STX] Build tests: " ${STX_BUILD_TESTS})
 message(STATUS "[STX] Build documentation: " ${STX_BUILD_DOCS}) # not working
                                                                 # yet
 message(STATUS "[STX] Override panic handler: " ${STX_CUSTOM_PANIC_HANDLER})
-message(STATUS "[STX] Enable panic backtrace: " ${STX_ENABLE_PANIC_BACKTRACE}
-)# not working yet
 
 # ===============================================
 #
@@ -81,20 +78,17 @@ endif()
 # std::thread enabled if so, we remove the thread facilities, this will cause
 # compilation errors otherwise, since the classes won't be available
 check_cxx_source_compiles(
-  "
-#include <thread>
-#include <mutex>
+  "#include <thread>
 
 int main(){
   std::this_thread::get_id();
-  std::mutex mutex;
 }
 "
-  LIBSTX_HAS_STD_THREAD_MUTEX)
+  LIBSTX_HAS_STD_THREAD)
 
 # TODO(lamarrr): fix up. replace mutex usage with spinlock
-if(NOT LIBSTX_HAS_STD_THREAD_MUTEX)
-  list(APPEND STX_COMPILER_DEFS "STX_NO_STD_THREAD_MUTEX")
+if(NOT LIBSTX_HAS_STD_THREAD)
+  list(APPEND STX_COMPILER_DEFS "STX_NO_STD_THREAD")
 endif()
 
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
