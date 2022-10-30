@@ -38,11 +38,11 @@ inline void panic_default(std::string_view info, std::string_view error_report,
                           SourceLocation location) {
   // probably too much, but enough
   // this will at least hold a formatted uint128_t (40 digits)
-  constexpr const int FMT_BUFFER_SIZE = 64;
+  constexpr int const FMT_BUFFER_SIZE = 64;
 
 #if !defined(STX_NO_STD_THREAD)
 
-  constexpr const auto THREAD_ID_HASHER = std::hash<std::thread::id>{};
+  constexpr auto const THREAD_ID_HASHER = std::hash<std::thread::id>{};
 
   size_t const thread_id_hash = THREAD_ID_HASHER(std::this_thread::get_id());
 
