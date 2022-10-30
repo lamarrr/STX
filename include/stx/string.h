@@ -134,6 +134,8 @@ struct String {
 
   operator StringView() const { return StringView{data(), size()}; }
 
+  String copy(Allocator allocator) const;
+
   ReadOnlyMemory memory_;
   Size size_ = 0;
 };
