@@ -8,20 +8,6 @@
 #include "stx/lock_status.h"
 #include "stx/struct.h"
 
-// This is an annotation for multi-threaded locks.
-// Any acquired lock must use this.
-//
-// RULES:
-//
-// - must not execute user code, i.e. generic type constructors and destructors.
-// - operations performed must take constant time and must be extremely
-// short-lived. you either be able to say specifically what amount of time it
-// takes or not.
-//
-#define STX_CRITICAL_SECTION(...) \
-  do __VA_ARGS__                  \
-  while (false)
-
 STX_BEGIN_NAMESPACE
 
 // a rarely-contended lock.
@@ -71,6 +57,20 @@ struct LockGuard {
 };
 
 STX_END_NAMESPACE
+
+// This is an annotation for multi-threaded locks.
+// Any acquired lock must use this.
+//
+// RULES:
+//
+// - must not execute user code, i.e. generic type constructors and destructors.
+// - operations performed must take constant time and must be extremely
+// short-lived. you either be able to say specifically what amount of time it
+// takes or not.
+//
+#define STX_CRITICAL_SECTION(...) \
+  do __VA_ARGS__                  \
+  while (false)
 
 #define STX_WITH_LOCK(lock, ...) \
   STX_CRITICAL_SECTION({         \
