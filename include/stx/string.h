@@ -134,7 +134,13 @@ struct String {
 
   operator StringView() const { return StringView{data(), size()}; }
 
-  String copy(Allocator allocator) const;
+  Result<String, AllocError> copy(Allocator allocator) const {
+    TRY_OK(memory, mem::allocate(allocator, size_ + 1));
+
+    std::memcpy(memory.handle, memory_.handle, size_ + 1);
+
+    return Ok(String{ReadOnlyMemory{std::move(memory)}, size_});
+  }
 
   ReadOnlyMemory memory_;
   Size size_ = 0;

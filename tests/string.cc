@@ -43,4 +43,6 @@ TEST(StrTest, Init) {
   Span x = views;
   EXPECT_EQ(string::join(os_allocator, " ", x).unwrap(),
             "Hello, Beautiful World!");
+
+  EXPECT_EQ(a, a.copy(stx::os_allocator).unwrap());
 }

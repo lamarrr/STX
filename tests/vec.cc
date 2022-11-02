@@ -147,3 +147,34 @@ TEST(VecTest, Noop) {
   EXPECT_DEATH_IF_SUPPORTED(no_vec.push_inplace(4783).expect("unable to push"),
                             ".*");
 }
+
+TEST(VecTest, Copy) {
+  {
+    stx::Vec<int> vec{stx::os_allocator};
+
+    vec.push(3).unwrap();
+    vec.push(4).unwrap();
+
+    auto x = vec.copy(stx::os_allocator).unwrap();
+
+    EXPECT_EQ(x.size(), 2);
+    EXPECT_EQ(x.size(), vec.size());
+    EXPECT_EQ(x[0], vec[0]);
+    EXPECT_EQ(x[1], vec[1]);
+  }
+
+  {
+    stx::FixedVec<int> vec =
+        stx::vec::make_fixed<int>(stx::os_allocator, 20).unwrap();
+
+    vec.push(3).unwrap();
+    vec.push(4).unwrap();
+
+    auto x = vec.copy(stx::os_allocator).unwrap();
+
+    EXPECT_EQ(x.size(), 2);
+    EXPECT_EQ(x.size(), vec.size());
+    EXPECT_EQ(x[0], vec[0]);
+    EXPECT_EQ(x[1], vec[1]);
+  }
+}

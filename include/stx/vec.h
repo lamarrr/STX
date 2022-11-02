@@ -43,6 +43,15 @@ constexpr size_t grow_vec(size_t capacity, size_t new_target_size) {
              ? capacity
              : grow_vec_to_target(capacity, new_target_size);
 }
+
+template <typename T>
+constexpr void copy_construct_range(T const* source, size_t size,
+                                    T* destination) {
+  for (size_t i = 0; i < size; i++) {
+    new (destination + i) T{source[i]};
+  }
+}
+
 }  // namespace impl
 
 // ONLY NON-CONST METHODS INVALIDATE ITERATORS
@@ -284,7 +293,15 @@ struct Vec : public VecBase<T> {
     }
   }
 
-  Vec<T> copy(Allocator allocator) const;
+  Result<Vec<T>, AllocError> copy(Allocator allocator) const {
+    TRY_OK(memory,
+           mem::allocate(allocator, base::capacity() * base::element_size));
+
+    impl::copy_construct_range(base::begin(), base::size(),
+                               static_cast<T*>(memory.handle));
+
+    return Ok(Vec<T>{std::move(memory), base::size(), base::capacity()});
+  }
 };
 
 // a fixed capacity vec
@@ -348,7 +365,15 @@ struct FixedVec : public VecBase<T> {
     return Ok(Void{});
   }
 
-  FixedVec<T> copy(Allocator allocator) const;
+  Result<FixedVec<T>, AllocError> copy(Allocator allocator) const {
+    TRY_OK(memory,
+           mem::allocate(allocator, base::capacity() * base::element_size));
+
+    impl::copy_construct_range(base::begin(), base::size(),
+                               static_cast<T*>(memory.handle));
+
+    return Ok(FixedVec<T>{std::move(memory), base::size(), base::capacity()});
+  }
 };
 
 namespace vec {
