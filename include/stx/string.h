@@ -146,6 +146,15 @@ struct String {
   Size size_ = 0;
 };
 
+inline namespace literals {
+
+inline String operator""_str(char const* string_literal, size_t str_size) {
+  return String{ReadOnlyMemory{static_storage_allocator, string_literal},
+                str_size};
+}
+
+}  // namespace literals
+
 namespace string {
 
 inline Result<String, AllocError> make(Allocator allocator, StringView str) {

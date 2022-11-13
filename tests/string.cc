@@ -10,7 +10,7 @@ using namespace stx;
 TEST(StrTest, Init) {
   String str;
 
-  String a{string::make_static("hello")};
+  String a = "hello"_str;
   String b{string::make(os_allocator, "waddup").unwrap()};
 
   EXPECT_EQ(str.data()[0], '\0');
