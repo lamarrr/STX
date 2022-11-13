@@ -302,6 +302,30 @@ struct Vec : public VecBase<T> {
 
     return Ok(Vec<T>{std::move(memory), base::size(), base::capacity()});
   }
+
+  Result<Void, AllocError> extend(stx::Span<T const> other) {
+    TRY_OK(ok, base::reserve(base::size() + other.size()));
+
+    (void)ok;
+
+    impl::copy_construct_range(other.begin(), other.size(), base::end());
+
+    base::size_ += other.size();
+
+    return Ok(Void{});
+  }
+
+  Result<Void, AllocError> extend_move(stx::Span<T> other) {
+    TRY_OK(ok, base::reserve(base::size() + other.size()));
+
+    (void)ok;
+
+    impl::move_construct_range(other.begin(), other.size(), base::end());
+
+    base::size_ += other.size();
+
+    return Ok(Void{});
+  }
 };
 
 // a fixed capacity vec
@@ -373,6 +397,30 @@ struct FixedVec : public VecBase<T> {
                                static_cast<T*>(memory.handle));
 
     return Ok(FixedVec<T>{std::move(memory), base::size(), base::capacity()});
+  }
+
+  Result<Void, AllocError> extend(stx::Span<T const> other) {
+    TRY_OK(ok, base::reserve(base::size() + other.size()));
+
+    (void)ok;
+
+    impl::copy_construct_range(other.begin(), other.size(), base::end());
+
+    base::size_ += other.size();
+
+    return Ok(Void{});
+  }
+
+  Result<Void, AllocError> extend_move(stx::Span<T> other) {
+    TRY_OK(ok, base::reserve(base::size() + other.size()));
+
+    (void)ok;
+
+    impl::move_construct_range(other.begin(), other.size(), base::end());
+
+    base::size_ += other.size();
+
+    return Ok(Void{});
   }
 };
 

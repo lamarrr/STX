@@ -178,3 +178,13 @@ TEST(VecTest, Copy) {
     EXPECT_EQ(x[1], vec[1]);
   }
 }
+
+TEST(VecTest, Extend) {
+  stx::Vec<int> a{stx::os_allocator};
+  a.extend({}).unwrap();
+  a.extend_move({}).unwrap();
+
+  stx::FixedVec<int> b{stx::os_allocator};
+  b.extend({}).unwrap();
+  b.extend_move({}).unwrap();
+}
