@@ -140,7 +140,7 @@ if(${STX_BUILD_TESTS})
   if(STX_TESTS_SOURCE_FILES_LIST)
     add_executable(stx_tests ${STX_TESTS_SOURCE_FILES_LIST})
     target_include_directories(stx_tests PRIVATE tests)
-    target_link_libraries(stx_tests GTest::gtest GTest::gtest_main stx::stx)
+    target_link_libraries(stx_tests GTest::GTest GTest::Main stx::stx)
   endif()
 endif()
 
