@@ -269,7 +269,7 @@
 #define STX_FORCE_INLINE __attribute__((always_inline)) inline
 #else
 #if STX_CFG(COMPILER, MSVC)
-#define STX_FORCE_INLINE __forceinline inline
+#define STX_FORCE_INLINE __forceinline
 #else
 #if STX_CFG(COMPILER, NVCC)
 #define STX_FORCE_INLINE __forceinline__ inline
