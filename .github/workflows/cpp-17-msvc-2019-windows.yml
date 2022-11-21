@@ -19,12 +19,14 @@ jobs:
 
       - name: Configure Build Directory
         run: mkdir build
+        
+# We presently only test that it compiles
 
       - name: Initialize CMake
-        run: cd build && cmake .. -DSTX_BUILD_TESTS=ON -Dgtest_force_shared_crt=ON
+        run: cd build && cmake .. -DSTX_BUILD_TESTS=OFF -Dgtest_force_shared_crt=ON
 
       - name: CMake Build
         run: cmake --build build --config ${{matrix.build_mode}}
 
-      - name: Run Tests
-        run: build/${{matrix.build_mode}}/stx_tests
+#      - name: Run Tests
+#        run: build/${{matrix.build_mode}}/stx_tests
