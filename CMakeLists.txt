@@ -21,14 +21,6 @@ include(add_project_library)
 
 # ===============================================
 #
-# === Dependencies
-#
-# ===============================================
-find_package(GTest REQUIRED)
-find_package(absl REQUIRED)
-
-# ===============================================
-#
 # === Configuration Options
 #
 # ===============================================
@@ -48,6 +40,17 @@ message(STATUS "[STX] Build tests: " ${STX_BUILD_TESTS})
 message(STATUS "[STX] Build documentation: " ${STX_BUILD_DOCS}) # not working
                                                                 # yet
 message(STATUS "[STX] Override panic handler: " ${STX_CUSTOM_PANIC_HANDLER})
+
+# ===============================================
+#
+# === Dependencies
+#
+# ===============================================
+if(${STX_BUILD_TESTS})
+  find_package(GTest REQUIRED)
+endif()
+
+find_package(absl REQUIRED)
 
 # ===============================================
 #
