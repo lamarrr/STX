@@ -38,7 +38,7 @@ inline void panic_default(std::string_view info, std::string_view error_report,
                           SourceLocation location) {
   // probably too much, but enough
   // this will at least hold a formatted uint128_t (40 digits)
-  constexpr int const FMT_BUFFER_SIZE = 64;
+  static constexpr int const FMT_BUFFER_SIZE = 64;
 
 #if !defined(STX_NO_STD_THREAD)
 
@@ -116,12 +116,10 @@ inline void panic_default(std::string_view info, std::string_view error_report,
       stderr);
 
   int frames = backtrace::trace(
-      stx::fn::make_static([FMT_BUFFER_SIZE](backtrace::Frame frame, int i) {
-        auto const print_none = [FMT_BUFFER_SIZE]() {
-          std::fputs("unknown", stderr);
-        };
+      stx::fn::make_static([](backtrace::Frame frame, int i) {
+        auto const print_none = []() { std::fputs("unknown", stderr); };
 
-        auto const print_ptr = [FMT_BUFFER_SIZE](uintptr_t ip) {
+        auto const print_ptr = [](uintptr_t ip) {
           STX_PANIC_EPRINTF(FMT_BUFFER_SIZE, "0x%" PRIxPTR, ip);
         };
 
