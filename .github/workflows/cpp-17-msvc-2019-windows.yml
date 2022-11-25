@@ -16,6 +16,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      
+      - name: Fetch Absl
+        run: git clone https://github.com/abseil/abseil-cpp.git -b 20220623.1 && cd abseil-cpp && mkdir build && cd build && cmake .. && cmake --build . --target install
+        
 
       - name: Configure Build Directory
         run: mkdir build
