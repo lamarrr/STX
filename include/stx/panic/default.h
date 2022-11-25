@@ -117,9 +117,11 @@ inline void panic_default(std::string_view info, std::string_view error_report,
 
   int frames = backtrace::trace(
       stx::fn::make_static([FMT_BUFFER_SIZE](backtrace::Frame frame, int i) {
-        auto const print_none = []() { std::fputs("unknown", stderr); };
+        auto const print_none = [FMT_BUFFER_SIZE]() {
+          std::fputs("unknown", stderr);
+        };
 
-        auto const print_ptr = [](uintptr_t ip) {
+        auto const print_ptr = [FMT_BUFFER_SIZE](uintptr_t ip) {
           STX_PANIC_EPRINTF(FMT_BUFFER_SIZE, "0x%" PRIxPTR, ip);
         };
 
