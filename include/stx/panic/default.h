@@ -116,7 +116,7 @@ inline void panic_default(std::string_view info, std::string_view error_report,
       stderr);
 
   int frames = backtrace::trace(
-      stx::fn::make_static([](backtrace::Frame frame, int i) {
+      stx::fn::make_static([FMT_BUFFER_SIZE](backtrace::Frame frame, int i) {
         auto const print_none = []() { std::fputs("unknown", stderr); };
 
         auto const print_ptr = [](uintptr_t ip) {
