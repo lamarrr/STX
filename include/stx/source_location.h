@@ -30,25 +30,29 @@ STX_BEGIN_NAMESPACE
 ///
 struct [[nodiscard]] SourceLocation {
   static constexpr SourceLocation current(
-#if STX_HAS_BUILTIN(FILE)
+#if STX_HAS_BUILTIN(FILE) || \
+    (STX_CFG(COMPILER, MSVC) && __cpp_lib_source_location >= 201907L)
       char const* file = __builtin_FILE(),
 #else
       char const* file = "unknown",
 #endif
 
-#if STX_HAS_BUILTIN(FUNCTION)
+#if STX_HAS_BUILTIN(FUNCTION) || \
+    (STX_CFG(COMPILER, MSVC) && __cpp_lib_source_location >= 201907L)
       char const* func = __builtin_FUNCTION(),
 #else
       char const* func = "unknown",
 #endif
 
-#if STX_HAS_BUILTIN(LINE)
+#if STX_HAS_BUILTIN(LINE) || \
+    (STX_CFG(COMPILER, MSVC) && __cpp_lib_source_location >= 201907L)
       uint_least32_t line = __builtin_LINE(),
 #else
       uint_least32_t line = 0,
 #endif
 
-#if STX_HAS_BUILTIN(COLUMN)
+#if STX_HAS_BUILTIN(COLUMN) || \
+    (STX_CFG(COMPILER, MSVC) && __cpp_lib_source_location >= 201907L)
       uint_least32_t column = __builtin_COLUMN()
 #else
       uint_least32_t column = 0
