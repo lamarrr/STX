@@ -163,9 +163,8 @@ struct Span {
   constexpr Span(std::array<U, Length>&& array) = delete;
 
   template <typename Container,
-            std::enable_if_t<impl::is_container<Container&> &&
-                                 impl::is_compatible_container<Container&, T>,
-                             int> = 0>
+            STX_ENABLE_IF(impl::is_container<Container&>&&
+                              impl::is_compatible_container<Container&, T>)>
   constexpr Span(Container& container) noexcept
       : iterator_{static_cast<Iterator>(std::data(container))},
         size_{std::size(container)} {}
