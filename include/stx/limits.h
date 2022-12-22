@@ -28,6 +28,11 @@ constexpr auto i32_max = std::numeric_limits<int32_t>::max();
 constexpr auto i64_min = std::numeric_limits<int64_t>::min();
 constexpr auto i64_max = std::numeric_limits<int64_t>::max();
 
+constexpr auto f32_min = std::numeric_limits<float>::min();
+constexpr auto f32_max = std::numeric_limits<float>::max();
+constexpr auto f64_min = std::numeric_limits<double>::min();
+constexpr auto f64_max = std::numeric_limits<double>::max();
+
 constexpr auto f32_epsilon = std::numeric_limits<float>::epsilon();
 constexpr auto f64_epsilon = std::numeric_limits<double>::epsilon();
 
