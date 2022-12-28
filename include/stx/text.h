@@ -7,7 +7,7 @@
 STX_BEGIN_NAMESPACE
 
 /// a utf-8 text iterator
-uint32_t utf8_next(uint8_t*& iter) {
+constexpr uint32_t utf8_next(uint8_t const*& iter) {
   if ((*iter & 0xF8) == 0xF0) {
     uint32_t c1 = *iter;
     iter++;
@@ -37,6 +37,10 @@ uint32_t utf8_next(uint8_t*& iter) {
     iter++;
     return c1;
   }
+}
+
+constexpr uint32_t utf8_next(char const*& iter) {
+  return utf8_next(reinterpret_cast<uint8_t const*&>(iter));
 }
 
 STX_END_NAMESPACE
