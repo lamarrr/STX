@@ -10,8 +10,12 @@ STX_BEGIN_NAMESPACE
 struct TextIterator {
   uint8_t const* iter = nullptr;
 
-  TextIterator(char const* str) : iter{reinterpret_cast<uint8_t*>(str)} {}
-  TextIterator(std::string_view str) : TextIterator{str.data()} {}
+  constexpr TextIterator(uint8_t const* str) : iter{str} {}
+
+  constexpr TextIterator(char const* str)
+      : iter{reinterpret_cast<uint8_t*>(str)} {}
+
+  constexpr TextIterator(std::string_view str) : TextIterator{str.data()} {}
 
   uint32_t next() {
     if ((*iter & 0xF8) == 0xF0) {
@@ -54,12 +58,28 @@ constexpr bool operator!=(TextIterator const& a, uint8_t const* b) {
   return a.iter != b;
 }
 
+constexpr bool operator==(TextIterator const& a, char const* b) {
+  return a.iter == reinterpret_cast<uint8_t*>(b);
+}
+
+constexpr bool operator!=(TextIterator const& a, char const* b) {
+  return a.iter != reinterpret_cast<uint8_t*>(b);
+}
+
 constexpr bool operator==(uint8_t const* a, TextIterator const& b) {
   return a == b.iter;
 }
 
 constexpr bool operator!=(uint8_t const* a, TextIterator const& b) {
   return a != b.iter;
+}
+
+constexpr bool operator==(char const* a, TextIterator const& b) {
+  return reinterpret_cast<uint8_t*>(a) == b.iter;
+}
+
+constexpr bool operator!=(char const* a, TextIterator const& b) {
+  return reinterpret_cast<uint8_t*>(a) != b.iter;
 }
 
 constexpr bool operator==(TextIterator const& a, TextIterator const& b) {
