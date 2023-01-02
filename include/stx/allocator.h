@@ -119,7 +119,7 @@ struct OsAllocatorHandle final : public AllocatorHandle {
       return RawAllocError::None;
     }
 
-    memory_handle mem = malloc(size);
+    memory_handle mem = std::malloc(size);
     if (mem == nullptr) {
       return RawAllocError::NoMemory;
     } else {
