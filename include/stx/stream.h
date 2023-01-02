@@ -4,9 +4,9 @@
 #include <utility>
 
 #include "stx/allocator.h"
+#include "stx/memory.h"
 #include "stx/async.h"
 #include "stx/manager.h"
-#include "stx/mem.h"
 #include "stx/option.h"
 #include "stx/rc.h"
 #include "stx/spinlock.h"

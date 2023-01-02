@@ -5,7 +5,7 @@
 #include <utility>
 
 #include "stx/config.h"
-#include "stx/mem.h"
+#include "stx/rc.h"
 
 STX_BEGIN_NAMESPACE
 

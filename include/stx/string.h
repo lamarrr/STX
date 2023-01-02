@@ -9,9 +9,9 @@
 
 #include "stx/allocator.h"
 #include "stx/config.h"
-#include "stx/mem.h"
 #include "stx/option.h"
 #include "stx/rc.h"
+#include "stx/memory.h"
 #include "stx/span.h"
 
 STX_BEGIN_NAMESPACE

@@ -30,7 +30,7 @@ option(
   STX_CUSTOM_PANIC_HANDLER
   "Override the default panic behaviour by implementing a custom panic handler. The default behavior is to print the panic report and abort the program. (You can read the docs for more details)"
   OFF)
-
+option(STX_ENABLE_BACKTRACE "Enable stack backtraces" OFF)
 # ===============================================
 #
 # === Configuration Options Logging
@@ -50,7 +50,9 @@ if(${STX_BUILD_TESTS})
   find_package(GTest REQUIRED)
 endif()
 
-find_package(absl REQUIRED)
+if(${STX_ENABLE_BACKTRACE})
+  find_package(absl REQUIRED)
+endif()
 
 # ===============================================
 #
@@ -104,7 +106,11 @@ file(GLOB STX_SOURCE_FILES_LIST src/*.cc)
 
 add_library(stx STATIC ${STX_SOURCE_FILES_LIST})
 add_library(stx::stx ALIAS stx)
-target_link_libraries(stx absl::stacktrace absl::symbolize)
+
+if(${STX_ENABLE_BACKTRACE})
+  target_link_libraries(stx absl::stacktrace absl::symbolize)
+  target_compile_definitions(stx PRIVATE "STX_ENABLE_BACKTRACE")
+endif()
 
 set_target_properties(stx PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
 

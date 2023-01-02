@@ -15,8 +15,10 @@
 #include <cstdint>
 #include <cstdio>
 
+#if defined(STX_ENABLE_BACKTRACE)
 #include "absl/debugging/stacktrace.h"
 #include "absl/debugging/symbolize.h"
+#endif
 
 STX_BEGIN_NAMESPACE
 
@@ -34,7 +36,7 @@ std::string_view backtrace::Symbol::raw() const {
 
 int backtrace::trace(Fn<bool(Frame, int)> callback, int skip_count) {
   // TODO(lamarrr): get stack pointer in a portable and well-defined way
-
+#if defined(STX_ENABLE_BACKTRACE)
   void* ips[MAX_STACK_FRAME_DEPTH];
   uintptr_t sps[MAX_STACK_FRAME_DEPTH];
   int sizes[MAX_STACK_FRAME_DEPTH];
@@ -62,6 +64,11 @@ int backtrace::trace(Fn<bool(Frame, int)> callback, int skip_count) {
     if (callback(std::move(frame), depth - i)) break;
   }
   return depth;
+#else
+  (void)callback;
+  (void)skip_count;
+  return 0;
+#endif
 }
 
 STX_END_NAMESPACE

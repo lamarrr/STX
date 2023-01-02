@@ -5,11 +5,13 @@
 
 #include "stx/allocator.h"
 #include "stx/config.h"
+#include "stx/memory.h"
 #include "stx/result.h"
 #include "stx/span.h"
 #include "stx/struct.h"
 #include "stx/try_ok.h"
 #include "stx/void.h"
+
 
 STX_BEGIN_NAMESPACE
 

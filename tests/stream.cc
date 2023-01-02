@@ -1,8 +1,10 @@
 #include "stx/stream.h"
 
 #include "gtest/gtest.h"
-#include "stx/mem.h"
+#include "stx/allocator.h"
+#include "stx/memory.h"
 #include "stx/rc.h"
+
 
 struct object_stats {
   uint64_t n_construct = 0;

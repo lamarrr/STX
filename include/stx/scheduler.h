@@ -12,7 +12,7 @@
 #include "stx/async.h"
 #include "stx/config.h"
 #include "stx/fn.h"
-#include "stx/mem.h"
+#include "stx/rc.h"
 #include "stx/option.h"
 #include "stx/scheduler/thread_pool.h"
 #include "stx/scheduler/thread_slot.h"

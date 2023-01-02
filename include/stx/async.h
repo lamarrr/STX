@@ -10,7 +10,7 @@
 #include "stx/config.h"
 #include "stx/enum.h"
 #include "stx/limits.h"
-#include "stx/mem.h"
+#include "stx/rc.h"
 #include "stx/panic/report.h"
 #include "stx/result.h"
 #include "stx/spinlock.h"
