@@ -62,11 +62,11 @@ constexpr bool is_resource_handle_type =
 ///
 template <typename HandleType>
 struct Rc {
-  static_assert(is_resource_handle_type<HandleType>);
-
   using handle_type = HandleType;
 
-  constexpr Rc(HandleType ihandle, Manager imanager)
+  static_assert(is_resource_handle_type<handle_type>);
+
+  constexpr Rc(handle_type ihandle, Manager imanager)
       : handle{std::move(ihandle)}, manager{std::move(imanager)} {}
 
   constexpr Rc(Rc&& other)
@@ -82,17 +82,55 @@ struct Rc {
   }
 
   Rc(Rc const& other) = delete;
+
   Rc& operator=(Rc const& other) = delete;
+
+  ~Rc() { manager.unref(); }
 
   Rc share() const {
     manager.ref();
 
-    return Rc{HandleType{handle}, Manager{manager}};
+    return Rc{handle_type{handle}, Manager{manager}};
   }
+
+  handle_type handle;
+  Manager manager;
+};
+
+template <typename Object>
+struct Rc<Object*> {
+  using handle_type = Object*;
+
+  constexpr Rc(handle_type ihandle, Manager imanager)
+      : handle{std::move(ihandle)}, manager{std::move(imanager)} {}
+
+  constexpr Rc(Rc&& other)
+      : handle{std::move(other.handle)}, manager{std::move(other.manager)} {
+    other.manager = manager_stub;
+  }
+
+  constexpr Rc& operator=(Rc&& other) {
+    std::swap(handle, other.handle);
+    std::swap(manager, other.manager);
+
+    return *this;
+  }
+
+  Rc(Rc const& other) = delete;
+
+  Rc& operator=(Rc const& other) = delete;
 
   ~Rc() { manager.unref(); }
 
-  HandleType handle;
+  Rc share() const {
+    manager.ref();
+
+    return Rc{handle_type{handle}, Manager{manager}};
+  }
+
+  constexpr handle_type operator->() const { return handle; }
+
+  handle_type handle;
   Manager manager;
 };
 
@@ -107,9 +145,11 @@ struct Rc {
 //
 template <typename HandleType>
 struct Unique {
-  static_assert(is_resource_handle_type<HandleType>);
+  using handle_type = HandleType;
 
-  constexpr Unique(HandleType ihandle, Manager imanager)
+  static_assert(is_resource_handle_type<handle_type>);
+
+  constexpr Unique(handle_type ihandle, Manager imanager)
       : handle{std::move(ihandle)}, manager{std::move(imanager)} {}
 
   constexpr Unique(Unique&& other)
@@ -129,7 +169,40 @@ struct Unique {
 
   ~Unique() { manager.unref(); }
 
-  HandleType handle;
+  handle_type handle;
+  Manager manager;
+};
+
+template <typename Object>
+struct Unique<Object*> {
+  using handle_type = Object*;
+
+  static_assert(is_resource_handle_type<handle_type>);
+
+  constexpr Unique(handle_type ihandle, Manager imanager)
+      : handle{std::move(ihandle)}, manager{std::move(imanager)} {}
+
+  constexpr Unique(Unique&& other)
+      : handle{std::move(other.handle)}, manager{std::move(other.manager)} {
+    other.manager = manager_stub;
+  }
+
+  constexpr Unique& operator=(Unique&& other) {
+    std::swap(handle, other.handle);
+    std::swap(manager, other.manager);
+
+    return *this;
+  }
+
+  Unique(Unique const& other) = delete;
+
+  Unique& operator=(Unique const& other) = delete;
+
+  ~Unique() { manager.unref(); }
+
+  constexpr handle_type operator->() const { return handle; }
+
+  handle_type handle;
   Manager manager;
 };
 

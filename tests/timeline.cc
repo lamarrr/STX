@@ -168,27 +168,27 @@ TEST(Timeline, Sample) {
                                    make_promise<void>(os_allocator).unwrap())
           .unwrap()};
 
-  EXPECT_TRUE(slot[0].handle->slot.query().can_push);
-  EXPECT_TRUE(slot[1].handle->slot.query().can_push);
-  EXPECT_TRUE(slot[2].handle->slot.query().can_push);
-  EXPECT_TRUE(slot[3].handle->slot.query().can_push);
+  EXPECT_TRUE(slot[0]->slot.query().can_push);
+  EXPECT_TRUE(slot[1]->slot.query().can_push);
+  EXPECT_TRUE(slot[2]->slot.query().can_push);
+  EXPECT_TRUE(slot[3]->slot.query().can_push);
 
   timeline.tick(Span{slot}.slice(0, 2), std::chrono::steady_clock::now());
 
-  EXPECT_FALSE(slot[0].handle->slot.query().can_push);
-  EXPECT_FALSE(slot[1].handle->slot.query().can_push);
-  EXPECT_TRUE(slot[2].handle->slot.query().can_push);
-  EXPECT_TRUE(slot[3].handle->slot.query().can_push);
+  EXPECT_FALSE(slot[0]->slot.query().can_push);
+  EXPECT_FALSE(slot[1]->slot.query().can_push);
+  EXPECT_TRUE(slot[2]->slot.query().can_push);
+  EXPECT_TRUE(slot[3]->slot.query().can_push);
 
-  EXPECT_FALSE(slot[0].handle->slot.query().executing_task.is_some());
-  EXPECT_FALSE(slot[1].handle->slot.query().executing_task.is_some());
-  EXPECT_FALSE(slot[2].handle->slot.query().executing_task.is_some());
-  EXPECT_FALSE(slot[3].handle->slot.query().executing_task.is_some());
+  EXPECT_FALSE(slot[0]->slot.query().executing_task.is_some());
+  EXPECT_FALSE(slot[1]->slot.query().executing_task.is_some());
+  EXPECT_FALSE(slot[2]->slot.query().executing_task.is_some());
+  EXPECT_FALSE(slot[3]->slot.query().executing_task.is_some());
 
-  EXPECT_TRUE(slot[0].handle->slot.query().pending_task.is_some());
-  EXPECT_TRUE(slot[1].handle->slot.query().pending_task.is_some());
-  EXPECT_FALSE(slot[2].handle->slot.query().pending_task.is_some());
-  EXPECT_FALSE(slot[3].handle->slot.query().pending_task.is_some());
+  EXPECT_TRUE(slot[0]->slot.query().pending_task.is_some());
+  EXPECT_TRUE(slot[1]->slot.query().pending_task.is_some());
+  EXPECT_FALSE(slot[2]->slot.query().pending_task.is_some());
+  EXPECT_FALSE(slot[3]->slot.query().pending_task.is_some());
 
   EXPECT_TRUE(timeline.starvation_timeline.span().is_sorted(
       [](ScheduleTimeline::Task const &a, ScheduleTimeline::Task const &b) {
