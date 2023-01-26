@@ -12,7 +12,6 @@
 #include "stx/try_ok.h"
 #include "stx/void.h"
 
-
 STX_BEGIN_NAMESPACE
 
 // there is not enough memory for the insertion operation
@@ -328,6 +327,16 @@ struct Vec : public VecBase<T> {
 
     return Ok(Void{});
   }
+
+  Option<T> pop() {
+    if (base::size_ == 0) return None;
+
+    T last = std::move(*(base::begin() + base::size_ - 1));
+
+    resize(base::size_ - 1).unwrap();
+
+    return Some(std::move(last));
+  }
 };
 
 // a fixed capacity vec
@@ -381,7 +390,7 @@ struct FixedVec : public VecBase<T> {
       }
     } else if (target_size < previous_size) {
       T* destruct_begin = base::begin() + target_size;
-      destruct_range(destruct_begin, previous_size - target_size);
+      impl::destruct_range(destruct_begin, previous_size - target_size);
     } else {
       // equal
     }
@@ -423,6 +432,16 @@ struct FixedVec : public VecBase<T> {
     base::size_ += other.size();
 
     return Ok(Void{});
+  }
+
+  Option<T> pop() {
+    if (base::size_ == 0) return None;
+
+    T last = std::move(*(base::begin() + base::size_ - 1));
+
+    resize(base::size_ - 1).unwrap();
+
+    return Some(std::move(last));
   }
 };
 

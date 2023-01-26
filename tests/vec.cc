@@ -189,8 +189,39 @@ TEST(VecTest, Extend) {
   b.extend_move({}).unwrap();
 }
 
-TEST(VecTest, Last) {
-  int data[] = {1, 2, 3, 4, 5};
-  EXPECT_EQ(*stx::Span{data}.last().unwrap(), 5);
-  EXPECT_EQ(stx::Span<int>{}.last(), stx::None);
+TEST(VecTest, Pop) {
+  {
+    int data[] = {1, 2, 3, 4, 5};
+    stx::Vec<int> a{stx::os_allocator};
+    a.extend(data).unwrap();
+
+    EXPECT_EQ(a.pop(), stx::Some(5));
+    EXPECT_EQ(a.pop(), stx::Some(4));
+    EXPECT_EQ(a.pop(), stx::Some(3));
+    EXPECT_EQ(a.pop(), stx::Some(2));
+    EXPECT_EQ(a.pop(), stx::Some(1));
+    EXPECT_EQ(a.pop(), stx::None);
+
+    stx::Vec<int> b{stx::os_allocator};
+
+    EXPECT_EQ(b.pop(), stx::None);
+  }
+
+  {
+    int data[] = {1, 2, 3, 4, 5};
+    stx::FixedVec<int> a =
+        stx::vec::make_fixed<int>(stx::os_allocator, 5).unwrap();
+    a.extend(data).unwrap();
+
+    EXPECT_EQ(a.pop(), stx::Some(5));
+    EXPECT_EQ(a.pop(), stx::Some(4));
+    EXPECT_EQ(a.pop(), stx::Some(3));
+    EXPECT_EQ(a.pop(), stx::Some(2));
+    EXPECT_EQ(a.pop(), stx::Some(1));
+    EXPECT_EQ(a.pop(), stx::None);
+
+    stx::FixedVec<int> b{stx::os_allocator};
+
+    EXPECT_EQ(b.pop(), stx::None);
+  }
 }

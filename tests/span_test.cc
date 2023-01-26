@@ -191,3 +191,9 @@ TEST(SpanTest, Algorithms) {
     EXPECT_EQ(d.size(), 4);
   }
 }
+
+TEST(SpanTest, Last) {
+  int data[] = {1, 2, 3, 4, 5};
+  EXPECT_EQ(*stx::Span{data}.last().unwrap(), 5);
+  EXPECT_EQ(stx::Span<int>{}.last(), stx::None);
+}
