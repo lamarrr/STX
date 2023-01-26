@@ -213,6 +213,11 @@ struct Span {
     return Span<T>{iterator_ + offset, length_to_slice};
   }
 
+  Option<T*> last() const {
+    if (size_ == 0) return None;
+    return Some(iterator_ + size_ - 1);
+  }
+
   template <typename Predicate>
   constexpr bool is_any(Predicate&& predicate) const {
     static_assert(std::is_invocable_v<Predicate, T&>);

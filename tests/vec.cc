@@ -188,3 +188,9 @@ TEST(VecTest, Extend) {
   b.extend({}).unwrap();
   b.extend_move({}).unwrap();
 }
+
+TEST(VecTest, Last) {
+  int data[] = {1, 2, 3, 4, 5};
+  EXPECT_EQ(*stx::Span{data}.last().unwrap(), 5);
+  EXPECT_EQ(stx::Span<int>{}.last(), stx::None);
+}
