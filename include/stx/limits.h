@@ -28,6 +28,12 @@ constexpr auto i32_max = std::numeric_limits<int32_t>::max();
 constexpr auto i64_min = std::numeric_limits<int64_t>::min();
 constexpr auto i64_max = std::numeric_limits<int64_t>::max();
 
+constexpr auto u_min = std::numeric_limits<unsigned int>::min();
+constexpr auto u_max = std::numeric_limits<unsigned int>::max();
+
+constexpr auto i_min = std::numeric_limits<int>::min();
+constexpr auto i_max = std::numeric_limits<int>::max();
+
 constexpr auto f32_min = std::numeric_limits<float>::min();
 constexpr auto f32_max = std::numeric_limits<float>::max();
 constexpr auto f64_min = std::numeric_limits<double>::min();
