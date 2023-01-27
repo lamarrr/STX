@@ -33,20 +33,26 @@ struct [[nodiscard]] SourceLocation {
 #if STX_HAS_BUILTIN(FILE) || (defined(__cpp_lib_source_location) && \
                               __cpp_lib_source_location >= 201907L)
       char const* file = __builtin_FILE(),
+#elif defined(__FILE__)
+      char const* file = __FILE__,
 #else
       char const* file = "unknown",
 #endif
 
 #if STX_HAS_BUILTIN(FUNCTION) || (defined(__cpp_lib_source_location) && \
                                   __cpp_lib_source_location >= 201907L)
-      char const* func = __builtin_FUNCTION(),
+      char const* function = __builtin_FUNCTION(),
+#elif defined(__FUNCTION__)
+      char const* function = __FUNCTION__,
 #else
-      char const* func = "unknown",
+      char const* function = "unknown",
 #endif
 
 #if STX_HAS_BUILTIN(LINE) || (defined(__cpp_lib_source_location) && \
                               __cpp_lib_source_location >= 201907L)
       uint_least32_t line = __builtin_LINE(),
+#elif defined(__LINE__)
+      uint_least32_t line = __LINE__,
 #else
       uint_least32_t line = 0,
 #endif
@@ -62,11 +68,11 @@ struct [[nodiscard]] SourceLocation {
     loc.line_ = line;
     loc.column_ = column;
     loc.file_ = file;
-    loc.func_ = func;
+    loc.function_ = function;
     return loc;
   }
 
-  constexpr SourceLocation() : line_{0}, column_{0}, file_{""}, func_{""} {}
+  constexpr SourceLocation() : line_{0}, column_{0}, file_{""}, function_{""} {}
 
   /// return the column number represented by this object
   constexpr uint_least32_t column() const { return column_; }
@@ -78,13 +84,13 @@ struct [[nodiscard]] SourceLocation {
   constexpr char const* file_name() const { return file_; }
 
   /// return the name of the function represented by this object, if any
-  constexpr char const* function_name() const { return func_; }
+  constexpr char const* function_name() const { return function_; }
 
  private:
   uint_least32_t line_;
   uint_least32_t column_;
   char const* file_;
-  char const* func_;
+  char const* function_;
 };
 
 STX_END_NAMESPACE
