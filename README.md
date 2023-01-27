@@ -40,7 +40,6 @@ STX is a collection of libraries and utilities designed to make working with C++
 * Backtrace library
 * Source Location
 * Panic with backtraces
-* Signal backtraces ( `SIGSEGV` , `SIGILL` , and `SIGFPE` )
 * Portable, suitable, and easily-adoptable for embedded systems, real-time systems, safety-critical systems, and operating systems
 * Easy debugging
 * Easy to use and hard to misuse API
