@@ -24,34 +24,34 @@ STX is a collection of libraries and utilities designed to make working with C++
 </h3>
 </div>
 
-## Libraries
-
-* [Panicking](https://lamarrr.github.io/STX/Panicking.html)
-* [ `Result<T, E>` ](https://lamarrr.github.io/STX/structstx_1_1Result.html) (with constexpr in C++20)
-* [ `Option<T>` ](https://lamarrr.github.io/STX/structstx_1_1Option.html) (with constexpr in C++20)
-* [Backtracing](https://lamarrr.github.io/STX/namespacestx_1_1backtrace.html)
-
 ## Features
 
-* Efficient `Result<T, E>` (error-handling) and `Option<T>` (optional-value) implementation with monadic methods
-* Unignorable error-types
+* Experimental async library, runtime, and scheduler
+* C-API-compatible functor object `Fn<Return(Args...)>`
+* Memory allocators
+* Resource reference-counting `Rc<Handle>`
+* `Span<T>` with helper methods that eliminates use of iterator-pairs
+* `Vec<T>` with trivial relocation (faster than `std::vector<T>`)
+* Efficient `Result<T, Err>` (error-handling) and with monadic methods
+* Efficient `Option<T>` (optional-value handling) with monadic methods
+* UTF-8 string iterator method
 * Fail-fast (Abandonment/ Fatal failure) via `panic` s
 * Runtime panic hooks
-* Panic backtraces
-* Signal backtraces ( `SIGSEGV` , `SIGILL` , and `SIGFPE` )
 * Backtrace library
+* Source Location
+* Panic with backtraces
+* Signal backtraces ( `SIGSEGV` , `SIGILL` , and `SIGFPE` )
 * Portable, suitable, and easily-adoptable for embedded systems, real-time systems, safety-critical systems, and operating systems
 * Easy debugging
 * Easy to use and hard to misuse API
 * Exception-free, RTTI-free, and memory allocation free ( `no-std` )
 * Space and time deterministic error-handling
 * Deterministic value lifetimes
-* Eliminates repitive code and abstractable error-handling logic code via monadic extensions
+* Eliminates repetitive code and abstractable error-handling logic code via monadic extensions
 * Fast success and error return paths
 * Modern and clean API
 * Well-documented
 * Extensively tested
-* Functions using only `Result` and `Option` for error and optional value handling are callable from C code as they are unions.
 
 ## Basic Examples
 
@@ -229,5 +229,5 @@ float result = safe_divide(n, d).value(); // this won't compile as 'value' alway
 
 ## FAQ
 
-Is STX's ABI stable?
+### Is STX's ABI stable?
 NO
