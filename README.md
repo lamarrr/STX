@@ -212,21 +212,6 @@ float result = safe_divide(n, d).value(); // this won't compile as 'value' alway
 
 * All methods of `Result` and `Option` pass r-value/l-value references to their invocable parameters.
 
-## [Benchmarks](benchmarks)
-
-### Release Mode ( `-O3` )
-
-| Target                | Real Time | CPU Time | Iterations |
-| --------------------- | --------- | -------- | ---------- |
-| Variant/SuccessPath   | 0.392 ns  | 0.392 ns | 1000000000 |
-| Exception/SuccessPath | 0.386 ns  | 0.386 ns | 1000000000 |
-| Result/SuccessPath    | 0.381 ns  | 0.381 ns | 1000000000 |
-| C-Style/SuccessPath   | 0.387 ns  | 0.386 ns | 1000000000 |
-| Variant/FailurePath   | 0.408 ns  | 0.408 ns | 1000000000 |
-| Exception/FailurePath | 2129 ns   | 2129 ns  | 317810     |
-| Result/FailurePath    | 0.384 ns  | 0.384 ns | 1000000000 |
-| C-Style/FailurePath   | 0.384 ns  | 0.383 ns | 1000000000 |
-
 ## Build Requirements
 
 * CMake
@@ -245,3 +230,4 @@ float result = safe_divide(n, d).value(); // this won't compile as 'value' alway
 ## FAQ
 
 Is STX's ABI stable?
+NO
