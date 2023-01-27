@@ -42,8 +42,6 @@ struct [[nodiscard]] SourceLocation {
 #if STX_HAS_BUILTIN(FUNCTION) || (defined(__cpp_lib_source_location) && \
                                   __cpp_lib_source_location >= 201907L)
       char const* function = __builtin_FUNCTION(),
-#elif defined(__FUNCTION__)
-      char const* function = __FUNCTION__,
 #else
       char const* function = "unknown",
 #endif
