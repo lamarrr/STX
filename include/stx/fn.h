@@ -170,7 +170,7 @@ template <typename T, typename Stub = void>
 struct is_functor_impl : public std::false_type {};
 
 template <typename T>
-struct is_functor_impl<T, decltype(&T::operator(), (void)0)>
+struct is_functor_impl<T, decltype((void)0)>
     : public std::true_type {};
 
 template <typename T>

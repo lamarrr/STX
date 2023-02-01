@@ -667,7 +667,7 @@ struct [[nodiscard]] Option : impl::check_value_type<T>,
     if (is_some()) {
       Some some = std::move(some_);
       storage::assign(None);
-      return std::move(some);
+      return some;
     } else {
       return None;
     }

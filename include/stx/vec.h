@@ -20,8 +20,7 @@ enum class VecError : uint8_t { OutOfMemory };
 namespace impl {
 template <typename T>
 constexpr void destruct_range(T* start, size_t size) {
-  if constexpr (std::is_trivially_destructible_v<T>) {
-  } else {
+  if constexpr (!std::is_trivially_destructible_v<T>) {
     for (T& element : Span<T>{start, size}) {
       element.~T();
     }
