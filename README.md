@@ -1,12 +1,10 @@
-<img src="https://github.com/lamarrr/STX/workflows/cpp-17:clang-14:macos-12/badge.svg"> <img src="https://github.com/lamarrr/STX/workflows/cpp-17:clang-14:ubuntu-22.04/badge.svg"> <img src="https://github.com/lamarrr/STX/workflows/cpp-17:gcc-12:ubuntu-22.04/badge.svg"> <img src="https://github.com/lamarrr/STX/workflows/cpp-17:msvc-2019:windows/badge.svg"> 
-
+<img src="https://github.com/lamarrr/STX/workflows/cpp-17:clang-14:macos-12/badge.svg"> <img src="https://github.com/lamarrr/STX/workflows/cpp-17:clang-14:ubuntu-22.04/badge.svg"> <img src="https://github.com/lamarrr/STX/workflows/cpp-17:gcc-12:ubuntu-22.04/badge.svg"> <img src="https://github.com/lamarrr/STX/workflows/cpp-17:msvc-2019:windows/badge.svg">
 
 <br/>
 <div align="center"><img src="assets/stx.png"/> </div>
 
 <div align="center"><i> C++ 17 & C++ 20 error-handling and utility extensions.</i>
 </div>
-
 
 ## Overview
 
@@ -116,7 +114,7 @@ int main() {
 
 ```
 
-### Propagating Errors with `TRY_OK` 
+### Propagating Errors with `TRY_OK`
 
 `TRY_OK` assigns the successful value to its first parameter `version` if `parse_version` returned an `Ok` , else propagates the error value.
 
@@ -219,14 +217,12 @@ float result = safe_divide(n, d).value(); // this won't compile as 'value' alway
 * Git
 * Doxygen and Graphviz (for documentation)
 
-
 ## License
 
 [**MIT License**](LICENSE)
 
-
-
 ## FAQ
 
 ### Is STX's ABI stable?
+
 NO
