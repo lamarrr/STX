@@ -125,11 +125,6 @@ endif()
 # === Install
 #
 # ===============================================
-# install(TARGETS ${INSTALL_TARGETS} EXPORT ${targets_export_name} LIBRARY
-# DESTINATION ${FMT_LIB_DIR} ARCHIVE DESTINATION ${FMT_LIB_DIR} PUBLIC_HEADER
-# DESTINATION "${FMT_INC_DIR}/fmt" FRAMEWORK DESTINATION "." RUNTIME DESTINATION
-# ${CMAKE_INSTALL_BINDIR})
-
 install(TARGETS stx LIBRARY DESTINATION lib)
 install(DIRECTORY include/stx DESTINATION include)
 
