@@ -127,6 +127,7 @@ endif()
 # ===============================================
 install(TARGETS stx LIBRARY DESTINATION lib)
 install(DIRECTORY include/stx DESTINATION include)
+install(EXPORT stx DESTINATION lib/cmake)
 
 # ===============================================
 #
