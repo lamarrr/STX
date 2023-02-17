@@ -91,7 +91,6 @@ int main(){
 "
   LIBSTX_HAS_STD_THREAD)
 
-# TODO(lamarrr): fix up. replace mutex usage with spinlock
 if(NOT LIBSTX_HAS_STD_THREAD)
   list(APPEND STX_COMPILER_DEFS "STX_NO_STD_THREAD")
 endif()
