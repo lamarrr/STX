@@ -219,7 +219,7 @@ struct Span {
   }
 
   template <typename U>
-  constexpr bool is_equals(stx::Span<U const> other) const {
+  constexpr bool equals(stx::Span<U const> other) const {
     if (size_ != other.size_) return false;
 
     for (size_t i = 0; i < size_; i++) {
