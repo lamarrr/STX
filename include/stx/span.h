@@ -218,6 +218,17 @@ struct Span {
     return Some(iterator_ + size_ - 1);
   }
 
+  template <typename U>
+  constexpr bool is_equals(stx::Span<U const> other) const {
+    if (size_ != other.size_) return false;
+
+    for (size_t i = 0; i < size_; i++) {
+      if (iterator_[i] != other.iterator_[i]) return false;
+    }
+
+    return true;
+  }
+
   template <typename Predicate>
   constexpr bool is_any(Predicate&& predicate) const {
     static_assert(std::is_invocable_v<Predicate, T&>);
