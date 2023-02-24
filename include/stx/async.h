@@ -195,7 +195,7 @@ enum class FutureStatus : uint8_t {
   ///
   Completed,
   // reserved
-  ____Pending = u8_max
+  ____Pending = U8_MAX
 };
 
 enum class InfoFutureStatus : uint8_t {

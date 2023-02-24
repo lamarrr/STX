@@ -390,7 +390,7 @@ struct [[nodiscard]] SmpRingBuffer {
 
   template <typename... Args>
   Result<T *, RingBufferError> manager____push_inplace(Args &&...args) {
-    uint64_t selected = u64_max;
+    uint64_t selected = U64_MAX;
 
     STX_WITH_LOCK(lock, {
       if (num_available == 0) break;
@@ -401,7 +401,7 @@ struct [[nodiscard]] SmpRingBuffer {
       num_available--;
     });
 
-    if (selected == u64_max) return Err(RingBufferError::NoMemory);
+    if (selected == U64_MAX) return Err(RingBufferError::NoMemory);
 
     // construct at the allocated memory
     T *placement = new (memory[selected]) T{std::forward<Args>(args)...};

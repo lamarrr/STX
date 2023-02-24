@@ -8,38 +8,41 @@
 
 STX_BEGIN_NAMESPACE
 
-constexpr auto u8_min = std::numeric_limits<uint8_t>::min();
-constexpr auto u8_max = std::numeric_limits<uint8_t>::max();
-constexpr auto u16_min = std::numeric_limits<uint16_t>::min();
-constexpr auto u16_max = std::numeric_limits<uint16_t>::max();
-constexpr auto u32_min = std::numeric_limits<uint32_t>::min();
-constexpr auto u32_max = std::numeric_limits<uint32_t>::max();
-constexpr auto u64_min = std::numeric_limits<uint64_t>::min();
-constexpr auto u64_max = std::numeric_limits<uint64_t>::max();
-constexpr auto usize_min = std::numeric_limits<size_t>::min();
-constexpr auto usize_max = std::numeric_limits<size_t>::max();
+constexpr auto U8_MIN = std::numeric_limits<uint8_t>::min();
+constexpr auto U8_MAX = std::numeric_limits<uint8_t>::max();
+constexpr auto U16_MIN = std::numeric_limits<uint16_t>::min();
+constexpr auto U16_MAX = std::numeric_limits<uint16_t>::max();
+constexpr auto U32_MIN = std::numeric_limits<uint32_t>::min();
+constexpr auto U32_MAX = std::numeric_limits<uint32_t>::max();
+constexpr auto U64_MIN = std::numeric_limits<uint64_t>::min();
+constexpr auto U64_MAX = std::numeric_limits<uint64_t>::max();
+constexpr auto USIZE_MIN = std::numeric_limits<size_t>::min();
+constexpr auto USIZE_MAX = std::numeric_limits<size_t>::max();
 
-constexpr auto i8_min = std::numeric_limits<int8_t>::min();
-constexpr auto i8_max = std::numeric_limits<int8_t>::max();
-constexpr auto i16_min = std::numeric_limits<int16_t>::min();
-constexpr auto i16_max = std::numeric_limits<int16_t>::max();
-constexpr auto i32_min = std::numeric_limits<int32_t>::min();
-constexpr auto i32_max = std::numeric_limits<int32_t>::max();
-constexpr auto i64_min = std::numeric_limits<int64_t>::min();
-constexpr auto i64_max = std::numeric_limits<int64_t>::max();
+constexpr auto I8_MIN = std::numeric_limits<int8_t>::min();
+constexpr auto I8_MAX = std::numeric_limits<int8_t>::max();
+constexpr auto I16_MIN = std::numeric_limits<int16_t>::min();
+constexpr auto I16_MAX = std::numeric_limits<int16_t>::max();
+constexpr auto I32_MIN = std::numeric_limits<int32_t>::min();
+constexpr auto I32_MAX = std::numeric_limits<int32_t>::max();
+constexpr auto I64_MIN = std::numeric_limits<int64_t>::min();
+constexpr auto I64_MAX = std::numeric_limits<int64_t>::max();
 
-constexpr auto u_min = std::numeric_limits<unsigned int>::min();
-constexpr auto u_max = std::numeric_limits<unsigned int>::max();
+constexpr auto U_MIN = std::numeric_limits<unsigned int>::min();
+constexpr auto U_MAX = std::numeric_limits<unsigned int>::max();
 
-constexpr auto i_min = std::numeric_limits<int>::min();
-constexpr auto i_max = std::numeric_limits<int>::max();
+constexpr auto I_MIN = std::numeric_limits<int>::min();
+constexpr auto I_MAX = std::numeric_limits<int>::max();
 
-constexpr auto f32_min = std::numeric_limits<float>::min();
-constexpr auto f32_max = std::numeric_limits<float>::max();
-constexpr auto f64_min = std::numeric_limits<double>::min();
-constexpr auto f64_max = std::numeric_limits<double>::max();
+constexpr auto F32_MIN_POSITIVE = std::numeric_limits<float>::min();
+constexpr auto F32_MIN = -std::numeric_limits<float>::max();
+constexpr auto F32_MAX = std::numeric_limits<float>::max();
 
-constexpr auto f32_epsilon = std::numeric_limits<float>::epsilon();
-constexpr auto f64_epsilon = std::numeric_limits<double>::epsilon();
+constexpr auto F64_MIN_POSITIVE = std::numeric_limits<double>::min();
+constexpr auto F64_MIN = -std::numeric_limits<double>::max();
+constexpr auto F64_MAX = std::numeric_limits<double>::max();
+
+constexpr auto F32_EPSILON = std::numeric_limits<float>::epsilon();
+constexpr auto F64_EPSILON = std::numeric_limits<double>::epsilon();
 
 STX_END_NAMESPACE

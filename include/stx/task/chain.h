@@ -180,7 +180,7 @@ template <typename Fn, typename... OtherFns>
 struct Chain : impl::check_chain_valid<Void, Fn, OtherFns...> {
   static constexpr uint8_t num_phases = (1 + sizeof...(OtherFns));
 
-  static_assert(num_phases <= (u8_max - 2), "maximum depth of chain is 253");
+  static_assert(num_phases <= (U8_MAX - 2), "maximum depth of chain is 253");
 
   using phases_type = ChainPhase<0, Void, Fn, OtherFns...>;
   using stack_type = impl::chain_stack_variant<Void, Fn, OtherFns...>;
