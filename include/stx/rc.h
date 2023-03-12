@@ -27,7 +27,7 @@ STX_BEGIN_NAMESPACE
 ///
 template <typename T>
 constexpr bool is_resource_handle_type =
-    std::is_move_constructible_v<T>&& std::is_move_assignable_v<T>;
+    std::is_move_constructible_v<T> && std::is_move_assignable_v<T>;
 
 /// Rc - reference-counted resource
 ///
@@ -100,6 +100,7 @@ struct Rc {
 template <typename Object>
 struct Rc<Object*> {
   using handle_type = Object*;
+  using object_type = Object;
 
   constexpr Rc(handle_type ihandle, Manager imanager)
       : handle{std::move(ihandle)}, manager{std::move(imanager)} {}
@@ -129,6 +130,8 @@ struct Rc<Object*> {
   }
 
   constexpr handle_type operator->() const { return handle; }
+
+  constexpr object_type& operator*() const { return *handle; }
 
   handle_type handle;
   Manager manager;
@@ -176,6 +179,7 @@ struct Unique {
 template <typename Object>
 struct Unique<Object*> {
   using handle_type = Object*;
+  using object_type = Object;
 
   static_assert(is_resource_handle_type<handle_type>);
 
@@ -201,6 +205,8 @@ struct Unique<Object*> {
   ~Unique() { manager.unref(); }
 
   constexpr handle_type operator->() const { return handle; }
+
+  constexpr object_type& operator*() const { return *handle; }
 
   handle_type handle;
   Manager manager;
