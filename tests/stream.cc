@@ -1,52 +1,63 @@
 #include "stx/stream.h"
 
-#include "gtest/gtest.h"
 #include "stx/allocator.h"
 #include "stx/memory.h"
 #include "stx/rc.h"
+#include "gtest/gtest.h"
 
-
-struct object_stats {
+struct object_stats
+{
   uint64_t n_construct = 0;
-  uint64_t n_destroy = 0;
+  uint64_t n_destroy   = 0;
 };
 
-struct ObjectMock {
-  ObjectMock() {
+struct ObjectMock
+{
+  ObjectMock()
+  {
     id = make_id();
     stats().n_construct++;
   }
 
-  ObjectMock(ObjectMock const &) {
+  ObjectMock(ObjectMock const &)
+  {
     id = make_id();
     stats().n_construct++;
   }
 
-  ObjectMock(ObjectMock &&other) {
+  ObjectMock(ObjectMock &&other)
+  {
     id = other.id;
     stats().n_construct++;
   }
 
-  ObjectMock &operator=(ObjectMock const &) {
+  ObjectMock &operator=(ObjectMock const &)
+  {
     id = make_id();
     return *this;
   }
 
-  ObjectMock &operator=(ObjectMock &&other) {
+  ObjectMock &operator=(ObjectMock &&other)
+  {
     id = other.id;
     return *this;
   }
 
-  ~ObjectMock() { stats().n_destroy++; }
+  ~ObjectMock()
+  {
+    stats().n_destroy++;
+  }
 
-  static object_stats &stats() {
+  static object_stats &stats()
+  {
     static object_stats stats_data;
     return stats_data;
   }
 
-  static int64_t make_id() {
+  static int64_t make_id()
+  {
     static int64_t next_id = 0;
-    int64_t id = next_id;
+    int64_t        id      = next_id;
     next_id++;
     return id;
   }
@@ -54,7 +65,8 @@ struct ObjectMock {
   int64_t id;
 };
 
-TEST(StreamTest, Basic) {
+TEST(StreamTest, Basic)
+{
   using namespace stx;
   // heap allocated so we can also test for use-after-free and double-free, we
   // could instrument the code to check this but we use ASAN and UB-SAN.
@@ -134,10 +146,13 @@ TEST(StreamTest, Basic) {
   }
 }
 
-TEST(StreamRingMemoryTest, Basic) {
+TEST(StreamRingMemoryTest, Basic)
+{
   using namespace stx;
 
-  { auto generator = make_memory_backed_generator<int>(os_allocator, 200); }
+  {
+    auto generator = make_memory_backed_generator<int>(os_allocator, 200);
+  }
   {
     auto generator_state =
         stx::rc::make_inplace<stx::StreamState<int>>(os_allocator).unwrap();
@@ -183,7 +198,8 @@ TEST(StreamRingMemoryTest, Basic) {
   buffer->manager____pop();
 }
 
-TEST(StreamRingMemoryTest, ObjectMockTest) {
+TEST(StreamRingMemoryTest, ObjectMockTest)
+{
   using namespace stx;
 
   auto smp_ring_buffer =
@@ -196,23 +212,27 @@ TEST(StreamRingMemoryTest, ObjectMockTest) {
 
   // add more than the actual number of elements so we can tell if the C++
   // object model is respected
-  for (size_t i = 0; i < 69; i++) {
+  for (size_t i = 0; i < 69; i++)
+  {
     EXPECT_TRUE(buffer.manager____push_inplace().is_ok());
   }
 
-  for (size_t i = 0; i < 200; i++) {
+  for (size_t i = 0; i < 200; i++)
+  {
     EXPECT_FALSE(buffer.manager____push_inplace().is_ok());
   }
 
   // pop all the actually added elements
-  for (size_t i = 0; i < 69; i++) {
+  for (size_t i = 0; i < 69; i++)
+  {
     buffer.manager____pop();
   }
 
   EXPECT_EQ(ObjectMock::stats().n_construct, ObjectMock::stats().n_destroy);
 }
 
-TEST(STream, x) {
+TEST(STream, x)
+{
   using namespace stx;
 
   Stream<int> stream{rc::make_inplace<StreamState<int>>(os_allocator).unwrap()};
@@ -226,10 +246,11 @@ TEST(STream, x) {
   EXPECT_EQ(stream.pop(), Err(StreamError::Closed));
 }
 
-TEST(Stream, MemoryBackedGenerator) {
+TEST(Stream, MemoryBackedGenerator)
+{
   using namespace stx;
 
-  auto generator = make_memory_backed_generator<int>(os_allocator, 4).unwrap();
+  auto   generator = make_memory_backed_generator<int>(os_allocator, 4).unwrap();
   Stream stream{generator.generator.state.share()};
 
   EXPECT_FALSE(generator.is_closed());

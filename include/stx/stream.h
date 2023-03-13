@@ -4,18 +4,25 @@
 #include <utility>
 
 #include "stx/allocator.h"
-#include "stx/memory.h"
 #include "stx/async.h"
 #include "stx/manager.h"
+#include "stx/memory.h"
 #include "stx/option.h"
 #include "stx/rc.h"
 #include "stx/spinlock.h"
 
 STX_BEGIN_NAMESPACE
 
-enum class YieldAllocError : uint8_t { MemoryFull };
+enum class YieldAllocError : uint8_t
+{
+  MemoryFull
+};
 
-enum class StreamError : uint8_t { Pending, Closed };
+enum class StreamError : uint8_t
+{
+  Pending,
+  Closed
+};
 
 //
 // # Design Problems
@@ -70,14 +77,16 @@ struct [[nodiscard]] StreamChunk;
 // the pipeline, ideally nanoseconds. i.e. copy, move, map.
 //
 template <typename T>
-struct [[nodiscard]] StreamChunk {
+struct [[nodiscard]] StreamChunk
+{
   // pinned since this is just for placing the object on the address of this
   // chunk.
   STX_MAKE_PINNED(StreamChunk)
 
   template <typename... Args>
-  explicit StreamChunk(Manager imanager, Args &&...iargs)
-      : manager{imanager}, data{std::forward<Args>(iargs)...} {}
+  explicit StreamChunk(Manager imanager, Args &&...iargs) :
+      manager{imanager}, data{std::forward<Args>(iargs)...}
+  {}
 
   // used for sorting ordered and sequential streams.
   // used for getting data from the streams using indices.
@@ -199,7 +208,8 @@ struct [[nodiscard]] StreamChunk {
 //
 //
 template <typename T>
-struct [[nodiscard]] StreamState {
+struct [[nodiscard]] StreamState
+{
   static_assert(!std::is_void_v<T>);
   static_assert(std::is_move_constructible_v<T>);
 
@@ -207,9 +217,9 @@ struct [[nodiscard]] StreamState {
 
   StreamState() = default;
 
-  SpinLock lock;
-  bool closed = false;
-  StreamChunk<T> *pop_it = nullptr;
+  SpinLock        lock;
+  bool            closed     = false;
+  StreamChunk<T> *pop_it     = nullptr;
   StreamChunk<T> *yield_last = nullptr;
 
   // yield is O(1)
@@ -226,11 +236,13 @@ struct [[nodiscard]] StreamState {
   // if any executor yields before the close request is serviced, they will
   // still be able to yield to the stream.
   //
-  void generator____yield(StreamChunk<T> *chunk_handle, bool should_close) {
+  void generator____yield(StreamChunk<T> *chunk_handle, bool should_close)
+  {
     bool was_added = false;
 
     STX_WITH_LOCK(lock, {
-      if (closed) {
+      if (closed)
+      {
         was_added = false;
         break;
       }
@@ -239,29 +251,35 @@ struct [[nodiscard]] StreamState {
       // pop_it == nullptr?: popping has caught up to yielding and released
       // all the previous handles. so, no handle is valid now.
       //
-      if (yield_last == nullptr || pop_it == nullptr) {
+      if (yield_last == nullptr || pop_it == nullptr)
+      {
         yield_last = chunk_handle;
-      } else {
+      }
+      else
+      {
         yield_last->next = chunk_handle;
-        yield_last = chunk_handle;
+        yield_last       = chunk_handle;
       }
 
       // popping has previously caught up with yielding, we need to update
       // the popping iterator (to notify that new data has been added)
-      if (pop_it == nullptr) {
+      if (pop_it == nullptr)
+      {
         pop_it = yield_last;
       }
 
-      closed = should_close;
+      closed    = should_close;
       was_added = true;
     });
 
-    if (!was_added) {
+    if (!was_added)
+    {
       chunk_handle->manager.unref();
     }
   }
 
-  void generator____close() {
+  void generator____close()
+  {
     STX_WITH_LOCK(lock, {
       //
       closed = true;
@@ -269,7 +287,8 @@ struct [[nodiscard]] StreamState {
   }
 
   // NOTE that it might still have items in the stream
-  bool stream____is_closed() {
+  bool stream____is_closed()
+  {
     STX_WITH_LOCK(lock, {
       //
       return closed;
@@ -280,24 +299,32 @@ struct [[nodiscard]] StreamState {
   // contention is O(1) and not proportional to the contained object nor
   // management of the chunks.
   //
-  Result<T, StreamError> stream____pop() {
+  Result<T, StreamError> stream____pop()
+  {
     StreamChunk<T> *chunk = nullptr;
 
     STX_WITH_LOCK(lock, {
-      if (pop_it == nullptr) break;
+      if (pop_it == nullptr)
+        break;
 
       chunk = pop_it;
 
       pop_it = pop_it->next;
     });
 
-    if (chunk == nullptr) {
-      if (closed) {
+    if (chunk == nullptr)
+    {
+      if (closed)
+      {
         return Err(StreamError::Closed);
-      } else {
+      }
+      else
+      {
         return Err(StreamError::Pending);
       }
-    } else {
+    }
+    else
+    {
       T item{std::move(chunk->data)};
 
       // release the chunk
@@ -307,14 +334,16 @@ struct [[nodiscard]] StreamState {
     }
   }
 
- private:
+private:
   // we unref the entries in a bottom-up order (inwards-outwards).
   // NOTE: we don't begin unref-ing the entries until we reach the end of
   // the chunks. since the the top-most element refers to the next one,
   // otherwise we'd risk a use-after-unref (use-after-free).
   //
-  void unref_pass(StreamChunk<T> *chunk_handle) const {
-    if (chunk_handle != nullptr) {
+  void unref_pass(StreamChunk<T> *chunk_handle) const
+  {
+    if (chunk_handle != nullptr)
+    {
       unref_pass(chunk_handle->next);
 
       // release the chunk
@@ -322,56 +351,75 @@ struct [[nodiscard]] StreamState {
     }
   }
 
-  void unref_items() const { unref_pass(pop_it); }
+  void unref_items() const
+  {
+    unref_pass(pop_it);
+  }
 
- public:
+public:
   // guaranteed to not happen along or before the operations possible on the
   // streams.
-  ~StreamState() { unref_items(); }
+  ~StreamState()
+  {
+    unref_items();
+  }
 };
 
 template <typename T>
-struct [[nodiscard]] BufferMemory {
+struct [[nodiscard]] BufferMemory
+{
   STX_DISABLE_COPY(BufferMemory)
 
-  BufferMemory(Memory imemory, uint64_t icapacity)
-      : memory{std::move(imemory)}, capacity{icapacity} {}
+  BufferMemory(Memory imemory, uint64_t icapacity) :
+      memory{std::move(imemory)}, capacity{icapacity}
+  {}
 
-  BufferMemory() : memory{Memory{noop_allocator, nullptr}}, capacity{0} {}
+  BufferMemory() :
+      memory{Memory{noop_allocator, nullptr}}, capacity{0}
+  {}
 
-  BufferMemory(BufferMemory &&other)
-      : memory{std::move(other.memory)}, capacity{other.capacity} {
-    other.memory.handle = nullptr;
+  BufferMemory(BufferMemory &&other) :
+      memory{std::move(other.memory)}, capacity{other.capacity}
+  {
+    other.memory.handle    = nullptr;
     other.memory.allocator = noop_allocator;
-    other.capacity = 0;
+    other.capacity         = 0;
   }
 
-  BufferMemory &operator=(BufferMemory &&other) {
+  BufferMemory &operator=(BufferMemory &&other)
+  {
     std::swap(memory, other.memory);
     std::swap(capacity, other.capacity);
 
     return *this;
   }
 
-  T *operator[](uint64_t index) const {
+  T *operator[](uint64_t index) const
+  {
     return static_cast<T *>(memory.handle) + index;
   }
 
-  Memory memory;
+  Memory   memory;
   uint64_t capacity;
 };
 
-enum class [[nodiscard]] RingBufferError : uint8_t{None = 0, NoMemory};
+enum class [[nodiscard]] RingBufferError : uint8_t
+{
+  None = 0,
+  NoMemory
+};
 
 // A ring buffer for objects that accounts for the C++ object model
 template <typename T>
-struct [[nodiscard]] SmpRingBuffer {
+struct [[nodiscard]] SmpRingBuffer
+{
   STX_MAKE_PINNED(SmpRingBuffer)
 
-  explicit SmpRingBuffer(BufferMemory<T> imemory)
-      : memory{std::move(imemory)}, num_available{memory.capacity} {}
+  explicit SmpRingBuffer(BufferMemory<T> imemory) :
+      memory{std::move(imemory)}, num_available{memory.capacity}
+  {}
 
-  SpinLock lock;
+  SpinLock        lock;
   BufferMemory<T> memory;
   //
   // meta data for tracking allocations and destruction is carefully selected
@@ -389,11 +437,13 @@ struct [[nodiscard]] SmpRingBuffer {
   uint64_t next_destruct_index = 0;
 
   template <typename... Args>
-  Result<T *, RingBufferError> manager____push_inplace(Args &&...args) {
+  Result<T *, RingBufferError> manager____push_inplace(Args &&...args)
+  {
     uint64_t selected = U64_MAX;
 
     STX_WITH_LOCK(lock, {
-      if (num_available == 0) break;
+      if (num_available == 0)
+        break;
 
       selected = available_start;
 
@@ -401,7 +451,8 @@ struct [[nodiscard]] SmpRingBuffer {
       num_available--;
     });
 
-    if (selected == U64_MAX) return Err(RingBufferError::NoMemory);
+    if (selected == U64_MAX)
+      return Err(RingBufferError::NoMemory);
 
     // construct at the allocated memory
     T *placement = new (memory[selected]) T{std::forward<Args>(args)...};
@@ -409,11 +460,13 @@ struct [[nodiscard]] SmpRingBuffer {
     return Ok(static_cast<T *>(placement));
   }
 
-  Result<T *, RingBufferError> manager____push(T &&value) {
+  Result<T *, RingBufferError> manager____push(T &&value)
+  {
     return manager____push_inplace(std::move(value));
   }
 
-  void manager____pop() {
+  void manager____pop()
+  {
     uint64_t to_destroy = 0;
 
     STX_WITH_LOCK(lock, {
@@ -461,21 +514,28 @@ struct [[nodiscard]] SmpRingBuffer {
 // GeneratorRingBuffer
 //
 template <typename T>
-struct [[nodiscard]] SmpRingBufferManagerHandle final : public ManagerHandle {
+struct [[nodiscard]] SmpRingBufferManagerHandle final : public ManagerHandle
+{
   STX_MAKE_PINNED(SmpRingBufferManagerHandle)
 
-  explicit SmpRingBufferManagerHandle(BufferMemory<T> memory)
-      : buffer{std::move(memory)} {}
+  explicit SmpRingBufferManagerHandle(BufferMemory<T> memory) :
+      buffer{std::move(memory)}
+  {}
 
   SmpRingBuffer<T> buffer;
 
-  virtual void ref() override {}
-  virtual void unref() override { buffer.manager____pop(); }
+  virtual void ref() override
+  {}
+  virtual void unref() override
+  {
+    buffer.manager____pop();
+  }
 };
 
 template <typename T>
 Result<BufferMemory<T>, AllocError> make_fixed_buffer_memory(
-    Allocator allocator, uint64_t capacity) {
+    Allocator allocator, uint64_t capacity)
+{
   TRY_OK(memory, mem::allocate(allocator, capacity * sizeof(T)));
 
   return Ok(BufferMemory<T>{std::move(memory), capacity});
@@ -483,20 +543,25 @@ Result<BufferMemory<T>, AllocError> make_fixed_buffer_memory(
 
 template <typename T>
 Result<Unique<SmpRingBufferManagerHandle<T> *>, AllocError>
-make_managed_smp_ring_buffer(Allocator allocator, BufferMemory<T> memory) {
+    make_managed_smp_ring_buffer(Allocator allocator, BufferMemory<T> memory)
+{
   return rc::make_unique_inplace<SmpRingBufferManagerHandle<T>>(
       allocator, std::move(memory));
 }
 
 template <typename T>
-struct [[nodiscard]] Generator {
+struct [[nodiscard]] Generator
+{
   STX_DEFAULT_MOVE(Generator)
   STX_DISABLE_COPY(Generator)
 
-  explicit Generator(Rc<StreamState<T> *> istate) : state{std::move(istate)} {}
+  explicit Generator(Rc<StreamState<T> *> istate) :
+      state{std::move(istate)}
+  {}
 
   Result<Void, AllocError> yield(Allocator allocator, T &&value,
-                                 bool should_close = false) const {
+                                 bool should_close = false) const
+  {
     TRY_OK(memory,
            mem::allocate(
                allocator,
@@ -516,11 +581,18 @@ struct [[nodiscard]] Generator {
     return Ok(Void{});
   }
 
-  void close() const { state.handle->generator____close(); }
+  void close() const
+  {
+    state.handle->generator____close();
+  }
 
-  Generator fork() const { return Generator{state.share()}; }
+  Generator fork() const
+  {
+    return Generator{state.share()};
+  }
 
-  [[nodiscard]] bool is_closed() const {
+  [[nodiscard]] bool is_closed() const
+  {
     return state.handle->stream____is_closed();
   }
 
@@ -538,18 +610,21 @@ struct [[nodiscard]] Generator {
 // - zero allocation
 //
 template <typename T>
-struct [[nodiscard]] MemoryBackedGenerator {
+struct [[nodiscard]] MemoryBackedGenerator
+{
   STX_DEFAULT_MOVE(MemoryBackedGenerator)
   STX_DISABLE_COPY(MemoryBackedGenerator)
 
   explicit MemoryBackedGenerator(
-      Generator<T> igenerator,
-      Unique<SmpRingBufferManagerHandle<StreamChunk<T>> *> iring_buffer_manager)
-      : generator{std::move(igenerator)},
-        ring_buffer_manager{std::move(iring_buffer_manager)} {}
+      Generator<T>                                         igenerator,
+      Unique<SmpRingBufferManagerHandle<StreamChunk<T>> *> iring_buffer_manager) :
+      generator{std::move(igenerator)},
+      ring_buffer_manager{std::move(iring_buffer_manager)}
+  {}
 
-  Result<Void, RingBufferError> yield(T &&value,
-                                      bool should_close = false) const {
+  Result<Void, RingBufferError> yield(T  &&value,
+                                      bool should_close = false) const
+  {
     Manager manager{*ring_buffer_manager.handle};
 
     TRY_OK(placement,
@@ -561,11 +636,20 @@ struct [[nodiscard]] MemoryBackedGenerator {
     return Ok(Void{});
   }
 
-  [[nodiscard]] bool is_closed() const { return generator.is_closed(); }
+  [[nodiscard]] bool is_closed() const
+  {
+    return generator.is_closed();
+  }
 
-  void close() const { generator.close(); }
+  void close() const
+  {
+    generator.close();
+  }
 
-  Generator<T> fork() const { return generator.fork(); }
+  Generator<T> fork() const
+  {
+    return generator.fork();
+  }
 
   Generator<T> generator;
 
@@ -581,7 +665,8 @@ struct [[nodiscard]] MemoryBackedGenerator {
 
 template <typename T>
 Result<MemoryBackedGenerator<T>, AllocError> make_memory_backed_generator(
-    Allocator allocator, BufferMemory<StreamChunk<T>> buffer_memory) {
+    Allocator allocator, BufferMemory<StreamChunk<T>> buffer_memory)
+{
   TRY_OK(generator_state, rc::make_inplace<StreamState<T>>(allocator));
 
   TRY_OK(smp_ring_buffer_manager, make_managed_smp_ring_buffer<StreamChunk<T>>(
@@ -593,7 +678,8 @@ Result<MemoryBackedGenerator<T>, AllocError> make_memory_backed_generator(
 
 template <typename T>
 Result<MemoryBackedGenerator<T>, AllocError> make_memory_backed_generator(
-    Allocator allocator, uint64_t capacity) {
+    Allocator allocator, uint64_t capacity)
+{
   TRY_OK(buffer_memory,
          make_fixed_buffer_memory<StreamChunk<T>>(allocator, capacity));
 
@@ -602,33 +688,48 @@ Result<MemoryBackedGenerator<T>, AllocError> make_memory_backed_generator(
 
 // TODO(lamarrr): only have generator.get_stream as the way to make a stream
 template <typename T>
-struct [[nodiscard]] Stream {
+struct [[nodiscard]] Stream
+{
   STX_DEFAULT_MOVE(Stream)
   STX_DISABLE_COPY(Stream)
 
-  explicit Stream(Rc<StreamState<T> *> istate) : state{std::move(istate)} {}
+  explicit Stream(Rc<StreamState<T> *> istate) :
+      state{std::move(istate)}
+  {}
 
-  Result<T, StreamError> pop() const { return state.handle->stream____pop(); }
+  Result<T, StreamError> pop() const
+  {
+    return state.handle->stream____pop();
+  }
 
-  Stream fork() const { return Stream{state.share()}; }
+  Stream fork() const
+  {
+    return Stream{state.share()};
+  }
 
-  [[nodiscard]] bool is_closed() const {
+  [[nodiscard]] bool is_closed() const
+  {
     return state.handle->stream____is_closed();
   }
 
-  void close() const { return state.handle->generator____close(); }
+  void close() const
+  {
+    return state.handle->generator____close();
+  }
 
   Rc<StreamState<T> *> state;
 };
 
 template <typename T>
-Result<Generator<T>, AllocError> make_generator(Allocator allocator) {
+Result<Generator<T>, AllocError> make_generator(Allocator allocator)
+{
   TRY_OK(state, rc::make_inplace<StreamState<T>>(allocator));
   return Ok{Generator<T>{std::move(state)}};
 }
 
 template <typename T>
-Stream<T> make_stream(Generator<T> const &generator) {
+Stream<T> make_stream(Generator<T> const &generator)
+{
   return Stream<T>{generator.state.share()};
 }
 

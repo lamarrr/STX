@@ -20,10 +20,16 @@ using writable_memory_handle = void *;
 
 using static_str_handle = char const *;
 
-enum class [[nodiscard]] RawAllocError : uint8_t{None, NoMemory};
+enum class [[nodiscard]] RawAllocError : uint8_t
+{
+  None,
+  NoMemory
+};
 
-enum class [[nodiscard]] AllocError : uint8_t{
-    NoMemory = enum_uv(RawAllocError::NoMemory)};
+enum class [[nodiscard]] AllocError : uint8_t
+{
+  NoMemory = enum_uv(RawAllocError::NoMemory)
+};
 
 // a static allocator is always available for the lifetime of the program.
 //
@@ -34,7 +40,8 @@ enum class [[nodiscard]] AllocError : uint8_t{
 //
 // memory returned from the allocator can be read-only
 //
-struct AllocatorHandle {
+struct AllocatorHandle
+{
   // returns `AllocError::NoMemory` if allocation fails
   //
   // returns `nullptr` output if `size` is 0.
@@ -69,72 +76,93 @@ struct AllocatorHandle {
   virtual void deallocate(memory_handle mem) = 0;
 };
 
-struct NoopAllocatorHandle final : public AllocatorHandle {
-  virtual RawAllocError allocate(memory_handle &, size_t) override {
+struct NoopAllocatorHandle final : public AllocatorHandle
+{
+  virtual RawAllocError allocate(memory_handle &, size_t) override
+  {
     return RawAllocError::NoMemory;
   }
 
-  virtual RawAllocError reallocate(memory_handle &, size_t) override {
+  virtual RawAllocError reallocate(memory_handle &, size_t) override
+  {
     return RawAllocError::NoMemory;
   }
 
-  virtual void deallocate(memory_handle) override {
+  virtual void deallocate(memory_handle) override
+  {
     // no-op
   }
 };
 
-struct AllocatorStubHandle final : public AllocatorHandle {
-  virtual RawAllocError allocate(memory_handle &, size_t) override {
+struct AllocatorStubHandle final : public AllocatorHandle
+{
+  virtual RawAllocError allocate(memory_handle &, size_t) override
+  {
     return RawAllocError::NoMemory;
   }
 
-  virtual RawAllocError reallocate(memory_handle &, size_t) override {
+  virtual RawAllocError reallocate(memory_handle &, size_t) override
+  {
     return RawAllocError::NoMemory;
   }
 
-  virtual void deallocate(memory_handle) override {
+  virtual void deallocate(memory_handle) override
+  {
     // no-op
   }
 };
 
 // it has no memory once program is initialized
-struct StaticStorageAllocatorHandle final : public AllocatorHandle {
-  virtual RawAllocError allocate(memory_handle &, size_t) override {
+struct StaticStorageAllocatorHandle final : public AllocatorHandle
+{
+  virtual RawAllocError allocate(memory_handle &, size_t) override
+  {
     return RawAllocError::NoMemory;
   }
 
-  virtual RawAllocError reallocate(memory_handle &, size_t) override {
+  virtual RawAllocError reallocate(memory_handle &, size_t) override
+  {
     return RawAllocError::NoMemory;
   }
 
-  virtual void deallocate(memory_handle) override {
+  virtual void deallocate(memory_handle) override
+  {
     // no-op
   }
 };
 
-struct OsAllocatorHandle final : public AllocatorHandle {
-  virtual RawAllocError allocate(memory_handle &out_mem, size_t size) override {
-    if (size == 0) {
+struct OsAllocatorHandle final : public AllocatorHandle
+{
+  virtual RawAllocError allocate(memory_handle &out_mem, size_t size) override
+  {
+    if (size == 0)
+    {
       out_mem = nullptr;
       return RawAllocError::None;
     }
 
     memory_handle mem = std::malloc(size);
-    if (mem == nullptr) {
+    if (mem == nullptr)
+    {
       return RawAllocError::NoMemory;
-    } else {
+    }
+    else
+    {
       out_mem = mem;
       return RawAllocError::None;
     }
   }
 
   virtual RawAllocError reallocate(memory_handle &out_mem,
-                                   size_t new_size) override {
-    if (out_mem == nullptr) {
+                                   size_t         new_size) override
+  {
+    if (out_mem == nullptr)
+    {
       return allocate(out_mem, new_size);
     }
 
-    if (new_size == 0) {
+    if (new_size == 0)
+    {
       deallocate(out_mem);
       out_mem = nullptr;
       return RawAllocError::None;
@@ -142,39 +170,50 @@ struct OsAllocatorHandle final : public AllocatorHandle {
 
     memory_handle mem = std::realloc(out_mem, new_size);
 
-    if (mem == nullptr) {
+    if (mem == nullptr)
+    {
       return RawAllocError::NoMemory;
-    } else {
+    }
+    else
+    {
       out_mem = mem;
       return RawAllocError::None;
     }
   }
 
-  virtual void deallocate(memory_handle mem) override { free(mem); }
+  virtual void deallocate(memory_handle mem) override
+  {
+    free(mem);
+  }
 };
 
 constexpr const inline NoopAllocatorHandle noop_allocator_handle;
 constexpr const inline AllocatorStubHandle allocator_stub_handle;
 constexpr const inline StaticStorageAllocatorHandle
-    static_storage_allocator_handle;
+                                         static_storage_allocator_handle;
 constexpr const inline OsAllocatorHandle os_allocator_handle;
 
-struct Allocator {
-  explicit constexpr Allocator(AllocatorHandle &allocator_handle)
-      : handle{&allocator_handle} {}
+struct Allocator
+{
+  explicit constexpr Allocator(AllocatorHandle &allocator_handle) :
+      handle{&allocator_handle}
+  {}
 
-  constexpr Allocator(Allocator &&other) : handle{other.handle} {
+  constexpr Allocator(Allocator &&other) :
+      handle{other.handle}
+  {
     other.handle = const_cast<AllocatorStubHandle *>(&allocator_stub_handle);
   }
 
-  constexpr Allocator &operator=(Allocator &&other) {
+  constexpr Allocator &operator=(Allocator &&other)
+  {
     AllocatorHandle *tmp = other.handle;
-    other.handle = handle;
-    handle = tmp;
+    other.handle         = handle;
+    handle               = tmp;
     return *this;
   }
 
-  constexpr Allocator(Allocator const &) = default;
+  constexpr Allocator(Allocator const &)                 = default;
   constexpr Allocator &operator=(Allocator const &other) = default;
 
   AllocatorHandle *handle;

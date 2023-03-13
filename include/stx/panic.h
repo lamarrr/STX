@@ -34,7 +34,7 @@ void panic_handler(std::string_view info, std::string_view error_report,
 ///
 [[noreturn]] STX_DLL_EXPORT void begin_panic(std::string_view info,
                                              std::string_view error_report,
-                                             SourceLocation location);
+                                             SourceLocation   location);
 
 /// This allows a program to terminate immediately and provide feedback to the
 /// caller of the program. `panic` should be used when a program reaches an
@@ -45,8 +45,9 @@ void panic_handler(std::string_view info, std::string_view error_report,
 ///
 template <typename T>
 [[noreturn]] inline void panic(
-    std::string_view info, T const& value,
-    SourceLocation location = SourceLocation::current()) {
+    std::string_view info, T const &value,
+    SourceLocation location = SourceLocation::current())
+{
   char buffer[256];
   auto error_report = ReportQuery{buffer} >> value;
 
@@ -55,8 +56,9 @@ template <typename T>
 
 template <typename T = void>
 [[noreturn]] inline void panic(
-    std::string_view info = "explicit panic",
-    SourceLocation location = SourceLocation::current()) {
+    std::string_view info     = "explicit panic",
+    SourceLocation   location = SourceLocation::current())
+{
   begin_panic(info, std::string_view{}, location);
 }
 

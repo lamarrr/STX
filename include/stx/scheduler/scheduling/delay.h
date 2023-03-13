@@ -9,20 +9,22 @@ STX_BEGIN_NAMESPACE
 using namespace std::chrono_literals;
 using std::chrono::nanoseconds;
 
-namespace sched {
+namespace sched
+{
 
 template <typename Fn>
 auto delay(TaskScheduler &scheduler, Fn fn_task, TaskPriority priority,
-           TaskTraceInfo trace_info, nanoseconds delay) {
+           TaskTraceInfo trace_info, nanoseconds delay)
+{
   static_assert(std::is_invocable_v<Fn &>);
   using output = std::invoke_result_t<Fn &>;
 
-  auto timepoint = std::chrono::steady_clock::now();
+  auto   timepoint = std::chrono::steady_clock::now();
   TaskId task_id{scheduler.next_task_id};
   scheduler.next_task_id++;
 
-  Promise promise{make_promise<output>(scheduler.allocator).unwrap()};
-  Future future{promise.get_future()};
+  Promise    promise{make_promise<output>(scheduler.allocator).unwrap()};
+  Future     future{promise.get_future()};
   PromiseAny scheduler_promise{promise.share()};
 
   UniqueFn<TaskReady(nanoseconds)> readiness_fn =
@@ -35,27 +37,33 @@ auto delay(TaskScheduler &scheduler, Fn fn_task, TaskPriority priority,
       fn::rc::make_functor(scheduler.allocator, [fn_task_ = std::move(fn_task),
                                                  promise_ =
                                                      std::move(promise)]() {
-        if (promise_.fetch_cancel_request() == CancelState::Canceled) {
+        if (promise_.fetch_cancel_request() == CancelState::Canceled)
+        {
           promise_.notify_canceled();
           return;
         }
 
-        if (promise_.fetch_preempt_request() == PreemptState::Preempted) {
+        if (promise_.fetch_preempt_request() == PreemptState::Preempted)
+        {
           promise_.notify_preempted();
           return;
         }
 
-        if (promise_.fetch_suspend_request() == SuspendState::Suspended) {
+        if (promise_.fetch_suspend_request() == SuspendState::Suspended)
+        {
           promise_.notify_suspended();
           return;
         }
 
         promise_.notify_executing();
 
-        if constexpr (std::is_void_v<std::invoke_result_t<Fn &>>) {
+        if constexpr (std::is_void_v<std::invoke_result_t<Fn &>>)
+        {
           fn_task_();
           promise_.notify_completed();
-        } else {
+        }
+        else
+        {
           promise_.notify_completed(fn_task_());
         }
       }).unwrap();
@@ -69,6 +77,6 @@ auto delay(TaskScheduler &scheduler, Fn fn_task, TaskPriority priority,
   return future;
 }
 
-}  // namespace sched
+}        // namespace sched
 
 STX_END_NAMESPACE

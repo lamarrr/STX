@@ -3,13 +3,14 @@
 
 #include <iostream>
 
-#include "gtest/gtest.h"
 #include "stx/scheduler/scheduling/delay.h"
 #include "stx/scheduler/scheduling/schedule.h"
+#include "gtest/gtest.h"
 
 #define STX_LOG(...) std::cout << __VA_ARGS__ << std::endl
 
-TEST(SchedulerTest, Main) {
+TEST(SchedulerTest, Main)
+{
   using namespace stx;
 
   TaskScheduler scheduler{
@@ -24,7 +25,7 @@ TEST(SchedulerTest, Main) {
                             return 2;
                           },
                           [](int a) {
-                            (void)a;
+                            (void) a;
                             STX_LOG("second");
                             return stx::Void{};
                           }},

@@ -11,18 +11,19 @@
 
 #include "stx/backtrace.h"
 
-#include "gtest/gtest.h"
 #include "stx/option.h"
 #include "stx/panic.h"
+#include "gtest/gtest.h"
 
-using namespace stx;             // NOLINT
-using namespace stx::backtrace;  // NOLINT
+using namespace stx;                   // NOLINT
+using namespace stx::backtrace;        // NOLINT
 
-void fn_d() {
+void fn_d()
+{
   auto cb = stx::fn::make_static([](Frame frame, int) {
     frame.symbol.match(
         [](auto sym) {
-          auto const& s = sym.raw();
+          auto const &s = sym.raw();
           std::fwrite(s.data(), s.size(), 1, stdout);
         },
         []() { std::fputs("unknown symbol", stdout); });
@@ -39,10 +40,22 @@ void fn_d() {
   backtrace::trace(cb, 1);
 }
 
-void fn_c() { fn_d(); }
+void fn_c()
+{
+  fn_d();
+}
 
-void fn_b() { fn_c(); }
+void fn_b()
+{
+  fn_c();
+}
 
-void fn_a() { fn_b(); }
+void fn_a()
+{
+  fn_b();
+}
 
-TEST(BacktraceTest, Backtrace) { fn_a(); }
+TEST(BacktraceTest, Backtrace)
+{
+  fn_a();
+}

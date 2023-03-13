@@ -7,7 +7,8 @@
 
 using namespace stx;
 
-TEST(StrTest, Init) {
+TEST(StrTest, Init)
+{
   String str;
 
   String a = "hello"_str;

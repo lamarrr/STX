@@ -33,9 +33,10 @@
                 " ' evaluates to an l-value reference, 'TRY_SOME' only "     \
                 "accepts r-values "                                          \
                 "and r-value references ");                                  \
-  decltype((__VA_ARGS__))&& STX_ARG_UNIQUE_PLACEHOLDER = (__VA_ARGS__);      \
+  decltype((__VA_ARGS__)) &&STX_ARG_UNIQUE_PLACEHOLDER = (__VA_ARGS__);      \
                                                                              \
-  if (STX_ARG_UNIQUE_PLACEHOLDER.is_none()) {                                \
+  if (STX_ARG_UNIQUE_PLACEHOLDER.is_none())                                  \
+  {                                                                          \
     return ::stx::None;                                                      \
   }                                                                          \
                                                                              \

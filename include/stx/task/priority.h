@@ -14,7 +14,9 @@ STX_BEGIN_NAMESPACE
 ///
 /// these are just hints to the executors and they don't need to support or
 /// respond to them.
-enum class TaskPriority : uint8_t {};
+enum class TaskPriority : uint8_t
+{
+};
 
 constexpr TaskPriority NORMAL_PRIORITY{0};
 

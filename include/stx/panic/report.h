@@ -23,9 +23,11 @@ STX_BEGIN_NAMESPACE
 
 constexpr std::string_view REPORT_FORMAT_ERROR = "<format error>";
 
-struct ReportQuery {
-  struct Buffer {
-    char* data = nullptr;
+struct ReportQuery
+{
+  struct Buffer
+  {
+    char  *data = nullptr;
     size_t size = 0;
   };
 
@@ -33,8 +35,9 @@ struct ReportQuery {
 };
 
 template <typename T>
-[[nodiscard]] std::string_view operator>>(ReportQuery, T const& value) {
-  (void)value;
+[[nodiscard]] std::string_view operator>>(ReportQuery, T const &value)
+{
+  (void) value;
 
   return {};
 }
@@ -47,66 +50,79 @@ template <typename T>
   int fmt_size = std::snprintf(STX_ARG_BUFFER.data, STX_ARG_BUFFER.size, \
                                STX_ARG_FORMAT, STX_ARG_VALUE);           \
                                                                          \
-  if (fmt_size < 0) {                                                    \
+  if (fmt_size < 0)                                                      \
+  {                                                                      \
     return REPORT_FORMAT_ERROR;                                          \
-  } else {                                                               \
+  }                                                                      \
+  else                                                                   \
+  {                                                                      \
     return std::string_view{STX_ARG_BUFFER.data,                         \
                             static_cast<size_t>(fmt_size)};              \
   }
 
 template <typename T>
-[[nodiscard]] inline std::string_view operator>>(ReportQuery query,
-                                                 T const* const& ptr) {
+[[nodiscard]] inline std::string_view operator>>(ReportQuery     query,
+                                                 T const *const &ptr)
+{
   STX_INTERNAL_MAKE_REPORT_(query.buffer, "0x%" PRIxPTR,
                             reinterpret_cast<uintptr_t>(ptr));
 }
 
 template <typename T>
 [[nodiscard]] inline std::string_view operator>>(ReportQuery query,
-                                                 T* const& ptr) {
+                                                 T *const   &ptr)
+{
   STX_INTERNAL_MAKE_REPORT_(query.buffer, "0x%" PRIxPTR,
                             reinterpret_cast<uintptr_t>(ptr));
 }
 
-[[nodiscard]] inline std::string_view operator>>(ReportQuery query,
-                                                 int8_t const& value) {
+[[nodiscard]] inline std::string_view operator>>(ReportQuery   query,
+                                                 int8_t const &value)
+{
   STX_INTERNAL_MAKE_REPORT_(query.buffer, "%" PRIi8, value);
 }
 
-[[nodiscard]] inline std::string_view operator>>(ReportQuery query,
-                                                 uint8_t const& value) {
+[[nodiscard]] inline std::string_view operator>>(ReportQuery    query,
+                                                 uint8_t const &value)
+{
   STX_INTERNAL_MAKE_REPORT_(query.buffer, "%" PRIu8, value);
 }
 
-[[nodiscard]] inline std::string_view operator>>(ReportQuery query,
-                                                 int16_t const& value) {
+[[nodiscard]] inline std::string_view operator>>(ReportQuery    query,
+                                                 int16_t const &value)
+{
   STX_INTERNAL_MAKE_REPORT_(query.buffer, "%" PRIi16, value);
 }
 
-[[nodiscard]] inline std::string_view operator>>(ReportQuery query,
-                                                 uint16_t const& value) {
+[[nodiscard]] inline std::string_view operator>>(ReportQuery     query,
+                                                 uint16_t const &value)
+{
   STX_INTERNAL_MAKE_REPORT_(query.buffer, "%" PRIu16, value);
 }
 
-[[nodiscard]] inline std::string_view operator>>(ReportQuery query,
-                                                 int32_t const& value) {
+[[nodiscard]] inline std::string_view operator>>(ReportQuery    query,
+                                                 int32_t const &value)
+{
   STX_INTERNAL_MAKE_REPORT_(query.buffer, "%" PRIi32, value);
 }
 
-[[nodiscard]] inline std::string_view operator>>(ReportQuery query,
-                                                 uint32_t const& value) {
+[[nodiscard]] inline std::string_view operator>>(ReportQuery     query,
+                                                 uint32_t const &value)
+{
   STX_INTERNAL_MAKE_REPORT_(query.buffer, "%" PRIu32, value);
 }
 
 #undef STX_INTERNAL_MAKE_REPORT_
 
 [[nodiscard]] inline std::string_view operator>>(ReportQuery,
-                                                 std::string_view const& str) {
+                                                 std::string_view const &str)
+{
   return str;
 }
 
 [[nodiscard]] inline std::string_view operator>>(ReportQuery,
-                                                 std::string const& str) {
+                                                 std::string const &str)
+{
   return str;
 }
 

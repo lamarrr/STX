@@ -4,7 +4,8 @@
 
 STX_BEGIN_NAMESPACE
 
-struct Void {};
+struct Void
+{};
 
 constexpr Void void_tag{};
 

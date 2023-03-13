@@ -1,11 +1,11 @@
 #pragma once
 
-#define STX_DISABLE_COPY(target_type)        \
-  target_type(target_type const &) = delete; \
+#define STX_DISABLE_COPY(target_type)                   \
+  target_type(target_type const &)            = delete; \
   target_type &operator=(target_type const &) = delete;
 
-#define STX_DISABLE_MOVE(target_type)   \
-  target_type(target_type &&) = delete; \
+#define STX_DISABLE_MOVE(target_type)              \
+  target_type(target_type &&)            = delete; \
   target_type &operator=(target_type &&) = delete;
 
 #define STX_DISABLE_DEFAULT_CONSTRUCTOR(target_type) target_type() = delete;
@@ -14,12 +14,12 @@
 #define STX_DEFAULT_CONSTRUCTOR(target_type) target_type() = default;
 #define STX_DEFAULT_DESTRUCTOR(target_type) ~target_type() = default;
 
-#define STX_DEFAULT_COPY(target_type)         \
-  target_type(target_type const &) = default; \
+#define STX_DEFAULT_COPY(target_type)                    \
+  target_type(target_type const &)            = default; \
   target_type &operator=(target_type const &) = default;
 
-#define STX_DEFAULT_MOVE(target_type)    \
-  target_type(target_type &&) = default; \
+#define STX_DEFAULT_MOVE(target_type)               \
+  target_type(target_type &&)            = default; \
   target_type &operator=(target_type &&) = default;
 
 /// used for ensuring that the referred-to object remains pinned to its memory

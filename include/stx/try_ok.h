@@ -34,9 +34,10 @@
       "the expression: ' " #__VA_ARGS__                                       \
       " ' evaluates to an l-value reference, 'TRY_OK' only accepts r-values " \
       "and r-value references ");                                             \
-  decltype((__VA_ARGS__))&& STX_ARG_UNIQUE_PLACEHOLDER = (__VA_ARGS__);       \
+  decltype((__VA_ARGS__)) &&STX_ARG_UNIQUE_PLACEHOLDER = (__VA_ARGS__);       \
                                                                               \
-  if (STX_ARG_UNIQUE_PLACEHOLDER.is_err()) {                                  \
+  if (STX_ARG_UNIQUE_PLACEHOLDER.is_err())                                    \
+  {                                                                           \
     return std::move(STX_ARG_UNIQUE_PLACEHOLDER.unsafe_err_ref());            \
   }                                                                           \
                                                                               \

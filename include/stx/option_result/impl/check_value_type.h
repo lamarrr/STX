@@ -5,10 +5,12 @@
 
 STX_BEGIN_NAMESPACE
 
-namespace impl {
+namespace impl
+{
 
 template <typename T>
-struct check_value_type {
+struct check_value_type
+{
   static_assert(movable<T>,
                 "Value type `T` for `Option`, `Result`, `Some`, `Ok`, and "
                 "`Err` must be movable");
@@ -21,7 +23,8 @@ struct check_value_type {
 };
 
 template <typename E>
-struct check_err_type {
+struct check_err_type
+{
   static_assert(movable<E>,
                 "Value type `E` for `Result`, `Some`, `Ok`, and "
                 "`Err` must be movable");
@@ -33,6 +36,6 @@ struct check_err_type {
       "`stx::ConstRef` or `stx::MutRef` specialized aliases instead");
 };
 
-}  // namespace impl
+}        // namespace impl
 
 STX_END_NAMESPACE

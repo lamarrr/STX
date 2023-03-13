@@ -26,8 +26,8 @@ constexpr bool invocable = std::is_invocable<Fn, Args...>::value;
 
 template <typename T>
 constexpr bool movable =
-    std::is_object<T>::value&& std::is_move_constructible<T>::value&&
-        std::is_assignable<T&, T>::value&& std::is_swappable<T>::value;
+    std::is_object<T>::value && std::is_move_constructible<T>::value &&
+    std::is_assignable<T &, T>::value && std::is_swappable<T>::value;
 
 template <typename T>
 constexpr bool copy_constructible = std::is_copy_constructible<T>::value;
@@ -38,22 +38,25 @@ constexpr bool default_constructible = std::is_default_constructible<T>::value;
 template <typename From, typename To>
 constexpr bool convertible = std::is_convertible<From, To>::value;
 
-namespace impl {
+namespace impl
+{
 template <typename T, typename Cmp = T, typename = void>
-struct equality_comparable_impl : std::false_type {};
+struct equality_comparable_impl : std::false_type
+{};
 
 template <typename T, typename Cmp>
 struct equality_comparable_impl<
     T, Cmp,
     typename std::enable_if_t<
         true,
-        decltype((std::declval<std::remove_reference_t<T> const&>() ==
-                  std::declval<std::remove_reference_t<Cmp> const&>()) &&
-                     (std::declval<std::remove_reference_t<T> const&>() !=
-                      std::declval<std::remove_reference_t<Cmp> const&>()),
-                 (void)0)>> : std::true_type {};
+        decltype((std::declval<std::remove_reference_t<T> const &>() ==
+                  std::declval<std::remove_reference_t<Cmp> const &>()) &&
+                     (std::declval<std::remove_reference_t<T> const &>() !=
+                      std::declval<std::remove_reference_t<Cmp> const &>()),
+                 (void) 0)>> : std::true_type
+{};
 
-}  // namespace impl
+}        // namespace impl
 
 /// Checks if the type has a compatible 'operator ==' and 'operator!='
 template <typename T, typename Cmp = T>

@@ -20,10 +20,15 @@ using namespace std;
 using namespace string_literals;
 using namespace stx;
 
-struct NonTrivial {
-  NonTrivial(NonTrivial&&) {}
+struct NonTrivial
+{
+  NonTrivial(NonTrivial &&)
+  {}
 
-  NonTrivial& operator=(NonTrivial&&) { return *this; }
+  NonTrivial &operator=(NonTrivial &&)
+  {
+    return *this;
+  }
 };
 
 static_assert(std::is_trivially_move_constructible_v<Result<int, int>>);
@@ -39,7 +44,8 @@ static_assert(
 static_assert(
     !std::is_trivially_move_assignable_v<Result<NonTrivial, NonTrivial>>);
 
-TEST(ResultTest, Equality) {
+TEST(ResultTest, Equality)
+{
   //
   EXPECT_EQ((make_ok<int, int>(78)), Ok(78));
   EXPECT_NE((make_ok<int, int>(7)), Ok(78));
@@ -61,7 +67,7 @@ TEST(ResultTest, Equality) {
             (make_err<vector<int>, vector<int>>(vector{1, 2, 3, 4, 5})));
 
   int const f = 89;
-  int g = 89;
+  int       g = 89;
   EXPECT_EQ(Ok(89), ok_ref(f));
   EXPECT_EQ(Ok(89), ok_ref(g));
 
@@ -75,7 +81,7 @@ TEST(ResultTest, Equality) {
   EXPECT_NE(Ok(9), ok_ref(f));
 
   int const h = 89;
-  int i = 89;
+  int       i = 89;
 
   EXPECT_EQ(Err(89), err_ref(h));
   EXPECT_EQ(Err(89), err_ref(i));
@@ -106,7 +112,8 @@ TEST(ResultTest, Equality) {
   EXPECT_EQ((make_err<int, int>(89)), err_ref(i));
 }
 
-TEST(ResultTest, IsOk) {
+TEST(ResultTest, IsOk)
+{
   EXPECT_TRUE((make_ok<int, int>(0).is_ok()));
   EXPECT_FALSE((make_err<int, int>(9).is_ok()));
 
@@ -121,7 +128,8 @@ TEST(ResultTest, IsOk) {
       (make_err<vector<int>, vector<int>>(vector{1, 2, 3, 4}).is_ok()));
 }
 
-TEST(ResultTest, IsErr) {
+TEST(ResultTest, IsErr)
+{
   EXPECT_TRUE((make_err<int, int>(9).is_err()));
   EXPECT_FALSE((make_ok<int, int>(0).is_err()));
 
@@ -137,7 +145,8 @@ TEST(ResultTest, IsErr) {
       (make_ok<vector<int>, vector<int>>(vector{1, 2, 3, 4}).is_err()));
 }
 
-TEST(ResultTest, Contains) {
+TEST(ResultTest, Contains)
+{
   EXPECT_TRUE((make_ok<int, int>(9).contains(9)));
   EXPECT_FALSE((make_ok<int, int>(10).contains(0)));
   EXPECT_FALSE((make_err<int, int>(0).contains(0)));
@@ -160,7 +169,8 @@ TEST(ResultTest, Contains) {
                     .contains(vector{1, 2, 3, 4})));
 }
 
-TEST(ResultTest, ContainsErr) {
+TEST(ResultTest, ContainsErr)
+{
   EXPECT_TRUE((make_err<int, int>(0).contains_err(0)));
   EXPECT_FALSE((make_err<int, int>(9).contains_err(20)));
   EXPECT_FALSE((make_ok<int, int>(10).contains_err(10)));
@@ -185,8 +195,9 @@ TEST(ResultTest, ContainsErr) {
                     .contains_err(vector{1, 2, 3, 4})));
 }
 
-TEST(ResultTest, Exists) {
-  auto even = [](auto x) { return x % 2 == 0; };
+TEST(ResultTest, Exists)
+{
+  auto even     = [](auto x) { return x % 2 == 0; };
   auto all_even = [=](auto x) { return std::all_of(x.begin(), x.end(), even); };
 
   EXPECT_TRUE((make_ok<int, int>(2).exists(even)));
@@ -220,8 +231,9 @@ TEST(ResultTest, Exists) {
            .exists(all_even)));
 }
 
-TEST(ResultTest, ErrExists) {
-  auto even = [](auto x) { return x % 2 == 0; };
+TEST(ResultTest, ErrExists)
+{
+  auto even     = [](auto x) { return x % 2 == 0; };
   auto all_even = [=](auto x) { return std::all_of(x.begin(), x.end(), even); };
 
   EXPECT_FALSE((make_ok<int, int>(2).err_exists(even)));
@@ -292,7 +304,8 @@ TEST(ResultTest, Err) {
 }
 */
 
-TEST(ResultTest, AsConstRef) {
+TEST(ResultTest, AsConstRef)
+{
   auto const a = make_ok<int, int>(68);
   EXPECT_EQ(a.as_cref().unwrap().get(), 68);
   auto const b = make_err<int, int>(-68);
@@ -314,8 +327,9 @@ TEST(ResultTest, AsConstRef) {
   EXPECT_TRUE(h.as_cref().is_err());
 }
 
-TEST(ResultTest, AsMutRef) {
-  auto a = make_ok<int, int>(68);
+TEST(ResultTest, AsMutRef)
+{
+  auto a                    = make_ok<int, int>(68);
   a.as_ref().unwrap().get() = 89;
   EXPECT_EQ(a.as_ref().unwrap().get(), 89);
 
@@ -323,7 +337,7 @@ TEST(ResultTest, AsMutRef) {
   EXPECT_TRUE(b.as_ref().is_err());
   EXPECT_EQ(b.as_ref().unwrap_err().get(), -68);
 
-  auto c = make_ok<vector<int>, int>(vector{1, 2, 3, 4});
+  auto c                    = make_ok<vector<int>, int>(vector{1, 2, 3, 4});
   c.as_ref().unwrap().get() = vector{-1, -2, -3, -4};
   EXPECT_EQ(c.as_ref().unwrap().get(), (vector{-1, -2, -3, -4}));
 
@@ -331,7 +345,7 @@ TEST(ResultTest, AsMutRef) {
   EXPECT_TRUE(d.as_ref().is_err());
   EXPECT_EQ(d.as_ref().unwrap_err(), -24);
 
-  auto e = make_ok<int, vector<int>>(-24);
+  auto e                    = make_ok<int, vector<int>>(-24);
   e.as_ref().unwrap().get() = 87;
   EXPECT_EQ(e.as_ref().unwrap().get(), 87);
 
@@ -349,14 +363,15 @@ TEST(ResultTest, AsMutRef) {
   EXPECT_EQ(h.as_ref().unwrap_err().get(), (vector{-5, -6, -7, -8, -9}));
 }
 
-TEST(ResultTest, Map) {
+TEST(ResultTest, Map)
+{
   // will it be problematic if the map function is not in scope? No!
-  auto a = [](int&& value) { return value + 20; };
+  auto a = [](int &&value) { return value + 20; };
   EXPECT_EQ((make_ok<int, int>(20).map(a).unwrap()), 40);
   EXPECT_TRUE((make_err<int, int>(-1).map(a).is_err()));
 
   // will it be problematic if the map function is not in scope? No!
-  auto b = [](vector<int>&& value) {
+  auto b = [](vector<int> &&value) {
     value.push_back(6);
     return move(value);
   };
@@ -365,12 +380,13 @@ TEST(ResultTest, Map) {
   EXPECT_TRUE((make_err<vector<int>, int>(-1).map(b).is_err()));
 }
 
-TEST(ResultTest, MapOr) {
-  auto a = [](int&& value) { return value + 20; };
+TEST(ResultTest, MapOr)
+{
+  auto a = [](int &&value) { return value + 20; };
   EXPECT_EQ((make_ok<int, int>(20).map_or(a, 100)), 40);
   EXPECT_EQ((make_err<int, int>(-20).map_or(a, 100)), 100);
 
-  auto b = [](vector<int>&& value) {
+  auto b = [](vector<int> &&value) {
     value.push_back(6);
     return move(value);
   };
@@ -382,18 +398,19 @@ TEST(ResultTest, MapOr) {
       (vector<int>{6, 7, 8, 9, 10}));
 }
 
-TEST(ResultTest, MapOrElse) {
-  auto a = [](int&& value) { return value + 20; };
+TEST(ResultTest, MapOrElse)
+{
+  auto a      = [](int &&value) { return value + 20; };
   auto else_a = [](auto) { return -10; };
 
   EXPECT_EQ((make_ok<int, int>(20).map_or_else(a, else_a)), 40);
   EXPECT_EQ((make_err<int, int>(-20).map_or_else(a, else_a)), -10);
 
-  auto b = [](vector<int>&& value) {
+  auto b = [](vector<int> &&value) {
     value.push_back(6);
     return move(value);
   };
-  auto else_b = [](auto) -> vector<int> { return {6, 7, 8, 9, 10}; };  // NOLINT
+  auto else_b = [](auto) -> vector<int> { return {6, 7, 8, 9, 10}; };        // NOLINT
 
   EXPECT_EQ((make_ok<vector<int>, int>({1, 2, 3, 4, 5}).map_or_else(b, else_b)),
             (vector<int>{1, 2, 3, 4, 5, 6}));
@@ -401,14 +418,15 @@ TEST(ResultTest, MapOrElse) {
             (vector<int>{6, 7, 8, 9, 10}));
 }
 
-TEST(ResultTest, MapErr) {
+TEST(ResultTest, MapErr)
+{
   // will it be problematic if the map function is not in scope? No!
-  auto a = [](int&& value) { return value * 10; };
+  auto a = [](int &&value) { return value * 10; };
   EXPECT_EQ((make_err<int, int>(10).map_err(a).unwrap_err()), 100);
   EXPECT_TRUE((make_ok<int, int>(20).map_err(a).is_ok()));
 
   // will it be problematic if the map function is not in scope? No!
-  auto b = [](vector<int>&& value) {
+  auto b = [](vector<int> &&value) {
     value.push_back(6);
     return move(value);
   };
@@ -419,7 +437,8 @@ TEST(ResultTest, MapErr) {
   EXPECT_TRUE((make_ok<int, vector<int>>(256).map_err(b).is_ok()));
 }
 
-TEST(ResultTest, And) {
+TEST(ResultTest, And)
+{
   EXPECT_FLOAT_EQ(
       (make_ok<int, int>(20).AND(make_ok<float, int>(40.0f)).unwrap()), 40.0f);
 
@@ -442,7 +461,8 @@ TEST(ResultTest, And) {
             -20);
 }
 
-TEST(ResultTest, AndThen) {
+TEST(ResultTest, AndThen)
+{
   auto a = [](int v) { return v * 2.0f; };
   EXPECT_FLOAT_EQ((make_ok<int, int>(20).and_then(a).unwrap()), 40.0f);
 
@@ -450,7 +470,7 @@ TEST(ResultTest, AndThen) {
 
   EXPECT_EQ((make_err<int, int>(-20).and_then(a).unwrap_err()), -20);
 
-  auto b = [](int&& v) {
+  auto b = [](int &&v) {
     vector<float> res;
     res.push_back(static_cast<float>(v));
     return res;
@@ -462,7 +482,8 @@ TEST(ResultTest, AndThen) {
   EXPECT_EQ((make_err<int, int>(-20).and_then(b).unwrap_err()), -20);
 }
 
-TEST(ResultTest, Or) {
+TEST(ResultTest, Or)
+{
   EXPECT_EQ((make_ok<int, int>(20).OR(make_ok<int, int>(40)).unwrap()), 20);
 
   EXPECT_EQ((make_ok<int, int>(20).OR(make_err<int, int>(40)).unwrap()), 20);
@@ -492,19 +513,20 @@ TEST(ResultTest, Or) {
             (vector{40.0f, 50.0f, 60.0f}));
 }
 
-TEST(ResultTest, OrElse) {
-  auto a = [](int&& err) -> Result<int, int> { return Ok(err * 100); };
+TEST(ResultTest, OrElse)
+{
+  auto a = [](int &&err) -> Result<int, int> { return Ok(err * 100); };
   EXPECT_EQ((make_ok<int, int>(20).or_else(a).unwrap()), 20);
   EXPECT_EQ((make_err<int, int>(10).or_else(a).unwrap()), 1000);
 
-  auto b = [](string&& err) -> Result<int, string> {
+  auto b = [](string &&err) -> Result<int, string> {
     return Err("Err: " + err);
   };
   EXPECT_EQ((make_ok<int, string>(20).or_else(b).unwrap()), 20);
   EXPECT_EQ((make_err<int, string>("Max Limit"s).or_else(b).unwrap_err()),
             "Err: Max Limit"s);
 
-  auto c = [](vector<int>&& err) -> Result<int, vector<int>> {
+  auto c = [](vector<int> &&err) -> Result<int, vector<int>> {
     return Ok(err.empty() ? -1 : err[0]);
   };
   EXPECT_EQ((make_ok<int, vector<int>>(40).or_else(c).unwrap()), 40);
@@ -512,7 +534,8 @@ TEST(ResultTest, OrElse) {
       (make_err<int, vector<int>>(vector{10, 20, 30}).or_else(c).unwrap()), 10);
 }
 
-TEST(ResultTest, UnwrapOr) {
+TEST(ResultTest, UnwrapOr)
+{
   EXPECT_EQ((make_ok<int, int>(89).unwrap_or(90)), 89);
   EXPECT_EQ((make_err<int, int>(89).unwrap_or(90)), 90);
 
@@ -521,7 +544,8 @@ TEST(ResultTest, UnwrapOr) {
   EXPECT_EQ((make_err<string, int>(-20).unwrap_or("Unknown"s)), "Unknown"s);
 }
 
-TEST(ResultTest, Unwrap) {
+TEST(ResultTest, Unwrap)
+{
   EXPECT_EQ((make_ok<int, int>(89).unwrap()), 89);
   EXPECT_TRUE((make_err<int, int>(89).is_err()));
 
@@ -533,16 +557,17 @@ TEST(ResultTest, Unwrap) {
   EXPECT_TRUE((make_err<vector<int>, int>(-1)).is_err());
 }
 
-TEST(ResultTest, UnwrapOrElse) {
-  auto a = [](int&& err) { return err + 20; };
+TEST(ResultTest, UnwrapOrElse)
+{
+  auto a = [](int &&err) { return err + 20; };
   EXPECT_EQ((make_ok<int, int>(10).unwrap_or_else(a)), 10);
   EXPECT_EQ((make_err<int, int>(20).unwrap_or_else(a)), 40);
 
-  auto b = [](string&& err) -> int { return stoi(err) + 20; };
+  auto b = [](string &&err) -> int { return stoi(err) + 20; };
   EXPECT_EQ((make_ok<int, string>(10).unwrap_or_else(b)), 10);
   EXPECT_EQ((make_err<int, string>("40"s).unwrap_or_else(b)), 60);
 
-  auto c = [](vector<int>&& vec) {
+  auto c = [](vector<int> &&vec) {
     vec.push_back(10);
     return move(vec);
   };
@@ -554,7 +579,8 @@ TEST(ResultTest, UnwrapOrElse) {
             (vector{6, 7, 8, 9, 10}));
 }
 
-TEST(ResultTest, Expect) {
+TEST(ResultTest, Expect)
+{
   EXPECT_EQ((make_ok<int, int>(10).expect("===TEST ERR MSG===")), 10);
   EXPECT_DEATH_IF_SUPPORTED(
       (make_err<int, int>(20).expect("===TEST ERR MSG===")), ".*");
@@ -581,36 +607,38 @@ TEST(ResultTest, Expect) {
       ".*");
 }
 
-TEST(ResultTest, UnwrapErr) {
+TEST(ResultTest, UnwrapErr)
+{
   EXPECT_EQ((make_err<int, int>(20).unwrap_err()), 20);
-  EXPECT_DEATH_IF_SUPPORTED(((void)make_ok<int, int>(10).unwrap_err()), ".*");
+  EXPECT_DEATH_IF_SUPPORTED(((void) make_ok<int, int>(10).unwrap_err()), ".*");
 
   EXPECT_EQ((make_err<vector<int>, int>(-40).unwrap_err()), -40);
   EXPECT_DEATH_IF_SUPPORTED(
-      ((void)make_ok<vector<int>, int>(vector{10, 20, 30}).unwrap_err()), ".*");
+      ((void) make_ok<vector<int>, int>(vector{10, 20, 30}).unwrap_err()), ".*");
 
   EXPECT_EQ((make_err<int, vector<int>>(vector{1, 2, 3, 4}).unwrap_err()),
             (vector{1, 2, 3, 4}));
-  EXPECT_DEATH_IF_SUPPORTED(((void)make_ok<int, vector<int>>(68).unwrap_err()),
+  EXPECT_DEATH_IF_SUPPORTED(((void) make_ok<int, vector<int>>(68).unwrap_err()),
                             ".*");
 
   EXPECT_EQ(
       (make_err<vector<int>, vector<int>>(vector{1, 2, 3, 4}).unwrap_err()),
       (vector{1, 2, 3, 4}));
   EXPECT_DEATH_IF_SUPPORTED(
-      ((void)make_ok<vector<int>, vector<int>>(vector{1, 2, 3, 4})
+      ((void) make_ok<vector<int>, vector<int>>(vector{1, 2, 3, 4})
            .unwrap_err()),
       ".*");
 }
 
-TEST(ResultTest, ExpectErr) {
+TEST(ResultTest, ExpectErr)
+{
   EXPECT_EQ((make_err<int, int>(20).expect_err("===TEST ERR MSG===")), 20);
   EXPECT_DEATH_IF_SUPPORTED(
-      ((void)make_ok<int, int>(10).expect_err("===TEST ERR MSG===")), ".*");
+      ((void) make_ok<int, int>(10).expect_err("===TEST ERR MSG===")), ".*");
 
   EXPECT_EQ((make_err<vector<int>, int>(-40).expect_err("===TEST ERR MSG===")),
             -40);
-  EXPECT_DEATH_IF_SUPPORTED(((void)make_ok<vector<int>, int>(vector{10, 20, 30})
+  EXPECT_DEATH_IF_SUPPORTED(((void) make_ok<vector<int>, int>(vector{10, 20, 30})
                                  .expect_err("===TEST ERR MSG===")),
                             ".*");
 
@@ -618,19 +646,20 @@ TEST(ResultTest, ExpectErr) {
                  .expect_err("===TEST ERR MSG===")),
             (vector{1, 2, 3, 4}));
   EXPECT_DEATH_IF_SUPPORTED(
-      ((void)make_ok<int, vector<int>>(68).expect_err("===TEST ERR MSG===")),
+      ((void) make_ok<int, vector<int>>(68).expect_err("===TEST ERR MSG===")),
       ".*");
 
   EXPECT_EQ((make_err<vector<int>, vector<int>>(vector{1, 2, 3, 4})
                  .expect_err("===TEST ERR MSG===")),
             (vector{1, 2, 3, 4}));
   EXPECT_DEATH_IF_SUPPORTED(
-      ((void)make_ok<vector<int>, vector<int>>(vector{1, 2, 3, 4})
+      ((void) make_ok<vector<int>, vector<int>>(vector{1, 2, 3, 4})
            .expect_err("===TEST ERR MSG===")),
       ".*");
 }
 
-TEST(ResultTest, UnwapOrDefault) {
+TEST(ResultTest, UnwapOrDefault)
+{
   EXPECT_EQ((make_ok<int, int>(9).unwrap_or_default()), 9);
   EXPECT_EQ((make_err<int, int>(-9).unwrap_or_default()), 0);
 
@@ -653,7 +682,8 @@ TEST(ResultTest, UnwapOrDefault) {
             (vector<int>{}));
 }
 
-TEST(ResultTest, Match) {
+TEST(ResultTest, Match)
+{
   auto a = make_ok<int, int>(98).match([](auto ok) { return ok + 2; },
                                        [](auto err) { return err + 5; });
 
@@ -673,33 +703,39 @@ TEST(ResultTest, Match) {
   EXPECT_EQ(c, -1);
 }
 
-TEST(ResultTest, Copy) {
+TEST(ResultTest, Copy)
+{
   auto const a = make_ok<int, int>(89);
-  auto b = a.copy();
+  auto       b = a.copy();
   EXPECT_EQ(b, Ok(89));
   b.as_ref().unwrap().get() = 124;
   EXPECT_EQ(b, Ok(124));
   EXPECT_EQ(a, Ok(89));
 
   auto const c = make_ok<vector<int>, int>({89, 89, 120});
-  auto d = c.copy();
+  auto       d = c.copy();
   EXPECT_EQ(c, Ok(vector<int>{89, 89, 120}));
   d.as_ref().unwrap().get() = vector<int>{124, 125, 126};
   EXPECT_EQ(d, Ok(vector<int>{124, 125, 126}));
   EXPECT_EQ(c, Ok(vector<int>{89, 89, 120}));
 }
 
-auto ok_try_b(int x) -> stx::Result<int, int> {
-  if (x > 0) {
+auto ok_try_b(int x) -> stx::Result<int, int>
+{
+  if (x > 0)
+  {
     return Ok(std::move(x));
-  } else {
+  }
+  else
+  {
     return Err(-1);
   }
 }
 
 #include "stx/try_ok.h"
 
-auto ok_try_a(int m) -> stx::Result<int, int> {
+auto ok_try_a(int m) -> stx::Result<int, int>
+{
   // clang-format off
   TRY_OK(x, ok_try_b(m)); TRY_OK(const y, ok_try_b(m)); TRY_OK(volatile z, ok_try_b(m)); // also tests for name collision in our macros
   (void)y;
@@ -712,11 +748,13 @@ auto ok_try_a(int m) -> stx::Result<int, int> {
   return Ok(std::move(x));
 }
 
-TEST(ResultTest, TryOk) {
+TEST(ResultTest, TryOk)
+{
   EXPECT_EQ(ok_try_a(10), Ok(70));
   EXPECT_EQ(ok_try_a(100'000), Ok(100'060));
   EXPECT_EQ(ok_try_a(-1), Err(-1));
   EXPECT_EQ(ok_try_a(-10), Err(-1));
 }
 
-TEST(ResultTest, Docs) {}
+TEST(ResultTest, Docs)
+{}

@@ -25,15 +25,17 @@ static_assert(impl::is_span_convertible<int, volatile int>);
 static_assert(impl::is_span_convertible<int, int const>);
 static_assert(impl::is_compatible_container<std::vector<int> &, int const>);
 
-TEST(SpanTest, ContainerConstructor) {
+TEST(SpanTest, ContainerConstructor)
+{
   std::vector<int> a{1, 2, 3, 4, 5};
-  Span b = a;
+  Span             b = a;
 
   EXPECT_EQ(b.size(), a.size());
   EXPECT_EQ(b.data(), a.data());
 }
 
-TEST(SpanTest, CopyConstructor) {
+TEST(SpanTest, CopyConstructor)
+{
   vector<int> vec{1, 2, 3, 4, 5};
 
   {
@@ -48,7 +50,8 @@ TEST(SpanTest, CopyConstructor) {
   }
 }
 
-TEST(SpanTest, ConstructorCArray) {
+TEST(SpanTest, ConstructorCArray)
+{
   int tmp[] = {1, 2, 3, 4};
 
   {
@@ -59,7 +62,8 @@ TEST(SpanTest, ConstructorCArray) {
   }
 }
 
-TEST(SpanTest, ConstructorStdArray) {
+TEST(SpanTest, ConstructorStdArray)
+{
   array<int, 4> tmp{1, 2, 3, 4};
   {
     Span<int> a = tmp;
@@ -69,7 +73,8 @@ TEST(SpanTest, ConstructorStdArray) {
   }
 }
 
-TEST(SpanTest, Empty) {
+TEST(SpanTest, Empty)
+{
   {
     Span<int> a{};
     EXPECT_TRUE(a.is_empty());
@@ -81,7 +86,8 @@ TEST(SpanTest, Empty) {
   }
 }
 
-TEST(SpanTest, At) {
+TEST(SpanTest, At)
+{
   int tmp[] = {1, 2, 3, 4};
   {
     Span<int> a(tmp, size(tmp));
@@ -91,35 +97,39 @@ TEST(SpanTest, At) {
   }
 }
 
-TEST(SpanTest, As) {
+TEST(SpanTest, As)
+{
   {
-    int32_t tmp[] = {1, 2, 3, 4};
-    Span<int32_t> a(tmp);
-    Span<int32_t const> tmp_a = a.as_const();
-    Span<byte const> tmp_b = a.as_bytes();
-    Span<uint8_t const> tmp_c = a.as_u8();
+    int32_t                tmp[] = {1, 2, 3, 4};
+    Span<int32_t>          a(tmp);
+    Span<int32_t const>    tmp_a = a.as_const();
+    Span<byte const>       tmp_b = a.as_bytes();
+    Span<uint8_t const>    tmp_c = a.as_u8();
     Span<volatile int32_t> tmp_d = a.as_volatile();
 
-    (void)tmp_a;
-    (void)tmp_b;
-    (void)tmp_c;
-    (void)tmp_d;
+    (void) tmp_a;
+    (void) tmp_b;
+    (void) tmp_c;
+    (void) tmp_d;
 
     Span<byte const volatile> b = a.as_u8().as_volatile().as_const().as_bytes();
 
-    EXPECT_EQ((void *)a.data(), (void *)b.data());
+    EXPECT_EQ((void *) a.data(), (void *) b.data());
     EXPECT_EQ(a.size_bytes(), b.size());
     EXPECT_EQ(a.size() * 4, b.size());
   }
 }
 
-struct result_t {
+struct result_t
+{
   size_t size;
-  int value;
+  int    value;
 };
 
-namespace t1 {
-constexpr result_t Span_Slice(size_t index) {
+namespace t1
+{
+constexpr result_t Span_Slice(size_t index)
+{
   int tmp[] = {1, 2, 3, 4};
 
   Span<int> h = tmp;
@@ -127,9 +137,10 @@ constexpr result_t Span_Slice(size_t index) {
   return {h.slice(index).size(), h.slice(index)[0]};
 }
 
-}  // namespace t1
+}        // namespace t1
 
-TEST(SpanTest, Slice) {
+TEST(SpanTest, Slice)
+{
   using namespace t1;
   {
     constexpr auto a = Span_Slice(0);
@@ -144,7 +155,8 @@ TEST(SpanTest, Slice) {
   }
 }
 
-TEST(SpanTest, Algorithms) {
+TEST(SpanTest, Algorithms)
+{
   int y[] = {1, 2, 3, 4, 5, 6};
 
   Span<int> r{y};
@@ -152,7 +164,8 @@ TEST(SpanTest, Algorithms) {
 
   r.fill(8);
 
-  for (auto &u : r) {
+  for (auto &u : r)
+  {
     std::cout << u << std::endl;
   }
 
@@ -171,7 +184,8 @@ TEST(SpanTest, Algorithms) {
   EXPECT_TRUE(r.contains(9));
   EXPECT_FALSE(r.contains(20));
 
-  for (int &element : r.slice(1)) {
+  for (int &element : r.slice(1))
+  {
     EXPECT_EQ(element, 9);
   }
 
@@ -192,7 +206,8 @@ TEST(SpanTest, Algorithms) {
   }
 }
 
-TEST(SpanTest, Last) {
+TEST(SpanTest, Last)
+{
   int data[] = {1, 2, 3, 4, 5};
   EXPECT_EQ(*stx::Span{data}.last().unwrap(), 5);
   EXPECT_EQ(stx::Span<int>{}.last(), stx::None);

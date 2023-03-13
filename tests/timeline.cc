@@ -3,18 +3,19 @@
 
 #include <iostream>
 
-#include "gtest/gtest.h"
 #include "stx/scheduler.h"
 #include "stx/scheduler/scheduling/await.h"
 #include "stx/scheduler/scheduling/delay.h"
 #include "stx/scheduler/scheduling/schedule.h"
+#include "gtest/gtest.h"
 
 using namespace std::chrono_literals;
 using namespace stx;
 
 #define STX_LOG(str) std::cout << str << std::endl;
 
-TEST(ScheduleTimelineTest, Tick) {
+TEST(ScheduleTimelineTest, Tick)
+{
   auto timepoint = std::chrono::steady_clock::now();
   {
     ScheduleTimeline timeline{os_allocator};
@@ -48,7 +49,8 @@ TEST(ScheduleTimelineTest, Tick) {
 
     EXPECT_EQ(slots.size(), 10);
 
-    for (size_t i = 0; i < 20; i++) {
+    for (size_t i = 0; i < 20; i++)
+    {
       timeline
           .add_task(fn::rc::make_static([]() {}),
                     PromiseAny{make_promise<void>(os_allocator).unwrap()},
@@ -64,13 +66,24 @@ TEST(ScheduleTimelineTest, Tick) {
   }
 }
 
-void brr() {}
-int rx() { return 0; }
+void brr()
+{}
+int rx()
+{
+  return 0;
+}
 
-int first(Void) { return 0; }
-int rx_loop(int64_t) { return 0; }
+int first(Void)
+{
+  return 0;
+}
+int rx_loop(int64_t)
+{
+  return 0;
+}
 
-TEST(SchedulerTest, HH) {
+TEST(SchedulerTest, HH)
+{
   TaskScheduler scheduler{os_allocator, std::chrono::steady_clock::now()};
 
   sched::fn(scheduler, []() { return 0; }, CRITICAL_PRIORITY, {});
@@ -101,7 +114,8 @@ TEST(SchedulerTest, HH) {
   // forloop combine with loop combine with others???
 }
 
-TEST(Scheduler, ThreadSlots) {
+TEST(Scheduler, ThreadSlots)
+{
   using namespace stx;
 
   ThreadSlot slot{make_promise<void>(os_allocator).unwrap()};
@@ -129,30 +143,31 @@ TEST(Scheduler, ThreadSlots) {
   EXPECT_TRUE(query0.pending_task.is_none());
 }
 
-TEST(Timeline, Sample) {
+TEST(Timeline, Sample)
+{
   // Testing for work spreading amongst CPU cores
 
   ScheduleTimeline timeline{os_allocator};
 
-  (void)timeline.add_task(fn::rc::make_static([]() { STX_LOG("1"); }),
-                          PromiseAny{make_promise<void>(os_allocator).unwrap()},
-                          TaskId{1}, NORMAL_PRIORITY,
-                          std::chrono::steady_clock::now());
+  (void) timeline.add_task(fn::rc::make_static([]() { STX_LOG("1"); }),
+                           PromiseAny{make_promise<void>(os_allocator).unwrap()},
+                           TaskId{1}, NORMAL_PRIORITY,
+                           std::chrono::steady_clock::now());
 
-  (void)timeline.add_task(fn::rc::make_static([]() { STX_LOG("2"); }),
-                          PromiseAny{make_promise<void>(os_allocator).unwrap()},
-                          TaskId{2}, NORMAL_PRIORITY,
-                          std::chrono::steady_clock::now());
+  (void) timeline.add_task(fn::rc::make_static([]() { STX_LOG("2"); }),
+                           PromiseAny{make_promise<void>(os_allocator).unwrap()},
+                           TaskId{2}, NORMAL_PRIORITY,
+                           std::chrono::steady_clock::now());
 
-  (void)timeline.add_task(fn::rc::make_static([]() { STX_LOG("3"); }),
-                          PromiseAny{make_promise<void>(os_allocator).unwrap()},
-                          TaskId{3}, NORMAL_PRIORITY,
-                          std::chrono::steady_clock::now());
+  (void) timeline.add_task(fn::rc::make_static([]() { STX_LOG("3"); }),
+                           PromiseAny{make_promise<void>(os_allocator).unwrap()},
+                           TaskId{3}, NORMAL_PRIORITY,
+                           std::chrono::steady_clock::now());
 
-  (void)timeline.add_task(fn::rc::make_static([]() { STX_LOG("4"); }),
-                          PromiseAny{make_promise<void>(os_allocator).unwrap()},
-                          TaskId{4}, NORMAL_PRIORITY,
-                          std::chrono::steady_clock::now());
+  (void) timeline.add_task(fn::rc::make_static([]() { STX_LOG("4"); }),
+                           PromiseAny{make_promise<void>(os_allocator).unwrap()},
+                           TaskId{4}, NORMAL_PRIORITY,
+                           std::chrono::steady_clock::now());
 
   std::array<Rc<ThreadSlot *>, 4> slot{
       rc::make_inplace<ThreadSlot>(os_allocator,

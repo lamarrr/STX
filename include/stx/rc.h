@@ -61,80 +61,102 @@ constexpr bool is_resource_handle_type =
 ///
 ///
 template <typename HandleType>
-struct Rc {
+struct Rc
+{
   using handle_type = HandleType;
 
   static_assert(is_resource_handle_type<handle_type>);
 
-  constexpr Rc(handle_type ihandle, Manager imanager)
-      : handle{std::move(ihandle)}, manager{std::move(imanager)} {}
+  constexpr Rc(handle_type ihandle, Manager imanager) :
+      handle{std::move(ihandle)}, manager{std::move(imanager)}
+  {}
 
-  constexpr Rc(Rc&& other)
-      : handle{std::move(other.handle)}, manager{std::move(other.manager)} {
+  constexpr Rc(Rc &&other) :
+      handle{std::move(other.handle)}, manager{std::move(other.manager)}
+  {
     other.manager = manager_stub;
   }
 
-  constexpr Rc& operator=(Rc&& other) {
+  constexpr Rc &operator=(Rc &&other)
+  {
     std::swap(handle, other.handle);
     std::swap(manager, other.manager);
 
     return *this;
   }
 
-  Rc(Rc const& other) = delete;
+  Rc(Rc const &other) = delete;
 
-  Rc& operator=(Rc const& other) = delete;
+  Rc &operator=(Rc const &other) = delete;
 
-  ~Rc() { manager.unref(); }
+  ~Rc()
+  {
+    manager.unref();
+  }
 
-  Rc share() const {
+  Rc share() const
+  {
     manager.ref();
 
     return Rc{handle_type{handle}, Manager{manager}};
   }
 
   handle_type handle;
-  Manager manager;
+  Manager     manager;
 };
 
 template <typename Object>
-struct Rc<Object*> {
-  using handle_type = Object*;
+struct Rc<Object *>
+{
+  using handle_type = Object *;
   using object_type = Object;
 
-  constexpr Rc(handle_type ihandle, Manager imanager)
-      : handle{std::move(ihandle)}, manager{std::move(imanager)} {}
+  constexpr Rc(handle_type ihandle, Manager imanager) :
+      handle{std::move(ihandle)}, manager{std::move(imanager)}
+  {}
 
-  constexpr Rc(Rc&& other)
-      : handle{std::move(other.handle)}, manager{std::move(other.manager)} {
+  constexpr Rc(Rc &&other) :
+      handle{std::move(other.handle)}, manager{std::move(other.manager)}
+  {
     other.manager = manager_stub;
   }
 
-  constexpr Rc& operator=(Rc&& other) {
+  constexpr Rc &operator=(Rc &&other)
+  {
     std::swap(handle, other.handle);
     std::swap(manager, other.manager);
 
     return *this;
   }
 
-  Rc(Rc const& other) = delete;
+  Rc(Rc const &other) = delete;
 
-  Rc& operator=(Rc const& other) = delete;
+  Rc &operator=(Rc const &other) = delete;
 
-  ~Rc() { manager.unref(); }
+  ~Rc()
+  {
+    manager.unref();
+  }
 
-  Rc share() const {
+  Rc share() const
+  {
     manager.ref();
 
     return Rc{handle_type{handle}, Manager{manager}};
   }
 
-  constexpr handle_type operator->() const { return handle; }
+  constexpr handle_type operator->() const
+  {
+    return handle;
+  }
 
-  constexpr object_type& operator*() const { return *handle; }
+  constexpr object_type &operator*() const
+  {
+    return *handle;
+  }
 
   handle_type handle;
-  Manager manager;
+  Manager     manager;
 };
 
 // A uniquely owned resource.
@@ -147,69 +169,89 @@ struct Rc<Object*> {
 // only ever calls unref once.
 //
 template <typename HandleType>
-struct Unique {
+struct Unique
+{
   using handle_type = HandleType;
 
   static_assert(is_resource_handle_type<handle_type>);
 
-  constexpr Unique(handle_type ihandle, Manager imanager)
-      : handle{std::move(ihandle)}, manager{std::move(imanager)} {}
+  constexpr Unique(handle_type ihandle, Manager imanager) :
+      handle{std::move(ihandle)}, manager{std::move(imanager)}
+  {}
 
-  constexpr Unique(Unique&& other)
-      : handle{std::move(other.handle)}, manager{std::move(other.manager)} {
+  constexpr Unique(Unique &&other) :
+      handle{std::move(other.handle)}, manager{std::move(other.manager)}
+  {
     other.manager = manager_stub;
   }
 
-  constexpr Unique& operator=(Unique&& other) {
+  constexpr Unique &operator=(Unique &&other)
+  {
     std::swap(handle, other.handle);
     std::swap(manager, other.manager);
 
     return *this;
   }
 
-  Unique(Unique const& other) = delete;
-  Unique& operator=(Unique const& other) = delete;
+  Unique(Unique const &other)            = delete;
+  Unique &operator=(Unique const &other) = delete;
 
-  ~Unique() { manager.unref(); }
+  ~Unique()
+  {
+    manager.unref();
+  }
 
   handle_type handle;
-  Manager manager;
+  Manager     manager;
 };
 
 template <typename Object>
-struct Unique<Object*> {
-  using handle_type = Object*;
+struct Unique<Object *>
+{
+  using handle_type = Object *;
   using object_type = Object;
 
   static_assert(is_resource_handle_type<handle_type>);
 
-  constexpr Unique(handle_type ihandle, Manager imanager)
-      : handle{std::move(ihandle)}, manager{std::move(imanager)} {}
+  constexpr Unique(handle_type ihandle, Manager imanager) :
+      handle{std::move(ihandle)}, manager{std::move(imanager)}
+  {}
 
-  constexpr Unique(Unique&& other)
-      : handle{std::move(other.handle)}, manager{std::move(other.manager)} {
+  constexpr Unique(Unique &&other) :
+      handle{std::move(other.handle)}, manager{std::move(other.manager)}
+  {
     other.manager = manager_stub;
   }
 
-  constexpr Unique& operator=(Unique&& other) {
+  constexpr Unique &operator=(Unique &&other)
+  {
     std::swap(handle, other.handle);
     std::swap(manager, other.manager);
 
     return *this;
   }
 
-  Unique(Unique const& other) = delete;
+  Unique(Unique const &other) = delete;
 
-  Unique& operator=(Unique const& other) = delete;
+  Unique &operator=(Unique const &other) = delete;
 
-  ~Unique() { manager.unref(); }
+  ~Unique()
+  {
+    manager.unref();
+  }
 
-  constexpr handle_type operator->() const { return handle; }
+  constexpr handle_type operator->() const
+  {
+    return handle;
+  }
 
-  constexpr object_type& operator*() const { return *handle; }
+  constexpr object_type &operator*() const
+  {
+    return *handle;
+  }
 
   handle_type handle;
-  Manager manager;
+  Manager     manager;
 };
 
 /// Transmute a resource that uses a polymorphic manager.
@@ -233,23 +275,27 @@ struct Unique<Object*> {
 ///
 ///
 template <typename Target, typename Source>
-constexpr Rc<Target> transmute(Target target, Rc<Source> source) {
+constexpr Rc<Target> transmute(Target target, Rc<Source> source)
+{
   return Rc<Target>{std::move(target), std::move(source.manager)};
 }
 
 template <typename Target, typename Source>
-constexpr Rc<Target> cast(Rc<Source> source) {
+constexpr Rc<Target> cast(Rc<Source> source)
+{
   Target target = static_cast<Target>(std::move(source.handle));
   return transmute(std::move(target), std::move(source));
 }
 
 template <typename Target, typename Source>
-constexpr Unique<Target> transmute(Target target, Unique<Source> source) {
+constexpr Unique<Target> transmute(Target target, Unique<Source> source)
+{
   return Unique<Target>{std::move(target), std::move(source.manager)};
 }
 
 template <typename Target, typename Source>
-constexpr Unique<Target> cast(Unique<Source> source) {
+constexpr Unique<Target> cast(Unique<Source> source)
+{
   Target target = static_cast<Target>(std::move(source.handle));
   return transmute(std::move(target), std::move(source));
 }
@@ -265,19 +311,25 @@ constexpr Unique<Target> cast(Unique<Source> source) {
 ///
 // if the application is multi-threaded, the compiler can make more informed
 // decisions about reference-counting.
-struct RefCount {
+struct RefCount
+{
   STX_MAKE_PINNED(RefCount)
 
   std::atomic<uint64_t> ref_count;
 
-  explicit RefCount(uint64_t initial_ref_count)
-      : ref_count{initial_ref_count} {}
+  explicit RefCount(uint64_t initial_ref_count) :
+      ref_count{initial_ref_count}
+  {}
 
-  uint64_t ref() { return ref_count.fetch_add(1, std::memory_order_relaxed); }
+  uint64_t ref()
+  {
+    return ref_count.fetch_add(1, std::memory_order_relaxed);
+  }
 
   // required to be acquire memory order since it could have been modified and
   // we need to ensure proper instruction ordering
-  [[nodiscard]] uint64_t unref() {
+  [[nodiscard]] uint64_t unref()
+  {
     return ref_count.fetch_sub(1, std::memory_order_acquire);
   }
 };
@@ -315,28 +367,33 @@ struct RefCount {
 //
 //
 template <typename Object>
-struct DeallocateObject {
+struct DeallocateObject
+{
   STX_MAKE_PINNED(DeallocateObject)
 
   using object_type = Object;
 
   // placed in union to ensure the object's destructor is not called
-  union {
+  union
+  {
     Object object;
   };
 
   Allocator allocator;
 
   template <typename... Args>
-  explicit DeallocateObject(Allocator iallocator, Args&&... args)
-      : object{std::forward<Args>(args)...}, allocator{std::move(iallocator)} {}
+  explicit DeallocateObject(Allocator iallocator, Args &&...args) :
+      object{std::forward<Args>(args)...}, allocator{std::move(iallocator)}
+  {}
 
-  constexpr void operator()(void* memory) {
+  constexpr void operator()(void *memory)
+  {
     object.~Object();
     allocator.handle->deallocate(memory);
   }
 
-  ~DeallocateObject() {}
+  ~DeallocateObject()
+  {}
 };
 
 /// thread-safe in ref-count and deallocation only
@@ -346,8 +403,9 @@ struct DeallocateObject {
 /// can be used for bulk object sharing.
 ///
 template <typename Functor>
-struct RcOperation final : public ManagerHandle {
-  static_assert(std::is_invocable_v<Functor, void*>);
+struct RcOperation final : public ManagerHandle
+{
+  static_assert(std::is_invocable_v<Functor, void *>);
 
   STX_MAKE_PINNED(RcOperation)
 
@@ -358,12 +416,17 @@ struct RcOperation final : public ManagerHandle {
   Functor operation;
 
   template <typename... Args>
-  explicit RcOperation(uint64_t initial_ref_count, Args&&... args)
-      : ref_count{initial_ref_count}, operation{std::forward<Args>(args)...} {}
+  explicit RcOperation(uint64_t initial_ref_count, Args &&...args) :
+      ref_count{initial_ref_count}, operation{std::forward<Args>(args)...}
+  {}
 
-  virtual void ref() override final { ref_count.ref(); }
+  virtual void ref() override final
+  {
+    ref_count.ref();
+  }
 
-  virtual void unref() override final {
+  virtual void unref() override final
+  {
     // NOTE: the last user of the object might have made modifications to the
     // object's address just before unref is called, this means we need to
     // ensure correct ordering of the operations/instructions relative to the
@@ -377,15 +440,17 @@ struct RcOperation final : public ManagerHandle {
     // the destructor's instructions only needs to be ordered relative to the
     // last-owning thread's instructions.
     //
-    if (ref_count.unref() == 1) {
-      operation(reinterpret_cast<void*>(this));
+    if (ref_count.unref() == 1)
+    {
+      operation(reinterpret_cast<void *>(this));
     }
   }
 };
 
 template <typename Functor>
-struct UniqueRcOperation final : public ManagerHandle {
-  static_assert(std::is_invocable_v<Functor, void*>);
+struct UniqueRcOperation final : public ManagerHandle
+{
+  static_assert(std::is_invocable_v<Functor, void *>);
 
   STX_MAKE_PINNED(UniqueRcOperation)
 
@@ -393,31 +458,36 @@ struct UniqueRcOperation final : public ManagerHandle {
   Functor operation;
 
   template <typename... Args>
-  explicit UniqueRcOperation(Args&&... args)
-      : operation{std::forward<Args>(args)...} {}
+  explicit UniqueRcOperation(Args &&...args) :
+      operation{std::forward<Args>(args)...}
+  {}
 
-  virtual void ref() override final {}
+  virtual void ref() override final
+  {}
 
-  virtual void unref() override final {
-    operation(reinterpret_cast<void*>(this));
+  virtual void unref() override final
+  {
+    operation(reinterpret_cast<void *>(this));
   }
 };
 
-namespace rc {
+namespace rc
+{
 
 template <typename T, typename... Args>
-Result<Rc<T*>, AllocError> make_inplace(Allocator allocator, Args&&... args) {
+Result<Rc<T *>, AllocError> make_inplace(Allocator allocator, Args &&...args)
+{
   TRY_OK(memory,
          mem::allocate(allocator, sizeof(RcOperation<DeallocateObject<T>>)));
 
-  void* mem = memory.handle;
+  void *mem = memory.handle;
 
   // release ownership of memory
   memory.allocator = allocator_stub;
 
   using destroy_operation_type = RcOperation<DeallocateObject<T>>;
 
-  destroy_operation_type* destroy_operation_handle =
+  destroy_operation_type *destroy_operation_handle =
       new (mem) RcOperation<DeallocateObject<T>>{0, std::move(allocator),
                                                  std::forward<Args>(args)...};
 
@@ -430,15 +500,16 @@ Result<Rc<T*>, AllocError> make_inplace(Allocator allocator, Args&&... args) {
   // purpose. I know we can start with a 1 ref-count but no.
   manager.ref();
 
-  Rc<destroy_operation_type*> destroy_operation_rc{
-      static_cast<destroy_operation_type*>(destroy_operation_handle), manager};
+  Rc<destroy_operation_type *> destroy_operation_rc{
+      static_cast<destroy_operation_type *>(destroy_operation_handle), manager};
 
   return Ok(transmute(&destroy_operation_handle->operation.object,
                       std::move(destroy_operation_rc)));
 }
 
 template <typename T>
-auto make(Allocator allocator, T&& value) {
+auto make(Allocator allocator, T &&value)
+{
   return make_inplace<T>(allocator, std::forward<T>(value));
 }
 
@@ -452,25 +523,27 @@ auto make(Allocator allocator, T&& value) {
 /// storage objects live for the whole duration of the program so this is safe.
 ///
 template <typename T>
-Rc<T*> make_static(T& object) {
+Rc<T *> make_static(T &object)
+{
   Manager manager = static_storage_manager;
   manager.ref();
-  return Rc<T*>{&object, std::move(manager)};
+  return Rc<T *>{&object, std::move(manager)};
 }
 
 template <typename T, typename... Args>
-Result<Unique<T*>, AllocError> make_unique_inplace(Allocator allocator,
-                                                   Args&&... args) {
+Result<Unique<T *>, AllocError> make_unique_inplace(Allocator allocator,
+                                                    Args &&...args)
+{
   TRY_OK(memory, mem::allocate(allocator,
                                sizeof(UniqueRcOperation<DeallocateObject<T>>)));
 
-  void* mem = memory.handle;
+  void *mem = memory.handle;
 
   memory.allocator = allocator_stub;
 
   using destroy_operation_type = UniqueRcOperation<DeallocateObject<T>>;
 
-  destroy_operation_type* destroy_operation_handle =
+  destroy_operation_type *destroy_operation_handle =
       new (mem) UniqueRcOperation<DeallocateObject<T>>{
           allocator, std::forward<Args>(args)...};
 
@@ -478,25 +551,27 @@ Result<Unique<T*>, AllocError> make_unique_inplace(Allocator allocator,
 
   manager.ref();
 
-  Unique<destroy_operation_type*> destroy_operation_rc{
-      static_cast<destroy_operation_type*>(destroy_operation_handle), manager};
+  Unique<destroy_operation_type *> destroy_operation_rc{
+      static_cast<destroy_operation_type *>(destroy_operation_handle), manager};
 
   return Ok(transmute(&destroy_operation_handle->operation.object,
                       std::move(destroy_operation_rc)));
 }
 
 template <typename T>
-auto make_unique(Allocator allocator, T&& value) {
+auto make_unique(Allocator allocator, T &&value)
+{
   return make_unique_inplace<T>(allocator, std::forward<T>(value));
 }
 
 template <typename T>
-Unique<T*> make_unique_static(T& object) {
+Unique<T *> make_unique_static(T &object)
+{
   Manager manager = static_storage_manager;
   manager.ref();
-  return Unique<T*>{&object, std::move(manager)};
+  return Unique<T *>{&object, std::move(manager)};
 }
 
-}  // namespace rc
+}        // namespace rc
 
 STX_END_NAMESPACE

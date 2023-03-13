@@ -5,15 +5,20 @@
 using stx::Option, stx::None, stx::Some;
 using namespace std::literals;
 
-auto unlock_bag(int password) -> Option<std::string_view> {
-  if (password == 123456) {
+auto unlock_bag(int password) -> Option<std::string_view>
+{
+  if (password == 123456)
+  {
     return Some("Bag"sv);
-  } else {
+  }
+  else
+  {
     return None;
   }
 }
 
-int main() {
+int main()
+{
   std::cout << unlock_bag(123456).unwrap() << "\n";
 
   unlock_bag(000000).match(

@@ -15,7 +15,8 @@ STX_BEGIN_NAMESPACE
 ///
 /// thread-safety depends on implementation.
 ///
-struct ManagerHandle {
+struct ManagerHandle
+{
   /// increase the strong ref count of the associated resource.
   /// ensure resource is valid before this is called.
   /// a resource with a refcount of 1 or more must always be valid.
@@ -36,9 +37,12 @@ struct ManagerHandle {
 ///
 /// thread-safe
 ///
-struct StaticStorageManagerHandle final : public ManagerHandle {
-  virtual void ref() override {}
-  virtual void unref() override {}
+struct StaticStorageManagerHandle final : public ManagerHandle
+{
+  virtual void ref() override
+  {}
+  virtual void unref() override
+  {}
 };
 
 /// this handle type has no effect on the state of the program.
@@ -47,22 +51,28 @@ struct StaticStorageManagerHandle final : public ManagerHandle {
 ///
 /// thread-safe
 ///
-struct NoopManagerHandle final : public ManagerHandle {
-  virtual void ref() override {}
-  virtual void unref() override {}
+struct NoopManagerHandle final : public ManagerHandle
+{
+  virtual void ref() override
+  {}
+  virtual void unref() override
+  {}
 };
 
 /// once a resource is released, this manager is put in its place
 ///
 /// thread-safe
 ///
-struct ManagerStub final : public ManagerHandle {
-  virtual void ref() override {}
-  virtual void unref() override {}
+struct ManagerStub final : public ManagerHandle
+{
+  virtual void ref() override
+  {}
+  virtual void unref() override
+  {}
 };
 
 inline constexpr const StaticStorageManagerHandle static_storage_manager_handle;
-inline constexpr const NoopManagerHandle noop_manager_handle;
+inline constexpr const NoopManagerHandle          noop_manager_handle;
 
 // inlined to mean it is same across all translation units. marking them as
 // static would mean they are different across translation units.
@@ -102,12 +112,15 @@ inline constexpr const ManagerStub manager_stub_handle;
 /// `shared_ptr` supports.
 ///
 ///
-struct Manager {
-  explicit constexpr Manager(ManagerHandle& ihandle) : handle{&ihandle} {}
+struct Manager
+{
+  explicit constexpr Manager(ManagerHandle &ihandle) :
+      handle{&ihandle}
+  {}
 
   /// on-copy, the handles must refer to the same manager
-  constexpr Manager(Manager const& other) = default;
-  constexpr Manager& operator=(Manager const& other) = default;
+  constexpr Manager(Manager const &other)            = default;
+  constexpr Manager &operator=(Manager const &other) = default;
 
   /// on-move, the manager must copy and then invalidate the other
   /// manager's handle, the moved-from manager is required to be valid but
@@ -117,34 +130,43 @@ struct Manager {
   /// branches, though we'd have an extra copy on move (noop manager
   /// handle assignment).
   ///
-  constexpr Manager(Manager&& other) : handle{other.handle} {
+  constexpr Manager(Manager &&other) :
+      handle{other.handle}
+  {
     /// unarm other and prevent it from affecting the state of any object
-    other.handle = const_cast<ManagerStub*>(&manager_stub_handle);
+    other.handle = const_cast<ManagerStub *>(&manager_stub_handle);
   }
 
-  constexpr Manager& operator=(Manager&& other) {
-    ManagerHandle* tmp = other.handle;
-    other.handle = handle;
-    handle = tmp;
+  constexpr Manager &operator=(Manager &&other)
+  {
+    ManagerHandle *tmp = other.handle;
+    other.handle       = handle;
+    handle             = tmp;
     return *this;
   }
 
-  void ref() const { handle->ref(); }
+  void ref() const
+  {
+    handle->ref();
+  }
 
-  void unref() const { handle->unref(); }
+  void unref() const
+  {
+    handle->unref();
+  }
 
-  ManagerHandle* handle;
+  ManagerHandle *handle;
 };
 
 inline constexpr const Manager static_storage_manager{
-    const_cast<StaticStorageManagerHandle&>(static_storage_manager_handle)};
+    const_cast<StaticStorageManagerHandle &>(static_storage_manager_handle)};
 
 inline constexpr const Manager noop_manager{
-    const_cast<NoopManagerHandle&>(noop_manager_handle)};
+    const_cast<NoopManagerHandle &>(noop_manager_handle)};
 
 // inlined to mean it is same across all translation units. marking them as
 // static would mean they are different across translation units.
 inline constexpr const Manager manager_stub{
-    const_cast<ManagerStub&>(manager_stub_handle)};
+    const_cast<ManagerStub &>(manager_stub_handle)};
 
 STX_END_NAMESPACE

@@ -10,8 +10,8 @@
 #include "stx/config.h"
 #include "stx/enum.h"
 #include "stx/limits.h"
-#include "stx/rc.h"
 #include "stx/panic/report.h"
+#include "stx/rc.h"
 #include "stx/result.h"
 #include "stx/spinlock.h"
 #include "stx/struct.h"
@@ -84,7 +84,8 @@ STX_BEGIN_NAMESPACE
 /// longer sends notifications or values via the Promise object.
 ///
 ///
-enum class FutureStatus : uint8_t {
+enum class FutureStatus : uint8_t
+{
   /// the async operation has been submitted to the scheduler and is scheduled
   /// for execution.
   ///
@@ -198,33 +199,38 @@ enum class FutureStatus : uint8_t {
   ____Pending = U8_MAX
 };
 
-enum class InfoFutureStatus : uint8_t {
-  Scheduled = enum_uv(FutureStatus::Scheduled),
-  Submitted = enum_uv(FutureStatus::Submitted),
-  Preempted = enum_uv(FutureStatus::Preempted),
-  Executing = enum_uv(FutureStatus::Executing),
-  Canceling = enum_uv(FutureStatus::Canceling),
+enum class InfoFutureStatus : uint8_t
+{
+  Scheduled  = enum_uv(FutureStatus::Scheduled),
+  Submitted  = enum_uv(FutureStatus::Submitted),
+  Preempted  = enum_uv(FutureStatus::Preempted),
+  Executing  = enum_uv(FutureStatus::Executing),
+  Canceling  = enum_uv(FutureStatus::Canceling),
   Suspending = enum_uv(FutureStatus::Suspending),
-  Suspended = enum_uv(FutureStatus::Suspended),
-  Resuming = enum_uv(FutureStatus::Resuming),
+  Suspended  = enum_uv(FutureStatus::Suspended),
+  Resuming   = enum_uv(FutureStatus::Resuming),
 };
 
-enum class TerminalFutureStatus : uint8_t {
-  Canceled = enum_uv(FutureStatus::Canceled),
+enum class TerminalFutureStatus : uint8_t
+{
+  Canceled   = enum_uv(FutureStatus::Canceled),
   Completing = enum_uv(FutureStatus::Completing),
-  Completed = enum_uv(FutureStatus::Completed),
-  Pending = enum_uv(FutureStatus::____Pending)
+  Completed  = enum_uv(FutureStatus::Completed),
+  Pending    = enum_uv(FutureStatus::____Pending)
 };
 
-enum class FutureError : uint8_t {
+enum class FutureError : uint8_t
+{
   /// the async operation is pending and not yet finalized
   Pending,
   /// the async operation has been canceled
   Canceled
 };
 
-inline std::string_view operator>>(ReportQuery, FutureError const& error) {
-  switch (error) {
+inline std::string_view operator>>(ReportQuery, FutureError const &error)
+{
+  switch (error)
+  {
     case FutureError::Canceled:
       return "Canceled";
     case FutureError::Pending:
@@ -237,7 +243,8 @@ inline std::string_view operator>>(ReportQuery, FutureError const& error) {
 /// the executor might not be able to immediately respond to the requested
 /// states of the async operations. the executor might not even be able to
 /// attend to it at all.
-enum class CancelState : uint8_t {
+enum class CancelState : uint8_t
+{
   // the target is has not requested for cancelation
   Executing,
   // the target has requested for cancelation
@@ -251,28 +258,38 @@ enum class CancelState : uint8_t {
 /// state takes effect and is the state observed by the executor.
 ///
 ///
-enum class SuspendState : uint8_t {
+enum class SuspendState : uint8_t
+{
   // the target has requested for resumption
   Executing,
   // the target has requested for suspension
   Suspended
 };
 
-enum class PreemptState : uint8_t {
+enum class PreemptState : uint8_t
+{
   // the target has requested for resumption
   Executing,
   // the target has requested for preemption
   Preempted
 };
 
-enum class RequestType : uint8_t { Suspend, Cancel, Preempt };
+enum class RequestType : uint8_t
+{
+  Suspend,
+  Cancel,
+  Preempt
+};
 
 /// returned by functions to signify why they returned.
 ///
 /// NOTE: this is a plain data structure and doesn't check if a request was sent
 /// or not
-struct ServiceToken {
-  explicit constexpr ServiceToken(RequestType req_type) : type{req_type} {}
+struct ServiceToken
+{
+  explicit constexpr ServiceToken(RequestType req_type) :
+      type{req_type}
+  {}
 
   RequestType type = RequestType::Suspend;
 };
@@ -288,55 +305,67 @@ struct ServiceToken {
 // but not for the non-terminal ones.
 //
 //
-struct FutureExecutionState {
+struct FutureExecutionState
+{
   STX_DEFAULT_CONSTRUCTOR(FutureExecutionState)
   STX_MAKE_PINNED(FutureExecutionState)
 
-  void executor____notify_scheduled() {
+  void executor____notify_scheduled()
+  {
     notify_info(InfoFutureStatus::Scheduled);
   }
 
-  void executor____notify_submitted() {
+  void executor____notify_submitted()
+  {
     notify_info(InfoFutureStatus::Submitted);
   }
 
-  void executor____notify_preempted() {
+  void executor____notify_preempted()
+  {
     notify_info(InfoFutureStatus::Preempted);
   }
 
-  void executor____notify_executing() {
+  void executor____notify_executing()
+  {
     notify_info(InfoFutureStatus::Executing);
   }
 
-  void executor____notify_canceling() {
+  void executor____notify_canceling()
+  {
     notify_info(InfoFutureStatus::Canceling);
   }
 
-  void executor____notify_suspending() {
+  void executor____notify_suspending()
+  {
     notify_info(InfoFutureStatus::Suspending);
   }
 
-  void executor____notify_suspended() {
+  void executor____notify_suspended()
+  {
     notify_info(InfoFutureStatus::Suspended);
   }
 
-  void executor____notify_resuming() {
+  void executor____notify_resuming()
+  {
     notify_info(InfoFutureStatus::Resuming);
   }
 
-  void executor____notify_canceled() {
+  void executor____notify_canceled()
+  {
     notify_term_no_result(TerminalFutureStatus::Canceled);
   }
 
-  void executor____complete____with_void() {
+  void executor____complete____with_void()
+  {
     notify_term_no_result(TerminalFutureStatus::Completed);
   }
 
   template <typename Lambda>
-  void executor____complete____with_result(Lambda&& setter_op) {
+  void executor____complete____with_result(Lambda &&setter_op)
+  {
     {
       TerminalFutureStatus expected = TerminalFutureStatus::Pending;
-      TerminalFutureStatus target = TerminalFutureStatus::Completing;
+      TerminalFutureStatus target   = TerminalFutureStatus::Completing;
 
       // if the future has already reached a terminal state (canceled,
       // completed, force-canceled) or another thread is completing the future,
@@ -350,30 +379,37 @@ struct FutureExecutionState {
       // the future has not already reached a terminal state
       if (term.compare_exchange_strong(expected, target,
                                        std::memory_order_relaxed,
-                                       std::memory_order_relaxed)) {
+                                       std::memory_order_relaxed))
+      {
         std::forward<Lambda>(setter_op)();
         term.store(TerminalFutureStatus::Completed, std::memory_order_release);
-      } else {
+      }
+      else
+      {
         // already completed, completing, canceled, or force canceled
       }
     }
   }
 
-  FutureStatus user____fetch_status____with_no_result() const {
+  FutureStatus user____fetch_status____with_no_result() const
+  {
     return fetch_status(std::memory_order_relaxed);
   }
 
   // acquires write operations and stored value that happened on the
   // executor thread, ordered around the terminal status
-  FutureStatus user____fetch_status____with_result() const {
+  FutureStatus user____fetch_status____with_result() const
+  {
     // satisfies: the ordering of instructions to the shared storage is
     // consistent with the order in which it was written from the executor
     // thread.
     return fetch_status(std::memory_order_acquire);
   }
 
-  bool user____is_done() const {
-    switch (user____fetch_status____with_no_result()) {
+  bool user____is_done() const
+  {
+    switch (user____fetch_status____with_no_result())
+    {
       case FutureStatus::Canceled:
       case FutureStatus::Completed:
         return true;
@@ -383,8 +419,9 @@ struct FutureExecutionState {
     }
   }
 
- private:
-  FutureStatus fetch_status(std::memory_order terminal_load_mem_order) const {
+private:
+  FutureStatus fetch_status(std::memory_order terminal_load_mem_order) const
+  {
     // satisfies: the terminal status overrides the informational status and is
     // always checked before the informational status
     //
@@ -394,45 +431,53 @@ struct FutureExecutionState {
     //
     TerminalFutureStatus term_status = term.load(terminal_load_mem_order);
 
-    switch (term_status) {
-      case TerminalFutureStatus::Pending: {
+    switch (term_status)
+    {
+      case TerminalFutureStatus::Pending:
+      {
         InfoFutureStatus info_status = info.load(std::memory_order_relaxed);
         return FutureStatus{enum_uv(info_status)};
       }
 
-      default: {
+      default:
+      {
         return FutureStatus{enum_uv(term_status)};
       }
     }
   }
 
-  void notify_info(InfoFutureStatus status) {
+  void notify_info(InfoFutureStatus status)
+  {
     // the informational status can come in any order and don't need to be
     // sequenced
     // it doesn't need to be coordinated with the terminal status.
     info.store(status, std::memory_order_relaxed);
   }
 
-  void notify_term_no_result(TerminalFutureStatus const status) {
+  void notify_term_no_result(TerminalFutureStatus const status)
+  {
     // satisfies that terminal state is only ever updated once
     TerminalFutureStatus expected = TerminalFutureStatus::Pending;
     term.compare_exchange_strong(expected, status, std::memory_order_relaxed,
                                  std::memory_order_relaxed);
   }
 
-  std::atomic<InfoFutureStatus> info{InfoFutureStatus::Scheduled};
+  std::atomic<InfoFutureStatus>     info{InfoFutureStatus::Scheduled};
   std::atomic<TerminalFutureStatus> term{TerminalFutureStatus::Pending};
 };
 
-struct FutureRequestState {
+struct FutureRequestState
+{
   STX_DEFAULT_CONSTRUCTOR(FutureRequestState)
   STX_MAKE_PINNED(FutureRequestState)
 
-  CancelState proxy____fetch_cancel_request() const {
+  CancelState proxy____fetch_cancel_request() const
+  {
     return requested_cancel_state.load(std::memory_order_relaxed);
   }
 
-  SuspendState proxy____fetch_suspend_request() const {
+  SuspendState proxy____fetch_suspend_request() const
+  {
     // when in a force suspended state, it is the sole responsibilty of the
     // executor to bring the async operation back to the resumed state and clear
     // the force suspend request
@@ -443,74 +488,87 @@ struct FutureRequestState {
     return requested_suspend_state.load(std::memory_order_relaxed);
   }
 
-  PreemptState proxy____fetch_preempt_request() const {
+  PreemptState proxy____fetch_preempt_request() const
+  {
     return requested_preempt_state.load(std::memory_order_relaxed);
   }
 
-  void user____request_cancel() {
+  void user____request_cancel()
+  {
     // satisfies: cancelation request can only happen once and can't be cleared
     requested_cancel_state.store(CancelState::Canceled,
                                  std::memory_order_relaxed);
   }
 
-  void user____request_resume() {
+  void user____request_resume()
+  {
     // satisfies: suspend and resume can be requested across threads
     requested_suspend_state.store(SuspendState::Executing,
                                   std::memory_order_relaxed);
   }
 
-  void user____request_suspend() {
+  void user____request_suspend()
+  {
     // satisfies: suspend and resume can be requested across threads
     requested_suspend_state.store(SuspendState::Suspended,
                                   std::memory_order_relaxed);
   }
 
-  void executor____request_preempt() {
+  void executor____request_preempt()
+  {
     requested_preempt_state.store(PreemptState::Preempted,
                                   std::memory_order_relaxed);
   }
 
-  void executor____clear_preempt_request() {
+  void executor____clear_preempt_request()
+  {
     requested_preempt_state.store(PreemptState::Executing,
                                   std::memory_order_relaxed);
   }
 
- private:
+private:
   // not cacheline aligned since this is usually requested by a single thread
   // and serviced by a single thread and we aren't performing millions of
   // cancelation/suspend requests at once (cold path).
-  std::atomic<CancelState> requested_cancel_state{CancelState::Executing};
+  std::atomic<CancelState>  requested_cancel_state{CancelState::Executing};
   std::atomic<SuspendState> requested_suspend_state{SuspendState::Executing};
   std::atomic<PreemptState> requested_preempt_state{PreemptState::Executing};
 };
 
 struct FutureBaseState : public FutureExecutionState,
-                         public FutureRequestState {};
+                         public FutureRequestState
+{};
 
 template <typename T>
-struct FutureState : public FutureBaseState {
+struct FutureState : public FutureBaseState
+{
   STX_DEFAULT_CONSTRUCTOR(FutureState)
   STX_MAKE_PINNED(FutureState)
 
   // this only happens once across all threads and the lifetime of the
   // futurestate.
   // only one executor will have access to this so no locking is required.
-  void executor____complete_with_object(T&& value) {
+  void executor____complete_with_object(T &&value)
+  {
     FutureBaseState::executor____complete____with_result(
         [&value, this] { executor____unsafe_init_storage(std::move(value)); });
   }
 
-  Result<T, FutureError> user____copy_result() {
+  Result<T, FutureError> user____copy_result()
+  {
     FutureStatus status =
         FutureBaseState::user____fetch_status____with_result();
 
-    switch (status) {
-      case FutureStatus::Completed: {
+    switch (status)
+    {
+      case FutureStatus::Completed:
+      {
         LockGuard guard{storage_lock};
         return Ok(unsafe_copy());
       }
 
-      case FutureStatus::Canceled: {
+      case FutureStatus::Canceled:
+      {
         return Err(FutureError::Canceled);
       }
 
@@ -519,17 +577,21 @@ struct FutureState : public FutureBaseState {
     }
   }
 
-  Result<T, FutureError> user____move_result() {
+  Result<T, FutureError> user____move_result()
+  {
     FutureStatus status =
         FutureBaseState::user____fetch_status____with_result();
 
-    switch (status) {
-      case FutureStatus::Completed: {
+    switch (status)
+    {
+      case FutureStatus::Completed:
+      {
         LockGuard guard{storage_lock};
         return Ok(unsafe_move());
       }
 
-      case FutureStatus::Canceled: {
+      case FutureStatus::Canceled:
+      {
         return Err(FutureError::Canceled);
       }
 
@@ -538,17 +600,21 @@ struct FutureState : public FutureBaseState {
     }
   }
 
-  Result<T*, FutureError> user____ref_result() {
+  Result<T *, FutureError> user____ref_result()
+  {
     FutureStatus status =
         FutureBaseState::user____fetch_status____with_result();
 
-    switch (status) {
-      case FutureStatus::Completed: {
+    switch (status)
+    {
+      case FutureStatus::Completed:
+      {
         LockGuard guard{storage_lock};
-        return Ok(std::launder(reinterpret_cast<T*>(&storage)));
+        return Ok(std::launder(reinterpret_cast<T *>(&storage)));
       }
 
-      case FutureStatus::Canceled: {
+      case FutureStatus::Canceled:
+      {
         return Err(FutureError::Canceled);
       }
 
@@ -562,7 +628,8 @@ struct FutureState : public FutureBaseState {
   //
   // destructor only runs when there's no reference to the future's state
   //
-  ~FutureState() {
+  ~FutureState()
+  {
     // destructor only runs once when no other operation is happening on the
     // future. and only happens when it isn't used across threads, so locking is
     // not necessary.
@@ -576,8 +643,10 @@ struct FutureState : public FutureBaseState {
     FutureStatus status =
         FutureBaseState::user____fetch_status____with_result();
 
-    switch (status) {
-      case FutureStatus::Completed: {
+    switch (status)
+    {
+      case FutureStatus::Completed:
+      {
         unsafe_destroy();
         return;
       }
@@ -586,7 +655,7 @@ struct FutureState : public FutureBaseState {
     }
   }
 
- private:
+private:
   // NOTE: we don't use mutexes on the final result of the async operation
   // since the executor will have exclusive access to the storage address
   // until the async operation is finished (completed, force canceled, or,
@@ -623,51 +692,79 @@ struct FutureState : public FutureBaseState {
   // this function must only be called once otherwise could potentially lead to
   // a memory leak.
   // this is enforced by the atomic terminal state check via CAS.
-  void executor____unsafe_init_storage(T&& value) {
+  void executor____unsafe_init_storage(T &&value)
+  {
     new (&storage) T{std::move(value)};
   }
 
-  T& unsafe_launder_writable() {
-    return *std::launder(reinterpret_cast<T*>(&storage));
+  T &unsafe_launder_writable()
+  {
+    return *std::launder(reinterpret_cast<T *>(&storage));
   }
 
-  T const& unsafe_launder_readable() const {
-    return *std::launder(reinterpret_cast<T const*>(&storage));
+  T const &unsafe_launder_readable() const
+  {
+    return *std::launder(reinterpret_cast<T const *>(&storage));
   }
 
-  T&& unsafe_move() { return std::move(unsafe_launder_writable()); }
+  T &&unsafe_move()
+  {
+    return std::move(unsafe_launder_writable());
+  }
 
-  T unsafe_copy() const { return unsafe_launder_readable(); }
+  T unsafe_copy() const
+  {
+    return unsafe_launder_readable();
+  }
 
-  void unsafe_destroy() { unsafe_launder_writable().~T(); }
+  void unsafe_destroy()
+  {
+    unsafe_launder_writable().~T();
+  }
 };
 
 template <>
-struct FutureState<void> : public FutureBaseState {
+struct FutureState<void> : public FutureBaseState
+{
   STX_DEFAULT_CONSTRUCTOR(FutureState)
   STX_MAKE_PINNED(FutureState)
 };
 
 template <typename T>
-struct FutureBase {
+struct FutureBase
+{
   STX_DISABLE_DEFAULT_CONSTRUCTOR(FutureBase)
 
-  explicit FutureBase(Rc<FutureState<T>*> init_state)
-      : state{std::move(init_state)} {}
+  explicit FutureBase(Rc<FutureState<T> *> init_state) :
+      state{std::move(init_state)}
+  {}
 
-  FutureStatus fetch_status() const {
+  FutureStatus fetch_status() const
+  {
     return state.handle->user____fetch_status____with_no_result();
   }
 
-  void request_cancel() const { state.handle->user____request_cancel(); }
+  void request_cancel() const
+  {
+    state.handle->user____request_cancel();
+  }
 
-  void request_suspend() const { state.handle->user____request_suspend(); }
+  void request_suspend() const
+  {
+    state.handle->user____request_suspend();
+  }
 
-  void request_resume() const { state.handle->user____request_resume(); }
+  void request_resume() const
+  {
+    state.handle->user____request_resume();
+  }
 
-  bool is_done() const { return state.handle->user____is_done(); }
+  bool is_done() const
+  {
+    return state.handle->user____is_done();
+  }
 
-  Rc<FutureState<T>*> state;
+  Rc<FutureState<T> *> state;
 };
 
 // this is contrary to the on-finished callback approach in which the user is
@@ -685,29 +782,37 @@ struct FutureBase {
 // Futures observes effects of changes from the executor
 //
 template <typename T>
-struct Future : public FutureBase<T> {
+struct Future : public FutureBase<T>
+{
   using Base = FutureBase<T>;
 
   STX_DISABLE_DEFAULT_CONSTRUCTOR(Future)
 
-  explicit Future(Rc<FutureState<T>*> init_state)
-      : Base{std::move(init_state)} {}
+  explicit Future(Rc<FutureState<T> *> init_state) :
+      Base{std::move(init_state)}
+  {}
 
   // copy operations should be extremely fast
-  Result<T, FutureError> copy() const {
+  Result<T, FutureError> copy() const
+  {
     return Base::state.handle->user____copy_result();
   }
 
   // move operations should be extremely fast
-  Result<T, FutureError> move() const {
+  Result<T, FutureError> move() const
+  {
     return Base::state.handle->user____move_result();
   }
 
-  Result<T*, FutureError> ref() const {
+  Result<T *, FutureError> ref() const
+  {
     return Base::state.handle->user____ref_result();
   }
 
-  Future share() const { return Future{Base::state.share()}; }
+  Future share() const
+  {
+    return Future{Base::state.share()};
+  }
 
   // user ref result
   // invocable(ref)
@@ -719,265 +824,388 @@ struct Future : public FutureBase<T> {
 };
 
 template <>
-struct Future<void> : public FutureBase<void> {
+struct Future<void> : public FutureBase<void>
+{
   using Base = FutureBase<void>;
 
   STX_DISABLE_DEFAULT_CONSTRUCTOR(Future)
 
-  explicit Future(Rc<FutureState<void>*> init_state)
-      : Base{std::move(init_state)} {}
+  explicit Future(Rc<FutureState<void> *> init_state) :
+      Base{std::move(init_state)}
+  {}
 };
 
-struct FutureAny {
+struct FutureAny
+{
   STX_DISABLE_DEFAULT_CONSTRUCTOR(FutureAny)
 
   template <typename T>
-  explicit FutureAny(Future<T> future)
-      : state{cast<FutureBaseState*>(std::move(future.state))} {}
+  explicit FutureAny(Future<T> future) :
+      state{cast<FutureBaseState *>(std::move(future.state))}
+  {}
 
-  explicit FutureAny(Rc<FutureBaseState*> istate) : state{std::move(istate)} {}
+  explicit FutureAny(Rc<FutureBaseState *> istate) :
+      state{std::move(istate)}
+  {}
 
-  FutureStatus fetch_status() const {
+  FutureStatus fetch_status() const
+  {
     return state.handle->user____fetch_status____with_no_result();
   }
 
-  void request_cancel() const { state.handle->user____request_cancel(); }
+  void request_cancel() const
+  {
+    state.handle->user____request_cancel();
+  }
 
-  void request_suspend() const { state.handle->user____request_suspend(); }
+  void request_suspend() const
+  {
+    state.handle->user____request_suspend();
+  }
 
-  void request_resume() const { state.handle->user____request_resume(); }
+  void request_resume() const
+  {
+    state.handle->user____request_resume();
+  }
 
-  bool is_done() const { return state.handle->user____is_done(); }
+  bool is_done() const
+  {
+    return state.handle->user____is_done();
+  }
 
-  FutureAny share() const { return FutureAny{state.share()}; }
+  FutureAny share() const
+  {
+    return FutureAny{state.share()};
+  }
 
-  Rc<FutureBaseState*> state;
+  Rc<FutureBaseState *> state;
 };
 
 template <typename T>
-struct PromiseBase {
+struct PromiseBase
+{
   STX_DISABLE_DEFAULT_CONSTRUCTOR(PromiseBase)
 
-  explicit PromiseBase(Rc<FutureState<T>*> init_state)
-      : state{std::move(init_state)} {}
+  explicit PromiseBase(Rc<FutureState<T> *> init_state) :
+      state{std::move(init_state)}
+  {}
 
-  void notify_scheduled() const {
+  void notify_scheduled() const
+  {
     state.handle->executor____notify_scheduled();
   }
 
-  void notify_submitted() const {
+  void notify_submitted() const
+  {
     state.handle->executor____notify_submitted();
   }
 
-  void notify_preempted() const {
+  void notify_preempted() const
+  {
     state.handle->executor____notify_preempted();
   }
 
-  void notify_executing() const {
+  void notify_executing() const
+  {
     state.handle->executor____notify_executing();
   }
 
-  void notify_cancel_begin() const {
+  void notify_cancel_begin() const
+  {
     state.handle->executor____notify_canceling();
   }
 
-  void notify_canceled() const { state.handle->executor____notify_canceled(); }
+  void notify_canceled() const
+  {
+    state.handle->executor____notify_canceled();
+  }
 
-  void notify_suspend_begin() const {
+  void notify_suspend_begin() const
+  {
     state.handle->executor____notify_suspending();
   }
 
-  void notify_suspended() const {
+  void notify_suspended() const
+  {
     state.handle->executor____notify_suspended();
   }
 
-  void notify_resume_begin() const {
+  void notify_resume_begin() const
+  {
     state.handle->executor____notify_resuming();
   }
 
-  void request_cancel() const { state.handle->user____request_cancel(); }
+  void request_cancel() const
+  {
+    state.handle->user____request_cancel();
+  }
 
-  void request_suspend() const { state.handle->user____request_suspend(); }
+  void request_suspend() const
+  {
+    state.handle->user____request_suspend();
+  }
 
-  void request_resume() const { state.handle->user____request_resume(); }
+  void request_resume() const
+  {
+    state.handle->user____request_resume();
+  }
 
-  void request_preempt() const { state.handle->executor____request_preempt(); }
+  void request_preempt() const
+  {
+    state.handle->executor____request_preempt();
+  }
 
-  void clear_preempt_request() const {
+  void clear_preempt_request() const
+  {
     state.handle->executor____clear_preempt_request();
   }
 
-  CancelState fetch_cancel_request() const {
+  CancelState fetch_cancel_request() const
+  {
     return state.handle->proxy____fetch_cancel_request();
   }
 
-  PreemptState fetch_preempt_request() const {
+  PreemptState fetch_preempt_request() const
+  {
     return state.handle->proxy____fetch_preempt_request();
   }
 
-  SuspendState fetch_suspend_request() const {
+  SuspendState fetch_suspend_request() const
+  {
     return state.handle->proxy____fetch_suspend_request();
   }
 
-  FutureStatus fetch_status() const {
+  FutureStatus fetch_status() const
+  {
     return state.handle->user____fetch_status____with_no_result();
   }
 
-  bool is_done() const { return state.handle->user____is_done(); }
+  bool is_done() const
+  {
+    return state.handle->user____is_done();
+  }
 
-  Future<T> get_future() const { return Future<T>{state.share()}; }
+  Future<T> get_future() const
+  {
+    return Future<T>{state.share()};
+  }
 
-  Rc<FutureState<T>*> state;
+  Rc<FutureState<T> *> state;
 };
 
 template <typename T>
-struct Promise : public PromiseBase<T> {
+struct Promise : public PromiseBase<T>
+{
   using Base = PromiseBase<T>;
 
   STX_DISABLE_DEFAULT_CONSTRUCTOR(Promise)
 
-  explicit Promise(Rc<FutureState<T>*> init_state)
-      : Base{std::move(init_state)} {}
+  explicit Promise(Rc<FutureState<T> *> init_state) :
+      Base{std::move(init_state)}
+  {}
 
-  void notify_completed(T&& value) const {
+  void notify_completed(T &&value) const
+  {
     Base::state.handle->executor____complete_with_object(std::move(value));
   }
 
-  Promise share() const { return Promise{Base::state.share()}; }
+  Promise share() const
+  {
+    return Promise{Base::state.share()};
+  }
 };
 
 template <>
-struct Promise<void> : public PromiseBase<void> {
+struct Promise<void> : public PromiseBase<void>
+{
   using Base = PromiseBase<void>;
 
   STX_DISABLE_DEFAULT_CONSTRUCTOR(Promise)
 
-  explicit Promise(Rc<FutureState<void>*> init_state)
-      : Base{std::move(init_state)} {}
+  explicit Promise(Rc<FutureState<void> *> init_state) :
+      Base{std::move(init_state)}
+  {}
 
-  void notify_completed() const {
+  void notify_completed() const
+  {
     Base::state.handle->executor____complete____with_void();
   }
 
-  Promise share() const { return Promise{Base::state.share()}; }
+  Promise share() const
+  {
+    return Promise{Base::state.share()};
+  }
 };
 
-struct PromiseAny {
+struct PromiseAny
+{
   STX_DISABLE_DEFAULT_CONSTRUCTOR(PromiseAny)
 
   template <typename T>
-  explicit PromiseAny(Promise<T> promise)
-      : state{cast<FutureBaseState*>(std::move(promise.state))} {}
+  explicit PromiseAny(Promise<T> promise) :
+      state{cast<FutureBaseState *>(std::move(promise.state))}
+  {}
 
-  explicit PromiseAny(Rc<FutureBaseState*> istate) : state{std::move(istate)} {}
+  explicit PromiseAny(Rc<FutureBaseState *> istate) :
+      state{std::move(istate)}
+  {}
 
-  void notify_scheduled() const {
+  void notify_scheduled() const
+  {
     state.handle->executor____notify_scheduled();
   }
 
-  void notify_submitted() const {
+  void notify_submitted() const
+  {
     state.handle->executor____notify_submitted();
   }
 
-  void notify_preempted() const {
+  void notify_preempted() const
+  {
     state.handle->executor____notify_preempted();
   }
 
-  void notify_executing() const {
+  void notify_executing() const
+  {
     state.handle->executor____notify_executing();
   }
 
-  void notify_cancel_begin() const {
+  void notify_cancel_begin() const
+  {
     state.handle->executor____notify_canceling();
   }
 
-  void notify_canceled() const { state.handle->executor____notify_canceled(); }
+  void notify_canceled() const
+  {
+    state.handle->executor____notify_canceled();
+  }
 
-  void notify_suspend_begin() const {
+  void notify_suspend_begin() const
+  {
     state.handle->executor____notify_suspending();
   }
 
-  void notify_suspended() const {
+  void notify_suspended() const
+  {
     state.handle->executor____notify_suspended();
   }
 
-  void notify_resume_begin() const {
+  void notify_resume_begin() const
+  {
     state.handle->executor____notify_resuming();
   }
 
-  void request_cancel() const { state.handle->user____request_cancel(); }
+  void request_cancel() const
+  {
+    state.handle->user____request_cancel();
+  }
 
-  void request_suspend() const { state.handle->user____request_suspend(); }
+  void request_suspend() const
+  {
+    state.handle->user____request_suspend();
+  }
 
-  void request_resume() const { state.handle->user____request_resume(); }
+  void request_resume() const
+  {
+    state.handle->user____request_resume();
+  }
 
-  void request_preempt() const { state.handle->executor____request_preempt(); }
+  void request_preempt() const
+  {
+    state.handle->executor____request_preempt();
+  }
 
-  void clear_preempt_request() const {
+  void clear_preempt_request() const
+  {
     state.handle->executor____clear_preempt_request();
   }
 
-  CancelState fetch_cancel_request() const {
+  CancelState fetch_cancel_request() const
+  {
     return state.handle->proxy____fetch_cancel_request();
   }
 
-  PreemptState fetch_preempt_request() const {
+  PreemptState fetch_preempt_request() const
+  {
     return state.handle->proxy____fetch_preempt_request();
   }
 
-  SuspendState fetch_suspend_request() const {
+  SuspendState fetch_suspend_request() const
+  {
     return state.handle->proxy____fetch_suspend_request();
   }
 
-  FutureStatus fetch_status() const {
+  FutureStatus fetch_status() const
+  {
     return state.handle->user____fetch_status____with_no_result();
   }
 
-  bool is_done() const { return state.handle->user____is_done(); }
+  bool is_done() const
+  {
+    return state.handle->user____is_done();
+  }
 
-  FutureAny get_future() const { return FutureAny{state.share()}; }
+  FutureAny get_future() const
+  {
+    return FutureAny{state.share()};
+  }
 
-  PromiseAny share() const { return PromiseAny{state.share()}; }
+  PromiseAny share() const
+  {
+    return PromiseAny{state.share()};
+  }
 
-  Rc<FutureBaseState*> state;
+  Rc<FutureBaseState *> state;
 };
 
-struct RequestProxy {
+struct RequestProxy
+{
   STX_DISABLE_DEFAULT_CONSTRUCTOR(RequestProxy)
 
   template <typename T>
-  explicit RequestProxy(Promise<T> const& promise)
-      : state{cast<FutureBaseState*>(promise.state.share())} {}
+  explicit RequestProxy(Promise<T> const &promise) :
+      state{cast<FutureBaseState *>(promise.state.share())}
+  {}
 
   template <typename T>
-  explicit RequestProxy(Future<T> const& future)
-      : state{cast<FutureBaseState*>(future.state.share())} {}
+  explicit RequestProxy(Future<T> const &future) :
+      state{cast<FutureBaseState *>(future.state.share())}
+  {}
 
-  explicit RequestProxy(FutureAny const& future)
-      : state{future.state.share()} {}
+  explicit RequestProxy(FutureAny const &future) :
+      state{future.state.share()}
+  {}
 
-  explicit RequestProxy(Rc<FutureBaseState*> istate)
-      : state{std::move(istate)} {}
+  explicit RequestProxy(Rc<FutureBaseState *> istate) :
+      state{std::move(istate)}
+  {}
 
-  CancelState fetch_cancel_request() const {
+  CancelState fetch_cancel_request() const
+  {
     return state.handle->proxy____fetch_cancel_request();
   }
 
-  PreemptState fetch_preempt_request() const {
+  PreemptState fetch_preempt_request() const
+  {
     return state.handle->proxy____fetch_preempt_request();
   }
 
-  SuspendState fetch_suspend_request() const {
+  SuspendState fetch_suspend_request() const
+  {
     return state.handle->proxy____fetch_suspend_request();
   }
 
-  RequestProxy share() const { return RequestProxy{state.share()}; }
+  RequestProxy share() const
+  {
+    return RequestProxy{state.share()};
+  }
 
-  Rc<FutureBaseState*> state;
+  Rc<FutureBaseState *> state;
 };
 
 template <typename T>
-Result<Promise<T>, AllocError> make_promise(Allocator allocator) {
+Result<Promise<T>, AllocError> make_promise(Allocator allocator)
+{
   TRY_OK(shared_state, rc::make_inplace<FutureState<T>>(allocator));
   return Ok(Promise<T>{std::move(shared_state)});
 }

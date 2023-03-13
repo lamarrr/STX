@@ -6,38 +6,61 @@
 
 using stx::Vec;
 
-struct Life {
-  Life() { inc(); }
+struct Life
+{
+  Life()
+  {
+    inc();
+  }
 
-  Life(Life const&) { inc(); }
+  Life(Life const &)
+  {
+    inc();
+  }
 
-  Life& operator=(Life const&) {
+  Life &operator=(Life const &)
+  {
     clobber();
     return *this;
   }
 
-  Life(Life&&) { inc(); }
+  Life(Life &&)
+  {
+    inc();
+  }
 
-  Life& operator=(Life&&) {
+  Life &operator=(Life &&)
+  {
     clobber();
     return *this;
   }
 
-  ~Life() { dec(); }
+  ~Life()
+  {
+    dec();
+  }
 
-  static int64_t add(int64_t inc) {
+  static int64_t add(int64_t inc)
+  {
     static int64_t count = 0;
     count += inc;
     return count;
   }
 
-  static void inc() { EXPECT_NE(add(1), 0); }
+  static void inc()
+  {
+    EXPECT_NE(add(1), 0);
+  }
 
-  static void dec() { EXPECT_GE(add(-1), 0); }
+  static void dec()
+  {
+    EXPECT_GE(add(-1), 0);
+  }
 
-  static void clobber() {
-    int f = 9;
-    *(volatile int*)(&f) = 82;
+  static void clobber()
+  {
+    int f                  = 9;
+    *(volatile int *) (&f) = 82;
   }
 };
 
@@ -45,7 +68,8 @@ struct Life {
   EXPECT_GE(vec.end(), vec.begin()); \
   EXPECT_GE(vec.capacity(), vec.size())
 
-TEST(VecTest, MoveAssignmentAndConstruction) {
+TEST(VecTest, MoveAssignmentAndConstruction)
+{
   Vec<int> a{stx::os_allocator};
   a.push(0).unwrap();
   a.push(1).unwrap();
@@ -68,11 +92,13 @@ TEST(VecTest, MoveAssignmentAndConstruction) {
   EXPECT_EQ(a[2], 2);
 }
 
-TEST(VecTest, Destructor) {
+TEST(VecTest, Destructor)
+{
   {
     Vec<int> vec{stx::Memory{stx::os_allocator, nullptr}, 0, 0};
 
-    for (size_t i = 0; i < 10000; i++) vec.push_inplace(8).unwrap();
+    for (size_t i = 0; i < 10000; i++)
+      vec.push_inplace(8).unwrap();
 
     EXPECT_EQ(vec.size(), 10000);
     EXPECT_VALID_VEC(vec);
@@ -85,7 +111,8 @@ TEST(VecTest, Destructor) {
   }
 }
 
-TEST(VecTest, Resize) {
+TEST(VecTest, Resize)
+{
   {
     Vec<int> vec{stx::os_allocator};
 
@@ -93,7 +120,8 @@ TEST(VecTest, Resize) {
 
     EXPECT_VALID_VEC(vec);
 
-    for (auto& el : vec.span()) {
+    for (auto &el : vec.span())
+    {
       EXPECT_EQ(el, 69);
     }
 
@@ -103,17 +131,20 @@ TEST(VecTest, Resize) {
 
     EXPECT_EQ(vec.size(), 20);
 
-    for (auto& el : vec.span().slice(0, 10)) {
+    for (auto &el : vec.span().slice(0, 10))
+    {
       EXPECT_EQ(el, 69);
     }
 
-    for (auto& el : vec.span().slice(10, 10)) {
+    for (auto &el : vec.span().slice(10, 10))
+    {
       EXPECT_EQ(el, 42);
     }
   }
 }
 
-TEST(VecTest, ResizeLifetime) {
+TEST(VecTest, ResizeLifetime)
+{
   {
     Vec<Life> vec{stx::os_allocator};
     vec.resize(1).unwrap();
@@ -123,7 +154,8 @@ TEST(VecTest, ResizeLifetime) {
   }
 }
 
-TEST(VecTest, Noop) {
+TEST(VecTest, Noop)
+{
   stx::Vec<int> vec{stx::os_allocator};
 
   vec.push(3).unwrap();
@@ -148,7 +180,8 @@ TEST(VecTest, Noop) {
                             ".*");
 }
 
-TEST(VecTest, Copy) {
+TEST(VecTest, Copy)
+{
   {
     stx::Vec<int> vec{stx::os_allocator};
 
@@ -179,7 +212,8 @@ TEST(VecTest, Copy) {
   }
 }
 
-TEST(VecTest, Extend) {
+TEST(VecTest, Extend)
+{
   stx::Vec<int> a{stx::os_allocator};
   a.extend({}).unwrap();
   a.extend_move({}).unwrap();
@@ -189,9 +223,10 @@ TEST(VecTest, Extend) {
   b.extend_move({}).unwrap();
 }
 
-TEST(VecTest, Pop) {
+TEST(VecTest, Pop)
+{
   {
-    int data[] = {1, 2, 3, 4, 5};
+    int           data[] = {1, 2, 3, 4, 5};
     stx::Vec<int> a{stx::os_allocator};
     a.extend(data).unwrap();
 
@@ -208,7 +243,7 @@ TEST(VecTest, Pop) {
   }
 
   {
-    int data[] = {1, 2, 3, 4, 5};
+    int                data[] = {1, 2, 3, 4, 5};
     stx::FixedVec<int> a =
         stx::vec::make_fixed<int>(stx::os_allocator, 5).unwrap();
     a.extend(data).unwrap();

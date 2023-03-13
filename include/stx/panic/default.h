@@ -12,7 +12,7 @@
 #pragma once
 
 #if !defined(STX_NO_STD_THREAD)
-#include <thread>
+#  include <thread>
 #endif
 
 #include "stx/backtrace.h"
@@ -35,7 +35,8 @@ STX_BEGIN_NAMESPACE
 // at once as the buffer can likely not be enough.
 //
 inline void panic_default(std::string_view info, std::string_view error_report,
-                          SourceLocation location) {
+                          SourceLocation location)
+{
   // probably too much, but enough
   // this will at least hold a formatted uint128_t (40 digits)
   static constexpr int const FMT_BUFFER_SIZE = 64;
@@ -66,14 +67,17 @@ inline void panic_default(std::string_view info, std::string_view error_report,
 
   std::fputs(" panicked with: '", stderr);
 
-  for (char c : info) {
+  for (char c : info)
+  {
     std::fputc(c, stderr);
   }
 
-  if (!error_report.empty()) {
+  if (!error_report.empty())
+  {
     std::fputs(": ", stderr);
 
-    for (auto c : error_report) {
+    for (auto c : error_report)
+    {
       std::fputc(c, stderr);
     }
   }
@@ -90,9 +94,12 @@ inline void panic_default(std::string_view info, std::string_view error_report,
 
   auto line = location.line();
 
-  if (line != 0) {
+  if (line != 0)
+  {
     STX_PANIC_EPRINTF(FMT_BUFFER_SIZE, "%" PRIuLEAST32, line);
-  } else {
+  }
+  else
+  {
     std::fputs("unknown", stderr);
   }
 
@@ -100,9 +107,12 @@ inline void panic_default(std::string_view info, std::string_view error_report,
 
   auto column = location.column();
 
-  if (column != 0) {
+  if (column != 0)
+  {
     STX_PANIC_EPRINTF(FMT_BUFFER_SIZE, "%" PRIuLEAST32, column);
-  } else {
+  }
+  else
+  {
     std::fputs("unknown", stderr);
   }
 
@@ -126,8 +136,9 @@ inline void panic_default(std::string_view info, std::string_view error_report,
         STX_PANIC_EPRINTF(FMT_BUFFER_SIZE, "#%d\t\t", i);
 
         frame.symbol.match(
-            [](backtrace::Symbol const& sym) {
-              for (char c : sym.raw()) {
+            [](backtrace::Symbol const &sym) {
+              for (char c : sym.raw())
+              {
                 std::fputc(c, stderr);
               }
             },
@@ -147,7 +158,8 @@ inline void panic_default(std::string_view info, std::string_view error_report,
       }),
       1);
 
-  if (frames <= 0) {
+  if (frames <= 0)
+  {
     std::fputs(
         R"(WARNING >> The stack frames couldn't be identified, debug information was possibly stripped, unavailable, or elided by compiler)",
         stderr);

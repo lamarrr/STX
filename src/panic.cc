@@ -13,10 +13,11 @@
 
 #ifndef STX_CUSTOM_PANIC_HANDLER
 
-#include "stx/panic/default.h"
+#  include "stx/panic/default.h"
 
 void stx::panic_handler(std::string_view info, std::string_view error_report,
-                        stx::SourceLocation location) {
+                        stx::SourceLocation location)
+{
   stx::panic_default(info, error_report, location);
 }
 

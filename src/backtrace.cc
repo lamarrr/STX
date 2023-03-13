@@ -16,8 +16,8 @@
 #include <cstdio>
 
 #if defined(STX_ENABLE_BACKTRACE)
-#include "absl/debugging/stacktrace.h"
-#include "absl/debugging/symbolize.h"
+#  include "absl/debugging/stacktrace.h"
+#  include "absl/debugging/symbolize.h"
 #endif
 
 STX_BEGIN_NAMESPACE
@@ -30,43 +30,49 @@ constexpr uint32_t MAX_STACK_FRAME_DEPTH = 128;
 // The standard recommends 1024 bytes minimum for an identifier
 constexpr uint32_t SYMBOL_BUFFER_SIZE = 1024;
 
-std::string_view backtrace::Symbol::raw() const {
+std::string_view backtrace::Symbol::raw() const
+{
   return std::string_view{symbol_.data(), symbol_.size()};
 }
 
-int backtrace::trace(Fn<bool(Frame, int)> callback, int skip_count) {
+int backtrace::trace(Fn<bool(Frame, int)> callback, int skip_count)
+{
   // TODO(lamarrr): get stack pointer in a portable and well-defined way
 #if defined(STX_ENABLE_BACKTRACE)
-  void* ips[MAX_STACK_FRAME_DEPTH];
+  void     *ips[MAX_STACK_FRAME_DEPTH];
   uintptr_t sps[MAX_STACK_FRAME_DEPTH];
-  int sizes[MAX_STACK_FRAME_DEPTH];
+  int       sizes[MAX_STACK_FRAME_DEPTH];
 
-  (void)sps;
+  (void) sps;
 
   int depth =
       absl::GetStackFrames(ips, sizes, MAX_STACK_FRAME_DEPTH, skip_count);
 
-  if (depth <= 0) return 0;
+  if (depth <= 0)
+    return 0;
 
   char symbol[SYMBOL_BUFFER_SIZE];
-  int max_len = SYMBOL_BUFFER_SIZE;
+  int  max_len = SYMBOL_BUFFER_SIZE;
 
-  for (int i = 0; i < depth; i++) {
+  for (int i = 0; i < depth; i++)
+  {
     symbol[0] = '\0';
     backtrace::Frame frame{};
-    if (absl::Symbolize(ips[i], symbol, max_len)) {
+    if (absl::Symbolize(ips[i], symbol, max_len))
+    {
       Span<char const> span{symbol, static_cast<size_t>(max_len)};
       frame.symbol = Some(backtrace::Symbol(std::move(span)));
     }
 
     frame.ip = Some(reinterpret_cast<uintptr_t>(ips[i]));
 
-    if (callback(std::move(frame), depth - i)) break;
+    if (callback(std::move(frame), depth - i))
+      break;
   }
   return depth;
 #else
-  (void)callback;
-  (void)skip_count;
+  (void) callback;
+  (void) skip_count;
   return 0;
 #endif
 }

@@ -40,34 +40,51 @@ STX_BEGIN_NAMESPACE
 /// C++ 17 and above
 ///
 template <typename E>
-struct [[nodiscard]] Err : impl::check_value_type<E> {
+struct [[nodiscard]] Err : impl::check_value_type<E>
+{
   using value_type = E;
 
   template <typename Tp, typename Er>
   friend struct Result;
 
   /// an `Err<E>` can only be constructed with an r-value of type `E`
-  explicit constexpr Err(E&& value) : value_(std::move(value)) {}
+  explicit constexpr Err(E &&value) :
+      value_(std::move(value))
+  {}
 
-  constexpr E copy() const { return value_; }
+  constexpr E copy() const
+  {
+    return value_;
+  }
 
-  constexpr E&& move() { return std::move(value_); }
+  constexpr E &&move()
+  {
+    return std::move(value_);
+  }
 
-  constexpr E& ref() { return value_; }
+  constexpr E &ref()
+  {
+    return value_;
+  }
 
-  constexpr E const& cref() const { return value_; }
+  constexpr E const &cref() const
+  {
+    return value_;
+  }
 
- private:
+private:
   E value_;
 };
 
 template <typename E, typename F, STX_ENABLE_IF(equality_comparable<E, F>)>
-[[nodiscard]] constexpr bool operator==(Err<E> const& a, Err<F> const& b) {
+[[nodiscard]] constexpr bool operator==(Err<E> const &a, Err<F> const &b)
+{
   return a.cref() == b.cref();
 }
 
 template <typename E, typename F, STX_ENABLE_IF(equality_comparable<E, F>)>
-[[nodiscard]] constexpr bool operator!=(Err<E> const& a, Err<F> const& b) {
+[[nodiscard]] constexpr bool operator!=(Err<E> const &a, Err<F> const &b)
+{
   return a.cref() != b.cref();
 }
 

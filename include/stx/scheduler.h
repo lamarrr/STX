@@ -12,8 +12,8 @@
 #include "stx/async.h"
 #include "stx/config.h"
 #include "stx/fn.h"
-#include "stx/rc.h"
 #include "stx/option.h"
+#include "stx/rc.h"
 #include "stx/scheduler/thread_pool.h"
 #include "stx/scheduler/thread_slot.h"
 #include "stx/scheduler/timeline.h"
@@ -30,16 +30,24 @@ using namespace std::chrono_literals;
 using std::chrono::nanoseconds;
 using TimePoint = std::chrono::steady_clock::time_point;
 
-struct TaskTraceInfo {
+struct TaskTraceInfo
+{
   Rc<StringView> content =
       string::rc::make_static_view("[Unspecified Context]");
   Rc<StringView> purpose =
       string::rc::make_static_view("[Unspecified Purpose]");
 };
 
-enum class TaskReady : uint8_t { No, Yes };
+enum class TaskReady : uint8_t
+{
+  No,
+  Yes
+};
 
-constexpr TaskReady task_is_ready(nanoseconds) { return TaskReady::Yes; }
+constexpr TaskReady task_is_ready(nanoseconds)
+{
+  return TaskReady::Yes;
+}
 
 // NOTE: scheduler isn't thread-safe. don't submit tasks to them from the
 // tasks.  <<<======= this needs to go, we need to allow this somehow
@@ -47,7 +55,8 @@ constexpr TaskReady task_is_ready(nanoseconds) { return TaskReady::Yes; }
 // TODO(lamarrr): make scheduler thread-safe
 //
 //
-struct Task {
+struct Task
+{
   // this is the final task to be executed on the target thread.
   // must only be invoked by one thread at a point in time.
   //
@@ -83,29 +92,33 @@ struct Task {
 
 // scheduler just dispatches to the task timeline once the tasks are
 // ready for execution
-struct TaskScheduler {
-  TaskScheduler(Allocator iallocator, TimePoint ireference_timepoint)
-      : allocator{iallocator},
-        reference_timepoint{ireference_timepoint},
-        entries{iallocator},
-        cancelation_promise{make_promise<void>(iallocator).unwrap()},
-        next_task_id{0},
-        thread_pool{iallocator},
-        timeline{iallocator} {}
+struct TaskScheduler
+{
+  TaskScheduler(Allocator iallocator, TimePoint ireference_timepoint) :
+      allocator{iallocator},
+      reference_timepoint{ireference_timepoint},
+      entries{iallocator},
+      cancelation_promise{make_promise<void>(iallocator).unwrap()},
+      next_task_id{0},
+      thread_pool{iallocator},
+      timeline{iallocator}
+  {}
 
   // if task is a ready one, add it to the schedule timeline immediately
-  void tick(nanoseconds interval) {
+  void tick(nanoseconds interval)
+  {
     TimePoint present = std::chrono::steady_clock::now();
 
     Span ready_tasks =
         entries.span()
-            .partition([present](Task const& task) {
+            .partition([present](Task const &task) {
               return task.poll_ready.handle(
                          present - task.schedule_timepoint) == TaskReady::No;
             })
             .second;
 
-    for (Task& task : ready_tasks) {
+    for (Task &task : ready_tasks)
+    {
       timeline
           .add_task(std::move(task.function), std::move(task.scheduler_promise),
                     task.task_id, task.priority, present)
@@ -120,17 +133,18 @@ struct TaskScheduler {
     // if cancelation requested,
     // begin shutdown sequence
     // cancel non-critical tasks
-    if (cancelation_promise.fetch_cancel_request() == CancelState::Canceled) {
+    if (cancelation_promise.fetch_cancel_request() == CancelState::Canceled)
+    {
       thread_pool.get_future().request_cancel();
     }
   }
 
-  Allocator allocator;
-  TimePoint reference_timepoint;
-  Vec<Task> entries;
-  Promise<void> cancelation_promise;
-  uint64_t next_task_id;
-  ThreadPool thread_pool;
+  Allocator        allocator;
+  TimePoint        reference_timepoint;
+  Vec<Task>        entries;
+  Promise<void>    cancelation_promise;
+  uint64_t         next_task_id;
+  ThreadPool       thread_pool;
   ScheduleTimeline timeline;
 };
 

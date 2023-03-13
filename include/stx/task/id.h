@@ -6,6 +6,8 @@
 
 STX_BEGIN_NAMESPACE
 
-enum class TaskId : uint64_t {};
+enum class TaskId : uint64_t
+{
+};
 
 STX_END_NAMESPACE

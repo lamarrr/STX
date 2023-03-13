@@ -41,10 +41,11 @@
 STX_BEGIN_NAMESPACE
 
 // multiple threads can try to modify/read the hook at once.
-using PanicHook = decltype(panic_handler)*;
+using PanicHook       = decltype(panic_handler) *;
 using AtomicPanicHook = std::atomic<PanicHook>;
 
-namespace this_thread {
+namespace this_thread
+{
 
 /// Checks if the current thread is panicking.
 ///
@@ -54,7 +55,7 @@ namespace this_thread {
 ///
 /// TODO(lamarrr): actually test usability with DLLs
 [[nodiscard]] STX_DLL_EXPORT bool is_panicking();
-}  // namespace this_thread
+}        // namespace this_thread
 
 /// Checks if panic hooks are visible to be attached-to when loaded as a dynamic
 /// library. This should be called before calling any of `attach_panic_hook` or
@@ -92,6 +93,6 @@ namespace this_thread {
 /// Yes
 ///
 /// TODO(lamarrr): actually test usability with DLLs
-[[nodiscard]] STX_DLL_EXPORT bool take_panic_hook(PanicHook* hook);
+[[nodiscard]] STX_DLL_EXPORT bool take_panic_hook(PanicHook *hook);
 
 STX_END_NAMESPACE

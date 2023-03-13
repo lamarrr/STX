@@ -11,16 +11,19 @@ STX_BEGIN_NAMESPACE
 ///
 /// C++ 17 and above
 ///
-struct [[nodiscard]] NoneType {};
+struct [[nodiscard]] NoneType
+{};
 
 /// value-variant for `Option<T>` representing no-value
 constexpr NoneType const None{};
 
-[[nodiscard]] constexpr bool operator==(NoneType const&, NoneType const&) {
+[[nodiscard]] constexpr bool operator==(NoneType const &, NoneType const &)
+{
   return true;
 }
 
-[[nodiscard]] constexpr bool operator!=(NoneType const&, NoneType const&) {
+[[nodiscard]] constexpr bool operator!=(NoneType const &, NoneType const &)
+{
   return false;
 }
 

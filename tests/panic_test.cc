@@ -13,7 +13,8 @@
 
 #include "gtest/gtest.h"
 
-TEST(PanicTest, Panics) {
+TEST(PanicTest, Panics)
+{
   EXPECT_DEATH_IF_SUPPORTED(stx::panic(), ".*");
   EXPECT_DEATH_IF_SUPPORTED(stx::panic("hello, world"), ".*");
 }

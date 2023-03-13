@@ -17,43 +17,54 @@ STX_BEGIN_NAMESPACE
 // very short.
 //
 // less desirable for multi-contended and frequently updated memory regions.
-struct SpinLock {
+struct SpinLock
+{
   STX_MAKE_PINNED(SpinLock)
 
-  SpinLock() : lock_status{LockStatus::Unlocked} {}
+  SpinLock() :
+      lock_status{LockStatus::Unlocked}
+  {}
 
-  void lock() {
+  void lock()
+  {
     LockStatus expected = LockStatus::Unlocked;
-    LockStatus target = LockStatus::Locked;
+    LockStatus target   = LockStatus::Locked;
     while (!lock_status.compare_exchange_strong(expected, target,
                                                 std::memory_order_acquire,
-                                                std::memory_order_relaxed)) {
+                                                std::memory_order_relaxed))
+    {
       expected = LockStatus::Unlocked;
     }
   }
 
-  void unlock() {
+  void unlock()
+  {
     lock_status.store(LockStatus::Unlocked, std::memory_order_release);
   }
 
- private:
+private:
   std::atomic<LockStatus> lock_status;
 };
 
 template <typename Resource>
-struct LockGuard {
+struct LockGuard
+{
   STX_MAKE_PINNED(LockGuard)
 
-  explicit LockGuard(Resource& iresource, char const* operation_name = "")
-      : resource{&iresource} {
-    (void)operation_name;
+  explicit LockGuard(Resource &iresource, char const *operation_name = "") :
+      resource{&iresource}
+  {
+    (void) operation_name;
     resource->lock();
   }
 
-  ~LockGuard() { resource->unlock(); }
+  ~LockGuard()
+  {
+    resource->unlock();
+  }
 
- private:
-  Resource* resource;
+private:
+  Resource *resource;
 };
 
 STX_END_NAMESPACE
@@ -69,7 +80,8 @@ STX_END_NAMESPACE
 // takes or not.
 //
 #define STX_CRITICAL_SECTION(...) \
-  do __VA_ARGS__                  \
+  do                              \
+    __VA_ARGS__                   \
   while (false)
 
 #define STX_WITH_LOCK(lock, ...) \

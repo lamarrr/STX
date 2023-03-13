@@ -38,34 +38,51 @@ STX_BEGIN_NAMESPACE
 /// C++ 17 and above
 ///
 template <typename T>
-struct [[nodiscard]] Ok : impl::check_value_type<T> {
+struct [[nodiscard]] Ok : impl::check_value_type<T>
+{
   using value_type = T;
 
   template <typename Tp, typename Er>
   friend struct Result;
 
   /// an `Ok<T>` can only be constructed with an r-value of type `T`
-  explicit constexpr Ok(T&& value) : value_(std::move(value)) {}
+  explicit constexpr Ok(T &&value) :
+      value_(std::move(value))
+  {}
 
-  constexpr T copy() const { return value_; }
+  constexpr T copy() const
+  {
+    return value_;
+  }
 
-  constexpr T&& move() { return std::move(value_); }
+  constexpr T &&move()
+  {
+    return std::move(value_);
+  }
 
-  constexpr T& ref() { return value_; }
+  constexpr T &ref()
+  {
+    return value_;
+  }
 
-  constexpr T const& cref() const { return value_; }
+  constexpr T const &cref() const
+  {
+    return value_;
+  }
 
- private:
+private:
   T value_;
 };
 
 template <typename T, typename U, STX_ENABLE_IF(equality_comparable<T, U>)>
-[[nodiscard]] constexpr bool operator==(Ok<T> const& a, Ok<U> const& b) {
+[[nodiscard]] constexpr bool operator==(Ok<T> const &a, Ok<U> const &b)
+{
   return a.cref() == b.cref();
 }
 
 template <typename T, typename U, STX_ENABLE_IF(equality_comparable<T, U>)>
-[[nodiscard]] constexpr bool operator!=(Ok<T> const& a, Ok<U> const& b) {
+[[nodiscard]] constexpr bool operator!=(Ok<T> const &a, Ok<U> const &b)
+{
   return a.cref() != b.cref();
 }
 
