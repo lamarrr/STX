@@ -68,11 +68,6 @@ else()
                                                 STREQUAL "Clang")
     add_compile_options("-Wpedantic" "-Wall" "-Wextra")
     add_link_options("-latomic")
-
-    if(${STX_SANITIZE_BUILD})
-      add_compile_options("")
-    endif()
-
   endif()
 endif()
 
