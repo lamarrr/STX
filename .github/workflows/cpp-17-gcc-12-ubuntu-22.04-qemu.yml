@@ -21,7 +21,7 @@ jobs:
         run: sudo apt install qemu-user g++-arm-linux-gnueabi gcc-arm-linux-gnueabi ninja-build
 
       - name: Install GTest
-        run: git clone https://github.com/google/googletest.git -b v1.13.0 --depth=1 third_party/googletest && cd googletest && mkdir build && cd build && cmake -DCMAKE_CXX_COMPILER=arm-linux-gnueabi-g++ -DCMAKE_C_COMPILER=arm-linux-gnueabi-gcc -GNinja && sudo ninja install
+        run: git clone https://github.com/google/googletest.git -b v1.13.0 --depth=1 third_party/googletest && cd third_party/googletest && mkdir build && cd build && cmake -DCMAKE_CXX_COMPILER=arm-linux-gnueabi-g++ -DCMAKE_C_COMPILER=arm-linux-gnueabi-gcc -GNinja && sudo ninja install
 
       - name: Build Tests
         run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=${{matrix.build_mode}} -DSTX_BUILD_TESTS=ON -DCMAKE_CXX_COMPILER=arm-linux-gnueabi-g++ -DCMAKE_C_COMPILER=arm-linux-gnueabi-gcc -GNinja && ninja
