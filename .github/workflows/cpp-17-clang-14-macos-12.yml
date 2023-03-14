@@ -15,7 +15,7 @@ jobs:
         build_mode: ["Release", "Debug"]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install LLVM 14
         run: brew install llvm@14

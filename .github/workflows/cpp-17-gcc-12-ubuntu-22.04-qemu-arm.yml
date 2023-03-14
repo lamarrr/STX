@@ -15,7 +15,7 @@ jobs:
         build_mode: ["Release", "Debug"]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install Qemu, GCC ARM, and Ninja
         run: sudo apt install qemu-user g++-arm-linux-gnueabi gcc-arm-linux-gnueabi ninja-build
