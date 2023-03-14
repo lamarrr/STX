@@ -18,7 +18,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(CheckCXXSourceCompiles)
 include(add_project_library)
-include(FindAtomic)
 
 # ===============================================
 #
@@ -111,8 +110,9 @@ add_library(stx STATIC ${STX_SOURCE_FILES_LIST})
 target_link_libraries(stx Threads::Threads)
 
 # arm targets require manually linking to libatomic
-if(Atomic_FOUND)
-  target_link_libraries(stx Atomic)
+if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL
+                                              "Clang")
+  target_link_libraries(stx atomic)
 endif()
 
 add_library(stx::stx ALIAS stx)
