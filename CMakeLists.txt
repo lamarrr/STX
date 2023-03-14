@@ -18,6 +18,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(CheckCXXSourceCompiles)
 include(add_project_library)
+include(FindAtomic)
 
 # ===============================================
 #
@@ -46,6 +47,8 @@ message(STATUS "[STX] Override panic handler: " ${STX_CUSTOM_PANIC_HANDLER})
 # === Dependencies
 #
 # ===============================================
+find_package(Threads REQUIRED)
+
 if(${STX_BUILD_TESTS})
   find_package(GTest REQUIRED)
 endif()
@@ -65,6 +68,7 @@ else()
   if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID}
                                                 STREQUAL "Clang")
     add_compile_options("-Wpedantic" "-Wall" "-Wextra")
+    add_link_options("-latomic")
 
     if(${STX_SANITIZE_BUILD})
       add_compile_options("")
@@ -104,6 +108,13 @@ endif()
 file(GLOB STX_SOURCE_FILES_LIST src/*.cc)
 
 add_library(stx STATIC ${STX_SOURCE_FILES_LIST})
+target_link_libraries(stx Threads::Threads)
+
+# arm targets require manually linking to libatomic
+if(Atomic_FOUND)
+  target_link_libraries(stx Atomic)
+endif()
+
 add_library(stx::stx ALIAS stx)
 
 if(${STX_ENABLE_BACKTRACE})
