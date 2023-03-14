@@ -16,15 +16,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      
+
       - name: Fetch Absl
         run: git clone https://github.com/abseil/abseil-cpp.git -b 20220623.1 && cd abseil-cpp && mkdir build && cd build && cmake .. && cmake --build . --target install
-        
 
       - name: Configure Build Directory
         run: mkdir build
-        
-# We presently only test that it compiles
 
       - name: Initialize CMake
         run: cd build && cmake .. -DSTX_BUILD_TESTS=OFF -Dgtest_force_shared_crt=ON
@@ -32,5 +29,5 @@ jobs:
       - name: CMake Build
         run: cmake --build build --config ${{matrix.build_mode}}
 
-#      - name: Run Tests
-#        run: build/${{matrix.build_mode}}/stx_tests
+      - name: Run Tests
+        run: build/${{matrix.build_mode}}/stx_tests

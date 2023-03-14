@@ -28,17 +28,11 @@ jobs:
       - name: Configure Build Directory
         run: mkdir build
 
-      - name: Install Absl
-        run: sudo apt install libabsl-dev
-
-      - name: Install GoogleTest
-        run: sudo apt install libgtest-dev
+      - name: Install Absl, GTest, and Ninja
+        run: sudo apt install libabsl-dev libgtest-dev ninja
 
       - name: Initialize CMake
-        run: cd build && export CC=clang-14 CXX=clang++-14 CXXFLAGS="${{matrix.sanitize_flag}}"  && cmake .. -DCMAKE_BUILD_TYPE=${{matrix.build_mode}} -DSTX_BUILD_TESTS=ON
-
-      - name: Build Tests
-        run: cd build && make
+        run: cd build && export CXXFLAGS="${{matrix.sanitize_flag}}"  && cmake .. -DCMAKE_BUILD_TYPE=${{matrix.build_mode}} -DSTX_BUILD_TESTS=ON -DCMAKE_C_COMPILER=clang-14 -DCMAKE_CXX_COMPILER=clang++-14 -GNinja && ninja
 
       - name: Run Tests
         run: ./build/stx_tests

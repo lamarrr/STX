@@ -17,25 +17,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install Qemu
+      - name: Install Qemu, GCC ARM, and Ninja
+        run: sudo apt install qemu-user g++-arm-linux-gnueabi gcc-arm-linux-gnueabi ninja
 
-      - name: Install GCC
-        run: sudo apt install gcc-12 g++-12
-
-      - name: Install Absl
-        run: sudo apt install libabsl-dev
-
-      - name: Install GoogleTest
-        run: sudo apt install libgtest-dev
-
-      - name: Configure Build Directory
-        run: mkdir build
-
-      - name: Initialize CMake
-        run: cd build && export CC=gcc-12 CXX=g++-12 && cmake .. -DCMAKE_BUILD_TYPE=${{matrix.build_mode}} -DSTX_BUILD_TESTS=ON
+      - name: Install GTest
+        run: git clone https://github.com/google/googletest.git -b v1.13.0 --depth=1 third_party/googletest && cd googletest && mkdir build && cd build && cmake -DCMAKE_CXX_COMPILER=arm-linux-gnueabi-g++ -DCMAKE_C_COMPILER=arm-linux-gnueabi-gcc -GNinja && sudo ninja install
 
       - name: Build Tests
-        run: cd build && make
+        run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=${{matrix.build_mode}} -DSTX_BUILD_TESTS=ON -DCMAKE_CXX_COMPILER=arm-linux-gnueabi-g++ -DCMAKE_C_COMPILER=arm-linux-gnueabi-gcc -GNinja && ninja
 
       - name: Run Tests
-        run: ./build/stx_tests
+        run: qemu-arm -L /usr/arm-linux-gnueabi/ ./build/stx_tests
