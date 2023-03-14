@@ -17,8 +17,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install GCC, Absl, GTest
-        run: sudo apt install gcc-12 g++-12 libabsl-dev libgtest-dev
+      - name: Install GCC, Absl, GTest, and Ninja
+        run: sudo apt install gcc-12 g++-12 libabsl-dev libgtest-dev ninja
 
       - name: Configure Build Directory
         run: mkdir build
