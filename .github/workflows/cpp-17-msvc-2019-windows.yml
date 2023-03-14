@@ -17,14 +17,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install VCPKG and STX Dependencies
-        run: git clone https://github.com/microsoft/vcpkg.git && cd vcpkg && ./bootstrap-vcpkg.bat && ./vcpkg.exe install abseil gtest
+      - name: Install VCPKG 
+        run: git clone https://github.com/microsoft/vcpkg.git && cd vcpkg && ./bootstrap-vcpkg.bat
+        
+      - name: Install STX Dependencies
+        run: vcpkg/vcpkg.exe install abseil gtest
 
       - name: Configure Build Directory
         run: mkdir build
 
       - name: Initialize CMake
-        run: cd build && ls D:\a\STX\vcpkg\ && cmake .. -DSTX_BUILD_TESTS=ON -DCMAKE_TOOLCHAIN_FILE="D:/a/STX/vcpkg/scripts/buildsystems/vcpkg.cmake"
+        run: cd build && ls ../vcpkg/scripts/buildsystems && cmake .. -DSTX_BUILD_TESTS=ON -DCMAKE_TOOLCHAIN_FILE="D:/a/STX/vcpkg/scripts/buildsystems/vcpkg.cmake"
 
       - name: CMake Build
         run: cmake --build build --config ${{matrix.build_mode}}
