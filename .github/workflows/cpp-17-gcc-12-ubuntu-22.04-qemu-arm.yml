@@ -1,4 +1,4 @@
-name: cpp-17:gcc-12:ubuntu-22.04-qemu
+name: cpp-17:gcc-12:ubuntu-22.04-qemu-arm
 
 on:
   push:

@@ -49,11 +49,11 @@ message(STATUS "[STX] Override panic handler: " ${STX_CUSTOM_PANIC_HANDLER})
 find_package(Threads REQUIRED)
 
 if(${STX_BUILD_TESTS})
-  find_package(GTest REQUIRED)
+  find_package(GTest CONFIG REQUIRED)
 endif()
 
 if(${STX_ENABLE_BACKTRACE})
-  find_package(absl REQUIRED)
+  find_package(absl CONFIG REQUIRED)
 endif()
 
 # ===============================================

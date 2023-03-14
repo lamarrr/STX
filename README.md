@@ -1,4 +1,5 @@
 <img src="https://github.com/lamarrr/STX/workflows/cpp-17:clang-14:macos-12/badge.svg"> <img src="https://github.com/lamarrr/STX/workflows/cpp-17:clang-14:ubuntu-22.04/badge.svg"> <img src="https://github.com/lamarrr/STX/workflows/cpp-17:gcc-12:ubuntu-22.04/badge.svg"> <img src="https://github.com/lamarrr/STX/workflows/cpp-17:msvc-2019:windows/badge.svg">
+<img src="https://github.com/lamarrr/STX/workflows/cpp-17:gcc-12:ubuntu-22.04-qemu-arm/badge.svg">
 
 <br/>
 <div align="center"><img src="assets/stx.png"/> </div>
