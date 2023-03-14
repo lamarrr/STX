@@ -24,7 +24,7 @@ jobs:
         run: mkdir build
 
       - name: Initialize CMake
-        run: cd build && ls ../../vcpkg/ && cmake .. -DSTX_BUILD_TESTS=ON -DCMAKE_TOOLCHAIN_FILE="../../vcpkg/scripts/buildsystems/vcpkg.cmake"
+        run: cd build && ls D:\a\STX\STX\vcpkg\ && cmake .. -DSTX_BUILD_TESTS=ON -DCMAKE_TOOLCHAIN_FILE="D:/a/STX/STX/vcpkg/scripts/buildsystems/vcpkg.cmake"
 
       - name: CMake Build
         run: cmake --build build --config ${{matrix.build_mode}}
