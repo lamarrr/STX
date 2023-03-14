@@ -21,7 +21,9 @@ jobs:
         run: git clone https://github.com/microsoft/vcpkg.git && cd vcpkg && ./bootstrap-vcpkg.bat
         
       - name: Configure Build Directory
-        run: mkdir build
+        run: |
+          rm -rf build
+          mkdir build
 
       - name: Install STX Dependencies & Initialize CMake
         run: cd build && ls ../vcpkg/scripts/buildsystems && ../vcpkg/vcpkg.exe install --triplet x64-windows abseil gtest && cmake .. -DSTX_BUILD_TESTS=ON -DCMAKE_TOOLCHAIN_FILE="../vcpkg/scripts/buildsystems/vcpkg.cmake"
