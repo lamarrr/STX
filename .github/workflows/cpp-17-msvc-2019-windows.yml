@@ -22,7 +22,7 @@ jobs:
         
       - name: Configure Build Directory
         run: |
-          rm -rf build
+          Remove-Item -Path 'build' -Recurse -Force
           mkdir build
 
       - name: Install STX Dependencies & Initialize CMake
