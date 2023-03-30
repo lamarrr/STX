@@ -561,6 +561,12 @@ public:
     return *this;
   }
 
+  template <typename U>
+  constexpr Span<U> transmute() const
+  {
+    return stx::Span<U>{reinterpret_cast<U *>(iterator_), size_bytes() / sizeof(U)};
+  }
+
   Iterator iterator_ = nullptr;
   Size     size_     = 0;
 };

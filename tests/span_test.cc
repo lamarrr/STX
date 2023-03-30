@@ -212,3 +212,10 @@ TEST(SpanTest, Last)
   EXPECT_EQ(*stx::Span{data}.last().unwrap(), 5);
   EXPECT_EQ(stx::Span<int>{}.last(), stx::None);
 }
+
+TEST(SpanTest, Transmute)
+{
+  uint16_t data[] = {1, 2, 3, 4, 5};
+  EXPECT_EQ((stx::Span{data}.transmute<uint8_t>().size()), 10);
+  EXPECT_EQ(((uint16_t*)(stx::Span{data}.transmute<uint8_t>().data())), data);
+}
