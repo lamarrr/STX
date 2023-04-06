@@ -4,7 +4,6 @@
 #include <cctype>
 #include <cstddef>
 #include <cstring>
-#include <string_view>
 #include <utility>
 
 #include "stx/allocator.h"
@@ -13,13 +12,13 @@
 #include "stx/option.h"
 #include "stx/rc.h"
 #include "stx/span.h"
+#include "stx/string_view.h"
 
 STX_BEGIN_NAMESPACE
 
 constexpr char const EMPTY_STRING[] = "";
 
-using StringView       = std::string_view;
-using StaticStringView = std::string_view;
+using StaticStringView = StringView;
 
 // meaning, i want to share this, but I don't care about it's source or any
 // allocation operations.
@@ -124,7 +123,9 @@ struct String
   bool starts_with(StringView other) const
   {
     if (other.size() > size_)
+    {
       return false;
+    }
 
     return std::memcmp(data(), other.data(), other.size()) == 0;
   }
@@ -142,7 +143,9 @@ struct String
   bool ends_with(StringView other) const
   {
     if (other.size() > size_)
+    {
       return false;
+    }
 
     return std::memcmp(data() + (size_ - other.size()), other.data(),
                        other.size()) == 0;
@@ -171,7 +174,9 @@ struct String
   bool operator==(StringView other) const
   {
     if (size() != other.size())
+    {
       return false;
+    }
 
     return std::memcmp(data(), other.data(), size()) == 0;
   }

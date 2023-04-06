@@ -38,8 +38,8 @@ TEST(StrTest, Init)
   EXPECT_EQ(string::lower(os_allocator, "hello, world!").unwrap(),
             "hello, world!");
 
-  std::vector<std::string> views{
-      std::string{"Hello,"}, std::string{"Beautiful"}, std::string{"World!"}};
+  String views[] = {
+      stx::string::make_static("Hello,"), stx::string::make_static("Beautiful"), stx::string::make_static("World!")};
 
   Span x = views;
   EXPECT_EQ(string::join(os_allocator, " ", x).unwrap(),
