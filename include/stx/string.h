@@ -4,30 +4,20 @@
 #include <cctype>
 #include <cstddef>
 #include <cstring>
+#include <string_view>
 #include <utility>
 
 #include "stx/allocator.h"
+#include "stx/c_string_view.h"
 #include "stx/config.h"
 #include "stx/memory.h"
 #include "stx/option.h"
 #include "stx/rc.h"
 #include "stx/span.h"
-#include "stx/string_view.h"
 
 STX_BEGIN_NAMESPACE
 
 constexpr char const EMPTY_STRING[] = "";
-
-using StaticStringView = StringView;
-
-// meaning, i want to share this, but I don't care about it's source or any
-// allocation operations.
-// I just want to be able to read the string as long as I have this Rc.
-//
-// Can be copied and shared across threads.
-//
-//
-using RcStringView = Rc<StringView>;
 
 //
 // An owning read-only byte string.
@@ -120,7 +110,7 @@ struct String
     return span().at(index);
   }
 
-  bool starts_with(StringView other) const
+  bool starts_with(std::string_view other) const
   {
     if (other.size() > size_)
     {
@@ -140,15 +130,14 @@ struct String
     return size_ > 0 && data()[0] == c;
   }
 
-  bool ends_with(StringView other) const
+  bool ends_with(std::string_view other) const
   {
     if (other.size() > size_)
     {
       return false;
     }
 
-    return std::memcmp(data() + (size_ - other.size()), other.data(),
-                       other.size()) == 0;
+    return std::memcmp(data() + (size_ - other.size()), other.data(), other.size()) == 0;
   }
 
   bool ends_with(String const &other) const
@@ -161,9 +150,9 @@ struct String
     return size_ > 0 && data()[size_ - 1] == c;
   }
 
-  StringView view() const
+  std::string_view view() const
   {
-    return StringView{data(), size_};
+    return std::string_view{data(), size_};
   }
 
   Span<char const> span() const
@@ -171,7 +160,7 @@ struct String
     return Span<char const>{data(), size()};
   }
 
-  bool operator==(StringView other) const
+  bool operator==(std::string_view other) const
   {
     if (size() != other.size())
     {
@@ -183,10 +172,10 @@ struct String
 
   bool operator==(String const &other) const
   {
-    return *this == StringView{other};
+    return *this == std::string_view{other};
   }
 
-  bool operator!=(StringView other) const
+  bool operator!=(std::string_view other) const
   {
     return !(*this == other);
   }
@@ -196,9 +185,14 @@ struct String
     return !(*this == other);
   }
 
-  operator StringView() const
+  operator std::string_view() const
   {
-    return StringView{data(), size()};
+    return std::string_view{data(), size()};
+  }
+
+  operator CStringView() const
+  {
+    return CStringView{data(), size()};
   }
 
   Result<String, AllocError> copy(Allocator allocator) const
@@ -228,7 +222,7 @@ inline String operator""_str(char const *string_literal, size_t str_size)
 namespace string
 {
 
-inline Result<String, AllocError> make(Allocator allocator, StringView str)
+inline Result<String, AllocError> make(Allocator allocator, std::string_view str)
 {
   TRY_OK(memory, mem::allocate(allocator, str.size() + 1));
 
@@ -239,20 +233,19 @@ inline Result<String, AllocError> make(Allocator allocator, StringView str)
   return Ok(String{ReadOnlyMemory{std::move(memory)}, str.size()});
 }
 
-inline String make_static(StaticStringView str)
+inline String make_static(std::string_view str)
 {
-  return String{ReadOnlyMemory{static_storage_allocator, str.data()},
-                str.size()};
+  return String{ReadOnlyMemory{static_storage_allocator, str.data()}, str.size()};
 }
 
 namespace rc
 {
 
-inline RcStringView make_static_view(StaticStringView str)
+inline Rc<std::string_view> make_static_view(std::string_view str)
 {
   Manager manager{static_storage_manager};
   manager.ref();
-  return Rc<StringView>{std::move(str), std::move(manager)};
+  return Rc<std::string_view>{std::move(str), std::move(manager)};
 }
 
 }        // namespace rc
@@ -261,22 +254,22 @@ template <typename Glue, typename A, typename B, typename... S>
 Result<String, AllocError> join(Allocator allocator, Glue const &glue,
                                 A const &a, B const &b, S const &...s)
 {
-  static_assert(std::is_convertible_v<Glue const &, StringView>);
-  static_assert(std::is_convertible_v<A const &, StringView>);
-  static_assert(std::is_convertible_v<B const &, StringView> &&
-                (std::is_convertible_v<S const &, StringView> && ...));
+  static_assert(std::is_convertible_v<Glue const &, std::string_view>);
+  static_assert(std::is_convertible_v<A const &, std::string_view>);
+  static_assert(std::is_convertible_v<B const &, std::string_view> &&
+                (std::is_convertible_v<S const &, std::string_view> && ...));
 
-  StringView views[] = {StringView{a}, StringView{b}, StringView{s}...};
-  size_t     nviews  = std::size(views);
+  std::string_view views[] = {std::string_view{a}, std::string_view{b}, std::string_view{s}...};
+  size_t           nviews  = std::size(views);
 
-  StringView glue_v{glue};
+  std::string_view glue_v{glue};
 
   size_t str_size = 0;
 
   {
     size_t index = 0;
 
-    for (StringView v : views)
+    for (std::string_view v : views)
     {
       str_size += v.size();
 
@@ -300,7 +293,7 @@ Result<String, AllocError> join(Allocator allocator, Glue const &glue,
     size_t index      = 0;
     size_t view_index = 0;
 
-    for (StringView v : views)
+    for (std::string_view v : views)
     {
       std::memcpy(str + index, v.data(), v.size());
       index += v.size();
@@ -324,19 +317,19 @@ template <typename Glue, typename T>
 Result<String, AllocError> join(Allocator allocator, Glue const &glue,
                                 Span<T> strings)
 {
-  static_assert(std::is_convertible_v<T &, StringView>);
-  static_assert(std::is_convertible_v<Glue const &, StringView>);
+  static_assert(std::is_convertible_v<T &, std::string_view>);
+  static_assert(std::is_convertible_v<Glue const &, std::string_view>);
 
-  size_t     size     = 0;
-  size_t     nstrings = strings.size();
-  StringView glue_v{glue};
+  size_t           size     = 0;
+  size_t           nstrings = strings.size();
+  std::string_view glue_v{glue};
 
   {
     size_t str_index = 0;
 
     for (T const &string : strings)
     {
-      size += StringView{string}.size();
+      size += std::string_view{string}.size();
       if (str_index != nstrings - 1)
       {
         size += glue_v.size();
@@ -357,7 +350,7 @@ Result<String, AllocError> join(Allocator allocator, Glue const &glue,
 
     for (T const &string : strings)
     {
-      StringView view{string};
+      std::string_view view{string};
       std::memcpy(out + index, view.data(), view.size());
       index += view.size();
 
@@ -376,7 +369,7 @@ Result<String, AllocError> join(Allocator allocator, Glue const &glue,
   return Ok(String{ReadOnlyMemory{std::move(memory)}, size});
 }
 
-inline Result<String, AllocError> upper(Allocator allocator, StringView str)
+inline Result<String, AllocError> upper(Allocator allocator, std::string_view str)
 {
   TRY_OK(memory, mem::allocate(allocator, str.size() + 1));
 
@@ -392,7 +385,7 @@ inline Result<String, AllocError> upper(Allocator allocator, StringView str)
   return Ok(String{ReadOnlyMemory{std::move(memory)}, str.size()});
 }
 
-inline Result<String, AllocError> lower(Allocator allocator, StringView str)
+inline Result<String, AllocError> lower(Allocator allocator, std::string_view str)
 {
   size_t size = str.size();
 

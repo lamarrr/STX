@@ -32,10 +32,8 @@ using TimePoint = std::chrono::steady_clock::time_point;
 
 struct TaskTraceInfo
 {
-  Rc<StringView> content =
-      string::rc::make_static_view("[Unspecified Context]");
-  Rc<StringView> purpose =
-      string::rc::make_static_view("[Unspecified Purpose]");
+  Rc<std::string_view> content = string::rc::make_static_view("[Unspecified Context]");
+  Rc<std::string_view> purpose = string::rc::make_static_view("[Unspecified Purpose]");
 };
 
 enum class TaskReady : uint8_t

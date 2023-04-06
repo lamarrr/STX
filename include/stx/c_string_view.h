@@ -3,6 +3,7 @@
 #pragma once
 #include <cstddef>
 #include <cstring>
+#include <string_view>
 
 #include "stx/config.h"
 #include "stx/option.h"
@@ -10,10 +11,8 @@
 
 STX_BEGIN_NAMESPACE
 
-
-// TODO(lamarrr): replace all usages of std::string_view with this
 // guaranteed to be null-terminated
-struct StringView
+struct CStringView
 {
   using Iterator = char const *;
   using Pointer  = char const *;
@@ -30,17 +29,17 @@ struct StringView
     return it - c_str;
   }
 
-  constexpr StringView(char const *c_string) :
+  constexpr CStringView(char const *c_string) :
       data_{c_string}, size_{length(c_string)}
   {
   }
 
-  constexpr StringView(char const *c_string, Size size) :
+  constexpr CStringView(char const *c_string, Size size) :
       data_{c_string}, size_{size}
   {
   }
 
-  // TODO(lamarrr): add constructor that takes c_str() and or size()
+  // TODO(lamarrr): consider add constructor that takes c_str() and or size()
 
   constexpr char const *c_str() const
   {
@@ -82,14 +81,14 @@ struct StringView
     return span().at(index);
   }
 
-  constexpr bool starts_with(StringView other) const
+  constexpr bool starts_with(std::string_view other) const
   {
-    if (other.size_ > size_)
+    if (other.size() > size_)
     {
       return false;
     }
 
-    return std::memcmp(data_, other.data_, other.size_) == 0;
+    return std::memcmp(data_, other.data(), other.size()) == 0;
   }
 
   constexpr bool starts_with(char c) const
@@ -97,14 +96,14 @@ struct StringView
     return size_ > 0 && data_[0] == c;
   }
 
-  constexpr bool ends_with(StringView other) const
+  constexpr bool ends_with(std::string_view other) const
   {
-    if (other.size_ > size_)
+    if (other.size() > size_)
     {
       return false;
     }
 
-    return std::memcmp(data_ + (size_ - other.size_), other.data_, other.size_) == 0;
+    return std::memcmp(data_ + (size_ - other.size()), other.data(), other.size()) == 0;
   }
 
   // TODO(lamarrr) ::contains(), add to String as well
@@ -119,19 +118,24 @@ struct StringView
     return stx::Span<char const>{data_, size_};
   }
 
-  constexpr bool operator==(StringView other) const
+  constexpr bool operator==(std::string_view other) const
   {
-    if (size_ != other.size_)
+    if (size_ != other.size())
     {
       return false;
     }
 
-    return std::memcmp(data_, other.data_, size_) == 0;
+    return std::memcmp(data_, other.data(), size_) == 0;
   }
 
-  constexpr bool operator!=(StringView other) const
+  constexpr bool operator!=(std::string_view other) const
   {
     return !(*this == other);
+  }
+
+  constexpr operator std::string_view() const
+  {
+    return std::string_view{data_, size_};
   }
 
   char const *data_ = "";
