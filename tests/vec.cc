@@ -277,12 +277,8 @@ TEST(VecTest, UnsafeResizeUninitializedSimple)
   // Check that the uninitialized memory is null
   EXPECT_NE(uninitialized_span.data(), nullptr);
 
-    // Check that the original values are still there
+  // Check that the original values are still there
   EXPECT_EQ(vec[0], 1);
   EXPECT_EQ(vec[1], 2);
   EXPECT_EQ(vec[2], 3);
 }
-
-
-
-
