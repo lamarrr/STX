@@ -253,7 +253,7 @@ struct VecBase
 
   // resizes the vector to the given size without initializing new elements
   //
-  // returns a span to the resized vector on success, or an AllocError on failure
+  // returns the span of the additional uninitialized elements on success, or an AllocError on failure
   //
   // invalidates references
   //
