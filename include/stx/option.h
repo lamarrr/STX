@@ -702,7 +702,7 @@ public:
     }
     else
     {
-      return alt;
+      return std::move(alt);
     }
   }
 
@@ -794,7 +794,7 @@ public:
     {
       Some old = std::move(some_);
       storage::assign(Some(std::move(replacement)));
-      return old;
+      return std::move(old);
     }
     else
     {
