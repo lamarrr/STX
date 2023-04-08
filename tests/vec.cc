@@ -260,3 +260,29 @@ TEST(VecTest, Pop)
     EXPECT_EQ(b.pop(), stx::None);
   }
 }
+
+TEST(VecTest, UnsafeResizeUninitializedSimple)
+{
+  Vec<int> vec{stx::os_allocator};
+
+  // Initialize the vector with some values
+  vec.push(1).unwrap();
+  vec.push(2).unwrap();
+  vec.push(3).unwrap();
+
+  auto uninitialized_span = vec.unsafe_resize_uninitialized(5).unwrap();
+
+  EXPECT_EQ(uninitialized_span.size(), 2);
+
+  // Check that the uninitialized memory is null
+  EXPECT_NE(uninitialized_span.data(), nullptr);
+
+    // Check that the original values are still there
+  EXPECT_EQ(vec[0], 1);
+  EXPECT_EQ(vec[1], 2);
+  EXPECT_EQ(vec[2], 3);
+}
+
+
+
+

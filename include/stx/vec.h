@@ -258,45 +258,6 @@ struct VecBase
   // invalidates references
   //
 
-  Result<Span<T>, AllocError> unsafe_resize_uninitialized(size_t target_size)
-  {
-    size_t new_capacity = impl::grow_vec(capacity_, target_size);
-    size_t bytes_needed = new_capacity * sizeof(T);
-
-    if (new_capacity > capacity_)
-    {
-        auto new_memory_result = mem::allocate(memory_.allocator, bytes_needed);
-
-        if (!new_memory_result.is_ok())
-        {
-            return Err(AllocError{});
-        }
-
-        Memory new_memory = std::move(new_memory_result).unwrap();
-
-        T *new_data = static_cast<T *>(new_memory.handle);
-
-        impl::move_construct_range(begin(), size_, new_data);
-        impl::destruct_range(begin(), size_);
-
-        if (memory_.handle)
-        {
-            mem::reallocate(memory_, new_memory, capacity() * sizeof(T), bytes_needed);
-        }
-        else
-        {
-            memory_ = std::move(new_memory);
-        }
-
-        capacity_ = new_capacity;
-
-        size_ = target_size;
-
-        return Ok(span({new_data + size_, new_capacity - size_}));
-    }
-
-    return Ok(span());
-  }
 
   Memory memory_;
   Size   size_     = 0;
@@ -407,6 +368,28 @@ struct Vec : public VecBase<T>
       return Ok(Void{});
     }
   }
+
+  Result<stx::Span<T>, AllocError> unsafe_resize_uninitialized(size_t target_size) 
+  {
+    const size_t previous_size = base::size();
+    if (target_size > previous_size) 
+    {
+      const size_t new_capacity = impl::grow_vec(base::capacity(), target_size);
+      TRY_OK(ok, base::reserve(new_capacity));
+      (void) ok;
+
+      const size_t num_uninitialized = target_size - previous_size;
+      base::size_ = target_size;
+      return Ok(stx::Span<T>{base::begin() + previous_size, num_uninitialized});
+    } else {
+    // target_size <= previous_size
+      T *destruct_begin = base::begin() + target_size;
+      impl::destruct_range(destruct_begin, previous_size - target_size);
+      base::size_ = target_size;
+      return Ok(stx::Span<T>{});
+    }
+  }
+
 
   Result<Vec<T>, AllocError> copy(Allocator allocator) const
   {
