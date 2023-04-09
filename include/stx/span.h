@@ -66,8 +66,7 @@ template <typename T, typename U>
 using match_cv = typename match_cv_impl<T, U>::type;
 
 template <typename Source, typename Target>
-constexpr bool is_span_convertible =
-    std::is_convertible_v<Source (*)[], Target (*)[]>;
+constexpr bool is_span_convertible = std::is_convertible_v<Source (*)[], Target (*)[]>;
 
 template <typename T>
 void type_ptr_and_size(T *, size_t)
@@ -100,8 +99,7 @@ struct is_compatible_container_impl<
 {};
 
 template <typename T, typename Element>
-constexpr bool is_compatible_container =
-    is_compatible_container_impl<T, Element>::value;
+constexpr bool is_compatible_container = is_compatible_container_impl<T, Element>::value;
 
 }        // namespace impl
 
@@ -181,13 +179,9 @@ public:
   template <typename U, Size Length>
   constexpr Span(std::array<U, Length> &&array) = delete;
 
-  template <typename Container,
-            STX_ENABLE_IF(impl::is_container<Container &> &&
-                              impl::is_compatible_container<Container &, T>)>
-  constexpr Span(Container &container) noexcept
-      :
-      iterator_{static_cast<Iterator>(std::data(container))},
-      size_{std::size(container)}
+  template <typename Container, STX_ENABLE_IF(impl::is_container<Container &> &&impl::is_compatible_container<Container &, T>)>
+  constexpr Span(Container &container) noexcept :
+      iterator_{static_cast<Iterator>(std::data(container))}, size_{std::size(container)}
   {}
 
   constexpr Pointer data() const
@@ -259,8 +253,9 @@ public:
     STX_SPAN_ENSURE(offset <= size_, "index out of bounds");
 
     if (length_to_slice > 0)
-      STX_SPAN_ENSURE(offset + (length_to_slice - 1) < size_,
-                      "index out of bounds");
+    {
+      STX_SPAN_ENSURE(offset + (length_to_slice - 1) < size_, "index out of bounds");
+    }
 
     return Span<T>{iterator_ + offset, length_to_slice};
   }
@@ -268,7 +263,9 @@ public:
   Option<T *> last() const
   {
     if (size_ == 0)
+    {
       return None;
+    }
     return Some(iterator_ + size_ - 1);
   }
 
@@ -276,12 +273,16 @@ public:
   constexpr bool equals(stx::Span<U const> other) const
   {
     if (size_ != other.size_)
+    {
       return false;
+    }
 
-    for (size_t i = 0; i < size_; i++)
+    for (Size i = 0; i < size_; i++)
     {
       if (iterator_[i] != other.iterator_[i])
+      {
         return false;
+      }
     }
 
     return true;
@@ -297,7 +298,9 @@ public:
     {
       bool condition = std::forward<Predicate>(predicate)(element);
       if (condition)
+      {
         return true;
+      }
     }
 
     return false;
@@ -313,7 +316,9 @@ public:
     {
       bool condition = std::forward<Predicate>(predicate)(element);
       if (!condition)
+      {
         return false;
+      }
     }
 
     return !is_empty();
@@ -329,7 +334,9 @@ public:
     {
       bool condition = std::forward<Predicate>(predicate)(element);
       if (condition)
+      {
         return false;
+      }
     }
 
     return true;
@@ -354,8 +361,7 @@ public:
   {
     static_assert(std::is_copy_assignable_v<T>);
 
-    for (Index position = 0; position < std::min(size(), input.size());
-         position++)
+    for (Index position = 0; position < std::min(size(), input.size()); position++)
     {
       iterator_[position] = input[position];
     }
@@ -427,8 +433,7 @@ public:
   constexpr Span<T> which(Predicate &&predicate) const
   {
     static_assert(std::is_invocable_v<Predicate, T const &>);
-    static_assert(
-        std::is_same_v<std::invoke_result_t<Predicate, T const &>, bool>);
+    static_assert(std::is_same_v<std::invoke_result_t<Predicate, T const &>, bool>);
 
     for (Iterator iter = iterator_; iter < (iterator_ + size_); iter++)
     {
@@ -447,8 +452,7 @@ public:
     static_assert(!std::is_const_v<Output>);
     static_assert(std::is_move_assignable_v<Output>);
     static_assert(std::is_invocable_v<Func, T &>);
-    static_assert(
-        std::is_assignable_v<Output &, std::invoke_result_t<Func, T &>>);
+    static_assert(std::is_assignable_v<Output &, std::invoke_result_t<Func, T &>>);
 
     STX_SPAN_ENSURE(size() == output.size(),
                     "source and destination span size mismatch");
@@ -465,8 +469,7 @@ public:
   constexpr Span<T> sort(Cmp &&cmp) const
   {
     static_assert(std::is_invocable_v<Cmp, T &, T &>);
-    static_assert(
-        std::is_convertible_v<std::invoke_result_t<Cmp, T &, T &>, bool>);
+    static_assert(std::is_convertible_v<std::invoke_result_t<Cmp, T &, T &>, bool>);
 
     std::sort(begin(), end(), std::forward<Cmp>(cmp));
 
@@ -498,24 +501,19 @@ public:
 
     return std::make_pair(
         Span<T>{iterator_, static_cast<Size>(first_partition_end - iterator_)},
-        Span<T>{first_partition_end,
-                static_cast<Size>(second_partition_end - first_partition_end)});
+        Span<T>{first_partition_end, static_cast<Size>(second_partition_end - first_partition_end)});
   }
 
   template <typename Predicate>
-  constexpr std::pair<Span<T>, Span<T>> unstable_partition(
-      Predicate &&predicate) const
+  constexpr std::pair<Span<T>, Span<T>> unstable_partition(Predicate &&predicate) const
   {
     // TODO(lamarrr): add type checks
 
-    auto first_partition_end = std::partition(
-        iterator_, iterator_ + size_, std::forward<Predicate>(predicate));
+    auto first_partition_end = std::partition(iterator_, iterator_ + size_, std::forward<Predicate>(predicate));
 
-    T *second_partition_end = iterator_ + size_;
+    Iterator second_partition_end = iterator_ + size_;
 
-    return std::make_pair(Span<T>{iterator_, first_partition_end},
-                          Span<T>{first_partition_end,
-                                  second_partition_end - first_partition_end});
+    return std::make_pair(Span<T>{iterator_, first_partition_end}, Span<T>{first_partition_end, second_partition_end - first_partition_end});
   }
 
   // TODO(lamarrr): also check for rust lang's name for these
@@ -531,20 +529,16 @@ public:
   // equal
   // reverse
 
-  constexpr Span<ConstVolatileMatched<std::byte> const> as_bytes() const
+  /// converts the span into a view of its underlying bytes (represented with `uint8_t`).
+  constexpr Span<ConstVolatileMatched<uint8_t>> as_u8() const
   {
-    return Span<ConstVolatileMatched<std::byte> const>(
-        reinterpret_cast<ConstVolatileMatched<std::byte> const *>(iterator_),
-        size_bytes());
+    return Span<ConstVolatileMatched<uint8_t>>{reinterpret_cast<ConstVolatileMatched<uint8_t> *>(iterator_), size_bytes()};
   }
 
-  /// converts the span into a view of its underlying bytes (represented with
-  /// `uint8_t`).
-  constexpr Span<ConstVolatileMatched<uint8_t> const> as_u8() const
+  /// converts the span into a view of its underlying bytes (represented with `char`).
+  constexpr Span<ConstVolatileMatched<char>> as_char() const
   {
-    return Span<ConstVolatileMatched<uint8_t> const>(
-        reinterpret_cast<ConstVolatileMatched<uint8_t> const *>(iterator_),
-        size_bytes());
+    return Span<ConstVolatileMatched<char>>{reinterpret_cast<ConstVolatileMatched<char> *>(iterator_), size_bytes()};
   }
 
   /// converts the span into an immutable span.

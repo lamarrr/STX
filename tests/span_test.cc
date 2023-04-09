@@ -103,7 +103,7 @@ TEST(SpanTest, As)
     int32_t                tmp[] = {1, 2, 3, 4};
     Span<int32_t>          a(tmp);
     Span<int32_t const>    tmp_a = a.as_const();
-    Span<byte const>       tmp_b = a.as_bytes();
+    Span<char const>       tmp_b = a.as_char();
     Span<uint8_t const>    tmp_c = a.as_u8();
     Span<volatile int32_t> tmp_d = a.as_volatile();
 
@@ -112,7 +112,7 @@ TEST(SpanTest, As)
     (void) tmp_c;
     (void) tmp_d;
 
-    Span<byte const volatile> b = a.as_u8().as_volatile().as_const().as_bytes();
+    Span<char const volatile> b = a.as_u8().as_volatile().as_const().as_char();
 
     EXPECT_EQ((void *) a.data(), (void *) b.data());
     EXPECT_EQ(a.size_bytes(), b.size());
