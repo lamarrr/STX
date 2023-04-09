@@ -367,7 +367,7 @@ struct Vec : public VecBase<T>
   //
   Result<stx::Span<T>, AllocError> unsafe_resize_uninitialized(size_t target_size)
   {
-    const size_t previous_size = base::size();
+    size_t previous_size = base::size();
     if (target_size > previous_size)
     {
       const size_t new_capacity = impl::grow_vec(base::capacity(), target_size);
