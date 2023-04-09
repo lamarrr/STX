@@ -454,8 +454,7 @@ public:
     static_assert(std::is_invocable_v<Func, T &>);
     static_assert(std::is_assignable_v<Output &, std::invoke_result_t<Func, T &>>);
 
-    STX_SPAN_ENSURE(size() == output.size(),
-                    "source and destination span size mismatch");
+    STX_SPAN_ENSURE(size() == output.size(), "source and destination span size mismatch");
 
     for (Index position = 0; position < size(); position++)
     {
