@@ -261,31 +261,47 @@ TEST(VecTest, Pop)
   }
 }
 
-TEST(VecTest, UnsafeResizeUninitializedSimple)
+TEST(VecTest, UnsafeResizeUninitialized)
 {
-  Vec<int> vec{stx::os_allocator};
+  {
+    Vec<int> vec{stx::os_allocator};
 
-  // Initialize the vector with some values
-  int values [] = {1,2,3};
-  vec.extend(values).unwrap();
+    // Initialize the vector with some values
+    vec.resize(3, 0).unwrap();
 
-  auto uninitialized_span = vec.unsafe_resize_uninitialized(5).unwrap();
+    auto uninitialized_span = vec.unsafe_resize_uninitialized(5).unwrap();
+    EXPECT_VALID_VEC(vec);
 
   EXPECT_EQ(uninitialized_span.size(), 2);
 
-  // Check that the uninitialized memory is not null
-  EXPECT_NE(uninitialized_span.data(), nullptr);
-
-  // Check that the original values are still there
-  EXPECT_EQ(vec[0], 1);
-  EXPECT_EQ(vec[1], 2);
-  EXPECT_EQ(vec[2], 3);
+    // Check that the uninitialized memory is not null
+    EXPECT_NE(uninitialized_span.data(), nullptr);    
   
-   // Initialize the uninitialized memory
-  uninitialized_span[0] = 4;
-  uninitialized_span[1] = 5;
+    // Initialize the uninitialized memory
+    for (auto &el : uninitialized_span)
+      {
+        el = 0;
+      }
+    // Verify that all values are correct
+    for (auto &el : vec.span())
+      {
+       EXPECT_EQ(el, 0);
+      }
+  }
+}
 
-  // Verify that the initialized values are correct
-  EXPECT_EQ(vec[3], 4);
-  EXPECT_EQ(vec[4], 5);
+TEST(VecTest, UnsafeResizeUninitializedLifetime)
+{
+  {
+Vec<Life> vec{stx::os_allocator};
+
+auto uninitialized_span = vec.unsafe_resize_uninitialized(5).unwrap();
+
+for (auto& el : uninitialized_span) {
+  new (&el) Life{}; // Manually initialize 
+}
+
+EXPECT_VALID_VEC(vec);
+
+  }
 }
