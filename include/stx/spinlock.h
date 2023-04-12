@@ -37,6 +37,16 @@ struct SpinLock
     }
   }
 
+  LockStatus try_lock()
+  {
+    LockStatus expected = LockStatus::Unlocked;
+    LockStatus target   = LockStatus::Locked;
+    lock_status.compare_exchange_strong(expected, target,
+                                        std::memory_order_acquire,
+                                        std::memory_order_relaxed);
+    return expected;
+  }
+
   void unlock()
   {
     lock_status.store(LockStatus::Unlocked, std::memory_order_release);
