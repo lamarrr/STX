@@ -297,7 +297,7 @@ struct Vec : public VecBase<T>
   //
   // typically needed for non-movable types
   template <typename... Args>
-  Result<Void, AllocError> push_inplace(Args &&...args)
+  Result<Void, AllocError> push_inplace(Args &&... args)
   {
     static_assert(std::is_constructible_v<T, Args &&...>);
 
@@ -358,6 +358,40 @@ struct Vec : public VecBase<T>
       base::size_ = target_size;
 
       return Ok(Void{});
+    }
+  }
+
+  // resizes the vector to the given size without initializing new elements
+  //
+  // returns the span of the additional uninitialized elements on success, or an AllocError on failure
+  // 
+  // WARNING: initialize warning here
+  Result<stx::Span<T>, AllocError> unsafe_resize_uninitialized(size_t target_size)
+  {
+    size_t previous_size = base::size();
+
+    if (target_size > previous_size)
+    {
+      size_t const new_capacity = impl::grow_vec(base::capacity(), target_size);
+
+      TRY_OK(ok, base::reserve(new_capacity));
+
+      (void) ok;
+
+      const size_t num_uninitialized = target_size - previous_size;
+      base::size_ = target_size;
+
+      return Ok(stx::Span<T>{base::begin() + previous_size, num_uninitialized});
+    }
+    else
+    {
+      // target_size <= previous_size
+      T *destruct_begin = base::begin() + target_size;
+      impl::destruct_range(destruct_begin, previous_size - target_size);
+
+      base::size_ = target_size;
+      
+      return Ok(stx::Span<T>{});
     }
   }
 
@@ -434,7 +468,7 @@ struct FixedVec : public VecBase<T>
   STX_DEFAULT_DESTRUCTOR(FixedVec)
 
   template <typename... Args>
-  Result<Void, VecError> push_inplace(Args &&...args)
+  Result<Void, VecError> push_inplace(Args &&... args)
   {
     static_assert(std::is_constructible_v<T, Args &&...>);
     size_t const target_size = base::size_ + 1;
@@ -543,7 +577,6 @@ struct FixedVec : public VecBase<T>
 
 namespace vec
 {
-
 template <typename T>
 Result<Vec<T>, AllocError> make(Allocator allocator, size_t capacity = 0)
 {
