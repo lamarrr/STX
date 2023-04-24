@@ -365,7 +365,8 @@ struct Vec : public VecBase<T>
   //
   // returns the span of the additional uninitialized elements on success, or an AllocError on failure
   // 
-  // WARNING: initialize warning here
+  // WARNING: ensure you initialize the types before calling any other methods of Vec to ensure the elements
+  // contain valid objects, which would otherwise be catastrophic
   Result<stx::Span<T>, AllocError> unsafe_resize_uninitialized(size_t target_size)
   {
     size_t previous_size = base::size();
