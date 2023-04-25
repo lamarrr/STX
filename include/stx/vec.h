@@ -586,22 +586,10 @@ Result<Vec<T>, AllocError> make(Allocator allocator, size_t capacity = 0)
 }
 
 template <typename T>
-Result<Vec<T>, AllocError> make(size_t capacity = 0)
-{
-  return make(os_allocator, capacity);
-}
-
-template <typename T>
 Result<FixedVec<T>, AllocError> make_fixed(Allocator allocator, size_t capacity = 0)
 {
   TRY_OK(memory, mem::allocate(allocator, capacity * sizeof(T)));
   return Ok(FixedVec<T>{std::move(memory), 0, capacity});
-}
-
-template <typename T>
-Result<FixedVec<T>, AllocError> make_fixed(size_t capacity = 0)
-{
-  return make_fixed(os_allocator, capacity);
 }
 
 }        // namespace vec
