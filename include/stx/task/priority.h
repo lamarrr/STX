@@ -29,6 +29,6 @@ constexpr TaskPriority INTERACTIVE_PRIORITY{1};
 // critical tasks can involve tasks saving user data. i.e. backing up user
 // data, saving changes to disk, etc.
 //
-constexpr TaskPriority CRITICAL_PRIORITY{stx::U8_MAX};
+constexpr TaskPriority CRITICAL_PRIORITY{U8_MAX};
 
 STX_END_NAMESPACE

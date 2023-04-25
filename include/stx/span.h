@@ -270,7 +270,7 @@ public:
   }
 
   template <typename U>
-  constexpr bool equals(stx::Span<U const> other) const
+  constexpr bool equals(Span<U const> other) const
   {
     if (size_ != other.size_)
     {
@@ -557,7 +557,7 @@ public:
   template <typename U>
   constexpr Span<U> transmute() const
   {
-    return stx::Span<U>{reinterpret_cast<U *>(iterator_), size_bytes() / sizeof(U)};
+    return Span<U>{reinterpret_cast<U *>(iterator_), size_bytes() / sizeof(U)};
   }
 
   Iterator iterator_ = nullptr;

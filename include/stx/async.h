@@ -58,8 +58,7 @@ STX_END_NAMESPACE
 // A ripple effect as each CPU core's cache line entry for the cached address of
 // the atomics has now been invalidated and each CPU core's cache now has to
 // reload from main memory
-#define STX_CACHELINE_ALIGNED \
-  alignas(stx::HARDWARE_DESTRUCTIVE_INTERFERENCE_SIZE)
+#define STX_CACHELINE_ALIGNED alignas(::stx::HARDWARE_DESTRUCTIVE_INTERFERENCE_SIZE)
 
 STX_BEGIN_NAMESPACE
 

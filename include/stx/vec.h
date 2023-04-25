@@ -85,7 +85,7 @@ struct VecBase
   {}
 
   VecBase() :
-      memory_{Memory{noop_allocator, nullptr}}, size_{0}, capacity_{0}
+      memory_{Memory{os_allocator, nullptr}}, size_{0}, capacity_{0}
   {}
 
   explicit VecBase(Allocator allocator) :
@@ -97,7 +97,7 @@ struct VecBase
       size_{other.size_},
       capacity_{other.capacity_}
   {
-    other.memory_.allocator = noop_allocator;
+    other.memory_.allocator = memory_.allocator;
     other.memory_.handle    = nullptr;
     other.size_             = 0;
     other.capacity_         = 0;
@@ -297,7 +297,7 @@ struct Vec : public VecBase<T>
   //
   // typically needed for non-movable types
   template <typename... Args>
-  Result<Void, AllocError> push_inplace(Args &&... args)
+  Result<Void, AllocError> push_inplace(Args &&...args)
   {
     static_assert(std::is_constructible_v<T, Args &&...>);
 
@@ -364,10 +364,10 @@ struct Vec : public VecBase<T>
   // resizes the vector to the given size without initializing new elements
   //
   // returns the span of the additional uninitialized elements on success, or an AllocError on failure
-  // 
+  //
   // WARNING: ensure you initialize the types before calling any other methods of Vec to ensure the elements
   // contain valid objects, which would otherwise be catastrophic
-  Result<stx::Span<T>, AllocError> unsafe_resize_uninitialized(size_t target_size)
+  Result<Span<T>, AllocError> unsafe_resize_uninitialized(size_t target_size)
   {
     size_t previous_size = base::size();
 
@@ -380,9 +380,9 @@ struct Vec : public VecBase<T>
       (void) ok;
 
       const size_t num_uninitialized = target_size - previous_size;
-      base::size_ = target_size;
+      base::size_                    = target_size;
 
-      return Ok(stx::Span<T>{base::begin() + previous_size, num_uninitialized});
+      return Ok(Span<T>{base::begin() + previous_size, num_uninitialized});
     }
     else
     {
@@ -391,8 +391,8 @@ struct Vec : public VecBase<T>
       impl::destruct_range(destruct_begin, previous_size - target_size);
 
       base::size_ = target_size;
-      
-      return Ok(stx::Span<T>{});
+
+      return Ok(Span<T>{});
     }
   }
 
@@ -407,7 +407,7 @@ struct Vec : public VecBase<T>
     return Ok(Vec<T>{std::move(memory), base::size(), base::capacity()});
   }
 
-  Result<Void, AllocError> extend(stx::Span<T const> other)
+  Result<Void, AllocError> extend(Span<T const> other)
   {
     TRY_OK(ok, base::reserve(base::size() + other.size()));
 
@@ -420,7 +420,7 @@ struct Vec : public VecBase<T>
     return Ok(Void{});
   }
 
-  Result<Void, AllocError> extend_move(stx::Span<T> other)
+  Result<Void, AllocError> extend_move(Span<T> other)
   {
     TRY_OK(ok, base::reserve(base::size() + other.size()));
 
@@ -469,7 +469,7 @@ struct FixedVec : public VecBase<T>
   STX_DEFAULT_DESTRUCTOR(FixedVec)
 
   template <typename... Args>
-  Result<Void, VecError> push_inplace(Args &&... args)
+  Result<Void, VecError> push_inplace(Args &&...args)
   {
     static_assert(std::is_constructible_v<T, Args &&...>);
     size_t const target_size = base::size_ + 1;
@@ -537,7 +537,7 @@ struct FixedVec : public VecBase<T>
     return Ok(FixedVec<T>{std::move(memory), base::size(), base::capacity()});
   }
 
-  Result<Void, AllocError> extend(stx::Span<T const> other)
+  Result<Void, AllocError> extend(Span<T const> other)
   {
     TRY_OK(ok, base::reserve(base::size() + other.size()));
 
@@ -550,7 +550,7 @@ struct FixedVec : public VecBase<T>
     return Ok(Void{});
   }
 
-  Result<Void, AllocError> extend_move(stx::Span<T> other)
+  Result<Void, AllocError> extend_move(Span<T> other)
   {
     TRY_OK(ok, base::reserve(base::size() + other.size()));
 
@@ -582,17 +582,26 @@ template <typename T>
 Result<Vec<T>, AllocError> make(Allocator allocator, size_t capacity = 0)
 {
   TRY_OK(memory, mem::allocate(allocator, capacity * sizeof(T)));
-
   return Ok(Vec<T>{std::move(memory), 0, capacity});
 }
 
 template <typename T>
-Result<FixedVec<T>, AllocError> make_fixed(Allocator allocator,
-                                           size_t    capacity = 0)
+Result<Vec<T>, AllocError> make(size_t capacity = 0)
+{
+  return make(os_allocator, capacity);
+}
+
+template <typename T>
+Result<FixedVec<T>, AllocError> make_fixed(Allocator allocator, size_t capacity = 0)
 {
   TRY_OK(memory, mem::allocate(allocator, capacity * sizeof(T)));
-
   return Ok(FixedVec<T>{std::move(memory), 0, capacity});
+}
+
+template <typename T>
+Result<FixedVec<T>, AllocError> make_fixed(size_t capacity = 0)
+{
+  return make_fixed(os_allocator, capacity);
 }
 
 }        // namespace vec

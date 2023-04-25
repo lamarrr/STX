@@ -113,9 +113,9 @@ struct CStringView
     return size_ > 0 && data_[size_ - 1] == c;
   }
 
-  constexpr stx::Span<char const> span() const
+  constexpr Span<char const> span() const
   {
-    return stx::Span<char const>{data_, size_};
+    return Span<char const>{data_, size_};
   }
 
   constexpr bool operator==(std::string_view other) const
