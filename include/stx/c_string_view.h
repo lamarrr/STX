@@ -29,6 +29,10 @@ struct CStringView
     return it - c_str;
   }
 
+  constexpr CStringView() :
+      data_{""}, size_{0}
+  {}
+
   constexpr CStringView(char const *c_string) :
       data_{c_string}, size_{length(c_string)}
   {
