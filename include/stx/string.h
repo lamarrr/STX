@@ -47,6 +47,10 @@ struct String
       memory_{static_storage_allocator, EMPTY_STRING}, size_{0}
   {}
 
+  String(char const *static_storage_string_literal) :
+      memory_{static_storage_allocator, static_storage_string_literal}, size_{CStringView::length(static_storage_string_literal)}
+  {}
+
   String(ReadOnlyMemory memory, Size size) :
       memory_{std::move(memory)}, size_{size}
   {}
@@ -213,8 +217,7 @@ inline namespace literals
 
 inline String operator""_str(char const *string_literal, size_t str_size)
 {
-  return String{ReadOnlyMemory{static_storage_allocator, string_literal},
-                str_size};
+  return String{ReadOnlyMemory{static_storage_allocator, string_literal}, str_size};
 }
 
 }        // namespace literals
