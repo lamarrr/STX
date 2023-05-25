@@ -124,6 +124,11 @@ struct String
     return std::memcmp(data(), other.data(), other.size()) == 0;
   }
 
+  bool starts_with(char const *other) const
+  {
+    return starts_with(std::string_view{other});
+  }
+
   bool starts_with(String const &other) const
   {
     return starts_with(other.view());
@@ -142,6 +147,11 @@ struct String
     }
 
     return std::memcmp(data() + (size_ - other.size()), other.data(), other.size()) == 0;
+  }
+
+  bool ends_with(char const *other) const
+  {
+    return ends_with(std::string_view{other});
   }
 
   bool ends_with(String const &other) const
@@ -174,6 +184,11 @@ struct String
     return std::memcmp(data(), other.data(), size()) == 0;
   }
 
+  bool operator==(char const *other) const
+  {
+    return *this == std::string_view{other};
+  }
+
   bool operator==(String const &other) const
   {
     return *this == std::string_view{other};
@@ -182,6 +197,11 @@ struct String
   bool operator!=(std::string_view other) const
   {
     return !(*this == other);
+  }
+
+  bool operator!=(char const *other) const
+  {
+    return *this != std::string_view{other};
   }
 
   bool operator!=(String const &other) const
