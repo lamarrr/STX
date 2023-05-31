@@ -17,7 +17,7 @@ constexpr enum_ut<EnumType> enum_uv(EnumType a)
 template <typename EnumType>
 constexpr enum_ut<EnumType> enum_uv_or(EnumType a, EnumType b)
 {
-  return enum_uv(a) | enum_uv(b);
+  return static_cast<enum_ut<EnumType>>(enum_uv(a) | enum_uv(b));
 }
 
 template <typename EnumType>
@@ -29,13 +29,13 @@ constexpr EnumType enum_or(EnumType a, EnumType b)
 template <typename EnumType>
 constexpr enum_ut<EnumType> enum_uv_and(EnumType a, EnumType b)
 {
-  return enum_uv(a) & enum_uv(b);
+  return static_cast<enum_ut<EnumType>>(enum_uv(a) & enum_uv(b));
 }
 
 template <typename EnumType>
 constexpr enum_ut<EnumType> enum_uv_toggle(EnumType a)
 {
-  return ~enum_uv(a);
+  return static_cast<enum_ut<EnumType>>(~enum_uv(a));
 }
 
 template <typename EnumType>
