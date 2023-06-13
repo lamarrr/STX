@@ -49,7 +49,7 @@ template <typename T>
     SourceLocation location = SourceLocation::current())
 {
   char buffer[256];
-  auto error_report = ReportQuery{buffer} >> value;
+  auto error_report = ReportQuery{buffer, std::size(buffer)} >> value;
 
   begin_panic(info, error_report, location);
 }
