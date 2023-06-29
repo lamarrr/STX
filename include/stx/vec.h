@@ -77,9 +77,6 @@ struct VecBase
   using Iterator = T *;
   using Pointer  = T *;
 
-  static constexpr Size alignment    = alignof(T);
-  static constexpr Size element_size = sizeof(T);
-
   VecBase(Memory memory, Size size, Size capacity) :
       memory_{std::move(memory)}, size_{size}, capacity_{capacity}
   {}
@@ -175,7 +172,7 @@ struct VecBase
   Result<Void, AllocError> reserve(size_t cap)
   {
     size_t new_capacity       = capacity_ > cap ? capacity_ : cap;
-    size_t new_capacity_bytes = new_capacity * element_size;
+    size_t new_capacity_bytes = new_capacity * sizeof(T);
 
     if (new_capacity != capacity_)
     {
@@ -399,7 +396,7 @@ struct Vec : public VecBase<T>
   Result<Vec<T>, AllocError> copy(Allocator allocator) const
   {
     TRY_OK(memory,
-           mem::allocate(allocator, base::capacity() * base::element_size));
+           mem::allocate(allocator, base::capacity() * sizeof(T)));
 
     impl::copy_construct_range(base::begin(), base::size(),
                                static_cast<T *>(memory.handle));
@@ -529,7 +526,7 @@ struct FixedVec : public VecBase<T>
   Result<FixedVec<T>, AllocError> copy(Allocator allocator) const
   {
     TRY_OK(memory,
-           mem::allocate(allocator, base::capacity() * base::element_size));
+           mem::allocate(allocator, base::capacity() * sizeof(T)));
 
     impl::copy_construct_range(base::begin(), base::size(),
                                static_cast<T *>(memory.handle));
