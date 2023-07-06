@@ -180,7 +180,7 @@ public:
   constexpr Span(std::array<U, Length> &&array) = delete;
 
   template <typename Container, STX_ENABLE_IF(impl::is_container<Container &> &&impl::is_compatible_container<Container &, T>)>
-  constexpr Span(Container &container) noexcept :
+  constexpr Span(Container &container) :
       iterator_{static_cast<Iterator>(std::data(container))}, size_{std::size(container)}
   {}
 
