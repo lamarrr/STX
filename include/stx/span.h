@@ -270,7 +270,7 @@ public:
   }
 
   template <typename U>
-  constexpr bool equals(Span<U const> other) const
+  constexpr bool equals(Span<U> other) const
   {
     if (size_ != other.size_)
     {
