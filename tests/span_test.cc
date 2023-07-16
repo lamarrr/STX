@@ -217,5 +217,28 @@ TEST(SpanTest, Transmute)
 {
   uint16_t data[] = {1, 2, 3, 4, 5};
   EXPECT_EQ((stx::Span{data}.transmute<uint8_t>().size()), 10);
-  EXPECT_EQ(((uint16_t*)(stx::Span{data}.transmute<uint8_t>().data())), data);
+  EXPECT_EQ(((uint16_t *) (stx::Span{data}.transmute<uint8_t>().data())), data);
+}
+
+TEST(SpanTest, ReverseOdd)
+{
+  int data[] = {1, 2, 3, 4, 5};
+  stx::Span{data}.reverse();
+  EXPECT_EQ(data[0], 5);
+  EXPECT_EQ(data[1], 4);
+  EXPECT_EQ(data[2], 3);
+  EXPECT_EQ(data[3], 2);
+  EXPECT_EQ(data[4], 1);
+}
+
+TEST(SpanTest, ReverseEven)
+{
+  int data[] = {1, 2, 3, 4, 5, 6};
+  stx::Span{data}.reverse();
+  EXPECT_EQ(data[0], 6);
+  EXPECT_EQ(data[1], 5);
+  EXPECT_EQ(data[2], 4);
+  EXPECT_EQ(data[3], 3);
+  EXPECT_EQ(data[4], 2);
+  EXPECT_EQ(data[5], 1);
 }
