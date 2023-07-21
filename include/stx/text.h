@@ -7,7 +7,7 @@
 STX_BEGIN_NAMESPACE
 
 /// gets the unicode codepoint at iter and then advances iter to the next codepoint
-constexpr uint32_t utf8_next(u8 const *&iter)
+constexpr uint32_t utf8_next(uint8_t const *&iter)
 {
   if ((*iter & 0xF8) == 0xF0)
   {
