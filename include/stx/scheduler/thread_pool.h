@@ -33,8 +33,7 @@ namespace impl
 constexpr milliseconds bounded_exponential_backoff(uint64_t     iteration,
                                                    milliseconds maximum)
 {
-  uint32_t delay = static_cast<uint32_t>(1)
-                   << std::clamp<uint64_t>(iteration, 0, 31);
+  uint32_t delay = static_cast<uint32_t>(1) << std::clamp<uint64_t>(iteration, 0, 31);
 
   milliseconds delay_ms{delay};
 
@@ -72,11 +71,7 @@ struct ThreadPool
 
     for (size_t i = 0; i < num_threads; i++)
     {
-      thread_slots
-          .push_inplace(rc::make_inplace<ThreadSlot>(
-                            allocator, make_promise<void>(allocator).unwrap())
-                            .unwrap())
-          .unwrap();
+      thread_slots.push_inplace(rc::make_inplace<ThreadSlot>(allocator, make_promise<void>(allocator).unwrap()).unwrap()).unwrap();
     }
 
     for (size_t i = 0; i < num_threads; i++)
@@ -88,8 +83,7 @@ struct ThreadPool
             uint64_t eventless_polls = 0;
             while (true)
             {
-              CancelState requested_cancel_state =
-                  slot->promise.fetch_cancel_request();
+              CancelState requested_cancel_state = slot->promise.fetch_cancel_request();
 
               if (requested_cancel_state == CancelState::Canceled)
               {
@@ -117,9 +111,7 @@ struct ThreadPool
                 else
                 {
                   eventless_polls++;
-                  milliseconds sleep_duration =
-                      impl::bounded_exponential_backoff(eventless_polls,
-                                                        STALL_TIMEOUT);
+                  milliseconds sleep_duration = impl::bounded_exponential_backoff(eventless_polls, STALL_TIMEOUT);
                   std::this_thread::sleep_until(now + sleep_duration);
                 }
 
@@ -174,9 +166,7 @@ struct ThreadPool
 
       case State::ShuttingDown:
       {
-        if (thread_slots.span().is_all([](auto const &slot) {
-              return slot.handle->slot.promise.is_done();
-            }))
+        if (thread_slots.span().is_all([](auto const &slot) { return slot.handle->slot.promise.is_done(); }))
         {
           state = State::Shutdown;
           promise.notify_canceled();

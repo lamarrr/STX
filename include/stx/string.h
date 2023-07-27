@@ -279,8 +279,7 @@ Result<String, AllocError> join(Allocator allocator, Glue const &glue,
 {
   static_assert(std::is_convertible_v<Glue const &, std::string_view>);
   static_assert(std::is_convertible_v<A const &, std::string_view>);
-  static_assert(std::is_convertible_v<B const &, std::string_view> &&
-                (std::is_convertible_v<S const &, std::string_view> && ...));
+  static_assert(std::is_convertible_v<B const &, std::string_view> && (std::is_convertible_v<S const &, std::string_view> && ...));
 
   std::string_view views[] = {std::string_view{a}, std::string_view{b}, std::string_view{s}...};
   size_t           nviews  = std::size(views);

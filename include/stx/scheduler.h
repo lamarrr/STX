@@ -53,6 +53,11 @@ constexpr TaskReady task_is_ready(nanoseconds)
 // TODO(lamarrr): make scheduler thread-safe
 //
 //
+//
+// TODO(lamarrr): instanced tasks, i.e. RcFn<void(usize instance_index)> task; create([](usize){}, 256);
+//
+// use callbacks for task trace info?
+//
 struct Task
 {
   // this is the final task to be executed on the target thread.
@@ -69,8 +74,7 @@ struct Task
   //
   // argument is time past since schedule.
   //
-  UniqueFn<TaskReady(nanoseconds)> poll_ready =
-      fn::rc::make_unique_static(task_is_ready);
+  UniqueFn<TaskReady(nanoseconds)> poll_ready = fn::rc::make_unique_static(task_is_ready);
 
   // used for tracking cancelation request and progress of the task
   PromiseAny scheduler_promise;
@@ -107,19 +111,12 @@ struct TaskScheduler
   {
     TimePoint present = std::chrono::steady_clock::now();
 
-    Span ready_tasks =
-        entries.span()
-            .partition([present](Task const &task) {
-              return task.poll_ready.handle(
-                         present - task.schedule_timepoint) == TaskReady::No;
-            })
-            .second;
+    Span ready_tasks = entries.span().partition([present](Task const &task) { return task.poll_ready.handle(present - task.schedule_timepoint) == TaskReady::No; }).second;
 
     for (Task &task : ready_tasks)
     {
       timeline
-          .add_task(std::move(task.function), std::move(task.scheduler_promise),
-                    task.task_id, task.priority, present)
+          .add_task(std::move(task.function), std::move(task.scheduler_promise), task.task_id, task.priority, present)
           .unwrap();
     }
 

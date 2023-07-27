@@ -66,8 +66,7 @@ STX_BEGIN_NAMESPACE
 /// C++ 20 and above
 ///
 template <typename T>
-struct [[nodiscard]] Option : impl::check_value_type<T>,
-                              private OptionStorage<T, std::is_trivial_v<T>>
+struct [[nodiscard]] Option : impl::check_value_type<T>, private OptionStorage<T, std::is_trivial_v<T>>
 {
 public:
   using value_type = T;
@@ -230,8 +229,13 @@ public:
   T &value() &
   {
     if (is_none())
+    {
       impl::option::no_lref();
-    return some_.ref();
+    }
+    else
+    {
+      return some_.ref();
+    }
   }
 
   /// Returns a const l-value reference to the contained value.
@@ -254,15 +258,25 @@ public:
   T const &value() const &
   {
     if (is_none())
+    {
       impl::option::no_lref();
-    return some_.cref();
+    }
+    else
+    {
+      return some_.cref();
+    }
   }
 
   T &&value() &&
   {
     if (is_none())
+    {
       impl::option::no_lref();
-    return some_.move();
+    }
+    else
+    {
+      return some_.move();
+    }
   }
 
   /// Converts from `Option<T> const&` or `Option<T> &` to
@@ -283,9 +297,7 @@ public:
     }
   }
 
-  [[deprecated(
-      "calling Option::as_cref() on an r-value, and therefore binding a "
-      "reference to an object that is marked to be moved")]]        //
+  [[deprecated("calling Option::as_cref() on an r-value, and therefore binding a reference to an object that is marked to be moved")]]        //
   constexpr auto
       as_cref() const && -> Option<Ref<T const>> = delete;
 
@@ -326,15 +338,11 @@ public:
     return as_cref();
   }
 
-  [[deprecated(
-      "calling Option::as_ref() on an r-value, and therefore binding a "
-      "reference to an object that is marked to be moved")]]        //
+  [[deprecated("calling Option::as_ref() on an r-value, and therefore binding a reference to an object that is marked to be moved")]]        //
   constexpr auto
       as_ref() && -> Option<Ref<T>> = delete;
 
-  [[deprecated(
-      "calling Option::as_ref() on an r-value, and therefore binding a "
-      "reference to an object that is marked to be moved")]]        //
+  [[deprecated("calling Option::as_ref() on an r-value, and therefore binding a reference to an object that is marked to be moved")]]        //
   constexpr auto
       as_ref() const && -> Option<Ref<T const>> = delete;
 
@@ -543,8 +551,7 @@ public:
   /// ASSERT_EQ(move(y).map_or_else(map_fn, alt_fn), 42);
   /// ```
   template <typename Fn, typename AltFn>
-  constexpr auto map_or_else(Fn    &&op,
-                             AltFn &&alt_fn) && -> invoke_result<Fn &&, T &&>
+  constexpr auto map_or_else(Fn &&op, AltFn &&alt_fn) && -> invoke_result<Fn &&, T &&>
   {
     static_assert(invocable<Fn &&, T &&>);
     static_assert(invocable<AltFn &&>);
@@ -655,8 +662,7 @@ public:
     static_assert(invocable<UnaryPredicate &&, T const &>);
     static_assert(convertible<invoke_result<UnaryPredicate &&, T const &>, bool>);
 
-    if (is_some() &&
-        std::invoke(std::forward<UnaryPredicate>(predicate), some_.cref()))
+    if (is_some() && std::invoke(std::forward<UnaryPredicate>(predicate), some_.cref()))
     {
       return std::move(*this);
     }
@@ -944,8 +950,7 @@ public:
   /// function arguments `some_fn` and `none_fn`.
   ///
   template <typename SomeFn, typename NoneFn>
-  constexpr auto match(SomeFn &&some_fn,
-                       NoneFn &&none_fn) && -> invoke_result<SomeFn &&, T &&>
+  constexpr auto match(SomeFn &&some_fn, NoneFn &&none_fn) && -> invoke_result<SomeFn &&, T &&>
   {
     static_assert(invocable<SomeFn &&, T &&>);
     static_assert(invocable<NoneFn &&>);
@@ -961,8 +966,7 @@ public:
   }
 
   template <typename SomeFn, typename NoneFn>
-  constexpr auto match(SomeFn &&some_fn,
-                       NoneFn &&none_fn) & -> invoke_result<SomeFn &&, T &>
+  constexpr auto match(SomeFn &&some_fn, NoneFn &&none_fn) & -> invoke_result<SomeFn &&, T &>
   {
     static_assert(invocable<SomeFn &&, T &>);
     static_assert(invocable<NoneFn &&>);
@@ -978,8 +982,7 @@ public:
   }
 
   template <typename SomeFn, typename NoneFn>
-  constexpr auto match(SomeFn &&some_fn, NoneFn &&none_fn)
-      const & -> invoke_result<SomeFn &&, T const &>
+  constexpr auto match(SomeFn &&some_fn, NoneFn &&none_fn) const & -> invoke_result<SomeFn &&, T const &>
   {
     static_assert(invocable<SomeFn &&, T const &>);
     static_assert(invocable<NoneFn &&>);
@@ -1029,8 +1032,7 @@ public:
 };
 
 template <typename T, typename U, STX_ENABLE_IF(equality_comparable<T, U>)>
-[[nodiscard]] constexpr bool operator==(Option<T> const &a,
-                                        Option<U> const &b)
+[[nodiscard]] constexpr bool operator==(Option<T> const &a, Option<U> const &b)
 {
   if (a.is_some() && b.is_some())
   {
@@ -1047,8 +1049,7 @@ template <typename T, typename U, STX_ENABLE_IF(equality_comparable<T, U>)>
 }
 
 template <typename T, typename U, STX_ENABLE_IF(equality_comparable<T, U>)>
-[[nodiscard]] constexpr bool operator!=(Option<T> const &a,
-                                        Option<U> const &b)
+[[nodiscard]] constexpr bool operator!=(Option<T> const &a, Option<U> const &b)
 {
   if (a.is_some() && b.is_some())
   {

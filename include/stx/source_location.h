@@ -31,8 +31,7 @@ STX_BEGIN_NAMESPACE
 struct [[nodiscard]] SourceLocation
 {
   static constexpr SourceLocation current(
-#if STX_HAS_BUILTIN(FILE) || (defined(__cpp_lib_source_location) && \
-                              __cpp_lib_source_location >= 201907L)
+#if STX_HAS_BUILTIN(FILE) || (defined(__cpp_lib_source_location) && __cpp_lib_source_location >= 201907L)
       char const *file = __builtin_FILE(),
 #elif defined(__FILE__)
       char const    *file     = __FILE__,
@@ -40,15 +39,13 @@ struct [[nodiscard]] SourceLocation
       char const    *file = "unknown",
 #endif
 
-#if STX_HAS_BUILTIN(FUNCTION) || (defined(__cpp_lib_source_location) && \
-                                  __cpp_lib_source_location >= 201907L)
+#if STX_HAS_BUILTIN(FUNCTION) || (defined(__cpp_lib_source_location) && __cpp_lib_source_location >= 201907L)
       char const *function = __builtin_FUNCTION(),
 #else
       char const    *function = "unknown",
 #endif
 
-#if STX_HAS_BUILTIN(LINE) || (defined(__cpp_lib_source_location) && \
-                              __cpp_lib_source_location >= 201907L)
+#if STX_HAS_BUILTIN(LINE) || (defined(__cpp_lib_source_location) && __cpp_lib_source_location >= 201907L)
       uint_least32_t line = __builtin_LINE(),
 #elif defined(__LINE__)
       uint_least32_t line     = __LINE__,
@@ -56,8 +53,7 @@ struct [[nodiscard]] SourceLocation
       uint_least32_t line = 0,
 #endif
 
-#if STX_HAS_BUILTIN(COLUMN) || (defined(__cpp_lib_source_location) && \
-                                __cpp_lib_source_location >= 201907L)
+#if STX_HAS_BUILTIN(COLUMN) || (defined(__cpp_lib_source_location) && __cpp_lib_source_location >= 201907L)
       uint_least32_t column = __builtin_COLUMN()
 #else
       uint_least32_t column   = 0

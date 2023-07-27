@@ -12,8 +12,7 @@ namespace sched
 {
 
 template <typename Fn>
-auto fn(TaskScheduler &scheduler, Fn fn_task, TaskPriority priority,
-        TaskTraceInfo trace_info)
+auto fn(TaskScheduler &scheduler, Fn fn_task, TaskPriority priority, TaskTraceInfo trace_info)
 {
   static_assert(std::is_invocable_v<Fn &>);
   using output = std::invoke_result_t<Fn &>;
@@ -26,45 +25,42 @@ auto fn(TaskScheduler &scheduler, Fn fn_task, TaskPriority priority,
   Future     future{promise.get_future()};
   PromiseAny scheduler_promise{promise.share()};
 
-  RcFn<void()> sched_fn =
-      fn::rc::make_functor(scheduler.allocator, [fn_task_ = std::move(fn_task),
-                                                 promise_ =
-                                                     std::move(promise)]() {
-        if (promise_.fetch_cancel_request() == CancelState::Canceled)
-        {
-          promise_.notify_canceled();
-          return;
-        }
+  RcFn<void()> sched_fn = fn::rc::make_functor(scheduler.allocator, [fn_task_ = std::move(fn_task),
+                                                                     promise_ =
+                                                                         std::move(promise)]() {
+                            if (promise_.fetch_cancel_request() == CancelState::Canceled)
+                            {
+                              promise_.notify_canceled();
+                              return;
+                            }
 
-        if (promise_.fetch_preempt_request() == PreemptState::Preempted)
-        {
-          promise_.notify_preempted();
-          return;
-        }
+                            if (promise_.fetch_preempt_request() == PreemptState::Preempted)
+                            {
+                              promise_.notify_preempted();
+                              return;
+                            }
 
-        if (promise_.fetch_suspend_request() == SuspendState::Suspended)
-        {
-          promise_.notify_suspended();
-          return;
-        }
+                            if (promise_.fetch_suspend_request() == SuspendState::Suspended)
+                            {
+                              promise_.notify_suspended();
+                              return;
+                            }
 
-        promise_.notify_executing();
+                            promise_.notify_executing();
 
-        if constexpr (std::is_void_v<std::invoke_result_t<Fn &>>)
-        {
-          fn_task_();
-          promise_.notify_completed();
-        }
-        else
-        {
-          promise_.notify_completed(fn_task_());
-        }
-      }).unwrap();
+                            if constexpr (std::is_void_v<std::invoke_result_t<Fn &>>)
+                            {
+                              fn_task_();
+                              promise_.notify_completed();
+                            }
+                            else
+                            {
+                              promise_.notify_completed(fn_task_());
+                            }
+                          }).unwrap();
 
   scheduler.entries
-      .push(Task{std::move(sched_fn), fn::rc::make_unique_static(task_is_ready),
-                 std::move(scheduler_promise), task_id, priority, timepoint,
-                 std::move(trace_info)})
+      .push(Task{std::move(sched_fn), fn::rc::make_unique_static(task_is_ready), std::move(scheduler_promise), task_id, priority, timepoint, std::move(trace_info)})
       .unwrap();
 
   return future;
@@ -87,65 +83,58 @@ auto chain(TaskScheduler &scheduler, Chain<Fn, OtherFns...> chain,
   Future     future{promise.get_future()};
   PromiseAny scheduler_promise{promise.share()};
 
-  RcFn<void()> fn =
-      fn::rc::make_functor(scheduler.allocator, [state_   = ChainState{},
-                                                 stack_   = stack_type{Void{}},
-                                                 chain_   = std::move(chain),
-                                                 promise_ = std::move(
-                                                     promise)]() mutable {
-        if (promise_.fetch_cancel_request() == CancelState::Canceled)
-        {
-          promise_.notify_canceled();
-          return;
-        }
+  RcFn<void()> fn = fn::rc::make_functor(scheduler.allocator, [state_ = ChainState{}, stack_ = stack_type{Void{}}, chain_ = std::move(chain), promise_ = std::move(promise)]() mutable {
+                      if (promise_.fetch_cancel_request() == CancelState::Canceled)
+                      {
+                        promise_.notify_canceled();
+                        return;
+                      }
 
-        if (promise_.fetch_preempt_request() == PreemptState::Preempted)
-        {
-          promise_.notify_preempted();
-          return;
-        }
+                      if (promise_.fetch_preempt_request() == PreemptState::Preempted)
+                      {
+                        promise_.notify_preempted();
+                        return;
+                      }
 
-        if (promise_.fetch_suspend_request() == SuspendState::Suspended)
-        {
-          promise_.notify_suspended();
-          return;
-        }
+                      if (promise_.fetch_suspend_request() == SuspendState::Suspended)
+                      {
+                        promise_.notify_suspended();
+                        return;
+                      }
 
-        RequestProxy proxy{promise_};
+                      RequestProxy proxy{promise_};
 
-        promise_.notify_executing();
+                      promise_.notify_executing();
 
-        chain_.resume(stack_, state_, proxy);
+                      chain_.resume(stack_, state_, proxy);
 
-        // suspended, canceled, or preempted
-        if (state_.next_phase_index < num_phases)
-        {
-          ServiceToken service_token = state_.service_token;
+                      // suspended, canceled, or preempted
+                      if (state_.next_phase_index < num_phases)
+                      {
+                        ServiceToken service_token = state_.service_token;
 
-          if (service_token.type == RequestType::Cancel)
-          {
-            promise_.notify_canceled();
-          }
-          else if (service_token.type == RequestType::Preempt)
-          {
-            promise_.notify_preempted();
-          }
-          else if (service_token.type == RequestType::Suspend)
-          {
-            promise_.notify_suspended();
-          }
-        }
-        else
-        {
-          // completed
-          promise_.notify_completed(std::move(std::get<result_type>(stack_)));
-        }
-      }).unwrap();
+                        if (service_token.type == RequestType::Cancel)
+                        {
+                          promise_.notify_canceled();
+                        }
+                        else if (service_token.type == RequestType::Preempt)
+                        {
+                          promise_.notify_preempted();
+                        }
+                        else if (service_token.type == RequestType::Suspend)
+                        {
+                          promise_.notify_suspended();
+                        }
+                      }
+                      else
+                      {
+                        // completed
+                        promise_.notify_completed(std::move(std::get<result_type>(stack_)));
+                      }
+                    }).unwrap();
 
   scheduler.entries
-      .push(Task{std::move(fn), fn::rc::make_unique_static(task_is_ready),
-                 std::move(scheduler_promise), task_id, priority, timepoint,
-                 std::move(trace_info)})
+      .push(Task{std::move(fn), fn::rc::make_unique_static(task_is_ready), std::move(scheduler_promise), task_id, priority, timepoint, std::move(trace_info)})
       .unwrap();
 
   return future;

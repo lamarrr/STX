@@ -120,17 +120,12 @@ STX_BEGIN_NAMESPACE
 ///
 
 template <typename T, typename E>
-struct [[nodiscard]] Result
-    : impl::check_value_type<T>,
-      impl::check_err_type<E>,
-      private ResultStorage<T, E,
-                            std::is_trivial_v<T> && std::is_trivial_v<E>>
+struct [[nodiscard]] Result : impl::check_value_type<T>, impl::check_err_type<E>, private ResultStorage<T, E, std::is_trivial_v<T> && std::is_trivial_v<E>>
 {
 public:
   using value_type = T;
   using error_type = E;
-  using storage =
-      ResultStorage<T, E, std::is_trivial_v<T> && std::is_trivial_v<E>>;
+  using storage    = ResultStorage<T, E, std::is_trivial_v<T> && std::is_trivial_v<E>>;
 
 private:
   using storage::err_;
@@ -353,22 +348,37 @@ public:
   T &value() &
   {
     if (is_err())
+    {
       impl::result::no_lref(err_.cref());
-    return ok_.ref();
+    }
+    else
+    {
+      return ok_.ref();
+    }
   }
 
   T const &value() const &
   {
     if (is_err())
+    {
       impl::result::no_lref(err_.cref());
-    return ok_.cref();
+    }
+    else
+    {
+      return ok_.cref();
+    }
   }
 
   T &&value() &&
   {
     if (is_err())
+    {
       impl::result::no_lref(err_.cref());
-    return ok_.move();
+    }
+    else
+    {
+      return ok_.move();
+    }
   }
 
   /// Returns a reference to the contained error value.
@@ -392,22 +402,37 @@ public:
   [[nodiscard]] E &err() &
   {
     if (is_ok())
+    {
       impl::result::no_err_lref();
-    return err_.ref();
+    }
+    else
+    {
+      return err_.ref();
+    }
   }
 
   [[nodiscard]] E const &err() const &
   {
     if (is_ok())
+    {
       impl::result::no_err_lref();
-    return err_.cref();
+    }
+    else
+    {
+      return err_.cref();
+    }
   }
 
   [[nodiscard]] E &&err() &&
   {
     if (is_ok())
+    {
       impl::result::no_err_lref();
-    return err_.move();
+    }
+    else
+    {
+      return err_.move();
+    }
   }
 
   /// Converts from `Result<T, E> &` to `Result<ConstRef<T>, ConstRef<E>>`.
@@ -438,10 +463,7 @@ public:
     }
   }
 
-  [[deprecated(
-      "calling Result::as_cref() on an r-value, and "
-      "therefore binding an l-value reference to an object that is marked to "
-      "be moved")]]        //
+  [[deprecated("calling Result::as_cref() on an r-value, and therefore binding an l-value reference to an object that is marked to be moved")]]        //
   constexpr auto
       as_cref() const && -> Result<Ref<T const>, Ref<E const>> = delete;
 
@@ -482,15 +504,11 @@ public:
     return as_cref();
   }
 
-  [[deprecated(
-      "calling Result::as_ref() on an r-value, and therefore binding a "
-      "reference to an object that is marked to be moved")]]        //
+  [[deprecated("calling Result::as_ref() on an r-value, and therefore binding a reference to an object that is marked to be moved")]]        //
   constexpr auto
       as_ref() && -> Result<Ref<T>, Ref<E>> = delete;
 
-  [[deprecated(
-      "calling Result::as_ref() on an r-value, and therefore binding a "
-      "reference to an object that is marked to be moved")]]        //
+  [[deprecated("calling Result::as_ref() on an r-value, and therefore binding a reference to an object that is marked to be moved")]]        //
   constexpr auto
       as_ref() const && -> Result<Ref<T>, Ref<E>> = delete;
 
@@ -870,7 +888,10 @@ public:
     {
       impl::result::no_value(err_.cref());
     }
-    return ok_.move();
+    else
+    {
+      return ok_.move();
+    }
   }
 
   /// Unwraps a result, yielding the content of an `Ok`.
@@ -894,7 +915,10 @@ public:
     {
       impl::result::expect_value_failed(msg, err_.cref());
     }
-    return ok_.move();
+    else
+    {
+      return ok_.move();
+    }
   }
 
   /// Unwraps a result, yielding the content of an `Err`.
@@ -922,7 +946,10 @@ public:
     {
       impl::result::no_err();
     }
-    return err_.move();
+    else
+    {
+      return err_.move();
+    }
   }
 
   /// Unwraps a result, yielding the content of an `Err`.
@@ -949,7 +976,10 @@ public:
     {
       impl::result::expect_err_failed(msg);
     }
-    return err_.move();
+    else
+    {
+      return err_.move();
+    }
   }
 
   /// Returns the contained value or a default
@@ -1017,8 +1047,7 @@ public:
   /// function arguments `some_fn` and `none_fn`.
   ///
   template <typename OkFn, typename ErrFn>
-  constexpr auto match(OkFn  &&ok_fn,
-                       ErrFn &&err_fn) && -> invoke_result<OkFn &&, T &&>
+  constexpr auto match(OkFn &&ok_fn, ErrFn &&err_fn) && -> invoke_result<OkFn &&, T &&>
   {
     static_assert(invocable<OkFn &&, T &&>);
     static_assert(invocable<ErrFn &&, E &&>);
@@ -1034,8 +1063,7 @@ public:
   }
 
   template <typename OkFn, typename ErrFn>
-  constexpr auto match(OkFn  &&ok_fn,
-                       ErrFn &&err_fn) & -> invoke_result<OkFn &&, T &>
+  constexpr auto match(OkFn &&ok_fn, ErrFn &&err_fn) & -> invoke_result<OkFn &&, T &>
   {
     static_assert(invocable<OkFn &&, T &>);
     static_assert(invocable<ErrFn &&, E &>);
@@ -1051,8 +1079,7 @@ public:
   }
 
   template <typename OkFn, typename ErrFn>
-  constexpr auto match(
-      OkFn &&ok_fn, ErrFn &&err_fn) const & -> invoke_result<OkFn &&, T const &>
+  constexpr auto match(OkFn &&ok_fn, ErrFn &&err_fn) const & -> invoke_result<OkFn &&, T const &>
   {
     static_assert(invocable<OkFn &&, T const &>);
     static_assert(invocable<ErrFn &&, E const &>);
@@ -1121,8 +1148,7 @@ public:
   }
 };
 
-template <typename T, typename E, typename U,
-          STX_ENABLE_IF(equality_comparable<T, U>)>
+template <typename T, typename E, typename U, STX_ENABLE_IF(equality_comparable<T, U>)>
 [[nodiscard]] constexpr bool operator==(Result<T, E> const &a, Ok<U> const &b)
 {
   if (a.is_ok())
@@ -1135,8 +1161,7 @@ template <typename T, typename E, typename U,
   }
 }
 
-template <typename T, typename E, typename U,
-          STX_ENABLE_IF(equality_comparable<T, U>)>
+template <typename T, typename E, typename U, STX_ENABLE_IF(equality_comparable<T, U>)>
 [[nodiscard]] constexpr bool operator!=(Result<T, E> const &a, Ok<U> const &b)
 {
   if (a.is_ok())
@@ -1149,8 +1174,7 @@ template <typename T, typename E, typename U,
   }
 }
 
-template <typename U, typename T, typename E,
-          STX_ENABLE_IF(equality_comparable<U, T>)>
+template <typename U, typename T, typename E, STX_ENABLE_IF(equality_comparable<U, T>)>
 [[nodiscard]] constexpr bool operator==(Ok<U> const &a, Result<T, E> const &b)
 {
   if (b.is_ok())
@@ -1163,8 +1187,7 @@ template <typename U, typename T, typename E,
   }
 }
 
-template <typename U, typename T, typename E,
-          STX_ENABLE_IF(equality_comparable<U, T>)>
+template <typename U, typename T, typename E, STX_ENABLE_IF(equality_comparable<U, T>)>
 [[nodiscard]] constexpr bool operator!=(Ok<U> const &a, Result<T, E> const &b)
 {
   if (b.is_ok())
@@ -1177,10 +1200,8 @@ template <typename U, typename T, typename E,
   }
 }
 
-template <typename T, typename E, typename U,
-          STX_ENABLE_IF(equality_comparable<E, U>)>
-[[nodiscard]] constexpr bool operator==(Result<T, E> const &a,
-                                        Err<U> const       &b)
+template <typename T, typename E, typename U, STX_ENABLE_IF(equality_comparable<E, U>)>
+[[nodiscard]] constexpr bool operator==(Result<T, E> const &a, Err<U> const &b)
 {
   if (a.is_err())
   {
@@ -1192,10 +1213,8 @@ template <typename T, typename E, typename U,
   }
 }
 
-template <typename T, typename E, typename U,
-          STX_ENABLE_IF(equality_comparable<E, U>)>
-[[nodiscard]] constexpr bool operator!=(Result<T, E> const &a,
-                                        Err<U> const       &b)
+template <typename T, typename E, typename U, STX_ENABLE_IF(equality_comparable<E, U>)>
+[[nodiscard]] constexpr bool operator!=(Result<T, E> const &a, Err<U> const &b)
 {
   if (a.is_err())
   {
@@ -1207,10 +1226,8 @@ template <typename T, typename E, typename U,
   }
 }
 
-template <typename U, typename T, typename E,
-          STX_ENABLE_IF(equality_comparable<U, E>)>
-[[nodiscard]] constexpr bool operator==(Err<U> const       &a,
-                                        Result<T, E> const &b)
+template <typename U, typename T, typename E, STX_ENABLE_IF(equality_comparable<U, E>)>
+[[nodiscard]] constexpr bool operator==(Err<U> const &a, Result<T, E> const &b)
 {
   if (b.is_err())
   {
@@ -1222,10 +1239,8 @@ template <typename U, typename T, typename E,
   }
 }
 
-template <typename U, typename T, typename E,
-          STX_ENABLE_IF(equality_comparable<U, E>)>
-[[nodiscard]] constexpr bool operator!=(Err<U> const       &a,
-                                        Result<T, E> const &b)
+template <typename U, typename T, typename E, STX_ENABLE_IF(equality_comparable<U, E>)>
+[[nodiscard]] constexpr bool operator!=(Err<U> const &a, Result<T, E> const &b)
 {
   if (b.is_err())
   {
@@ -1237,10 +1252,8 @@ template <typename U, typename T, typename E,
   }
 }
 
-template <typename T, typename E, typename U, typename F,
-          STX_ENABLE_IF(equality_comparable<T, U> &&equality_comparable<E, F>)>
-[[nodiscard]] constexpr bool operator==(Result<T, E> const &a,
-                                        Result<U, F> const &b)
+template <typename T, typename E, typename U, typename F, STX_ENABLE_IF(equality_comparable<T, U> &&equality_comparable<E, F>)>
+[[nodiscard]] constexpr bool operator==(Result<T, E> const &a, Result<U, F> const &b)
 {
   if (a.is_ok() && b.is_ok())
   {
@@ -1256,10 +1269,8 @@ template <typename T, typename E, typename U, typename F,
   }
 }
 
-template <typename T, typename E, typename U, typename F,
-          STX_ENABLE_IF(equality_comparable<T, U> &&equality_comparable<E, F>)>
-[[nodiscard]] constexpr bool operator!=(Result<T, E> const &a,
-                                        Result<U, F> const &b)
+template <typename T, typename E, typename U, typename F, STX_ENABLE_IF(equality_comparable<T, U> &&equality_comparable<E, F>)>
+[[nodiscard]] constexpr bool operator!=(Result<T, E> const &a, Result<U, F> const &b)
 {
   if (a.is_ok() && b.is_ok())
   {

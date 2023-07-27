@@ -20,8 +20,7 @@ STX_BEGIN_NAMESPACE
 /// It is advisable to be avoid heap memory allocation of any sort and be
 /// conscious of shared state as it can be called from mulitple threads.
 ///
-void panic_handler(std::string_view info, std::string_view error_report,
-                   SourceLocation location);
+void panic_handler(std::string_view info, std::string_view error_report, SourceLocation location);
 
 /// Handles and dispatches the panic handler. The debugging breakpoint should be
 /// attached to this function to investigate panics.
@@ -32,9 +31,7 @@ void panic_handler(std::string_view info, std::string_view error_report,
 ///
 /// TODO(lamarrr): actually test usability with DLLs
 ///
-[[noreturn]] STX_DLL_EXPORT void begin_panic(std::string_view info,
-                                             std::string_view error_report,
-                                             SourceLocation   location);
+[[noreturn]] STX_DLL_EXPORT void begin_panic(std::string_view info, std::string_view error_report, SourceLocation location);
 
 /// This allows a program to terminate immediately and provide feedback to the
 /// caller of the program. `panic` should be used when a program reaches an
@@ -44,9 +41,7 @@ void panic_handler(std::string_view info, std::string_view error_report,
 /// `panic` when they are set to `None` or `Err` variants.
 ///
 template <typename T>
-[[noreturn]] inline void panic(
-    std::string_view info, T const &value,
-    SourceLocation location = SourceLocation::current())
+[[noreturn]] inline void panic(std::string_view info, T const &value, SourceLocation location = SourceLocation::current())
 {
   char buffer[256];
   auto error_report = ReportQuery{buffer, std::size(buffer)} >> value;
@@ -55,9 +50,7 @@ template <typename T>
 }
 
 template <typename T = void>
-[[noreturn]] inline void panic(
-    std::string_view info     = "explicit panic",
-    SourceLocation   location = SourceLocation::current())
+[[noreturn]] inline void panic(std::string_view info = "explicit panic", SourceLocation location = SourceLocation::current())
 {
   begin_panic(info, std::string_view{}, location);
 }

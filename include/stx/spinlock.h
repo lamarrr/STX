@@ -29,9 +29,7 @@ struct SpinLock
   {
     LockStatus expected = LockStatus::Unlocked;
     LockStatus target   = LockStatus::Locked;
-    while (!lock_status.compare_exchange_strong(expected, target,
-                                                std::memory_order_acquire,
-                                                std::memory_order_relaxed))
+    while (!lock_status.compare_exchange_strong(expected, target, std::memory_order_acquire, std::memory_order_relaxed))
     {
       expected = LockStatus::Unlocked;
     }
@@ -41,9 +39,7 @@ struct SpinLock
   {
     LockStatus expected = LockStatus::Unlocked;
     LockStatus target   = LockStatus::Locked;
-    lock_status.compare_exchange_strong(expected, target,
-                                        std::memory_order_acquire,
-                                        std::memory_order_relaxed);
+    lock_status.compare_exchange_strong(expected, target, std::memory_order_acquire, std::memory_order_relaxed);
     return expected;
   }
 

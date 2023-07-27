@@ -66,10 +66,7 @@ struct ThreadSlot
     void push_task(Task new_task)
     {
       LockGuard guard{lock};
-      STX_STUB_ENSURE(
-          pending_task.is_none(),
-          "previously added task hasn't been processed yet. can_push() "
-          "not checked before pushing");
+      STX_STUB_ENSURE(pending_task.is_none(), "previously added task hasn't been processed yet. can_push() not checked before pushing");
       pending_task = Some(std::move(new_task));
     }
 
@@ -79,8 +76,7 @@ struct ThreadSlot
       Query     query;
       query.can_push       = pending_task.is_none();
       query.executing_task = executing_task;
-      query.pending_task =
-          pending_task.as_cref().map([](Task const &task) { return task.id; });
+      query.pending_task   = pending_task.as_cref().map([](Task const &task) { return task.id; });
 
       return query;
     }

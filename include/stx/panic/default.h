@@ -34,8 +34,7 @@ STX_BEGIN_NAMESPACE
 // allocation or not. Also, we can't pack the strings into a buffer and `fputs`
 // at once as the buffer can likely not be enough.
 //
-inline void panic_default(std::string_view info, std::string_view error_report,
-                          SourceLocation location)
+inline void panic_default(std::string_view info, std::string_view error_report, SourceLocation location)
 {
   // probably too much, but enough
   // this will at least hold a formatted uint128_t (40 digits)
