@@ -272,36 +272,70 @@ TEST(VecTest, UnsafeResizeUninitialized)
     auto uninitialized_span = vec.unsafe_resize_uninitialized(5).unwrap();
     EXPECT_VALID_VEC(vec);
 
-  EXPECT_EQ(uninitialized_span.size(), 2);
+    EXPECT_EQ(uninitialized_span.size(), 2);
 
     // Check that the uninitialized memory is not null
-    EXPECT_NE(uninitialized_span.data(), nullptr);    
-  
+    EXPECT_NE(uninitialized_span.data(), nullptr);
+
     // Initialize the uninitialized memory
     for (auto &el : uninitialized_span)
-      {
-        el = 0;
-      }
+    {
+      el = 0;
+    }
     // Verify that all values are correct
     for (auto &el : vec.span())
-      {
-       EXPECT_EQ(el, 0);
-      }
+    {
+      EXPECT_EQ(el, 0);
+    }
   }
 }
 
 TEST(VecTest, UnsafeResizeUninitializedLifetime)
 {
   {
-Vec<Life> vec{stx::os_allocator};
+    Vec<Life> vec{stx::os_allocator};
 
-auto uninitialized_span = vec.unsafe_resize_uninitialized(5).unwrap();
+    auto uninitialized_span = vec.unsafe_resize_uninitialized(5).unwrap();
 
-for (auto& el : uninitialized_span) {
-  new (&el) Life{}; // Manually initialize 
+    for (auto &el : uninitialized_span)
+    {
+      new (&el) Life{};        // Manually initialize
+    }
+
+    EXPECT_VALID_VEC(vec);
+  }
 }
 
-EXPECT_VALID_VEC(vec);
+TEST(VecTest, MakeSpan)
+{
+  int  data[] = {1, 2, 3, 4, 5};
+  auto a      = stx::vec::make_copy<int>(stx::os_allocator, data).unwrap();
 
-  }
+  EXPECT_EQ(a.pop(), stx::Some(5));
+  EXPECT_EQ(a.pop(), stx::Some(4));
+  EXPECT_EQ(a.pop(), stx::Some(3));
+  EXPECT_EQ(a.pop(), stx::Some(2));
+  EXPECT_EQ(a.pop(), stx::Some(1));
+  EXPECT_EQ(a.pop(), stx::None);
+
+  stx::Vec<int> b{stx::os_allocator};
+
+  EXPECT_EQ(b.pop(), stx::None);
+}
+
+TEST(VecTest, MakeInitList)
+{
+  int  data[] = {1, 2, 3, 4, 5};
+  auto a      = stx::vec::make_move<int>(stx::os_allocator, data).unwrap();
+
+  EXPECT_EQ(a.pop(), stx::Some(5));
+  EXPECT_EQ(a.pop(), stx::Some(4));
+  EXPECT_EQ(a.pop(), stx::Some(3));
+  EXPECT_EQ(a.pop(), stx::Some(2));
+  EXPECT_EQ(a.pop(), stx::Some(1));
+  EXPECT_EQ(a.pop(), stx::None);
+
+  stx::Vec<int> b{stx::os_allocator};
+
+  EXPECT_EQ(b.pop(), stx::None);
 }

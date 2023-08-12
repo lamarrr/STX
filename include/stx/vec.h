@@ -583,6 +583,23 @@ Result<Vec<T>, AllocError> make(Allocator allocator, size_t capacity = 0)
 }
 
 template <typename T>
+Result<Vec<std::remove_const_t<T>>, AllocError> make_copy(Allocator allocator, stx::Span<T const> src)
+{
+  TRY_OK(v, vec::make<std::remove_const_t<T>>(allocator, src.size()));
+  TRY_OK(_, v.extend(src));
+  return stx::Ok(std::move(v));
+}
+
+template <typename T>
+Result<Vec<T>, AllocError> make_move(Allocator allocator, stx::Span<T> src)
+{
+  static_assert(!std::is_const_v<T>);
+  TRY_OK(v, vec::make<T>(allocator, src.size()));
+  TRY_OK(_, v.extend_move(src));
+  return stx::Ok(std::move(v));
+}
+
+template <typename T>
 Result<FixedVec<T>, AllocError> make_fixed(Allocator allocator, size_t capacity = 0)
 {
   TRY_OK(memory, mem::allocate(allocator, capacity * sizeof(T)));
