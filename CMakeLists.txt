@@ -56,7 +56,7 @@ if(${STX_ENABLE_BACKTRACE})
   find_package(absl CONFIG REQUIRED)
 endif()
 
-find_library(LIBATOMIC atomic)
+find_library(LIBATOMIC atomic NAMES atomic libatomic libatomic.so libatomic.a)
 
 # ===============================================
 #
