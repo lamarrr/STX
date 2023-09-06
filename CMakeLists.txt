@@ -96,7 +96,8 @@ file(GLOB STX_SOURCE_FILES_LIST src/*.cc)
 add_library(stx STATIC ${STX_SOURCE_FILES_LIST})
 target_link_libraries(stx Threads::Threads)
 
-if(NOT ${LIBSTX_HAS_ATOMICS})
+if(${LIBSTX_HAS_ATOMICS})
+else()
   add_link_options("-latomic")
 endif()
 
