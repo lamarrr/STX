@@ -89,10 +89,6 @@ target_link_libraries(stx Threads::Threads)
 
 add_library(stx::stx ALIAS stx)
 
-if(${ATOMIC_LIBRARY_FOUND})
-  add_compile_options("-latomic")
-endif()
-
 if(${STX_ENABLE_BACKTRACE})
   target_link_libraries(stx absl::stacktrace absl::symbolize)
   target_compile_definitions(stx PRIVATE "STX_ENABLE_BACKTRACE")
