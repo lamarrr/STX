@@ -65,10 +65,8 @@ endif()
 # some microcontroller platforms 'arm-gcc-none especially" may not have
 # std::thread enabled if so, we remove the thread facilities, this will cause
 # compilation errors otherwise, since the classes won't be available
-
-if(UNIX)
-  add_link_options("-latomic")
-endif()
+find_library(ATOMIC_LIBRARY NAMES atomic atomic.so.1 libatomic.so.1
+                                  libatomic.dylib libatomic.1.dylib libatomic.a)
 
 check_cxx_source_compiles(
   "
@@ -91,6 +89,10 @@ target_link_libraries(stx Threads::Threads)
 
 add_library(stx::stx ALIAS stx)
 
+if(${ATOMIC_LIBRARY_FOUND})
+  add_compile_options("-latomic")
+endif()
+
 if(${STX_ENABLE_BACKTRACE})
   target_link_libraries(stx absl::stacktrace absl::symbolize)
   target_compile_definitions(stx PRIVATE "STX_ENABLE_BACKTRACE")
@@ -100,10 +102,6 @@ set_target_properties(stx PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON)
 
 target_include_directories(stx PUBLIC include)
 target_include_directories(stx PRIVATE src)
-
-if(MSVC)
-  target_compile_options(stx PUBLIC "/permissive-")
-endif()
 
 # ===============================================
 #
