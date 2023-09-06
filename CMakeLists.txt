@@ -56,20 +56,7 @@ if(${STX_ENABLE_BACKTRACE})
   find_package(absl CONFIG REQUIRED)
 endif()
 
-# ===============================================
-#
-# === Configure Flags
-#
-# ===============================================
-if(${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
-  add_compile_options("/W4")
-else()
-  if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID}
-                                                STREQUAL "Clang")
-    add_compile_options("-Wpedantic" "-Wall" "-Wextra")
-    add_link_options("-latomic")
-  endif()
-endif()
+find_library(LIBATOMIC atomic)
 
 # ===============================================
 #
@@ -93,21 +80,13 @@ if(NOT LIBSTX_HAS_STD_THREAD)
   list(APPEND STX_COMPILER_DEFS "STX_NO_STD_THREAD")
 endif()
 
-if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
-  add_compile_options("-fdiagnostics-color=always")
-elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
-  add_compile_options("-fcolor-diagnostics")
-endif()
-
 file(GLOB STX_SOURCE_FILES_LIST src/*.cc)
 
 add_library(stx STATIC ${STX_SOURCE_FILES_LIST})
 target_link_libraries(stx Threads::Threads)
 
-# arm targets require manually linking to libatomic
-if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL
-                                              "Clang")
-  target_link_libraries(stx atomic)
+if(${LIBATOMIC_FOUND})
+  target_link_libraries(stx ${LIBATOMIC_LIB})
 endif()
 
 add_library(stx::stx ALIAS stx)
@@ -152,5 +131,3 @@ if(${STX_BUILD_TESTS})
     target_link_libraries(stx_tests GTest::gtest GTest::gtest_main stx::stx)
   endif()
 endif()
-
-# if(ANDROID) target_link_libraries(stx ${LibAtomic}) endif()
