@@ -75,18 +75,6 @@ check_cxx_source_compiles(
 "
   LIBSTX_HAS_STD_THREAD)
 
-check_cxx_source_compiles(
-  "
-  #include <atomic>
-  std::atomic<int> * x;
-  int * y;
-  int main(){
-    x->store(9);
-    *y = x->load();
-  }
-"
-  LIBSTX_HAS_ATOMICS)
-
 if(NOT LIBSTX_HAS_STD_THREAD)
   list(APPEND STX_COMPILER_DEFS "STX_NO_STD_THREAD")
 endif()
@@ -96,8 +84,7 @@ file(GLOB STX_SOURCE_FILES_LIST src/*.cc)
 add_library(stx STATIC ${STX_SOURCE_FILES_LIST})
 target_link_libraries(stx Threads::Threads)
 
-if(${LIBSTX_HAS_ATOMICS})
-else()
+if(UNIX)
   add_link_options("-latomic")
 endif()
 
