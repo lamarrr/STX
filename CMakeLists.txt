@@ -65,6 +65,11 @@ endif()
 # some microcontroller platforms 'arm-gcc-none especially" may not have
 # std::thread enabled if so, we remove the thread facilities, this will cause
 # compilation errors otherwise, since the classes won't be available
+
+if(UNIX)
+  add_link_options("-latomic")
+endif()
+
 check_cxx_source_compiles(
   "
   #include <thread>
@@ -83,10 +88,6 @@ file(GLOB STX_SOURCE_FILES_LIST src/*.cc)
 
 add_library(stx STATIC ${STX_SOURCE_FILES_LIST})
 target_link_libraries(stx Threads::Threads)
-
-if(UNIX)
-  add_link_options("-latomic")
-endif()
 
 add_library(stx::stx ALIAS stx)
 
