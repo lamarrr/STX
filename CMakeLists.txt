@@ -82,16 +82,16 @@ if(NOT LIBSTX_HAS_STD_THREAD)
   list(APPEND STX_COMPILER_DEFS "STX_NO_STD_THREAD")
 endif()
 
-if(MSVC)
-  target_compile_options(stx PUBLIC "/permissive-")
-endif()
-
 file(GLOB STX_SOURCE_FILES_LIST src/*.cc)
 
 add_library(stx STATIC ${STX_SOURCE_FILES_LIST})
 target_link_libraries(stx Threads::Threads)
 
 add_library(stx::stx ALIAS stx)
+
+if(MSVC)
+  target_compile_options(stx PUBLIC "/permissive-")
+endif()
 
 if(${STX_ENABLE_BACKTRACE})
   target_link_libraries(stx absl::stacktrace absl::symbolize)
