@@ -65,7 +65,7 @@ endif()
 # some microcontroller platforms 'arm-gcc-none especially" may not have
 # std::thread enabled if so, we remove the thread facilities, this will cause
 # compilation errors otherwise, since the classes won't be available
-find_library(ATOMIC_LIBRARY NAMES atomic atomic.so.1 libatomic.so.1
+find_library(ATOMIC_LIBRARY NAMES atomic atomic.so.1 libatomic.so.1 libatomic.so
                                   libatomic.dylib libatomic.1.dylib libatomic.a)
 
 check_cxx_source_compiles(
@@ -86,6 +86,7 @@ file(GLOB STX_SOURCE_FILES_LIST src/*.cc)
 
 add_library(stx STATIC ${STX_SOURCE_FILES_LIST})
 target_link_libraries(stx Threads::Threads)
+target_link_libraries(stx ${ATOMIC_LIBRARY})
 
 add_library(stx::stx ALIAS stx)
 
