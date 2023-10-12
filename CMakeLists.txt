@@ -87,6 +87,11 @@ file(GLOB STX_SOURCE_FILES_LIST src/*.cc)
 add_library(stx STATIC ${STX_SOURCE_FILES_LIST})
 target_link_libraries(stx Threads::Threads)
 
+if(${ATOMIC_LIBRARY})
+target_link_libraries(stx ${ATOMIC_LIBRARY})
+endif()
+
+
 add_library(stx::stx ALIAS stx)
 
 if(MSVC)
