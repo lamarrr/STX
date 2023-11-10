@@ -24,7 +24,7 @@ jobs:
         run: git clone https://github.com/google/googletest.git -b v1.13.0 --depth=1 third_party/googletest && cd third_party/googletest && mkdir build && cd build && cmake .. -DCMAKE_CXX_COMPILER=arm-linux-gnueabi-g++ -DCMAKE_C_COMPILER=arm-linux-gnueabi-gcc -GNinja && sudo ninja install
 
       - name: Build Tests
-        run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=${{matrix.build_mode}} -DSTX_BUILD_TESTS=ON -DCMAKE_CXX_COMPILER=arm-linux-gnueabi-g++ -DCMAKE_C_COMPILER=arm-linux-gnueabi-gcc -GNinja && ninja
+        run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=${{matrix.build_mode}} -DSTX_BUILD_TESTS=ON -DCMAKE_CXX_COMPILER=arm-linux-gnueabi-g++ -DCMAKE_C_COMPILER=arm-linux-gnueabi-gcc -DCMAKE_EXE_LINKER_FLAGS=-latomic -GNinja && ninja
 
       - name: Run Tests
         run: qemu-arm -L /usr/arm-linux-gnueabi/ ./build/stx_tests
