@@ -226,7 +226,7 @@ struct VecBase
   // `first` must be a valid pointer to an element in the range or the `end` of
   // the vec.
   //
-  // `last` must be greater than `end`.
+  // `last` must NOT be greater than `end`.
   //
   void erase(Span<T> range)
   {
