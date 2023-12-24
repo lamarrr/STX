@@ -44,19 +44,15 @@ struct Fn;
 template <typename ReturnType, typename... Args>
 struct Fn<ReturnType(Args...)>
 {
-  using func_type = ReturnType (*)(memory_handle, Args...);
-
-  explicit constexpr Fn(func_type idispatcher, memory_handle idata_addr) :
-      dispatcher{idispatcher}, data_addr{idata_addr}
-  {}
+  using func_type = ReturnType (*)(void *, Args...);
 
   constexpr ReturnType operator()(Args... args) const
   {
-    return dispatcher(data_addr, std::forward<Args>(args)...);
+    return dispatcher(data, static_cast<Args &&>(args)...);
   }
 
-  func_type     dispatcher = nullptr;
-  memory_handle data_addr  = nullptr;
+  func_type dispatcher = nullptr;
+  void     *data       = nullptr;
 };
 
 template <typename Signature>
@@ -122,13 +118,13 @@ struct RawFnTraits
 template <typename ReturnType, typename... Args>
 struct RawFunctionDispatcher
 {
-  static constexpr ReturnType dispatch(memory_handle data_addr, Args... args)
+  static constexpr ReturnType dispatch(void *data, Args... args)
   {
     using ptr = ReturnType (*)(Args...);
 
-    ptr function_ptr = reinterpret_cast<ptr>(data_addr);
+    ptr function_ptr = reinterpret_cast<ptr>(data);
 
-    return function_ptr(std::forward<Args>(args)...);
+    return function_ptr(static_cast<Args &&>(args)...);
   }
 };
 
@@ -150,9 +146,9 @@ struct RawFnTraits<ReturnType (*)(Args...)>
 template <typename Type, typename ReturnType, typename... Args>
 struct FunctorDispatcher
 {
-  static constexpr ReturnType dispatch(memory_handle data_addr, Args... args)
+  static constexpr ReturnType dispatch(void *data, Args... args)
   {
-    return (*(reinterpret_cast<Type *>(data_addr)))(std::forward<Args>(args)...);
+    return (*(reinterpret_cast<Type *>(data)))(static_cast<Args &&>(args)...);
   }
 };
 
