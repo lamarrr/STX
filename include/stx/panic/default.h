@@ -83,15 +83,15 @@ inline void panic_default(std::string_view info, std::string_view error_report, 
 
   std::fputs("' at function: '", stderr);
 
-  std::fputs(location.function_name(), stderr);
+  std::fputs(location.function, stderr);
 
   std::fputs("' [", stderr);
 
-  std::fputs(location.file_name(), stderr);
+  std::fputs(location.file, stderr);
 
   std::fputc(':', stderr);
 
-  auto line = location.line();
+  auto line = location.line;
 
   if (line != 0)
   {
@@ -104,7 +104,7 @@ inline void panic_default(std::string_view info, std::string_view error_report, 
 
   std::fputc(':', stderr);
 
-  auto column = location.column();
+  auto column = location.column;
 
   if (column != 0)
   {
