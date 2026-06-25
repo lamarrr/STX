@@ -5,7 +5,7 @@ import os
 import sys
 
 if os.system(f"{sys.argv[1]} --benchmark_format=csv > output.csv") != 0:
-    sys.stderr.write("Error Occured")
+    sys.stderr.write("Error Occurred")
     sys.exit(-1)
 
 df = pandas.read_csv("output.csv")
